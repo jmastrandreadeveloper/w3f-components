@@ -1,0 +1,160 @@
+/* Contenedor principal */
+.datepicker-wrapper {
+  position: relative;
+  width: 250px; /* Puedes ajustar */
+  margin: 20px auto;
+}
+
+/* Calendario desplegable */
+.datepicker-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+/* Tabla del calendario */
+.w3-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Garantiza columnas iguales */
+}
+
+/* Encabezados de los días */
+.w3-table th {
+  padding: 6px 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #444;
+  border: none;
+}
+
+/* Celdas normales */
+.w3-table td {
+  border: none;
+  text-align: center;
+  padding: 2px;
+}
+
+/* Botones de días */
+.w3-table td button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  margin: 0 auto; /* centra el botón dentro de la celda */
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Hover sobre días normales */
+.w3-table td button:hover {
+  background: #f0f0f0;
+}
+
+/* Domingos - color rojo */
+.w3-table td button.sunday {
+  color: #e53e3e !important;
+  font-weight: bold;
+}
+
+.w3-table td button.sunday:hover {
+  background: #fed7d7 !important;
+}
+
+/* Día actual - color verde */
+.w3-table td button.today {
+  background: #38a169 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.w3-table td button.today:hover {
+  background: #2f855a !important;
+}
+
+/* Fecha seleccionada - color azul */
+.w3-table td button.selected {
+  background: #2196f3 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.w3-table td button.selected:hover {
+  background: #1976d2 !important;
+}
+
+/* Prioridad: si un domingo es el día actual, mantener verde */
+.w3-table td button.sunday.today {
+  background: #38a169 !important;
+  color: white !important;
+}
+
+/* Prioridad: si un domingo está seleccionado, mantener azul */
+.w3-table td button.sunday.selected {
+  background: #2196f3 !important;
+  color: white !important;
+}
+
+/* Mes y navegación */
+.w3-blue {
+  background: #2196f3 !important;
+}
+
+.w3-blue h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.w3-button.w3-xlarge {
+  font-size: 1.4rem;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Días dentro del rango */
+.w3-table td button.in-range {
+  background-color: #e6f0ff !important;
+  border-radius: 0;
+  color: #333;
+}
+
+/* El inicio y fin del rango tienen una forma redondeada */
+.w3-table td button.in-range.start-range {
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+}
+
+.w3-table td button.in-range.end-range {
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+
+/* El rango de un solo día */
+.w3-table td button.in-range.single-day-range {
+    border-radius: 50%;
+}
+
+/* Asegurar que el hover no afecte los estilos de rango */
+.w3-table td button.in-range:hover {
+  background-color: #e6f0ff !important;
+}
+
+/* Contenedor para los dos calendarios */
+.dual-calendar-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}

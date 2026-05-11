@@ -1,0 +1,337 @@
+/* =====================================================================
+   Tree Component — CSS Custom Properties
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-tree-main {
+  /* Node */
+  --w3f-tree-node-gap: 4px;
+  --w3f-tree-node-padding-top: var(--w3f-space-1);
+  --w3f-tree-node-padding-right: var(--w3f-space-2);
+  --w3f-tree-node-padding-bottom: var(--w3f-space-1);
+  --w3f-tree-node-padding-left: var(--w3f-space-2);
+  --w3f-tree-node-radius-tl: var(--w3f-radius);
+  --w3f-tree-node-radius-tr: var(--w3f-radius);
+  --w3f-tree-node-radius-br: var(--w3f-radius);
+  --w3f-tree-node-radius-bl: var(--w3f-radius);
+  --w3f-tree-node-hover-bg: var(--w3f-gray-100);
+  --w3f-tree-node-hover-shift: 2px;
+  --w3f-tree-node-transition: all 0.15s;
+
+  /* Icon */
+  --w3f-tree-icon-color: var(--w3f-gray-500);
+
+  /* Toggle */
+  --w3f-tree-toggle-size: 1rem;
+  --w3f-tree-toggle-color: var(--w3f-gray-500);
+  --w3f-tree-toggle-hover-color: var(--w3f-primary);
+
+  /* Submenu */
+  --w3f-tree-submenu-line-color: var(--w3f-gray-200);
+  --w3f-tree-submenu-line-width: 1px;
+  --w3f-tree-submenu-indent: 20px;
+  --w3f-tree-submenu-padding-top: 0;
+  --w3f-tree-submenu-padding-right: 0;
+  --w3f-tree-submenu-padding-bottom: 0;
+  --w3f-tree-submenu-padding-left: 12px;
+
+  /* Controls (expand/collapse buttons) */
+  --w3f-tree-btn-size: 36px;
+  --w3f-tree-btn-border: var(--w3f-gray-300);
+  --w3f-tree-btn-bg: var(--w3f-surface);
+  --w3f-tree-btn-color: var(--w3f-primary);
+  --w3f-tree-btn-hover-bg: var(--w3f-primary-100);
+  --w3f-tree-btn-icon-size: 20px;
+
+  /* Text */
+  --w3f-tree-folder-color: var(--w3f-warning-500);
+  --w3f-tree-folder-weight: 500;
+  --w3f-tree-file-color: var(--w3f-gray-600);
+  --w3f-tree-file-weight: 400;
+
+  /* Selected */
+  --w3f-tree-selected-bg: var(--w3f-primary-100);
+  --w3f-tree-selected-color: var(--w3f-primary);
+
+  /* Disabled */
+  --w3f-tree-disabled-opacity: 0.5;
+
+  user-select: none;
+}
+
+/* ---------------------------------------------------------------------
+   Dark theme
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-tree-main {
+  --w3f-tree-node-hover-bg: rgba(255, 255, 255, 0.05);
+  --w3f-tree-icon-color: var(--w3f-gray-400);
+  --w3f-tree-submenu-line-color: var(--w3f-gray-700);
+  --w3f-tree-btn-bg: var(--w3f-gray-800);
+  --w3f-tree-btn-border: var(--w3f-gray-700);
+  --w3f-tree-btn-color: var(--w3f-primary-400);
+  --w3f-tree-btn-hover-bg: var(--w3f-gray-700);
+  --w3f-tree-folder-color: var(--w3f-gray-100);
+  --w3f-tree-file-color: var(--w3f-gray-300);
+  --w3f-tree-selected-bg: rgba(37, 99, 235, 0.2);
+  --w3f-tree-selected-color: var(--w3f-primary-400);
+}
+
+/* ---------------------------------------------------------------------
+   Estructura Principal
+   --------------------------------------------------------------------- */
+
+/* Lista base para el arbol (ul) */
+.w3f-tree-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Elemento de lista individual (li) */
+.w3f-tree-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Nodo Individual (w3f-tree-node)
+   --------------------------------------------------------------------- */
+
+.w3f-tree-node {
+  display: flex;
+  align-items: center;
+  gap: var(--w3f-tree-node-gap);
+  padding-top: var(--w3f-tree-node-padding-top);
+  padding-right: var(--w3f-tree-node-padding-right);
+  padding-bottom: var(--w3f-tree-node-padding-bottom);
+  padding-left: var(--w3f-tree-node-padding-left);
+  border-radius: var(--w3f-tree-node-radius-tl) var(--w3f-tree-node-radius-tr) var(--w3f-tree-node-radius-br) var(--w3f-tree-node-radius-bl);
+  cursor: pointer;
+  transition: var(--w3f-tree-node-transition);
+  outline: none;
+}
+
+.w3f-tree-node:hover {
+  background-color: var(--w3f-tree-node-hover-bg);
+  transform: translateX(var(--w3f-tree-node-hover-shift));
+}
+
+.w3f-tree-node:focus {
+  background-color: var(--w3f-tree-node-hover-bg);
+}
+
+.w3f-tree-node:active {
+  transform: translateX(0);
+}
+
+/* Iconos de nodo */
+.w3f-tree-icon {
+  display: flex;
+  align-items: center;
+  color: var(--w3f-tree-icon-color);
+  flex-shrink: 0;
+}
+
+.w3f-tree-icon svg {
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------------
+   Toggle de Expansion/Colapso
+   --------------------------------------------------------------------- */
+
+.w3f-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--w3f-tree-toggle-size);
+  height: var(--w3f-tree-toggle-size);
+  color: var(--w3f-tree-toggle-color);
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.w3f-tree-toggle.expanded {
+  transform: rotate(90deg);
+}
+
+.w3f-tree-toggle:hover {
+  color: var(--w3f-tree-toggle-hover-color);
+}
+
+.w3f-tree-toggle svg {
+  fill: currentColor;
+}
+
+/* Ocultar el espacio del toggle para nodos sin hijos */
+.w3f-tree-node>.w3f-tree-toggle:empty {
+  width: 0;
+  margin-right: var(--w3f-space-1);
+}
+
+/* ---------------------------------------------------------------------
+   Submenu (Hijos)
+   --------------------------------------------------------------------- */
+
+.w3f-tree-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: max-height 300ms ease-in-out, opacity 250ms ease-in-out;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.w3f-tree-submenu.w3f-hidden {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 250ms ease-in-out, opacity 200ms ease-in-out;
+}
+
+.w3f-tree-submenu-inner {
+  border-left: var(--w3f-tree-submenu-line-width) solid var(--w3f-tree-submenu-line-color);
+  margin-left: var(--w3f-tree-submenu-indent);
+  padding-top: var(--w3f-tree-submenu-padding-top);
+  padding-right: var(--w3f-tree-submenu-padding-right);
+  padding-bottom: var(--w3f-tree-submenu-padding-bottom);
+  padding-left: var(--w3f-tree-submenu-padding-left);
+  animation: fadeInSlide 300ms ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Controles del Arbol (Botones de Expandir/Colapsar)
+   --------------------------------------------------------------------- */
+
+.w3f-tree-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--w3f-space-2);
+  margin-bottom: var(--w3f-space-2);
+  padding: var(--w3f-space-2);
+  flex-wrap: wrap;
+}
+
+.w3f-tree-simple-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--w3f-tree-btn-size);
+  height: var(--w3f-tree-btn-size);
+  padding: 0;
+  border: 1px solid var(--w3f-tree-btn-border);
+  background-color: var(--w3f-tree-btn-bg);
+  color: var(--w3f-tree-btn-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  flex-shrink: 0;
+}
+
+.w3f-tree-simple-btn:hover {
+  background-color: var(--w3f-tree-btn-hover-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.w3f-tree-simple-btn:active {
+  transform: translateY(0);
+}
+
+.w3f-tree-simple-btn-icon {
+  width: var(--w3f-tree-btn-icon-size);
+  height: var(--w3f-tree-btn-icon-size);
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------------
+   Estilos de Texto Diferenciados
+   --------------------------------------------------------------------- */
+
+/* Nombres de carpetas */
+.w3f-tree-item:has(.w3f-tree-submenu)>.w3f-tree-node>span:last-child {
+  font-weight: var(--w3f-tree-folder-weight);
+  color: var(--w3f-tree-folder-color);
+  flex-grow: 1;
+}
+
+/* Nombres de archivos */
+.w3f-tree-item:not(:has(.w3f-tree-submenu))>.w3f-tree-node>span:last-child {
+  font-weight: var(--w3f-tree-file-weight);
+  color: var(--w3f-tree-file-color);
+  flex-grow: 1;
+}
+
+/* ---------------------------------------------------------------------
+   Estados Adicionales
+   --------------------------------------------------------------------- */
+
+/* Nodo seleccionado */
+.w3f-tree-node.w3f-tree-node-selected {
+  background-color: var(--w3f-tree-selected-bg);
+  color: var(--w3f-tree-selected-color);
+}
+
+/* Nodo deshabilitado */
+.w3f-tree-node.w3f-tree-node-disabled {
+  opacity: var(--w3f-tree-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.w3f-tree-node.w3f-tree-node-disabled:hover {
+  background-color: transparent;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------
+   Variantes de Tamano
+   --------------------------------------------------------------------- */
+
+/* Variante compacta */
+.w3f-tree-compact .w3f-tree-node {
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  gap: var(--w3f-space-1);
+  font-size: var(--w3f-text-sm);
+}
+
+.w3f-tree-compact .w3f-tree-simple-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.w3f-tree-compact .w3f-tree-simple-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Variante expandida */
+.w3f-tree-expanded .w3f-tree-node {
+  padding: var(--w3f-space-3) var(--w3f-space-4);
+  gap: var(--w3f-space-3);
+  font-size: var(--w3f-text-lg);
+}
+
+.w3f-tree-expanded .w3f-tree-simple-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.w3f-tree-expanded .w3f-tree-simple-btn-icon {
+  width: 24px;
+  height: 24px;
+}

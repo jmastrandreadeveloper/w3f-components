@@ -1,0 +1,36 @@
+/* Container.css */
+
+/* =============================================================
+   🧱 LAYOUT: CONTAINER (Contenedores)
+   ============================================================= */
+
+/* Contenedor principal con padding y centrado automático */
+.w3f-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--w3f-space-4);
+  padding-right: var(--w3f-space-4);
+} /* */
+
+/* Contenedores de ancho máximo (Breakpoints) */
+.w3f-container-sm { max-width: 640px; } /* */
+.w3f-container-md { max-width: 768px; } /* */
+.w3f-container-lg { max-width: 1024px; } /* */
+.w3f-container-xl { max-width: 1280px; } /* */
+.w3f-container-2xl { max-width: 1536px; } /* */
+
+/* Compatibilidad W3.CSS y contenedores predefinidos */
+.w3f-content { 
+  max-width: 980px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  padding: 0 var(--w3f-space-4);
+} /* */
+
+.w3f-auto { 
+  max-width: 1140px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  padding: 0 var(--w3f-space-4);
+} /* */

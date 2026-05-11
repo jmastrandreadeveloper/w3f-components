@@ -1,0 +1,57 @@
+{
+  "name": "@w3f/components",
+  "version": "1.0.0",
+  "description": "W3F Component Library — 121 React components + 43 charts with CSS custom properties",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*",
+    "./css/base": "./css/base.css",
+    "./css/theme": "./css/theme.css",
+    "./css/tokens": "./css/tokens.css"
+  },
+  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  },
+  "dependencies": {
+    "@visx/axis": "^3.12.0",
+    "@visx/brush": "^3.12.0",
+    "@visx/chord": "3.12.0",
+    "@visx/curve": "^3.12.0",
+    "@visx/event": "^3.12.0",
+    "@visx/geo": "^3.12.0",
+    "@visx/glyph": "^3.12.0",
+    "@visx/gradient": "^3.12.0",
+    "@visx/grid": "^3.12.0",
+    "@visx/group": "^3.12.0",
+    "@visx/heatmap": "^3.12.0",
+    "@visx/hierarchy": "^3.12.0",
+    "@visx/legend": "^3.12.0",
+    "@visx/mock-data": "^3.12.0",
+    "@visx/network": "^3.12.0",
+    "@visx/responsive": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "@visx/stats": "^3.12.0",
+    "@visx/threshold": "^3.12.0",
+    "@visx/tooltip": "^3.12.0",
+    "@visx/wordcloud": "^3.12.0",
+    "d3-hierarchy": "^2.0.0",
+    "d3-shape": "^2.1.0",
+    "lucide-react": "^0.554.0",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
+  },
+  "keywords": ["react", "components", "ui", "charts", "css-variables", "design-system"],
+  "license": "MIT"
+}

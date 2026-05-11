@@ -1,0 +1,23 @@
+/* Auto-generated from _progress-bar.contract.css — DO NOT EDIT */
+.w3f-progress-bar-container {
+  --w3f-pbar-height: var(--w3f-space-6);
+  --w3f-pbar-radius-tl: var(--w3f-radius-full);
+  --w3f-pbar-radius-tr: var(--w3f-radius-full);
+  --w3f-pbar-radius-br: var(--w3f-radius-full);
+  --w3f-pbar-radius-bl: var(--w3f-radius-full);
+  --w3f-pbar-transition: width var(--w3f-transition-normal);
+  --w3f-pbar-text-color: var(--w3f-on-primary);
+  --w3f-pbar-text-font-size: var(--w3f-text-sm);
+  --w3f-pbar-text-font-weight: 500;
+  --w3f-pbar-text-padding-top: var(--w3f-space-2);
+  --w3f-pbar-text-padding-right: var(--w3f-space-2);
+  --w3f-pbar-text-padding-bottom: var(--w3f-space-2);
+  --w3f-pbar-text-padding-left: var(--w3f-space-2);
+  --w3f-pbar-buffer-opacity: 0.3;
+  --w3f-pbar-indeterminate-width: 30%;
+  --w3f-pbar-indeterminate-duration: 1.5s;
+  --w3f-pbar-pulse-duration: 2s;
+  --w3f-pbar-track-bg: var(--w3f-gray-200);
+  --w3f-pbar-fill-bg: var(--w3f-primary);
+  --w3f-pbar-buffer-bg: var(--w3f-primary);
+}

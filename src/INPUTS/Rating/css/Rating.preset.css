@@ -1,0 +1,50 @@
+/* Auto-generated from _rating.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled) {
+  gap: var(--w3f-rating-gap);
+  margin-bottom: var(--w3f-rating-margin-bottom);
+}
+
+/* ── Stars ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled) .w3f-rating-item {
+  border-top-left-radius: var(--w3f-rating-item-radius-tl);
+  border-top-right-radius: var(--w3f-rating-item-radius-tr);
+  border-bottom-right-radius: var(--w3f-rating-item-radius-br);
+  border-bottom-left-radius: var(--w3f-rating-item-radius-bl);
+  transition: var(--w3f-rating-item-transition);
+  box-shadow: var(--w3f-rating-focus-shadow);
+  color: var(--w3f-rating-error-color);
+}
+
+/* ── Value ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled) .w3f-rating-value {
+  font-size: var(--w3f-rating-value-font-size);
+  color: var(--w3f-rating-value-color);
+  color: var(--w3f-rating-value-empty-color);
+}
+
+/* ── Clear ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled) .w3f-rating-clear {
+  color: var(--w3f-rating-clear-color);
+  background-color: var(--w3f-rating-clear-hover-bg);
+  color: var(--w3f-rating-clear-hover-color);
+  background-color: var(--w3f-rating-clear-active-bg);
+}
+
+/* ── Outlined ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled) {
+  color: var(--w3f-rating-outlined-border-color);
+  border-top-left-radius: var(--w3f-rating-outlined-radius-tl);
+  border-top-right-radius: var(--w3f-rating-outlined-radius-tr);
+  border-bottom-right-radius: var(--w3f-rating-outlined-radius-br);
+  border-bottom-left-radius: var(--w3f-rating-outlined-radius-bl);
+  background-color: var(--w3f-rating-outlined-bg);
+}
+
+/* ── Disabled ── */
+.w3f-rating-wrapper:not(.w3f-rating-wrapper--unstyled).w3f-rating--disabled {
+  opacity: var(--w3f-rating-disabled-opacity);
+  background-color: var(--w3f-rating-bg);
+}
+

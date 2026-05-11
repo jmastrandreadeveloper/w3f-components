@@ -1,0 +1,197 @@
+/* ── AUTOCOMPLETE OVERRIDES ──
+   Migrated from manual _autocomplete.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   AUTOCOMPLETE PRESET — Visual styles via CSS custom properties
+   Active when .w3f-autocomplete is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-autocomplete-theme-ocean { --w3f-ac-input-bg: ...; }
+   ===================================================================== */
+
+/* ── INPUT ──────────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input {
+  background-color: var(--w3f-ac-input-bg, var(--w3f-surface));
+  color: var(--w3f-ac-input-color, var(--w3f-on-surface));
+  border: 1px solid var(--w3f-ac-input-border-color, var(--w3f-outline-variant));
+  border-radius: var(--w3f-ac-input-radius-tl, var(--w3f-radius-lg)) var(--w3f-ac-input-radius-tr, var(--w3f-radius-lg)) var(--w3f-ac-input-radius-br, var(--w3f-radius-lg)) var(--w3f-ac-input-radius-bl, var(--w3f-radius-lg));
+  font-size: var(--w3f-ac-input-font-size, var(--w3f-text-base));
+  transition: var(--w3f-ac-input-transition, background-color var(--w3f-transition-fast), color var(--w3f-transition-fast), border-color var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast));
+}
+
+/* ── INPUT HOVER ────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input:hover {
+  border-color: var(--w3f-ac-input-border-color-hover, var(--w3f-outline));
+}
+
+/* ── INPUT FOCUS ────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input:focus {
+  border-color: var(--w3f-ac-input-border-color-focus, var(--w3f-primary));
+  box-shadow: 0 0 0 1px var(--w3f-ac-input-border-color-focus, var(--w3f-primary));
+  outline: none;
+}
+
+/* ── INPUT ERROR ────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-error {
+  border-color: var(--w3f-ac-error-border-color, var(--w3f-danger));
+  color: var(--w3f-ac-error-color, var(--w3f-danger));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-error::placeholder {
+  color: var(--w3f-ac-error-color, var(--w3f-danger));
+  opacity: 0.7;
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-error:focus {
+  box-shadow: 0 0 0 1px var(--w3f-ac-error-border-color, var(--w3f-danger));
+}
+
+/* ── INPUT FILLED VARIANT ──────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-filled {
+  background-color: var(--w3f-ac-filled-bg, var(--w3f-surface-variant));
+  border-color: transparent;
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-filled:focus {
+  background-color: var(--w3f-ac-filled-focus-bg, var(--w3f-surface));
+  border-color: var(--w3f-ac-input-border-color-focus, var(--w3f-primary));
+}
+
+/* ── INPUT FLUSHED VARIANT ─────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-flushed {
+  border-color: transparent;
+  border-bottom-color: var(--w3f-ac-flushed-border-color, var(--w3f-outline-variant));
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-flushed:focus {
+  border-bottom-color: var(--w3f-ac-input-border-color-focus, var(--w3f-primary));
+  box-shadow: none;
+}
+
+/* ── CLEAR BUTTON ──────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-clear {
+  color: var(--w3f-ac-clear-color, var(--w3f-outline));
+  border-radius: var(--w3f-ac-clear-radius-tl, var(--w3f-radius-sm)) var(--w3f-ac-clear-radius-tr, var(--w3f-radius-sm)) var(--w3f-ac-clear-radius-br, var(--w3f-radius-sm)) var(--w3f-ac-clear-radius-bl, var(--w3f-radius-sm));
+  transition: var(--w3f-ac-input-transition, background-color var(--w3f-transition-fast), color var(--w3f-transition-fast));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-clear:hover {
+  color: var(--w3f-ac-clear-hover-color, var(--w3f-danger));
+  background-color: var(--w3f-ac-clear-hover-bg, rgba(220, 38, 38, 0.1));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-clear:focus-visible {
+  outline: 2px solid var(--w3f-ac-focus-outline-color, var(--w3f-primary));
+  outline-offset: 2px;
+}
+
+/* ── DROPDOWN LIST ──────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-list {
+  background-color: var(--w3f-ac-list-bg, var(--w3f-surface));
+  border: 1px solid var(--w3f-ac-list-border-color, var(--w3f-outline-variant));
+  border-radius: var(--w3f-ac-list-radius-tl, var(--w3f-radius-lg)) var(--w3f-ac-list-radius-tr, var(--w3f-radius-lg)) var(--w3f-ac-list-radius-br, var(--w3f-radius-lg)) var(--w3f-ac-list-radius-bl, var(--w3f-radius-lg));
+  box-shadow: var(--w3f-ac-list-shadow, var(--w3f-shadow-md));
+  scrollbar-color: var(--w3f-ac-list-scrollbar-color, var(--w3f-outline-variant)) transparent;
+}
+
+/* ── SCROLLBAR THUMB ───────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-list::-webkit-scrollbar-thumb {
+  background-color: var(--w3f-ac-list-scrollbar-color, var(--w3f-outline-variant));
+  border-radius: var(--w3f-ac-pill-radius-tl, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-tr, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-br, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-bl, var(--w3f-radius-full));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--w3f-ac-list-scrollbar-hover-color, var(--w3f-outline));
+}
+
+/* ── SIZE: SM ──────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-sm {
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  font-size: var(--w3f-text-sm);
+}
+
+/* ── SIZE: LG ──────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-input-lg {
+  padding: var(--w3f-space-3) var(--w3f-space-4);
+  font-size: var(--w3f-text-lg);
+}
+
+/* ── ROUND PILL ────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-input.w3f-round-pill {
+  border-radius: var(--w3f-ac-pill-radius-tl, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-tr, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-br, var(--w3f-radius-full)) var(--w3f-ac-pill-radius-bl, var(--w3f-radius-full));
+}
+
+/* ── MATCH HIGHLIGHT (background) ──────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-match-highlight {
+  background-color: transparent;
+}
+
+/* ── LIST ITEM ──────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-item {
+  color: var(--w3f-ac-item-color, var(--w3f-on-surface));
+  border-bottom: 1px solid var(--w3f-ac-item-border-color, var(--w3f-outline-variant));
+  font-size: var(--w3f-ac-item-font-size, var(--w3f-text-base));
+  transition: var(--w3f-ac-item-transition, background-color var(--w3f-transition-fast));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+/* ── LIST ITEM HOVER ────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-item:hover {
+  background-color: var(--w3f-ac-item-hover-bg, var(--w3f-surface-variant));
+}
+
+/* ── LIST ITEM ACTIVE ──────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-item.w3f-active {
+  background-color: var(--w3f-ac-item-active-bg, var(--w3f-primary));
+  color: var(--w3f-ac-item-active-color, var(--w3f-on-primary));
+  border-color: var(--w3f-ac-item-active-border-color, var(--w3f-primary));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-item.w3f-active .w3f-autocomplete-highlight {
+  color: var(--w3f-ac-item-active-color, var(--w3f-on-primary));
+}
+
+/* ── HIGHLIGHT TEXT ─────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-highlight {
+  color: var(--w3f-ac-highlight-color, var(--w3f-primary-800));
+  font-weight: 600;
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-match-highlight {
+  color: var(--w3f-ac-match-highlight-color, var(--w3f-primary-700));
+  font-weight: 700;
+}
+
+/* ── EMPTY STATE ────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-empty {
+  color: var(--w3f-ac-empty-color, var(--w3f-outline));
+  font-size: var(--w3f-ac-empty-font-size, var(--w3f-text-sm));
+  font-style: italic;
+}
+
+/* ── ICON ──────────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-icon-start {
+  color: var(--w3f-ac-icon-color, var(--w3f-outline));
+}
+
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-input-error ~ .w3f-autocomplete-icon-start {
+  color: var(--w3f-ac-icon-error-color, var(--w3f-danger));
+}
+
+/* ── SPINNER ────────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-spinner {
+  color: var(--w3f-ac-spinner-color, var(--w3f-primary));
+}
+
+/* ── MESSAGE ────────────────────────────────────────────────────────── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete-message {
+  color: var(--w3f-ac-empty-color, var(--w3f-outline));
+  font-size: var(--w3f-ac-empty-font-size, var(--w3f-text-sm));
+}

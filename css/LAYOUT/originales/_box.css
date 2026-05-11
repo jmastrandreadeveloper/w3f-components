@@ -1,0 +1,25 @@
+/* Box.css */
+/* =============================================================
+   📦 COMPONENTE: BOX (Caja contenedora genérica)
+   ============================================================= */
+
+/* Box genérico, ideal para envolver secciones o módulos */
+.w3f-box {
+  background-color: var(--w3f-surface);
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-6);
+  transition: border-color var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast);
+}
+
+.w3f-box:focus-within {
+  border-color: var(--w3f-primary);
+  box-shadow: 0 0 0 1px var(--w3f-primary);
+}
+
+/* Utilidades de sombra reutilizables */
+.w3f-shadow-sm { box-shadow: var(--w3f-shadow-sm); }
+.w3f-shadow { box-shadow: var(--w3f-shadow); }
+.w3f-shadow-md { box-shadow: var(--w3f-shadow-md); }
+.w3f-shadow-lg { box-shadow: var(--w3f-shadow-lg); }
+.w3f-shadow-xl { box-shadow: var(--w3f-shadow-xl); }

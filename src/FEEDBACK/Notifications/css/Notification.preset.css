@@ -1,0 +1,34 @@
+/* Auto-generated from _notification.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-notification-container:not(.w3f-notification-container--unstyled) {
+  background-color: var(--w3f-notif-bg);
+  border-top-left-radius: var(--w3f-notif-radius-tl);
+  border-top-right-radius: var(--w3f-notif-radius-tr);
+  border-bottom-right-radius: var(--w3f-notif-radius-br);
+  border-bottom-left-radius: var(--w3f-notif-radius-bl);
+  box-shadow: var(--w3f-notif-shadow);
+  padding-top: var(--w3f-notif-padding-top);
+  padding-right: var(--w3f-notif-padding-right);
+  padding-bottom: var(--w3f-notif-padding-bottom);
+  padding-left: var(--w3f-notif-padding-left);
+  gap: var(--w3f-notif-gap);
+  max-width: var(--w3f-notif-max-width);
+}
+
+/* ── Text ── */
+.w3f-notification-container:not(.w3f-notification-container--unstyled) .w3f-notification__text {
+  color: var(--w3f-notif-title-color);
+  color: var(--w3f-notif-message-color);
+}
+
+/* ── Close ── */
+.w3f-notification-container:not(.w3f-notification-container--unstyled) .w3f-notification__close {
+  color: var(--w3f-notif-close-color);
+}
+
+/* ── Progress ── */
+.w3f-notification-container:not(.w3f-notification-container--unstyled) .w3f-notification__progress {
+  height: var(--w3f-notif-progress-height);
+}
+

@@ -1,0 +1,163 @@
+/* ── STEPPER OVERRIDES ──
+   Migrated from manual _stepper.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   STEPPER PRESET — Visual styles via CSS custom properties
+   Active when .w3f-stepper is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-stepper-theme-minimal { --w3f-step-icon-active-bg: #111827; ... }
+   ===================================================================== */
+
+/* -- STEPPER ROOT ---------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) {
+  font-family: var(--w3f-font-family);
+}
+
+/* -- STEP ICON (circle) ---------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon {
+  border-radius: var(--w3f-radius-full);
+  font-size: var(--w3f-text-sm);
+  font-weight: 600;
+  transition:
+    background-color var(--w3f-step-transition),
+    color var(--w3f-step-transition),
+    border-color var(--w3f-step-transition);
+}
+
+/* Pending (default) */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon--pending {
+  background-color: var(--w3f-step-icon-bg);
+  color: var(--w3f-step-icon-color);
+}
+
+/* Active */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon--active {
+  background-color: var(--w3f-step-icon-active-bg);
+  color: var(--w3f-step-icon-active-color);
+}
+
+/* Completed */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon--completed {
+  background-color: var(--w3f-step-icon-completed-bg);
+  color: var(--w3f-step-icon-completed-color);
+}
+
+/* Error */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon--error {
+  background-color: var(--w3f-step-error-color) !important;
+  color: var(--w3f-step-icon-active-color);
+}
+
+/* -- STEP LABEL ------------------------------------------------------ */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label {
+  border-radius: var(--w3f-radius);
+  transition: background-color var(--w3f-step-transition);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label--clickable:hover {
+  background-color: var(--w3f-step-hover-bg);
+}
+
+/* -- TITLE TEXT ------------------------------------------------------ */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__title {
+  font-size: var(--w3f-text-sm);
+  font-weight: 500;
+  color: var(--w3f-step-title-color);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__title--active {
+  font-weight: 600;
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__title--error {
+  color: var(--w3f-step-error-color);
+}
+
+/* -- OPTIONAL TEXT --------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__optional {
+  font-size: var(--w3f-text-xs);
+  color: var(--w3f-step-optional-color);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__optional--error {
+  color: var(--w3f-step-error-color);
+}
+
+/* -- CONNECTOR LINE -------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-connector {
+  border-color: var(--w3f-step-connector-color);
+  transition: border-color var(--w3f-step-transition);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-connector--active,
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-connector--completed {
+  border-color: var(--w3f-step-connector-completed-color);
+}
+
+/* -- STEP CONTENT (vertical) ----------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-content {
+  border-left: 1px solid var(--w3f-step-connector-color);
+  transition: max-height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-content--collapsed {
+  opacity: 0;
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-content--expanded {
+  opacity: 1;
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-content--last {
+  border-left-color: transparent;
+}
+
+/* -- FOCUS ----------------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label--clickable:focus-visible {
+  outline-color: var(--w3f-step-focus-color, var(--w3f-primary));
+}
+
+/* -- DISABLED -------------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step--disabled {
+  opacity: var(--w3f-step-disabled-opacity);
+}
+
+/* -- COLOR SCHEMES --------------------------------------------------- */
+.w3f-stepper:not(.w3f-stepper--unstyled).w3f-stepper--secondary {
+  --w3f-step-icon-active-bg: var(--w3f-secondary);
+  --w3f-step-icon-completed-bg: var(--w3f-secondary);
+  --w3f-step-connector-completed-color: var(--w3f-secondary);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled).w3f-stepper--success {
+  --w3f-step-icon-active-bg: var(--w3f-success);
+  --w3f-step-icon-completed-bg: var(--w3f-success);
+  --w3f-step-connector-completed-color: var(--w3f-success);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled).w3f-stepper--danger {
+  --w3f-step-icon-active-bg: var(--w3f-danger);
+  --w3f-step-icon-completed-bg: var(--w3f-danger);
+  --w3f-step-connector-completed-color: var(--w3f-danger);
+}
+
+.w3f-stepper:not(.w3f-stepper--unstyled).w3f-stepper--info {
+  --w3f-step-icon-active-bg: var(--w3f-info);
+  --w3f-step-icon-completed-bg: var(--w3f-info);
+  --w3f-step-connector-completed-color: var(--w3f-info);
+}
+
+/* -- RESPONSIVE (visual) --------------------------------------------- */
+@media (max-width: 768px) {
+  .w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__title {
+    font-size: var(--w3f-text-xs);
+  }
+
+  .w3f-stepper:not(.w3f-stepper--unstyled) .w3f-step-label__icon {
+    font-size: var(--w3f-text-xs);
+  }
+}

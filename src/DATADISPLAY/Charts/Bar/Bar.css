@@ -1,0 +1,15 @@
+/* ─── Bar chart structural CSS ──────────────────────────────────────── */
+
+.w3f-chart-bar {
+    position: relative;
+    width: 100%;
+}
+
+.w3f-chart-bar .w3f-chart__container {
+    position: relative;
+}
+
+/* Unstyled mode — strip visual defaults */
+.w3f-chart-bar--unstyled .w3f-chart__svg {
+    /* Let the consumer control all visuals */
+}

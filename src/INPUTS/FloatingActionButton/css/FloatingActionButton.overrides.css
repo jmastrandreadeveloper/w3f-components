@@ -1,0 +1,224 @@
+/* ── FAB OVERRIDES ──
+   Migrated from manual _fab.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   FAB PRESET — Visual styles via CSS custom properties
+   Active when .w3f-fab is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-fab-theme-ocean { --w3f-fab-bg: #0891b2; ... }
+   ===================================================================== */
+
+/* ── ROOT ────────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled) {
+  background-color: var(--w3f-fab-bg, var(--w3f-primary));
+  color: var(--w3f-fab-color, var(--w3f-on-primary));
+  border: none;
+  border-radius: var(--w3f-fab-radius-tl, var(--w3f-radius-full)) var(--w3f-fab-radius-tr, var(--w3f-radius-full)) var(--w3f-fab-radius-br, var(--w3f-radius-full)) var(--w3f-fab-radius-bl, var(--w3f-radius-full));
+  box-shadow: var(--w3f-fab-shadow, var(--w3f-shadow-md));
+  font-family: var(--w3f-fab-font-family, var(--w3f-font-family));
+  font-weight: var(--w3f-fab-font-weight, 500);
+  text-decoration: none;
+  transition: var(--w3f-fab-transition, background-color var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast), transform var(--w3f-transition-fast));
+}
+
+/* ── HOVER ───────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled):hover:not(:disabled) {
+  background-color: var(--w3f-fab-hover-bg, var(--w3f-primary-700));
+  box-shadow: var(--w3f-fab-hover-shadow, var(--w3f-shadow-lg));
+  transform: translateY(-2px);
+}
+
+/* ── ACTIVE ──────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled):active:not(:disabled) {
+  background-color: var(--w3f-fab-active-bg, var(--w3f-primary-800));
+  box-shadow: var(--w3f-fab-active-shadow, var(--w3f-shadow-sm));
+  transform: scale(0.96);
+}
+
+/* ── FOCUS ───────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled):focus-visible {
+  outline: 2px solid var(--w3f-fab-focus-outline-color, var(--w3f-primary-400));
+  outline-offset: 2px;
+}
+
+/* ── DISABLED ────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled):disabled {
+  opacity: var(--w3f-fab-disabled-opacity, 0.5);
+  box-shadow: var(--w3f-fab-disabled-shadow, var(--w3f-shadow-sm));
+}
+
+/* ── ICON ────────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled) .w3f-fab__icon {
+  font-size: var(--w3f-fab-icon-size, var(--w3f-text-2xl));
+  line-height: 1;
+}
+
+/* ── SIZE ICON OVERRIDES ─────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--mini .w3f-fab__icon,
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--sm .w3f-fab__icon {
+  font-size: var(--w3f-text-xl);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--lg .w3f-fab__icon {
+  font-size: var(--w3f-text-3xl);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--extended .w3f-fab__icon {
+  font-size: var(--w3f-text-xl);
+}
+
+/* ── TEXT ─────────────────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled) .w3f-fab__text {
+  font-size: var(--w3f-fab-text-size, var(--w3f-text-base));
+  font-weight: var(--w3f-fab-font-weight, 500);
+  letter-spacing: 0.01em;
+}
+
+/* ── EXTENDED PADDING ────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--extended {
+  padding: 0 var(--w3f-space-4);
+  border-radius: var(--w3f-radius-3xl);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--extended.w3f-fab--lg {
+  padding: 0 var(--w3f-space-6);
+}
+
+/* ── CENTER POSITION HOVER/ACTIVE ────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--center:hover:not(:disabled) {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--center:active:not(:disabled) {
+  transform: translateX(-50%) scale(0.96);
+}
+
+/* ── SPEED DIAL SECONDARY ACTIONS ────────────────────────────────────── */
+.w3f-fab-group .w3f-fab--secondary-action:not(.w3f-fab--unstyled) {
+  opacity: 0;
+  transform: scale(0) translateY(10px);
+  transition: max-width var(--w3f-transition-normal), opacity var(--w3f-transition-normal), padding var(--w3f-transition-normal);
+}
+
+.w3f-fab-group.is-open .w3f-fab--secondary-action:not(.w3f-fab--unstyled) {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Animacion escalonada */
+.w3f-fab-group.is-open .w3f-fab--secondary-action:not(.w3f-fab--unstyled):nth-child(1) {
+  transition-delay: 50ms;
+}
+
+.w3f-fab-group.is-open .w3f-fab--secondary-action:not(.w3f-fab--unstyled):nth-child(2) {
+  transition-delay: 100ms;
+}
+
+.w3f-fab-group.is-open .w3f-fab--secondary-action:not(.w3f-fab--unstyled):nth-child(3) {
+  transition-delay: 150ms;
+}
+
+.w3f-fab-group.is-open .w3f-fab--secondary-action:not(.w3f-fab--unstyled):nth-child(4) {
+  transition-delay: 200ms;
+}
+
+/* ── LABEL (tooltip) ─────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled) .w3f-fab__label {
+  background-color: var(--w3f-fab-label-bg, var(--w3f-gray-800));
+  color: var(--w3f-fab-label-color, white);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+  border-radius: var(--w3f-fab-label-radius-tl, var(--w3f-radius)) var(--w3f-fab-label-radius-tr, var(--w3f-radius)) var(--w3f-fab-label-radius-br, var(--w3f-radius)) var(--w3f-fab-label-radius-bl, var(--w3f-radius));
+  font-size: var(--w3f-fab-label-font-size, var(--w3f-text-sm));
+  opacity: 0;
+  transition: opacity var(--w3f-transition-fast);
+  box-shadow: var(--w3f-fab-label-shadow, var(--w3f-shadow-md));
+}
+
+.w3f-fab:not(.w3f-fab--unstyled):hover .w3f-fab__label,
+.w3f-fab:not(.w3f-fab--unstyled):focus-visible .w3f-fab__label {
+  opacity: 1;
+}
+
+/* ── MESSAGE BUBBLE ──────────────────────────────────────────────────── */
+.w3f-fab-message__bubble:not(.w3f-fab--unstyled) {
+  background-color: var(--w3f-surface);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+  border-radius: var(--w3f-radius-md);
+  box-shadow: var(--w3f-shadow-md);
+  font-size: var(--w3f-text-sm);
+}
+
+.w3f-fab-message__bubble--helper:not(.w3f-fab--unstyled) {
+  color: var(--w3f-gray-600);
+}
+
+/* ── RESPONSIVE EXTENDED PADDING ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .w3f-fab:not(.w3f-fab--unstyled).w3f-fab--extended {
+    padding: 0 var(--w3f-space-3);
+  }
+}
+
+/* ── COLOR VARIANTS ──────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--success {
+  --w3f-fab-bg: var(--w3f-success);
+  --w3f-fab-hover-bg: var(--w3f-success-700);
+  --w3f-fab-active-bg: var(--w3f-success-800);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--danger {
+  --w3f-fab-bg: var(--w3f-danger);
+  --w3f-fab-hover-bg: var(--w3f-danger-700);
+  --w3f-fab-active-bg: var(--w3f-danger-800);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--warning {
+  --w3f-fab-bg: var(--w3f-warning);
+  --w3f-fab-hover-bg: var(--w3f-warning-700);
+  --w3f-fab-active-bg: var(--w3f-warning-800);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--info {
+  --w3f-fab-bg: var(--w3f-info);
+  --w3f-fab-hover-bg: var(--w3f-info-700);
+  --w3f-fab-active-bg: var(--w3f-info-800);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--secondary {
+  --w3f-fab-bg: var(--w3f-secondary);
+  --w3f-fab-hover-bg: var(--w3f-secondary-700);
+  --w3f-fab-active-bg: var(--w3f-secondary-800);
+}
+
+/* ── SURFACE VARIANTS ────────────────────────────────────────────────── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--surface {
+  --w3f-fab-bg: var(--w3f-surface);
+  --w3f-fab-color: var(--w3f-primary);
+  --w3f-fab-hover-bg: var(--w3f-surface-variant);
+  --w3f-fab-active-bg: var(--w3f-gray-200);
+}
+
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--surface-secondary {
+  --w3f-fab-bg: var(--w3f-surface-variant);
+  --w3f-fab-color: var(--w3f-on-surface);
+  --w3f-fab-shadow: var(--w3f-shadow-sm);
+  --w3f-fab-hover-bg: var(--w3f-gray-200);
+  --w3f-fab-hover-shadow: var(--w3f-shadow);
+}
+
+/* ── DARK THEME ──────────────────────────────────────────────────────── */
+.w3f-theme-dark .w3f-fab:not(.w3f-fab--unstyled).w3f-fab--surface {
+  --w3f-fab-bg: var(--w3f-surface);
+  --w3f-fab-color: var(--w3f-primary);
+}
+
+.w3f-theme-dark .w3f-fab:not(.w3f-fab--unstyled).w3f-fab--surface-secondary {
+  --w3f-fab-bg: var(--w3f-surface-variant);
+}
+
+.w3f-theme-dark .w3f-fab:not(.w3f-fab--unstyled) {
+  --w3f-fab-label-bg: var(--w3f-gray-700);
+}

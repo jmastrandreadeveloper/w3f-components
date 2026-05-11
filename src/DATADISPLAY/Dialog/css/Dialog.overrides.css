@@ -1,0 +1,192 @@
+/* ── DIALOG OVERRIDES ──
+   Migrated from manual _dialog.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   DIALOG (MODAL) PRESET — Visual styles via CSS custom properties
+   Active when .w3f-modal-backdrop is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-dialog-theme-glass { --w3f-modal-card-bg: rgba(255,255,255,0.8); ... }
+   ===================================================================== */
+
+/* ── BACKDROP ────────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) {
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity var(--w3f-transition-normal), visibility var(--w3f-transition-normal);
+}
+
+/* ── CARD (CONTENT CONTAINER) ────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-card {
+  background-color: var(--w3f-surface);
+  color: var(--w3f-on-surface);
+  border-radius: var(--w3f-radius-xl);
+  box-shadow: var(--w3f-shadow-xl);
+  transition: transform var(--w3f-transition-normal);
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-header {
+  background-color: var(--w3f-primary);
+  color: var(--w3f-on-primary);
+  padding: var(--w3f-space-5) var(--w3f-space-6);
+  border-radius: var(--w3f-radius-xl) var(--w3f-radius-xl) 0 0;
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-title {
+  font-size: var(--w3f-text-xl);
+  font-weight: 600;
+}
+
+/* ── CLOSE BUTTON ────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-close-icon {
+  color: var(--w3f-on-primary);
+  border-radius: var(--w3f-radius-full);
+  font-size: var(--w3f-text-2xl);
+  line-height: 1;
+  opacity: 0.9;
+  --w3f-btn-hover-scale: 1;
+  --w3f-btn-hover-translate-y: 0px;
+  transition: opacity var(--w3f-transition-fast), background-color var(--w3f-transition-fast);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-close-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-close-icon:focus {
+  outline: 2px solid var(--w3f-on-primary);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* ── BODY ────────────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-body {
+  padding: var(--w3f-space-6);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-body::-webkit-scrollbar-track {
+  background: var(--w3f-surface-variant);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-body::-webkit-scrollbar-thumb {
+  background: var(--w3f-gray-400);
+  border-radius: var(--w3f-radius);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--w3f-gray-500);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-footer {
+  padding: var(--w3f-space-4) var(--w3f-space-6);
+  background-color: var(--w3f-surface-variant);
+  border-top: 1px solid var(--w3f-outline-variant);
+  border-radius: 0 0 var(--w3f-radius-xl) var(--w3f-radius-xl);
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn {
+  padding: var(--w3f-space-2) var(--w3f-space-5);
+  border-radius: var(--w3f-radius-lg);
+  font-weight: 600;
+  font-size: var(--w3f-text-base);
+  transition: opacity var(--w3f-transition-fast), transform var(--w3f-transition-fast), background-color var(--w3f-transition-fast);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn:disabled {
+  opacity: 0.5;
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-primary {
+  background-color: var(--w3f-primary);
+  color: var(--w3f-on-primary);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-primary:hover:not(:disabled) {
+  background-color: var(--w3f-primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--w3f-shadow-md);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-secondary {
+  background-color: var(--w3f-secondary);
+  color: var(--w3f-on-primary);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-secondary:hover:not(:disabled) {
+  background-color: var(--w3f-secondary-600);
+  transform: translateY(-1px);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-success {
+  background-color: var(--w3f-success);
+  color: white;
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-success:hover:not(:disabled) {
+  background-color: var(--w3f-success-600);
+  transform: translateY(-1px);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-danger {
+  background-color: var(--w3f-danger);
+  color: white;
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-danger:hover:not(:disabled) {
+  background-color: var(--w3f-danger-600);
+  transform: translateY(-1px);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-ghost {
+  background-color: transparent;
+  color: var(--w3f-on-surface);
+  border: 1px solid var(--w3f-outline);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-btn-ghost:hover:not(:disabled) {
+  background-color: var(--w3f-surface-variant);
+}
+
+/* ── DATA CARD ───────────────────────────────────────────────────────── */
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-data-card {
+  background-color: var(--w3f-surface-variant);
+  border-color: var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-5);
+  margin-top: var(--w3f-space-4);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-data-card h3,
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-data-card h4 {
+  color: var(--w3f-primary);
+  margin-bottom: var(--w3f-space-3);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-data-label {
+  font-weight: 600;
+  color: var(--w3f-on-surface);
+}
+
+.w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-data-value {
+  color: var(--w3f-gray-600);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-header {
+    padding: var(--w3f-space-4);
+  }
+
+  .w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-body {
+    padding: var(--w3f-space-4);
+  }
+
+  .w3f-modal-backdrop:not(.w3f-dialog--unstyled) .w3f-modal-footer {
+    padding: var(--w3f-space-3) var(--w3f-space-4);
+  }
+}

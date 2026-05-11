@@ -1,0 +1,223 @@
+/* ── TRANSFER-LIST OVERRIDES ──
+   Migrated from manual _transfer-list.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   TRANSFER LIST PRESET — Visual styles via CSS custom properties
+   Active when .w3f-transfer is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-transfer-theme-ocean { --w3f-tl-panel-bg: #0c4a6e; ... }
+   ===================================================================== */
+
+/* ── ROOT DISABLED ──────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled).w3f-transfer-disabled {
+  opacity: var(--w3f-tl-disabled-opacity, 0.55);
+}
+
+/* ── ROOT PANEL ──────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel {
+  border: 1px solid var(--w3f-tl-panel-border-color, var(--w3f-gray-200));
+  border-radius: var(--w3f-tl-panel-radius-tl, var(--w3f-radius-lg)) var(--w3f-tl-panel-radius-tr, var(--w3f-radius-lg)) var(--w3f-tl-panel-radius-br, var(--w3f-radius-lg)) var(--w3f-tl-panel-radius-bl, var(--w3f-radius-lg));
+  background: var(--w3f-tl-panel-bg, var(--w3f-surface, #ffffff));
+  transition: var(--w3f-tl-panel-transition, border-color 0.2s ease, box-shadow 0.2s ease);
+}
+
+/* ── PANEL DROP TARGET ───────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-drop-target {
+  border-color: var(--w3f-tl-panel-drop-border-color, var(--w3f-primary, #3b82f6));
+  box-shadow: var(--w3f-tl-panel-drop-shadow, 0 0 0 3px rgba(59, 130, 246, 0.15));
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-header {
+  padding: var(--w3f-space-3) var(--w3f-space-4);
+  border-bottom: 1px solid var(--w3f-tl-header-border-color, var(--w3f-gray-200));
+  background: var(--w3f-tl-header-bg, var(--w3f-gray-50, #f9fafb));
+}
+
+/* ── TITLE & COUNT ───────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-title {
+  font-size: var(--w3f-tl-title-font-size, var(--w3f-text-sm, 0.875rem));
+  font-weight: 600;
+  color: var(--w3f-tl-title-color, var(--w3f-on-surface, #111827));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-count {
+  font-size: 0.75rem;
+  color: var(--w3f-tl-count-color, var(--w3f-gray-400, #9ca3af));
+}
+
+/* ── CHECKBOX ────────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-header input[type="checkbox"],
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item input[type="checkbox"] {
+  border: 2px solid var(--w3f-tl-checkbox-border-color, var(--w3f-outline, #d1d5db));
+  border-radius: var(--w3f-tl-checkbox-radius-tl, var(--w3f-radius-sm, 4px)) var(--w3f-tl-checkbox-radius-tr, var(--w3f-radius-sm, 4px)) var(--w3f-tl-checkbox-radius-br, var(--w3f-radius-sm, 4px)) var(--w3f-tl-checkbox-radius-bl, var(--w3f-radius-sm, 4px));
+  background-color: var(--w3f-tl-checkbox-bg, var(--w3f-surface, #ffffff));
+  transition: var(--w3f-tl-checkbox-transition, background-color var(--w3f-transition-fast, 150ms ease), border-color var(--w3f-transition-fast, 150ms ease));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-header input[type="checkbox"]:checked,
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-header input[type="checkbox"]:indeterminate,
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item input[type="checkbox"]:checked {
+  background-color: var(--w3f-tl-checkbox-checked-bg, var(--w3f-primary, #3b82f6));
+  border-color: var(--w3f-tl-checkbox-checked-border-color, var(--w3f-primary, #3b82f6));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-panel-header input[type="checkbox"]:hover,
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item input[type="checkbox"]:hover {
+  border-color: var(--w3f-tl-checkbox-checked-bg, var(--w3f-primary, #3b82f6));
+}
+
+/* ── SEARCH ──────────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-search {
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+  border-bottom: 1px solid var(--w3f-tl-panel-border-color, var(--w3f-gray-200));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-search-icon {
+  left: calc(var(--w3f-space-3) + 8px);
+  color: var(--w3f-tl-search-icon-color, var(--w3f-gray-400, #9ca3af));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-search-input {
+  padding: 6px 10px 6px 32px;
+  border: 1px solid var(--w3f-tl-search-border-color, var(--w3f-gray-300, #d1d5db));
+  border-radius: var(--w3f-tl-search-radius-tl, var(--w3f-radius-md, 6px)) var(--w3f-tl-search-radius-tr, var(--w3f-radius-md, 6px)) var(--w3f-tl-search-radius-br, var(--w3f-radius-md, 6px)) var(--w3f-tl-search-radius-bl, var(--w3f-radius-md, 6px));
+  background: var(--w3f-tl-search-bg, var(--w3f-surface, #ffffff));
+  color: var(--w3f-tl-search-color, var(--w3f-on-surface, #111827));
+  font-size: var(--w3f-tl-search-font-size, var(--w3f-text-sm, 0.875rem));
+  transition: var(--w3f-tl-checkbox-transition, background-color var(--w3f-transition-fast, 150ms ease), border-color var(--w3f-transition-fast, 150ms ease));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-search-input::placeholder {
+  color: var(--w3f-tl-search-placeholder-color, var(--w3f-gray-400, #9ca3af));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-search-input:focus {
+  border-color: var(--w3f-tl-search-focus-border-color, var(--w3f-primary, #3b82f6));
+  box-shadow: var(--w3f-tl-search-focus-shadow, 0 0 0 3px rgba(59, 130, 246, 0.1));
+}
+
+/* ── LIST ────────────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-list {
+  padding: var(--w3f-space-1, 4px) 0;
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-list::-webkit-scrollbar-thumb {
+  background: var(--w3f-tl-scrollbar-color, var(--w3f-gray-300, #d1d5db));
+  border-radius: 3px;
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-list::-webkit-scrollbar-thumb:hover {
+  background: var(--w3f-tl-scrollbar-hover-color, var(--w3f-gray-400, #9ca3af));
+}
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-empty {
+  padding: var(--w3f-space-4);
+  color: var(--w3f-tl-empty-color, var(--w3f-gray-400, #9ca3af));
+  font-size: var(--w3f-tl-empty-font-size, var(--w3f-text-sm, 0.875rem));
+}
+
+/* ── ITEM ────────────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item {
+  padding: 8px var(--w3f-space-4, 16px);
+  transition: var(--w3f-tl-item-transition, background-color 0.12s ease);
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item:hover {
+  background: var(--w3f-tl-item-hover-bg, var(--w3f-gray-50, #f9fafb));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-selected {
+  background: var(--w3f-tl-item-selected-bg, var(--w3f-primary-50, rgba(59, 130, 246, 0.06)));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-selected:hover {
+  background: var(--w3f-tl-item-selected-hover-bg, var(--w3f-primary-100, rgba(59, 130, 246, 0.1)));
+}
+
+/* ── ITEM LABELS ─────────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-label {
+  font-size: var(--w3f-tl-item-label-font-size, var(--w3f-text-sm, 0.875rem));
+  color: var(--w3f-tl-item-label-color, var(--w3f-on-surface, #111827));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-description {
+  font-size: 0.75rem;
+  color: var(--w3f-tl-item-desc-color, var(--w3f-gray-400, #9ca3af));
+  margin-top: 1px;
+}
+
+/* ── ITEM DISABLED ───────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-disabled {
+  opacity: var(--w3f-tl-item-disabled-opacity, 0.45);
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-disabled:hover {
+  background: transparent;
+}
+
+/* ── ITEM DRAGGING ───────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-item-dragging {
+  opacity: var(--w3f-tl-item-dragging-opacity, 0.35);
+}
+
+/* ── ACTION BUTTONS ──────────────────────────────────────────────────── */
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-actions {
+  padding: 0 2px;
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-btn {
+  border: 1px solid var(--w3f-tl-btn-border-color, var(--w3f-gray-300, #d1d5db));
+  border-radius: var(--w3f-tl-btn-radius-tl, var(--w3f-radius-md, 6px)) var(--w3f-tl-btn-radius-tr, var(--w3f-radius-md, 6px)) var(--w3f-tl-btn-radius-br, var(--w3f-radius-md, 6px)) var(--w3f-tl-btn-radius-bl, var(--w3f-radius-md, 6px));
+  background: var(--w3f-tl-btn-bg, var(--w3f-surface, #ffffff));
+  color: var(--w3f-tl-btn-color, var(--w3f-gray-500, #6b7280));
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-btn:hover:not(:disabled) {
+  background: var(--w3f-tl-btn-hover-bg, var(--w3f-primary-50, rgba(59, 130, 246, 0.06)));
+  border-color: var(--w3f-tl-btn-hover-border-color, var(--w3f-primary, #3b82f6));
+  color: var(--w3f-tl-btn-hover-color, var(--w3f-primary, #3b82f6));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-btn:active:not(:disabled) {
+  background: var(--w3f-tl-btn-active-bg, var(--w3f-primary-100, rgba(59, 130, 246, 0.12)));
+}
+
+.w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-btn:disabled {
+  opacity: var(--w3f-tl-btn-disabled-opacity, 0.35);
+}
+
+/* ── DRAG GHOST ──────────────────────────────────────────────────────── */
+.w3f-transfer-drag-ghost:not(.w3f-transfer-list--unstyled) {
+  padding: 6px 14px;
+  background: var(--w3f-tl-ghost-bg, var(--w3f-surface, #ffffff));
+  border: 1px solid var(--w3f-tl-ghost-border-color, var(--w3f-primary, #3b82f6));
+  border-radius: var(--w3f-tl-ghost-radius-tl, var(--w3f-radius-md, 6px)) var(--w3f-tl-ghost-radius-tr, var(--w3f-radius-md, 6px)) var(--w3f-tl-ghost-radius-br, var(--w3f-radius-md, 6px)) var(--w3f-tl-ghost-radius-bl, var(--w3f-radius-md, 6px));
+  box-shadow: var(--w3f-tl-ghost-shadow, 0 8px 24px rgba(0, 0, 0, 0.15));
+  font-size: var(--w3f-tl-ghost-font-size, var(--w3f-text-sm, 0.875rem));
+  color: var(--w3f-tl-ghost-color, var(--w3f-on-surface, #111827));
+}
+
+/* ── DROP INDICATOR ──────────────────────────────────────────────────── */
+.w3f-transfer-drop-indicator:not(.w3f-transfer-list--unstyled) {
+  background: var(--w3f-tl-drop-color, var(--w3f-primary, #3b82f6));
+  border-radius: 1px;
+}
+
+.w3f-transfer-drop-indicator:not(.w3f-transfer-list--unstyled)::before,
+.w3f-transfer-drop-indicator:not(.w3f-transfer-list--unstyled)::after {
+  background: var(--w3f-tl-drop-color, var(--w3f-primary, #3b82f6));
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .w3f-transfer:not(.w3f-transfer-list--unstyled) .w3f-transfer-actions {
+    padding: 2px 0;
+  }
+}

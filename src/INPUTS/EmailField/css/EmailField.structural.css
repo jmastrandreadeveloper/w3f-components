@@ -1,0 +1,146 @@
+/* =====================================================================
+   📝 COMPONENTE TEXT FIELD (_text-field.css)
+   Extiende _input.css con variantes de tamaño y contador de caracteres.
+   Dependencias: _variables.css, _input.css
+   ===================================================================== */
+
+/* --- TAMAÑOS DEL WRAPPER --- */
+
+/* XXXS */
+.w3f-input-wrapper--xxxs .w3f-input {
+    padding: 2px 5px;
+    font-size: var(--w3f-text-4xs);
+}
+.w3f-input-wrapper--xxxs .w3f-input-label {
+    font-size: var(--w3f-text-4xs);
+}
+.w3f-input-wrapper--xxxs .w3f-input-label--floating {
+    font-size: 0.4rem;
+    top: -7px;
+}
+.w3f-input-wrapper--xxxs .w3f-input--has-leading { padding-left: 22px; }
+.w3f-input-wrapper--xxxs .w3f-input--has-trailing { padding-right: 22px; }
+.w3f-input-wrapper--xxxs .w3f-input-icon--leading { left: 5px; }
+.w3f-input-wrapper--xxxs .w3f-input-icon--trailing { right: 5px; }
+
+/* XXS */
+.w3f-input-wrapper--xxs .w3f-input {
+    padding: 3px 7px;
+    font-size: var(--w3f-text-3xs);
+}
+.w3f-input-wrapper--xxs .w3f-input-label {
+    font-size: var(--w3f-text-3xs);
+}
+.w3f-input-wrapper--xxs .w3f-input-label--floating {
+    font-size: 0.45rem;
+    top: -8px;
+}
+.w3f-input-wrapper--xxs .w3f-input--has-leading { padding-left: 26px; }
+.w3f-input-wrapper--xxs .w3f-input--has-trailing { padding-right: 26px; }
+.w3f-input-wrapper--xxs .w3f-input-icon--leading { left: 7px; }
+.w3f-input-wrapper--xxs .w3f-input-icon--trailing { right: 7px; }
+
+/* XS */
+.w3f-input-wrapper--xs .w3f-input {
+    padding: 5px 8px;
+    font-size: var(--w3f-text-2xs);
+}
+.w3f-input-wrapper--xs .w3f-input-label {
+    font-size: var(--w3f-text-2xs);
+}
+.w3f-input-wrapper--xs .w3f-input-label--floating {
+    font-size: 0.55rem;
+    top: -8px;
+}
+.w3f-input-wrapper--xs .w3f-input--has-leading { padding-left: 30px; }
+.w3f-input-wrapper--xs .w3f-input--has-trailing { padding-right: 30px; }
+.w3f-input-wrapper--xs .w3f-input-icon--leading { left: 8px; }
+.w3f-input-wrapper--xs .w3f-input-icon--trailing { right: 8px; }
+
+.w3f-input-wrapper--sm .w3f-input {
+    padding: 8px 10px;
+    font-size: 0.875rem;
+}
+
+.w3f-input-wrapper--sm .w3f-input-label {
+    font-size: 0.875rem;
+}
+
+.w3f-input-wrapper--sm .w3f-input-label--floating {
+    font-size: 0.7rem;
+    top: -9px;
+}
+
+.w3f-input-wrapper--sm .w3f-input--has-leading {
+    padding-left: 36px;
+}
+
+.w3f-input-wrapper--sm .w3f-input--has-trailing {
+    padding-right: 36px;
+}
+
+.w3f-input-wrapper--sm .w3f-input-icon--leading {
+    left: 10px;
+}
+
+.w3f-input-wrapper--sm .w3f-input-icon--trailing {
+    right: 10px;
+}
+
+.w3f-input-wrapper--lg .w3f-input {
+    padding: 16px 14px;
+    font-size: 1.125rem;
+}
+
+.w3f-input-wrapper--lg .w3f-input-label {
+    font-size: 1.125rem;
+}
+
+.w3f-input-wrapper--lg .w3f-input-label--floating {
+    font-size: 0.8rem;
+    top: -11px;
+}
+
+.w3f-input-wrapper--lg .w3f-input--has-leading {
+    padding-left: 46px;
+}
+
+.w3f-input-wrapper--lg .w3f-input--has-trailing {
+    padding-right: 46px;
+}
+
+.w3f-input-wrapper--lg .w3f-input-icon--leading {
+    left: 14px;
+}
+
+.w3f-input-wrapper--lg .w3f-input-icon--trailing {
+    right: 14px;
+}
+
+/* XL */
+.w3f-input-wrapper--xl .w3f-input {
+    padding: 20px 16px;
+    font-size: var(--w3f-text-xl);
+}
+.w3f-input-wrapper--xl .w3f-input-label {
+    font-size: var(--w3f-text-xl);
+}
+.w3f-input-wrapper--xl .w3f-input-label--floating {
+    font-size: 0.85rem;
+    top: -12px;
+}
+.w3f-input-wrapper--xl .w3f-input--has-leading { padding-left: 52px; }
+.w3f-input-wrapper--xl .w3f-input--has-trailing { padding-right: 52px; }
+.w3f-input-wrapper--xl .w3f-input-icon--leading { left: 16px; }
+.w3f-input-wrapper--xl .w3f-input-icon--trailing { right: 16px; }
+
+/* --- CONTADOR DE CARACTERES --- */
+
+.w3f-input-count {
+    display: block;
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--w3f-gray-400, #9ca3af);
+    margin-top: 2px;
+    padding: 0 4px;
+}

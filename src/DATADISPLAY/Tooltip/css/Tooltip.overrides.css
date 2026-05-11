@@ -1,0 +1,167 @@
+/* ── TOOLTIP OVERRIDES ──
+   Migrated from manual _tooltip.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   TOOLTIP PRESET — Visual styles via CSS custom properties
+   Active when .w3f-tooltip-content is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-tooltip-theme-custom { --w3f-tooltip-bg: #1e293b; ... }
+   ===================================================================== */
+
+/* ── CONTENT BOX ─────────────────────────────────────────────────────── */
+.w3f-tooltip-content:not(.w3f-tooltip--unstyled) {
+  border-radius: var(--w3f-tooltip-radius-tl) var(--w3f-tooltip-radius-tr) var(--w3f-tooltip-radius-br) var(--w3f-tooltip-radius-bl);
+  font-size: var(--w3f-tooltip-font-size);
+  line-height: var(--w3f-tooltip-line-height);
+  box-shadow: var(--w3f-tooltip-shadow);
+  transition: opacity var(--w3f-tooltip-transition-duration) ease,
+              transform var(--w3f-tooltip-transition-duration) ease;
+}
+
+/* ── DARK VARIANT ────────────────────────────────────────────────────── */
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-tooltip-bg);
+  color: var(--w3f-tooltip-color);
+}
+
+/* ── LIGHT VARIANT ───────────────────────────────────────────────────── */
+.w3f-tooltip-light:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-tooltip-light-bg);
+  color: var(--w3f-tooltip-light-color);
+  border: 1px solid var(--w3f-tooltip-light-border);
+}
+
+/* ── COLOR VARIANTS ──────────────────────────────────────────────────── */
+.w3f-tooltip-primary:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-primary);
+  color: white;
+}
+
+.w3f-tooltip-success:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-success);
+  color: white;
+}
+
+.w3f-tooltip-warning:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-warning);
+  color: white;
+}
+
+.w3f-tooltip-danger:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-danger);
+  color: white;
+}
+
+.w3f-tooltip-info:not(.w3f-tooltip--unstyled) {
+  background-color: var(--w3f-info);
+  color: white;
+}
+
+/* ── ARROW COLORS — DARK ─────────────────────────────────────────────── */
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-tooltip-bg);
+}
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-tooltip-bg);
+}
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-tooltip-bg);
+}
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-tooltip-bg);
+}
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top-start,
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top-end {
+  border-top-color: var(--w3f-tooltip-bg);
+}
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom-start,
+.w3f-tooltip-dark:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom-end {
+  border-bottom-color: var(--w3f-tooltip-bg);
+}
+
+/* ── ARROW COLORS — LIGHT ────────────────────────────────────────────── */
+.w3f-tooltip-light:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-tooltip-light-bg);
+}
+.w3f-tooltip-light:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-tooltip-light-bg);
+}
+.w3f-tooltip-light:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-tooltip-light-bg);
+}
+.w3f-tooltip-light:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-tooltip-light-bg);
+}
+
+/* ── ARROW COLORS — PRIMARY ──────────────────────────────────────────── */
+.w3f-tooltip-primary:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-primary);
+}
+.w3f-tooltip-primary:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-primary);
+}
+.w3f-tooltip-primary:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-primary);
+}
+.w3f-tooltip-primary:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-primary);
+}
+
+/* ── ARROW COLORS — SUCCESS ──────────────────────────────────────────── */
+.w3f-tooltip-success:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-success);
+}
+.w3f-tooltip-success:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-success);
+}
+.w3f-tooltip-success:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-success);
+}
+.w3f-tooltip-success:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-success);
+}
+
+/* ── ARROW COLORS — WARNING ──────────────────────────────────────────── */
+.w3f-tooltip-warning:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-warning);
+}
+.w3f-tooltip-warning:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-warning);
+}
+.w3f-tooltip-warning:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-warning);
+}
+.w3f-tooltip-warning:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-warning);
+}
+
+/* ── ARROW COLORS — DANGER ───────────────────────────────────────────── */
+.w3f-tooltip-danger:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-danger);
+}
+.w3f-tooltip-danger:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-danger);
+}
+.w3f-tooltip-danger:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-danger);
+}
+.w3f-tooltip-danger:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-danger);
+}
+
+/* ── ARROW COLORS — INFO ─────────────────────────────────────────────── */
+.w3f-tooltip-info:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-top {
+  border-top-color: var(--w3f-info);
+}
+.w3f-tooltip-info:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-bottom {
+  border-bottom-color: var(--w3f-info);
+}
+.w3f-tooltip-info:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-left {
+  border-left-color: var(--w3f-info);
+}
+.w3f-tooltip-info:not(.w3f-tooltip--unstyled) .w3f-tooltip-arrow-right {
+  border-right-color: var(--w3f-info);
+}

@@ -1,0 +1,169 @@
+/* Auto-generated from _button.contract.css — DO NOT EDIT */
+
+/* ── Shell ── */
+.w3f-button:not(.w3f-button--unstyled) {
+  background-color: var(--w3f-btn-bg);
+  border-top-left-radius: var(--w3f-btn-radius-tl);
+  border-top-right-radius: var(--w3f-btn-radius-tr);
+  border-bottom-right-radius: var(--w3f-btn-radius-br);
+  border-bottom-left-radius: var(--w3f-btn-radius-bl);
+  border-top-width: var(--w3f-btn-border-width-top);
+  border-right-width: var(--w3f-btn-border-width-right);
+  border-bottom-width: var(--w3f-btn-border-width-bottom);
+  border-left-width: var(--w3f-btn-border-width-left);
+  padding-top: var(--w3f-btn-padding-top);
+  padding-right: var(--w3f-btn-padding-right);
+  padding-bottom: var(--w3f-btn-padding-bottom);
+  padding-left: var(--w3f-btn-padding-left);
+  width: var(--w3f-btn-width);
+  min-width: var(--w3f-btn-min-width);
+  height: var(--w3f-btn-height);
+  min-height: var(--w3f-btn-min-height);
+  cursor: var(--w3f-btn-cursor);
+  transition: var(--w3f-btn-transition);
+}
+
+/* ── Text ── */
+.w3f-button:not(.w3f-button--unstyled) .w3f-button__content {
+  color: var(--w3f-btn-text-color);
+  font-size: var(--w3f-btn-font-size);
+  font-weight: var(--w3f-btn-font-weight);
+  font-family: var(--w3f-btn-font-family);
+  text-transform: var(--w3f-btn-text-transform);
+  letter-spacing: var(--w3f-btn-letter-spacing);
+  line-height: var(--w3f-btn-line-height);
+  text-align: var(--w3f-btn-text-align);
+}
+
+/* ── Icon ── */
+.w3f-button:not(.w3f-button--unstyled) .w3f-button__icon {
+  font-size: var(--w3f-btn-icon-size);
+  color: var(--w3f-btn-icon-color);
+}
+
+/* ── Layout ── */
+.w3f-button:not(.w3f-button--unstyled) .w3f-button__content {
+  gap: var(--w3f-btn-content-gap);
+  flex-direction: var(--w3f-btn-content-direction);
+  gap: var(--w3f-btn-gap);
+}
+
+/* ── Hover ── */
+.w3f-button:not(.w3f-button--unstyled):hover {
+  background-color: var(--w3f-btn-hover-bg);
+  color: var(--w3f-btn-hover-color);
+  transform: scale(var(--w3f-btn-hover-scale));
+}
+
+/* ── Active ── */
+.w3f-button:not(.w3f-button--unstyled):active {
+  transform: scale(var(--w3f-btn-active-scale));
+}
+
+/* ── Focus ── */
+.w3f-button:not(.w3f-button--unstyled):focus-visible {
+  outline-width: var(--w3f-btn-focus-outline-width);
+  outline-style: var(--w3f-btn-focus-outline-style);
+  outline-color: var(--w3f-btn-focus-outline-color);
+  outline-offset: var(--w3f-btn-focus-outline-offset);
+}
+
+/* ── Disabled ── */
+.w3f-button:not(.w3f-button--unstyled):disabled {
+  opacity: var(--w3f-btn-disabled-opacity);
+  cursor: var(--w3f-btn-disabled-cursor);
+}
+
+/* ── Raised ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--raised {
+  background-color: var(--w3f-btn-raised-bg);
+  color: var(--w3f-btn-raised-color);
+  background-color: var(--w3f-btn-raised-hover-bg);
+}
+
+/* ── Soft ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--soft {
+  background-color: var(--w3f-btn-soft-bg);
+  color: var(--w3f-btn-soft-color);
+  border-color: var(--w3f-btn-soft-border-color);
+  background-color: var(--w3f-btn-soft-hover-bg);
+  color: var(--w3f-btn-soft-hover-color);
+}
+
+/* ── Flat ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--flat {
+  background-color: var(--w3f-btn-flat-bg);
+  color: var(--w3f-btn-flat-color);
+  background-color: var(--w3f-btn-flat-hover-bg);
+  color: var(--w3f-btn-flat-hover-color);
+}
+
+/* ── Outline ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--outline {
+  background-color: var(--w3f-btn-outline-bg);
+  color: var(--w3f-btn-outline-border-color);
+  color: var(--w3f-btn-outline-color);
+  background-color: var(--w3f-btn-outline-hover-bg);
+  color: var(--w3f-btn-outline-hover-border-color);
+  color: var(--w3f-btn-outline-hover-color);
+}
+
+/* ── Size XXXS ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--xxxs {
+  font-size: var(--w3f-btn-xxxs-font-size);
+  letter-spacing: var(--w3f-btn-xxxs-letter-spacing);
+  padding-top: var(--w3f-btn-xxxs-padding-top);
+  padding-right: var(--w3f-btn-xxxs-padding-right);
+  padding-bottom: var(--w3f-btn-xxxs-padding-bottom);
+  padding-left: var(--w3f-btn-xxxs-padding-left);
+}
+
+/* ── Size XXS ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--xxs {
+  font-size: var(--w3f-btn-xxs-font-size);
+  letter-spacing: var(--w3f-btn-xxs-letter-spacing);
+  padding-top: var(--w3f-btn-xxs-padding-top);
+  padding-right: var(--w3f-btn-xxs-padding-right);
+  padding-bottom: var(--w3f-btn-xxs-padding-bottom);
+  padding-left: var(--w3f-btn-xxs-padding-left);
+}
+
+/* ── Size XS ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--xs {
+  font-size: var(--w3f-btn-xs-font-size);
+  letter-spacing: var(--w3f-btn-xs-letter-spacing);
+  padding-top: var(--w3f-btn-xs-padding-top);
+  padding-right: var(--w3f-btn-xs-padding-right);
+  padding-bottom: var(--w3f-btn-xs-padding-bottom);
+  padding-left: var(--w3f-btn-xs-padding-left);
+}
+
+/* ── Size SM ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--sm {
+  font-size: var(--w3f-btn-sm-font-size);
+  letter-spacing: var(--w3f-btn-sm-letter-spacing);
+  padding-top: var(--w3f-btn-sm-padding-top);
+  padding-right: var(--w3f-btn-sm-padding-right);
+  padding-bottom: var(--w3f-btn-sm-padding-bottom);
+  padding-left: var(--w3f-btn-sm-padding-left);
+}
+
+/* ── Size LG ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--lg {
+  font-size: var(--w3f-btn-lg-font-size);
+  letter-spacing: var(--w3f-btn-lg-letter-spacing);
+  padding-top: var(--w3f-btn-lg-padding-top);
+  padding-right: var(--w3f-btn-lg-padding-right);
+  padding-bottom: var(--w3f-btn-lg-padding-bottom);
+  padding-left: var(--w3f-btn-lg-padding-left);
+}
+
+/* ── Size XL ── */
+.w3f-button:not(.w3f-button--unstyled).w3f-button--xl {
+  font-size: var(--w3f-btn-xl-font-size);
+  letter-spacing: var(--w3f-btn-xl-letter-spacing);
+  padding-top: var(--w3f-btn-xl-padding-top);
+  padding-right: var(--w3f-btn-xl-padding-right);
+  padding-bottom: var(--w3f-btn-xl-padding-bottom);
+  padding-left: var(--w3f-btn-xl-padding-left);
+}

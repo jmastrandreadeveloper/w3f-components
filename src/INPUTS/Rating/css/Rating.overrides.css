@@ -1,0 +1,171 @@
+/* ── RATING OVERRIDES ──
+   Migrated from manual _rating.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   RATING PRESET — Visual styles via CSS custom properties
+   Active when .w3f-rating-wrapper is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-rating-theme-ocean { --w3f-rating-focus-shadow: ...; ... }
+   ===================================================================== */
+
+/* ── WRAPPER ─────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) {
+  margin-bottom: var(--w3f-rating-margin-bottom, var(--w3f-space-4));
+  transition: opacity var(--w3f-transition-fast);
+}
+
+/* ── CONTAINER ──────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-container {
+  padding: var(--w3f-space-2) 0;
+  transition: opacity var(--w3f-transition-fast);
+  animation: rating-fade-in 0.3s ease-out;
+}
+
+@keyframes rating-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── ITEM ────────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-item {
+  border-radius: var(--w3f-rating-item-radius-tl, var(--w3f-radius-md)) var(--w3f-rating-item-radius-tr, var(--w3f-radius-md)) var(--w3f-rating-item-radius-br, var(--w3f-radius-md)) var(--w3f-rating-item-radius-bl, var(--w3f-radius-md));
+  transition: var(--w3f-rating-item-transition, transform var(--w3f-transition-fast), opacity var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast));
+}
+
+/* ── INTERACTIVE HOVER ───────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-interactive:hover {
+  filter: brightness(1.1);
+}
+
+/* ── INTERACTIVE ACTIVE ─────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-interactive:active {
+  transition-duration: 50ms;
+}
+
+/* ── FOCUSED ─────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-focused {
+  box-shadow: var(--w3f-rating-focus-shadow, 0 0 0 3px rgba(37, 99, 235, 0.3));
+  border-radius: var(--w3f-rating-item-radius-tl, var(--w3f-radius-md)) var(--w3f-rating-item-radius-tr, var(--w3f-radius-md)) var(--w3f-rating-item-radius-br, var(--w3f-radius-md)) var(--w3f-rating-item-radius-bl, var(--w3f-radius-md));
+  animation: rating-focus-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rating-focus-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15);
+  }
+}
+
+/* ── ERROR ───────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-error .w3f-rating-item {
+  box-shadow: 0 0 0 1px var(--w3f-rating-error-color, var(--w3f-danger-500));
+  border-radius: var(--w3f-rating-item-radius-tl, var(--w3f-radius-md)) var(--w3f-rating-item-radius-tr, var(--w3f-radius-md)) var(--w3f-rating-item-radius-br, var(--w3f-radius-md)) var(--w3f-rating-item-radius-bl, var(--w3f-radius-md));
+}
+
+/* ── DISABLED ────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-disabled {
+  opacity: var(--w3f-rating-disabled-opacity, 0.5);
+  filter: grayscale(0.3);
+}
+
+/* ── CLEAR BUTTON ────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-clear {
+  color: var(--w3f-rating-clear-color, var(--w3f-gray-400));
+  padding: 4px;
+  margin-left: 4px;
+  border-radius: var(--w3f-rating-item-radius-tl, var(--w3f-radius-md)) var(--w3f-rating-item-radius-tr, var(--w3f-radius-md)) var(--w3f-rating-item-radius-br, var(--w3f-radius-md)) var(--w3f-rating-item-radius-bl, var(--w3f-radius-md));
+  transition: all var(--w3f-transition-fast), opacity var(--w3f-transition-fast);
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-clear:hover {
+  background: var(--w3f-rating-clear-hover-bg, var(--w3f-gray-200));
+  color: var(--w3f-rating-clear-hover-color, var(--w3f-gray-700));
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-clear:active {
+  background: var(--w3f-rating-clear-active-bg, var(--w3f-gray-300));
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-clear:focus {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* ── VALUE DISPLAY ───────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-value {
+  color: var(--w3f-rating-value-color, var(--w3f-gray-700));
+  font-size: var(--w3f-rating-value-font-size, var(--w3f-text-sm));
+  font-weight: 500;
+  transition: color var(--w3f-transition-fast);
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-value:empty::after {
+  color: var(--w3f-rating-value-empty-color, var(--w3f-gray-500));
+  font-style: italic;
+}
+
+/* ── OUTLINED VARIANT ────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled).w3f-rating-outlined .w3f-rating-container {
+  border-color: var(--w3f-rating-outlined-border-color, var(--w3f-outline-variant));
+  border-radius: var(--w3f-rating-outlined-radius-tl, var(--w3f-radius-lg)) var(--w3f-rating-outlined-radius-tr, var(--w3f-radius-lg)) var(--w3f-rating-outlined-radius-br, var(--w3f-radius-lg)) var(--w3f-rating-outlined-radius-bl, var(--w3f-radius-lg));
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+  background: var(--w3f-rating-outlined-bg, var(--w3f-surface));
+}
+
+/* ── GLOW EFFECT ────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled).w3f-rating-glow .w3f-rating-item:hover {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* ── HIGH CONTRAST ──────────────────────────────────────────────────── */
+@media (prefers-contrast: high) {
+  .w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-item {
+    border: 2px solid currentColor;
+  }
+  .w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating-focused {
+    box-shadow: 0 0 0 4px var(--w3f-primary);
+  }
+}
+
+/* ── VARIANTS ────────────────────────────────────────────────────────── */
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating--outlined {
+  background: transparent;
+  border: 1px solid var(--w3f-rating-border, var(--w3f-outline-variant));
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating--ghost {
+  background: transparent;
+  border: none;
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating--soft {
+  background: color-mix(in srgb, var(--w3f-rating-bg, var(--w3f-primary)) 12%, transparent);
+  border: none;
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+}
+
+.w3f-rating-wrapper:not(.w3f-rating--unstyled) .w3f-rating--solid {
+  background: var(--w3f-rating-bg, var(--w3f-surface-variant));
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+}
+
+/* ── DARK THEME ──────────────────────────────────────────────────────── */
+.w3f-theme-dark .w3f-rating-wrapper:not(.w3f-rating--unstyled) {
+  --w3f-rating-clear-hover-bg: var(--w3f-gray-700);
+  --w3f-rating-clear-hover-color: var(--w3f-gray-200);
+  --w3f-rating-focus-shadow: var(--w3f-rating-focus-shadow-dark, 0 0 0 3px rgba(96, 165, 250, 0.4));
+}

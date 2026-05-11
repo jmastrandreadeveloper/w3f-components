@@ -1,0 +1,60 @@
+/* _grid_with_dividers.css */
+/* =============================================================
+   🖼️ COMPONENTE: GRID WITH DIVIDERS
+   ============================================================= */
+
+/* Contenedor alrededor del hijo (child) para posicionar el divisor */
+.w3f-grid-divider-wrapper {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  /* El overflow se maneja en el componente para permitir la personalización */
+}
+
+/* Base para el Divisor (Divider) */
+.w3f-divider {
+  position: absolute;
+  background-color: var(--w3f-outline-variant); /* Similar al borde del panel */
+  transition: background-color 0.1s ease-in-out;
+  z-index: 10; /* Asegura que esté por encima del contenido */
+}
+
+/* Estado de arrastre */
+.w3f-divider.is-dragging,
+.w3f-divider:hover {
+  background-color: var(--w3f-outline); /* Color de resaltado al arrastrar/hover */
+}
+
+/* Divisor Vertical */
+.w3f-divider-vertical {
+  width: var(--w3f-space-1); /* 4px (grosor) */
+  height: 100%;
+  cursor: col-resize;
+  top: 0;
+}
+
+/* Posiciones del Divisor Vertical */
+.w3f-divider-vertical.w3f-divider-right {
+  right: calc(var(--w3f-space-1) * -0.5); /* Centrado en el borde derecho */
+}
+
+.w3f-divider-vertical.w3f-divider-left {
+  left: calc(var(--w3f-space-1) * -0.5); /* Centrado en el borde izquierdo */
+}
+
+/* Divisor Horizontal */
+.w3f-divider-horizontal {
+  height: var(--w3f-space-1); /* 4px (grosor) */
+  width: 100%;
+  cursor: row-resize;
+  left: 0;
+}
+
+/* Posiciones del Divisor Horizontal */
+.w3f-divider-horizontal.w3f-divider-bottom {
+  bottom: calc(var(--w3f-space-1) * -0.5); /* Centrado en el borde inferior */
+}
+
+.w3f-divider-horizontal.w3f-divider-top {
+  top: calc(var(--w3f-space-1) * -0.5); /* Centrado en el borde superior */
+}

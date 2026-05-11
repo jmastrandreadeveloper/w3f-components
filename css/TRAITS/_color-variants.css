@@ -1,0 +1,222 @@
+/* =====================================================================
+   COLOR VARIANT TRAITS
+   Pattern: .w3f-{style}-{color}
+   Styles: filled | ghost | outlined | soft
+   Colors: primary | secondary | success | warning | danger | info
+   ===================================================================== */
+
+/* ── FILLED ─────────────────────────────────────────────────────────── */
+
+.w3f-filled-primary {
+  background-color: var(--w3f-primary);
+  color: var(--w3f-on-primary);
+}
+.w3f-filled-secondary {
+  background-color: var(--w3f-secondary);
+  color: var(--w3f-on-primary);
+}
+.w3f-filled-success {
+  background-color: var(--w3f-success);
+  color: var(--w3f-on-primary);
+}
+.w3f-filled-warning {
+  background-color: var(--w3f-warning);
+  color: var(--w3f-on-primary);
+}
+.w3f-filled-danger {
+  background-color: var(--w3f-danger);
+  color: var(--w3f-on-primary);
+}
+.w3f-filled-info {
+  background-color: var(--w3f-info);
+  color: var(--w3f-on-primary);
+}
+
+/* ── GHOST (transparent bg, colored text) ───────────────────────────── */
+
+.w3f-ghost-primary {
+  background-color: transparent;
+  color: var(--w3f-primary);
+}
+.w3f-ghost-secondary {
+  background-color: transparent;
+  color: var(--w3f-secondary);
+}
+.w3f-ghost-success {
+  background-color: transparent;
+  color: var(--w3f-success);
+}
+.w3f-ghost-warning {
+  background-color: transparent;
+  color: var(--w3f-warning);
+}
+.w3f-ghost-danger {
+  background-color: transparent;
+  color: var(--w3f-danger);
+}
+.w3f-ghost-info {
+  background-color: transparent;
+  color: var(--w3f-info);
+}
+
+/* ── OUTLINED (transparent bg, colored border + text) ───────────────── */
+
+.w3f-outlined-primary {
+  background-color: transparent;
+  border: 1px solid var(--w3f-primary);
+  color: var(--w3f-primary);
+}
+.w3f-outlined-secondary {
+  background-color: transparent;
+  border: 1px solid var(--w3f-secondary);
+  color: var(--w3f-secondary);
+}
+.w3f-outlined-success {
+  background-color: transparent;
+  border: 1px solid var(--w3f-success);
+  color: var(--w3f-success);
+}
+.w3f-outlined-warning {
+  background-color: transparent;
+  border: 1px solid var(--w3f-warning);
+  color: var(--w3f-warning);
+}
+.w3f-outlined-danger {
+  background-color: transparent;
+  border: 1px solid var(--w3f-danger);
+  color: var(--w3f-danger);
+}
+.w3f-outlined-info {
+  background-color: transparent;
+  border: 1px solid var(--w3f-info);
+  color: var(--w3f-info);
+}
+
+/* ── SOFT (tinted bg, darker text) ──────────────────────────────────── */
+
+.w3f-soft-primary {
+  background-color: var(--w3f-primary-100);
+  color: var(--w3f-primary-700);
+}
+.w3f-soft-secondary {
+  background-color: var(--w3f-secondary-100);
+  color: var(--w3f-secondary-700);
+}
+.w3f-soft-success {
+  background-color: var(--w3f-success-100);
+  color: var(--w3f-success-700);
+}
+.w3f-soft-warning {
+  background-color: var(--w3f-warning-100);
+  color: var(--w3f-warning-700);
+}
+.w3f-soft-danger {
+  background-color: var(--w3f-danger-100);
+  color: var(--w3f-danger-700);
+}
+.w3f-soft-info {
+  background-color: var(--w3f-info-100);
+  color: var(--w3f-info-700);
+}
+
+/* ── HOVER STATES for FILLED ────────────────────────────────────────── */
+
+.w3f-hoverable.w3f-filled-primary:hover:not(:disabled) {
+  background-color: var(--w3f-primary-700);
+}
+.w3f-hoverable.w3f-filled-secondary:hover:not(:disabled) {
+  background-color: var(--w3f-secondary-700);
+}
+.w3f-hoverable.w3f-filled-success:hover:not(:disabled) {
+  background-color: var(--w3f-success-700);
+}
+.w3f-hoverable.w3f-filled-warning:hover:not(:disabled) {
+  background-color: var(--w3f-warning-700);
+}
+.w3f-hoverable.w3f-filled-danger:hover:not(:disabled) {
+  background-color: var(--w3f-danger-700);
+}
+.w3f-hoverable.w3f-filled-info:hover:not(:disabled) {
+  background-color: var(--w3f-info-700);
+}
+
+/* ── HOVER STATES for GHOST ─────────────────────────────────────────── */
+
+.w3f-hoverable.w3f-ghost-primary:hover:not(:disabled) {
+  background-color: var(--w3f-primary-50);
+  color: var(--w3f-primary-700);
+}
+.w3f-hoverable.w3f-ghost-secondary:hover:not(:disabled) {
+  background-color: var(--w3f-secondary-50);
+  color: var(--w3f-secondary-700);
+}
+.w3f-hoverable.w3f-ghost-success:hover:not(:disabled) {
+  background-color: var(--w3f-success-50);
+  color: var(--w3f-success-700);
+}
+.w3f-hoverable.w3f-ghost-warning:hover:not(:disabled) {
+  background-color: var(--w3f-warning-50);
+  color: var(--w3f-warning-700);
+}
+.w3f-hoverable.w3f-ghost-danger:hover:not(:disabled) {
+  background-color: var(--w3f-danger-50);
+  color: var(--w3f-danger-700);
+}
+.w3f-hoverable.w3f-ghost-info:hover:not(:disabled) {
+  background-color: var(--w3f-info-50);
+  color: var(--w3f-info-700);
+}
+
+/* ── HOVER STATES for OUTLINED ──────────────────────────────────────── */
+
+.w3f-hoverable.w3f-outlined-primary:hover:not(:disabled) {
+  background-color: var(--w3f-primary-50);
+  border-color: var(--w3f-primary-700);
+  color: var(--w3f-primary-700);
+}
+.w3f-hoverable.w3f-outlined-secondary:hover:not(:disabled) {
+  background-color: var(--w3f-secondary-50);
+  border-color: var(--w3f-secondary-700);
+  color: var(--w3f-secondary-700);
+}
+.w3f-hoverable.w3f-outlined-success:hover:not(:disabled) {
+  background-color: var(--w3f-success-50);
+  border-color: var(--w3f-success-700);
+  color: var(--w3f-success-700);
+}
+.w3f-hoverable.w3f-outlined-warning:hover:not(:disabled) {
+  background-color: var(--w3f-warning-50);
+  border-color: var(--w3f-warning-700);
+  color: var(--w3f-warning-700);
+}
+.w3f-hoverable.w3f-outlined-danger:hover:not(:disabled) {
+  background-color: var(--w3f-danger-50);
+  border-color: var(--w3f-danger-700);
+  color: var(--w3f-danger-700);
+}
+.w3f-hoverable.w3f-outlined-info:hover:not(:disabled) {
+  background-color: var(--w3f-info-50);
+  border-color: var(--w3f-info-700);
+  color: var(--w3f-info-700);
+}
+
+/* ── HOVER STATES for SOFT ──────────────────────────────────────────── */
+
+.w3f-hoverable.w3f-soft-primary:hover:not(:disabled) {
+  background-color: var(--w3f-primary-200);
+}
+.w3f-hoverable.w3f-soft-secondary:hover:not(:disabled) {
+  background-color: var(--w3f-secondary-200);
+}
+.w3f-hoverable.w3f-soft-success:hover:not(:disabled) {
+  background-color: var(--w3f-success-200);
+}
+.w3f-hoverable.w3f-soft-warning:hover:not(:disabled) {
+  background-color: var(--w3f-warning-200);
+}
+.w3f-hoverable.w3f-soft-danger:hover:not(:disabled) {
+  background-color: var(--w3f-danger-200);
+}
+.w3f-hoverable.w3f-soft-info:hover:not(:disabled) {
+  background-color: var(--w3f-info-200);
+}

@@ -1,0 +1,44 @@
+/* Estilos para el campo de formulario flotante */
+.w3-label.w3-validate {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  font-size: 16px;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+  background-color: white;
+  padding: 0 4px;
+}
+
+.w3-input:focus ~ .w3-label,
+.w3-input:not(:placeholder-shown) ~ .w3-label,
+.custom-textarea:focus ~ .w3-label,
+.custom-textarea:not(:placeholder-shown) ~ .w3-label {
+  top: -8px;
+  left: 8px;
+  font-size: 12px;
+  color: #3f51b5; /* Color del borde de Material Design */
+}
+
+/* Estilos para el borde de la caja al hacer focus */
+.w3-input:focus,
+.custom-textarea:focus {
+  outline: none;
+  border-color: #3f51b5 !important;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+/* Estilo para el área de texto */
+.custom-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Estilos de error */
+.w3-border-red {
+  border-color: #f44336 !important;
+}
+
+.w3-text-red {
+  color: #f44336 !important;
+}

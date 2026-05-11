@@ -1,0 +1,16 @@
+export const CARD_DEFAULTS = {
+  imageAlt: '' as const,
+  imagePosition: 'top' as const,
+  buttons: [] as const,
+  variant: 'default' as const,
+  hoverable: false as const,
+  clickable: false as const,
+  className: '' as const,
+  headerClassName: '' as const,
+  contentClassName: '' as const,
+  actionsClassName: '' as const,
+  fullWidth: false as const,
+  size: 'md' as const,
+  actionsAlign: 'start' as const,
+  unstyled: false as const,
+} as const;

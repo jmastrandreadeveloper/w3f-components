@@ -1,0 +1,3 @@
+.w3f-chart-bubble { position: relative; width: 100%; }
+.w3f-chart-bubble .w3f-chart__container { position: relative; }
+.w3f-chart-bubble--unstyled .w3f-chart__svg {}

@@ -1,0 +1,18 @@
+/* Round.css */
+/* =============================================================
+   ⚪ UTILIDAD: ROUND (Radio de Borde)
+   ============================================================= */
+
+/* Utilidades de Border Radius */
+.w3f-round-none { border-radius: var(--w3f-radius-none); }
+.w3f-round-sm { border-radius: var(--w3f-radius-sm); }
+.w3f-round { border-radius: var(--w3f-radius); }
+.w3f-round-md { border-radius: var(--w3f-radius-md); }
+.w3f-round-lg { border-radius: var(--w3f-radius-lg); }
+.w3f-round-xl { border-radius: var(--w3f-radius-xl); }
+.w3f-round-2xl { border-radius: var(--w3f-radius-2xl); }
+.w3f-round-3xl { border-radius: var(--w3f-radius-3xl); }
+.w3f-round-full { border-radius: var(--w3f-radius-full); }
+
+/* Alias para round-full, común en elementos circulares (ej. badges) */
+.w3f-circle { border-radius: var(--w3f-radius-full); }

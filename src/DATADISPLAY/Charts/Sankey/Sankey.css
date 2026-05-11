@@ -1,0 +1,14 @@
+/* ─── Sankey chart structural CSS ──────────────────────────────────── */
+
+.w3f-chart-sankey {
+    position: relative;
+    width: 100%;
+}
+
+.w3f-chart-sankey .w3f-chart__container {
+    position: relative;
+}
+
+.w3f-chart-sankey--unstyled .w3f-chart__svg {
+    /* Let the consumer control all visuals */
+}

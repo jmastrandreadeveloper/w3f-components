@@ -1,0 +1,45 @@
+/* =====================================================================
+   GLOW TRAITS
+   Composable glow effect — uses filter: drop-shadow() to avoid
+   conflicting with box-shadow (shadow traits). Both can coexist.
+   Color-aware: inherits --w3f-glow-color from the active color variant.
+   Tokenizable: --w3f-glow-blur-{step} editable via Token Editor.
+   ===================================================================== */
+
+/* ── Default glow token values ──────────────────────────────── */
+:root {
+  --w3f-glow-blur-sm: 4px;
+  --w3f-glow-blur-md: 10px;
+  --w3f-glow-blur-lg: 20px;
+  --w3f-glow-blur-xl: 32px;
+  --w3f-glow-color: rgba(37, 99, 235, 0.4);
+}
+
+/* ── Color-aware: set glow color from variant ───────────────── */
+.w3f-filled-primary,   .w3f-ghost-primary,   .w3f-outlined-primary,   .w3f-soft-primary   { --w3f-glow-color: rgba(37, 99, 235, 0.4); }
+.w3f-filled-secondary, .w3f-ghost-secondary, .w3f-outlined-secondary, .w3f-soft-secondary { --w3f-glow-color: rgba(124, 58, 237, 0.4); }
+.w3f-filled-success,   .w3f-ghost-success,   .w3f-outlined-success,   .w3f-soft-success   { --w3f-glow-color: rgba(22, 163, 74, 0.4); }
+.w3f-filled-warning,   .w3f-ghost-warning,   .w3f-outlined-warning,   .w3f-soft-warning   { --w3f-glow-color: rgba(217, 119, 6, 0.4); }
+.w3f-filled-danger,    .w3f-ghost-danger,    .w3f-outlined-danger,    .w3f-soft-danger    { --w3f-glow-color: rgba(220, 38, 38, 0.4); }
+.w3f-filled-info,      .w3f-ghost-info,      .w3f-outlined-info,      .w3f-soft-info      { --w3f-glow-color: rgba(8, 145, 178, 0.4); }
+
+/* ── Glow step classes ──────────────────────────────────────── */
+.w3f-glow-none { filter: none; }
+
+.w3f-glow-sm {
+  filter: drop-shadow(0 0 var(--w3f-glow-blur-sm) var(--w3f-glow-color));
+}
+
+.w3f-glow-md {
+  filter: drop-shadow(0 0 var(--w3f-glow-blur-md) var(--w3f-glow-color));
+}
+
+.w3f-glow-lg {
+  filter: drop-shadow(0 0 var(--w3f-glow-blur-lg) var(--w3f-glow-color));
+}
+
+.w3f-glow-xl {
+  filter:
+    drop-shadow(0 0 var(--w3f-glow-blur-xl) var(--w3f-glow-color))
+    drop-shadow(0 0 var(--w3f-glow-blur-md) var(--w3f-glow-color));
+}

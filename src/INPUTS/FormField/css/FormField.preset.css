@@ -1,0 +1,29 @@
+/* Auto-generated from _form-field.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-form-field:not(.w3f-form-field--unstyled) {
+  margin-bottom: var(--w3f-ff-margin-bottom);
+  gap: var(--w3f-ff-stacked-gap);
+  gap: var(--w3f-ff-inline-gap);
+}
+
+/* ── Label ── */
+.w3f-form-field:not(.w3f-form-field--unstyled) .w3f-form-field__label {
+  font-size: var(--w3f-ff-label-font-size);
+  font-weight: var(--w3f-ff-label-font-weight);
+  color: var(--w3f-ff-label-color);
+  margin-bottom: var(--w3f-ff-label-margin-bottom);
+  min-width: var(--w3f-ff-label-min-width);
+}
+
+/* ── Error ── */
+.w3f-form-field:not(.w3f-form-field--unstyled) {
+  color: var(--w3f-ff-error-color);
+}
+
+/* ── Disabled ── */
+.w3f-form-field:not(.w3f-form-field--unstyled).w3f-form-field--disabled {
+  opacity: var(--w3f-ff-disabled-opacity);
+  color: var(--w3f-ff-disabled-label-color);
+}
+

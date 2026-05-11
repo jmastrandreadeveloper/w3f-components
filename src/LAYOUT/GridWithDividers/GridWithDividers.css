@@ -1,0 +1,92 @@
+/* ── GridWithDividers ─────────────────────────────────────────── */
+
+.w3f-grid-divider-wrapper {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* ── Divider bar ──────────────────────────────────────────────── */
+
+.w3f-divider {
+  position: absolute;
+  background-color: var(--w3f-outline-variant, #e2e8f0);
+  transition: background-color 0.15s ease;
+  z-index: 10;
+}
+
+/* Extended invisible grab area so 5 px feels like ~21 px */
+.w3f-divider::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* Center handle pip */
+.w3f-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--w3f-outline, #94a3b8);
+  border-radius: 9999px;
+  opacity: 0.7;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.w3f-divider:hover,
+.w3f-divider.is-dragging {
+  background-color: var(--w3f-primary, #3b82f6);
+}
+
+.w3f-divider:hover::after,
+.w3f-divider.is-dragging::after {
+  background-color: #fff;
+  opacity: 1;
+}
+
+/* ── Vertical ─────────────────────────────────────────────────── */
+
+.w3f-divider-vertical {
+  width: 5px;
+  height: 100%;
+  top: 0;
+  cursor: col-resize;
+}
+
+/* 8 px padding on each side → 21 px total hit area */
+.w3f-divider-vertical::before {
+  left:  -8px;
+  right: -8px;
+}
+
+.w3f-divider-vertical::after {
+  width:  3px;
+  height: 28px;
+}
+
+.w3f-divider-vertical.w3f-divider-right { right: -3px; }
+.w3f-divider-vertical.w3f-divider-left  { left:  -3px; }
+
+/* ── Horizontal ───────────────────────────────────────────────── */
+
+.w3f-divider-horizontal {
+  height: 5px;
+  width: 100%;
+  left: 0;
+  cursor: row-resize;
+}
+
+.w3f-divider-horizontal::before {
+  top:    -8px;
+  bottom: -8px;
+}
+
+.w3f-divider-horizontal::after {
+  height: 3px;
+  width:  28px;
+}
+
+.w3f-divider-horizontal.w3f-divider-bottom { bottom: -3px; }
+.w3f-divider-horizontal.w3f-divider-top    { top:    -3px; }

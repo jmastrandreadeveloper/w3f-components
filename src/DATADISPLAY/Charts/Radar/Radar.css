@@ -1,0 +1,14 @@
+/* ─── Radar chart structural CSS ───────────────────────────────────── */
+
+.w3f-chart-radar {
+    position: relative;
+    width: 100%;
+}
+
+.w3f-chart-radar .w3f-chart__container {
+    position: relative;
+}
+
+.w3f-chart-radar--unstyled .w3f-chart__svg {
+    /* Let the consumer control all visuals */
+}

@@ -1,0 +1,68 @@
+/* ── CHECKBOX OVERRIDES ──
+   Supplements the auto-generated _checkbox.preset.css with:
+   - Shorthand properties (border, transition) not expressable in contract
+   - ::before pseudo-element (check mark)
+   - Compound selectors (disabled:hover, color variants with :checked)
+   - Children layout (padding, border-width/style, animation)
+   - Responsive breakpoints */
+
+/* ── INPUT transition shorthand (multi-property) ──────────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input {
+  transition:
+    background-color var(--w3f-transition-fast),
+    border-color var(--w3f-transition-fast),
+    box-shadow var(--w3f-transition-fast);
+}
+
+/* ── CHECK MARK (::before pseudo-element) ─────────────────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input::before {
+  box-shadow: inset 1em 1em var(--w3f-cb-check-color, var(--w3f-on-primary, white));
+  transition: transform 120ms ease-in-out;
+}
+
+/* ── LABEL line-height ────────────────────────────────────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-label {
+  line-height: 1.5;
+}
+
+/* ── CHILDREN layout (not in contract) ────────────────────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-children {
+  padding-left: var(--w3f-space-4);
+  border-left-width: 2px;
+  border-left-style: solid;
+  animation: slideDown 200ms ease-out;
+}
+
+/* ── DISABLED input hover (compound selector) ─────────────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled).w3f-checkbox-wrapper--disabled .w3f-checkbox-input:hover {
+  border-color: var(--w3f-cb-disabled-border-color, var(--w3f-gray-300));
+  box-shadow: none;
+}
+
+/* ── COLOR VARIANTS (compound selectors with :checked) ────────────────── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input.w3f-checkbox--success:checked {
+  background-color: var(--w3f-cb-success-color, var(--w3f-success));
+  border-color: var(--w3f-cb-success-color, var(--w3f-success));
+}
+
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input.w3f-checkbox--warning:checked {
+  background-color: var(--w3f-cb-warning-color, var(--w3f-warning));
+  border-color: var(--w3f-cb-warning-color, var(--w3f-warning));
+}
+
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input.w3f-checkbox--danger:checked {
+  background-color: var(--w3f-cb-danger-color, var(--w3f-danger));
+  border-color: var(--w3f-cb-danger-color, var(--w3f-danger));
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-label {
+    font-size: var(--w3f-text-sm);
+  }
+
+  .w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-children {
+    margin-left: var(--w3f-space-4);
+    padding-left: var(--w3f-space-3);
+  }
+}

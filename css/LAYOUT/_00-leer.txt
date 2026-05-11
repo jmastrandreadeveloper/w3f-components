@@ -1,0 +1,5 @@
+siguela lógica de los componentes a crea usando los mismos nombres de carpetas para no confundirnos
+dejamos acá dentro las clases css necesarias para los componentes a crear
+ajustaremos en la medida que se pueda a las clases de w3-school y si no, aparecerán clases
+hechas para estilizar los componentes, en la medida que se púeda se seguirá el lineamiento de
+de w3 schools

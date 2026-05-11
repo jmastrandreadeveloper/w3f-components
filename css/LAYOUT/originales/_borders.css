@@ -1,0 +1,25 @@
+/* Borders.css */
+/* =============================================================
+   📐 UTILIDAD: BORDERS (Bordes)
+   ============================================================= */
+
+/* Utilidades de borde genéricas (por defecto usa el color de outline) */
+.w3f-border { border-width: 1px !important; border-style: solid !important; border-color: var(--w3f-outline) !important; }
+
+.w3f-border-t { border-top-width: 1px !important; border-style: solid !important; border-color: var(--w3f-outline) !important; }
+.w3f-border-r { border-right-width: 1px !important; border-style: solid !important; border-color: var(--w3f-outline) !important; }
+.w3f-border-b { border-bottom-width: 1px !important; border-style: solid !important; border-color: var(--w3f-outline) !important; }
+.w3f-border-l { border-left-width: 1px !important; border-style: solid !important; border-color: var(--w3f-outline) !important; }
+
+.w3f-border-2 { border-width: 2px !important; }
+.w3f-border-4 { border-width: 4px !important; }
+.w3f-border-8 { border-width: 8px !important; }
+.w3f-border-none { border-width: 0 !important; }
+
+/* Colores de borde basados en tokens */
+.w3f-border-primary { border-color: var(--w3f-primary) !important; }
+.w3f-border-success { border-color: var(--w3f-success) !important; }
+.w3f-border-danger { border-color: var(--w3f-danger) !important; }
+.w3f-border-warning { border-color: var(--w3f-warning) !important; }
+.w3f-border-info { border-color: var(--w3f-info) !important; }
+.w3f-border-on-surface { border-color: var(--w3f-on-surface) !important; }

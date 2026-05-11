@@ -1,0 +1,87 @@
+/*
+ * Clases de estilo para BottomSheetPanel
+ * Se añaden al framework W3Fusion
+ */
+
+/* 1. Overlay */
+.bottom-sheet-overlay {
+    /* Fondo semitransparente (ej. gris oscuro con 60% de opacidad) */
+    background-color: var(--w3f-gray-900);
+    /* Usar el color del tema (por ejemplo, gray-900) */
+    opacity: 0.6;
+    /* 60% de opacidad */
+    transition: opacity var(--w3f-transition-normal);
+    /* Transición suave de la opacidad */
+    align-items: flex-end;
+    /* Alinea el contenido (el panel) al final (bottom) */
+    backdrop-filter: blur(2px);
+    /* Efecto de desenfoque opcional */
+}
+
+/* 2. Contenedor del Panel */
+.bottom-sheet-content {
+    /* Por defecto, fuera de la vista (translateY(100%)) */
+    transform: translateY(100%);
+    transition: transform var(--w3f-transition-normal) ease-out;
+    max-height: 85vh;
+    /* Limitar altura máxima para dispositivos pequeños */
+    position: fixed;
+    /* Debe ser fixed para permanecer en la parte inferior */
+    bottom: 0;
+    border-top-left-radius: var(--w3f-radius-xl);
+    /* Redondeo superior (ej. 16px) */
+    border-top-right-radius: var(--w3f-radius-xl);
+
+    /* Asegurar que el scroll interno funcione si el contenido es largo */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 3. Animación de Entrada */
+/* Cuando el overlay está presente, aplicamos la transformación de regreso a 0 */
+/* Nota: Como React renderiza el componente si isOpen es true, la clase 'bottom-sheet-content'
+   debe moverse a su posición de forma inmediata o usar un enfoque de clase 'is-open'
+   o un TransitionGroup. Para la simplicidad de este ejemplo:
+   - Eliminamos el 'opacity: 0.6' del overlay y lo dejamos en el backdrop.
+   - Usamos un truco simple donde el estado de React controla la clase de transformación.
+*/
+
+/* ******* SOLUCIÓN DE ANIMACIÓN SIMPLE (Para que el ejemplo funcione) ******* */
+
+/* Usamos una animación de keyframes para simular el deslizamiento en un solo paso */
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.bottom-sheet-overlay {
+    /* El overlay debe ser 'flex' y 'fixed' */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fondo semitransparente para el modal/overlay */
+}
+
+.bottom-sheet-content {
+    /* Estilos del Panel: fijo en la parte inferior, se anima al cargar */
+    animation: slideInUp var(--w3f-transition-normal) forwards;
+}
+
+/* ************************************************************************** */
+
+/* Para una implementación más robusta que soporte salida también, 
+   deberías usar una librería como `react-transition-group` o una clase
+   condicional 'is-open' y CSS Transitions en lugar de Keyframes.
+   
+   Ejemplo de clase condicional (si se usa `react-transition-group` o una clase extra):
+   
+   .bottom-sheet-content.is-open {
+       transform: translateY(0);
+   }
+   .bottom-sheet-content.is-closed {
+       transform: translateY(100%);
+   }
+*/

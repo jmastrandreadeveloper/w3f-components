@@ -1,0 +1,64 @@
+/* =====================================================================
+   SECTION TITLE — CSS Custom Properties
+   Título de sección con subtítulo y línea separadora.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-section-title {
+  /* Spacing */
+  --w3f-stitle-margin-top: var(--w3f-space-10);
+  --w3f-stitle-margin-bottom: var(--w3f-space-5);
+  --w3f-stitle-pad-bottom: var(--w3f-space-3);
+
+  /* Border */
+  --w3f-stitle-border-width: 2px;
+  --w3f-stitle-border-color: var(--w3f-outline-variant);
+
+  /* Heading */
+  --w3f-stitle-h-color: var(--w3f-on-surface);
+  --w3f-stitle-h-font: var(--w3f-text-xl);
+  --w3f-stitle-h-weight: 600;
+  --w3f-stitle-h-family: var(--w3f-font-family);
+
+  /* Subtitle */
+  --w3f-stitle-sub-color: var(--w3f-on-surface-variant);
+  --w3f-stitle-sub-font: var(--w3f-text-sm);
+  --w3f-stitle-sub-family: var(--w3f-font-family);
+  --w3f-stitle-sub-margin-top: var(--w3f-space-1);
+
+  margin: var(--w3f-stitle-margin-top) 0 var(--w3f-stitle-margin-bottom);
+  border-bottom: var(--w3f-stitle-border-width) solid var(--w3f-stitle-border-color);
+  padding-bottom: var(--w3f-stitle-pad-bottom);
+}
+
+/* Alineaciones */
+.w3f-section-title--left   { text-align: left; }
+.w3f-section-title--center { text-align: center; }
+.w3f-section-title--right  { text-align: right; }
+.w3f-section-title--justify { text-align: justify; }
+
+.w3f-section-title__h {
+  margin: 0;
+  color: var(--w3f-stitle-h-color);
+  font-size: var(--w3f-stitle-h-font);
+  font-weight: var(--w3f-stitle-h-weight);
+  font-family: var(--w3f-stitle-h-family);
+}
+
+.w3f-section-title__sub {
+  margin: var(--w3f-stitle-sub-margin-top) 0 0;
+  color: var(--w3f-stitle-sub-color);
+  font-size: var(--w3f-stitle-sub-font);
+  font-family: var(--w3f-stitle-sub-family);
+}
+
+/* ---------------------------------------------------------------------
+   Dark Theme
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-section-title {
+  --w3f-stitle-border-color: var(--w3f-outline);
+}

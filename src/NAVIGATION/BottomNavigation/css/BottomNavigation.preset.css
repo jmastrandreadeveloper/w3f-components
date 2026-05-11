@@ -1,0 +1,31 @@
+/* Auto-generated from _bottom-nav.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) {
+  background-color: var(--w3f-bnav-bg);
+  color: var(--w3f-bnav-color);
+  top: var(--w3f-bnav-border-top);
+  box-shadow: var(--w3f-bnav-elevated-shadow);
+  transition: var(--w3f-bnav-transition);
+  color: var(--w3f-bnav-focus-color);
+  opacity: var(--w3f-bnav-disabled-opacity);
+}
+
+/* ── Action Item ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav__action {
+  color: var(--w3f-bnav-active-color);
+  background-color: var(--w3f-bnav-hover-bg);
+  opacity: var(--w3f-bnav-action-disabled-opacity);
+}
+
+/* ── Badge ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav__badge {
+  background-color: var(--w3f-bnav-badge-bg);
+  color: var(--w3f-bnav-badge-color);
+}
+
+/* ── Pill Indicator ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav__pill {
+  background-color: var(--w3f-bnav-pill-bg);
+}
+

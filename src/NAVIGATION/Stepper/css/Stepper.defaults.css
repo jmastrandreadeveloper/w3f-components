@@ -1,0 +1,19 @@
+/* Auto-generated from _stepper.contract.css — DO NOT EDIT */
+.w3f-stepper {
+  --w3f-step-transition: var(--w3f-transition-fast);
+  --w3f-step-icon-bg: var(--w3f-gray-300);
+  --w3f-step-icon-color: var(--w3f-gray-600);
+  --w3f-step-icon-active-bg: var(--w3f-primary);
+  --w3f-step-icon-active-color: var(--w3f-on-primary);
+  --w3f-step-icon-completed-bg: var(--w3f-primary);
+  --w3f-step-icon-completed-color: var(--w3f-on-primary);
+  --w3f-step-icon-size: 32px;
+  --w3f-step-connector-color: var(--w3f-gray-300);
+  --w3f-step-connector-completed-color: var(--w3f-primary);
+  --w3f-step-title-color: var(--w3f-on-surface);
+  --w3f-step-optional-color: var(--w3f-gray-500);
+  --w3f-step-error-color: var(--w3f-danger);
+  --w3f-step-hover-bg: var(--w3f-gray-100);
+  --w3f-step-focus-color: var(--w3f-primary);
+  --w3f-step-disabled-opacity: 0.5;
+}

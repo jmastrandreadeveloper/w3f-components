@@ -1,0 +1,34 @@
+/* Auto-generated from _fab.contract.css — DO NOT EDIT */
+.w3f-fab {
+  --w3f-fab-size: 56px;
+  --w3f-fab-radius-tl: 16px;
+  --w3f-fab-radius-tr: 16px;
+  --w3f-fab-radius-br: 16px;
+  --w3f-fab-radius-bl: 16px;
+  --w3f-fab-bg: var(--w3f-primary);
+  --w3f-fab-color: #ffffff;
+  --w3f-fab-shadow: var(--w3f-shadow-lg);
+  --w3f-fab-transition: all 0.2s ease;
+  --w3f-fab-font-family: inherit;
+  --w3f-fab-font-weight: 500;
+  --w3f-fab-z-index: 1050;
+  --w3f-fab-position-right: 24px;
+  --w3f-fab-group-gap: 16px;
+  --w3f-fab-hover-bg: var(--w3f-primary-600);
+  --w3f-fab-hover-shadow: var(--w3f-shadow-xl);
+  --w3f-fab-active-bg: var(--w3f-primary-700);
+  --w3f-fab-active-shadow: var(--w3f-shadow-md);
+  --w3f-fab-focus-outline-color: var(--w3f-primary);
+  --w3f-fab-icon-size: 24px;
+  --w3f-fab-text-size: 0.875rem;
+  --w3f-fab-label-bg: #1f2937;
+  --w3f-fab-label-color: #ffffff;
+  --w3f-fab-label-radius-tl: 4px;
+  --w3f-fab-label-radius-tr: 4px;
+  --w3f-fab-label-radius-br: 4px;
+  --w3f-fab-label-radius-bl: 4px;
+  --w3f-fab-label-font-size: 12px;
+  --w3f-fab-label-shadow: var(--w3f-shadow-md);
+  --w3f-fab-disabled-opacity: 0.5;
+  --w3f-fab-disabled-shadow: none;
+}

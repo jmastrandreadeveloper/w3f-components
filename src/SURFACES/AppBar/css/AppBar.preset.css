@@ -1,0 +1,25 @@
+/* Auto-generated from _app-bar.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-app-bar:not(.w3f-app-bar--unstyled) {
+  background-color: var(--w3f-appbar-bg);
+  color: var(--w3f-appbar-color);
+  box-shadow: var(--w3f-appbar-shadow);
+  box-shadow: var(--w3f-appbar-elevated-shadow);
+  color: var(--w3f-appbar-border-color);
+  z-index: var(--w3f-appbar-z-index);
+}
+
+/* ── Toolbar ── */
+.w3f-app-bar:not(.w3f-app-bar--unstyled) .w3f-appbar__toolbar {
+  min-height: var(--w3f-appbar-toolbar-min-height);
+  gap: var(--w3f-appbar-toolbar-gap);
+  gap: var(--w3f-appbar-slot-gap);
+}
+
+/* ── Title ── */
+.w3f-app-bar:not(.w3f-app-bar--unstyled) .w3f-appbar__title {
+  font-size: var(--w3f-appbar-title-font-size);
+  font-weight: var(--w3f-appbar-title-font-weight);
+}
+

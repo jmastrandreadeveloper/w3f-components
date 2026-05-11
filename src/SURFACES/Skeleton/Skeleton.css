@@ -1,0 +1,38 @@
+/*
+  CSS necesario para la animación de 'shimmer'
+  de un Skeleton Loader.
+*/
+.skeleton-shimmer {
+  /* El color base del Skeleton (w3-light-grey puede ser un buen fallback) */
+  background-color: #f1f1f1; 
+  
+  /* Configuración del gradiente para el efecto de brillo */
+  background: linear-gradient(to right, 
+    rgba(255, 255, 255, 0) 0%, /* Transparente */
+    rgba(255, 255, 255, 0.4) 50%, /* Brillo (blanco semitransparente) */
+    rgba(255, 255, 255, 0) 100% /* Transparente */
+  );
+  /* Asegura que el gradiente sea lo suficientemente ancho para el desplazamiento */
+  background-size: 200% 100%; 
+  
+  /* Aplicar la animación */
+  animation: shimmer 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Definición de la animación de desplazamiento del gradiente */
+@keyframes shimmer {
+  0% {
+    /* El gradiente empieza fuera de la vista a la izquierda */
+    background-position: 200% 0;
+  }
+  100% {
+    /* El gradiente se desplaza hacia la izquierda, simulando el brillo */
+    background-position: -200% 0;
+  }
+}
+
+/* Estilo para el contenedor de la tarjeta para el ejemplo */
+.card-example {
+    padding: 16px; 
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
+}

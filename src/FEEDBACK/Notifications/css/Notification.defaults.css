@@ -1,0 +1,24 @@
+/* Auto-generated from _notification.contract.css — DO NOT EDIT */
+.w3f-notification-container {
+  --w3f-notif-bg: var(--w3f-surface);
+  --w3f-notif-border: 1px solid var(--w3f-outline-variant);
+  --w3f-notif-radius-tl: var(--w3f-radius-lg);
+  --w3f-notif-radius-tr: var(--w3f-radius-lg);
+  --w3f-notif-radius-br: var(--w3f-radius-lg);
+  --w3f-notif-radius-bl: var(--w3f-radius-lg);
+  --w3f-notif-shadow: var(--w3f-shadow-lg);
+  --w3f-notif-padding-top: var(--w3f-space-4);
+  --w3f-notif-padding-right: var(--w3f-space-4);
+  --w3f-notif-padding-bottom: var(--w3f-space-4);
+  --w3f-notif-padding-left: var(--w3f-space-4);
+  --w3f-notif-gap: 12px;
+  --w3f-notif-max-width: 400px;
+  --w3f-notif-blur: 0;
+  --w3f-notif-offset: 16px;
+  --w3f-notif-z: 9999;
+  --w3f-notif-title-color: var(--w3f-on-surface);
+  --w3f-notif-message-color: var(--w3f-gray-600);
+  --w3f-notif-icon-size: 1.25rem;
+  --w3f-notif-close-color: var(--w3f-gray-400);
+  --w3f-notif-progress-height: 3px;
+}

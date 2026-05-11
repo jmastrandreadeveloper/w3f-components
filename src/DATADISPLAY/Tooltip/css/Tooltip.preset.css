@@ -1,0 +1,25 @@
+/* Auto-generated from _tooltip.contract.css — DO NOT EDIT */
+
+/* ── Tooltip Base ── */
+.w3f-tooltip-wrapper:not(.w3f-tooltip-wrapper--unstyled) {
+  background-color: var(--w3f-tooltip-bg);
+  color: var(--w3f-tooltip-color);
+  border-top-left-radius: var(--w3f-tooltip-radius-tl);
+  border-top-right-radius: var(--w3f-tooltip-radius-tr);
+  border-bottom-right-radius: var(--w3f-tooltip-radius-br);
+  border-bottom-left-radius: var(--w3f-tooltip-radius-bl);
+  padding-top: var(--w3f-tooltip-padding-top);
+  padding-right: var(--w3f-tooltip-padding-right);
+  padding-bottom: var(--w3f-tooltip-padding-bottom);
+  padding-left: var(--w3f-tooltip-padding-left);
+  font-size: var(--w3f-tooltip-font-size);
+  line-height: var(--w3f-tooltip-line-height);
+  box-shadow: var(--w3f-tooltip-shadow);
+}
+
+/* ── Light Variant ── */
+.w3f-tooltip-wrapper:not(.w3f-tooltip-wrapper--unstyled) .w3f-tooltip--light {
+  background-color: var(--w3f-tooltip-light-bg);
+  color: var(--w3f-tooltip-light-color);
+}
+

@@ -1,0 +1,48 @@
+/* Panels.css */
+/* =============================================================
+   🖼️ COMPONENTE: PANELS (Paneles/Tarjetas)
+   ============================================================= */
+
+.w3f-panel,
+.w3f-card {
+  background-color: var(--w3f-surface); /* */
+  border: 1px solid var(--w3f-outline-variant); /* */
+  border-radius: var(--w3f-radius-lg); /* */
+  box-shadow: var(--w3f-shadow-sm); /* */
+  overflow: visible; /* */
+}
+
+.w3f-panel-header,
+.w3f-card-header {
+  padding: var(--w3f-space-6); /* */
+  border-bottom: 1px solid var(--w3f-outline-variant); /* */
+}
+
+.w3f-panel-body,
+.w3f-card-body {
+  padding: var(--w3f-space-2); /* */
+}
+
+.w3f-panel-footer,
+.w3f-card-footer {
+  padding: var(--w3f-space-2); /* */
+  border-top: 1px solid var(--w3f-outline-variant); /* */
+  background-color: var(--w3f-surface-variant); /* */
+}
+
+.w3f-panel-title,
+.w3f-card-title {
+  font-size: var(--w3f-text-xl); /* */
+  font-weight: 600; /* */
+  margin-bottom: var(--w3f-space-2); /* */
+  color: var(--w3f-on-surface); /* */
+}
+
+.w3f-panel-fill {
+  width: 100%;
+  height: 100%;
+  margin: 0; /* Asegura que no haya márgenes externos */
+  padding: 0; /* Asegura que no haya padding externo */
+  border-radius: 0; /* Sobrescribe cualquier border-radius base para un look rectangular (típico de topbar) */
+  box-shadow: none; /* Sobrescribe cualquier sombra base para un look plano (típico de topbar) */
+}

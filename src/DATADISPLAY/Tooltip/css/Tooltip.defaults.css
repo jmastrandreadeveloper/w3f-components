@@ -1,0 +1,24 @@
+/* Auto-generated from _tooltip.contract.css — DO NOT EDIT */
+.w3f-tooltip-wrapper {
+  --w3f-tooltip-bg: rgba(0,0,0,0.9);
+  --w3f-tooltip-color: white;
+  --w3f-tooltip-radius-tl: var(--w3f-radius-md);
+  --w3f-tooltip-radius-tr: var(--w3f-radius-md);
+  --w3f-tooltip-radius-br: var(--w3f-radius-md);
+  --w3f-tooltip-radius-bl: var(--w3f-radius-md);
+  --w3f-tooltip-padding-top: 8px;
+  --w3f-tooltip-padding-right: 12px;
+  --w3f-tooltip-padding-bottom: 8px;
+  --w3f-tooltip-padding-left: 12px;
+  --w3f-tooltip-font-size: var(--w3f-text-sm);
+  --w3f-tooltip-line-height: 1.4;
+  --w3f-tooltip-shadow: var(--w3f-shadow-lg);
+  --w3f-tooltip-z: 1000;
+  --w3f-tooltip-transition-duration: 0.2s;
+  --w3f-tooltip-light-bg: white;
+  --w3f-tooltip-light-color: var(--w3f-gray-800);
+  --w3f-tooltip-light-border: var(--w3f-gray-300);
+  --w3f-tooltip-offset: 8px;
+  --w3f-tooltip-arrow-size: 6px;
+  --w3f-tooltip-arrow-start-offset: 16px;
+}

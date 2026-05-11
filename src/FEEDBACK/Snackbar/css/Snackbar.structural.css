@@ -1,0 +1,282 @@
+/* =====================================================================
+   📢 SNACKBAR - Componente de notificación temporal
+   Arquitectura: .w3f-snackbar-anchor (posicionamiento) +
+                 .w3f-snackbar (contenido + animación)
+   Esto evita cualquier conflicto entre transform de centrado y
+   transform de animación, ya que viven en elementos distintos.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   🗺️ Anchor — posicionamiento fijo en pantalla
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar-anchor {
+  --w3f-snack-z: 1400;
+  --w3f-snack-offset: 24px;
+
+  position: fixed;
+  z-index: var(--w3f-snack-z);
+}
+
+/* Posiciones */
+
+.w3f-snackbar-anchor--bottom-center {
+  bottom: var(--w3f-snack-offset);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.w3f-snackbar-anchor--bottom-left {
+  bottom: var(--w3f-snack-offset);
+  left: var(--w3f-snack-offset);
+}
+
+.w3f-snackbar-anchor--bottom-right {
+  bottom: var(--w3f-snack-offset);
+  right: var(--w3f-snack-offset);
+}
+
+.w3f-snackbar-anchor--top-center {
+  top: var(--w3f-snack-offset);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.w3f-snackbar-anchor--top-left {
+  top: var(--w3f-snack-offset);
+  left: var(--w3f-snack-offset);
+}
+
+.w3f-snackbar-anchor--top-right {
+  top: var(--w3f-snack-offset);
+  right: var(--w3f-snack-offset);
+}
+
+/* ---------------------------------------------------------------------
+   📦 Snackbar — contenido, apariencia y animación
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar {
+  /* Custom Properties */
+  --w3f-snack-bg: var(--w3f-gray-800);
+  --w3f-snack-color: white;
+  --w3f-snack-radius-tl: var(--w3f-radius);
+  --w3f-snack-radius-tr: var(--w3f-radius);
+  --w3f-snack-radius-br: var(--w3f-radius);
+  --w3f-snack-radius-bl: var(--w3f-radius);
+  --w3f-snack-shadow: var(--w3f-shadow-lg);
+  --w3f-snack-max-width: 560px;
+  --w3f-snack-min-width: 288px;
+  --w3f-snack-padding-top: var(--w3f-space-3);
+  --w3f-snack-padding-right: var(--w3f-space-4);
+  --w3f-snack-padding-bottom: var(--w3f-space-3);
+  --w3f-snack-padding-left: var(--w3f-space-4);
+  --w3f-snack-close-color: rgba(255, 255, 255, 0.7);
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--w3f-space-4);
+  min-width: var(--w3f-snack-min-width);
+  max-width: var(--w3f-snack-max-width);
+
+  /* Espaciado interno */
+  padding-top: var(--w3f-snack-padding-top);
+  padding-right: var(--w3f-snack-padding-right);
+  padding-bottom: var(--w3f-snack-padding-bottom);
+  padding-left: var(--w3f-snack-padding-left);
+
+  /* Apariencia */
+  background-color: var(--w3f-snack-bg);
+  color: var(--w3f-snack-color);
+  border-radius: var(--w3f-snack-radius-tl) var(--w3f-snack-radius-tr) var(--w3f-snack-radius-br) var(--w3f-snack-radius-bl);
+  box-shadow: var(--w3f-snack-shadow);
+
+  /* Animación de entrada (bottom positions) */
+  animation: w3f-snackbar-slide-in var(--w3f-transition-normal);
+}
+
+/* Top positions usan la animación invertida */
+.w3f-snackbar-anchor--top-center .w3f-snackbar,
+.w3f-snackbar-anchor--top-left .w3f-snackbar,
+.w3f-snackbar-anchor--top-right .w3f-snackbar {
+  animation-name: w3f-snackbar-slide-in-top;
+}
+
+/* ---------------------------------------------------------------------
+   📝 Contenido del mensaje
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar__message {
+  flex: 1;
+  margin: 0;
+  font-size: var(--w3f-text-sm);
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------
+   ✖️ Botón de cierre
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--w3f-space-1);
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--w3f-snack-close-color);
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--w3f-radius);
+  transition: background-color var(--w3f-transition-fast), transform var(--w3f-transition-fast);
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.w3f-snackbar__close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.w3f-snackbar__close:active {
+  transform: scale(0.95);
+}
+
+.w3f-snackbar__close:focus-visible {
+  outline: 2px solid var(--w3f-snack-close-color);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+   🎨 Variantes de color
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar--success {
+  --w3f-snack-bg: var(--w3f-success-700);
+  --w3f-snack-close-color: var(--w3f-success-200);
+}
+
+.w3f-snackbar--warning {
+  --w3f-snack-bg: var(--w3f-warning-700);
+  --w3f-snack-color: var(--w3f-gray-900);
+  --w3f-snack-close-color: var(--w3f-warning-900);
+}
+
+.w3f-snackbar--danger {
+  --w3f-snack-bg: var(--w3f-danger-700);
+  --w3f-snack-close-color: var(--w3f-danger-200);
+}
+
+.w3f-snackbar--info {
+  --w3f-snack-bg: var(--w3f-info-700);
+  --w3f-snack-close-color: var(--w3f-info-200);
+}
+
+/* ---------------------------------------------------------------------
+   🎬 Animaciones — solo translateY, sin conflicto con el anchor
+   --------------------------------------------------------------------- */
+
+/* Bottom: entra desde abajo */
+@keyframes w3f-snackbar-slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Top: entra desde arriba */
+@keyframes w3f-snackbar-slide-in-top {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Exit: bottom positions salen hacia abajo */
+.w3f-snackbar--exit {
+  animation: w3f-snackbar-slide-out var(--w3f-transition-fast);
+}
+
+/* Exit: top positions salen hacia arriba */
+.w3f-snackbar-anchor--top-center .w3f-snackbar--exit,
+.w3f-snackbar-anchor--top-left .w3f-snackbar--exit,
+.w3f-snackbar-anchor--top-right .w3f-snackbar--exit {
+  animation-name: w3f-snackbar-slide-out-top;
+}
+
+@keyframes w3f-snackbar-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes w3f-snackbar-slide-out-top {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   🌙 Tema oscuro
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-snackbar {
+  --w3f-snack-bg: var(--w3f-gray-700);
+  --w3f-snack-color: var(--w3f-gray-100);
+  --w3f-snack-shadow: var(--w3f-shadow-xl);
+}
+
+.w3f-theme-dark .w3f-snackbar__close:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------------------------------------------------------------------
+   Action slot
+   --------------------------------------------------------------------- */
+
+.w3f-snackbar__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--w3f-space-2);
+  flex-shrink: 0;
+}
+
+.w3f-snackbar__action button {
+  color: var(--w3f-primary-300);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--w3f-text-sm);
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  border-radius: var(--w3f-radius);
+  transition: background-color var(--w3f-transition-fast);
+}
+
+.w3f-snackbar__action button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,134 @@
+/* =====================================================================
+   Image Component — CSS Custom Properties
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-image-wrapper {
+  /* Border */
+  --w3f-img-border-width: 2px;
+  --w3f-img-border-color: var(--w3f-gray-300);
+
+  /* Hover effects */
+  --w3f-img-hover-zoom-scale: 1.05;
+  --w3f-img-hover-lift-y: -4px;
+  --w3f-img-hover-lift-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.2);
+
+  /* Transitions */
+  --w3f-img-transition: var(--w3f-transition-normal);
+
+  /* Filter opacity */
+  --w3f-img-filter-opacity: 0.6;
+
+  display: inline-block;
+  line-height: 0;
+  max-width: 100%;
+}
+
+/* ---------------------------------------------------------------------
+   Dark theme
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-image-wrapper {
+  --w3f-img-border-color: var(--w3f-gray-600);
+}
+
+/* Base image styles */
+.w3f-image-base {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+/* Rounded variants */
+.w3f-rounded-sm {
+  border-radius: var(--w3f-radius-sm);
+}
+
+.w3f-rounded-md {
+  border-radius: var(--w3f-radius-md);
+}
+
+.w3f-rounded-lg {
+  border-radius: var(--w3f-radius-lg);
+}
+
+.w3f-rounded-full {
+  border-radius: var(--w3f-radius-full);
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Border */
+.w3f-image-border {
+  border: var(--w3f-img-border-width) solid var(--w3f-img-border-color);
+}
+
+/* Shadows */
+.w3f-shadow-sm {
+  box-shadow: var(--w3f-shadow-sm);
+}
+
+.w3f-shadow-md {
+  box-shadow: var(--w3f-shadow-md);
+}
+
+.w3f-shadow-lg {
+  box-shadow: var(--w3f-shadow-lg);
+}
+
+.w3f-shadow-xl {
+  box-shadow: var(--w3f-shadow-xl);
+}
+
+/* Filters */
+.w3f-image-filter-grayscale {
+  filter: grayscale(100%);
+  transition: filter var(--w3f-img-transition);
+}
+
+.w3f-image-filter-grayscale:hover {
+  filter: grayscale(0%);
+}
+
+.w3f-image-filter-sepia {
+  filter: sepia(100%);
+  transition: filter var(--w3f-img-transition);
+}
+
+.w3f-image-filter-sepia:hover {
+  filter: sepia(0%);
+}
+
+.w3f-image-filter-opacity {
+  opacity: var(--w3f-img-filter-opacity);
+  transition: opacity var(--w3f-img-transition);
+}
+
+.w3f-image-filter-opacity:hover {
+  opacity: 1;
+}
+
+/* Hover effects */
+.w3f-image-hover-zoom {
+  transition: transform var(--w3f-img-transition);
+  cursor: pointer;
+}
+
+.w3f-image-hover-zoom:hover {
+  transform: scale(var(--w3f-img-hover-zoom-scale));
+}
+
+.w3f-image-hover-lift {
+  transition: transform var(--w3f-img-transition), box-shadow var(--w3f-img-transition);
+  cursor: pointer;
+}
+
+.w3f-image-hover-lift:hover {
+  transform: translateY(var(--w3f-img-hover-lift-y));
+  box-shadow: var(--w3f-img-hover-lift-shadow);
+}

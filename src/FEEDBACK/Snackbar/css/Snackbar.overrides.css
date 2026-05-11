@@ -1,0 +1,60 @@
+/* ── SNACKBAR OVERRIDES ──
+   Migrated from manual _snackbar.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   SNACKBAR PRESET — Visual styles via CSS custom properties
+   Active when .w3f-snackbar is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-snack-theme-glass { --w3f-snack-bg: rgba(30,30,30,0.8); ... }
+   ===================================================================== */
+
+/* -- BASE ------------------------------------------------------------ */
+.w3f-snackbar:not(.w3f-snackbar--unstyled) {
+  background-color: var(--w3f-snack-bg, var(--w3f-gray-800));
+  color: var(--w3f-snack-color, white);
+  border-radius: var(--w3f-snack-radius-tl, var(--w3f-radius)) var(--w3f-snack-radius-tr, var(--w3f-radius)) var(--w3f-snack-radius-br, var(--w3f-radius)) var(--w3f-snack-radius-bl, var(--w3f-radius));
+  box-shadow: var(--w3f-snack-shadow, var(--w3f-shadow-lg));
+  padding-top: var(--w3f-snack-padding-top, var(--w3f-space-3));
+  padding-right: var(--w3f-snack-padding-right, var(--w3f-space-4));
+  padding-bottom: var(--w3f-snack-padding-bottom, var(--w3f-space-3));
+  padding-left: var(--w3f-snack-padding-left, var(--w3f-space-4));
+  max-width: var(--w3f-snack-max-width, 560px);
+  z-index: var(--w3f-snack-z, 1400);
+}
+
+/* -- POSITION OFFSET ------------------------------------------------- */
+.w3f-snackbar:not(.w3f-snackbar--unstyled) {
+  bottom: var(--w3f-snack-offset, 24px);
+  right: var(--w3f-snack-offset, 24px);
+  left: var(--w3f-snack-offset, 24px);
+}
+
+/* -- CLOSE ----------------------------------------------------------- */
+.w3f-snackbar:not(.w3f-snackbar--unstyled) .w3f-snackbar__close {
+  color: var(--w3f-snack-close-color, rgba(255, 255, 255, 0.7));
+}
+
+/* -- SEMANTIC COLORS — set variables so they win over defaults.css --- */
+.w3f-snackbar:not(.w3f-snackbar--unstyled).w3f-snackbar--success {
+  --w3f-snack-bg: var(--w3f-success-700);
+  --w3f-snack-close-color: var(--w3f-success-200);
+}
+
+.w3f-snackbar:not(.w3f-snackbar--unstyled).w3f-snackbar--warning {
+  --w3f-snack-bg: var(--w3f-warning-700);
+  --w3f-snack-color: var(--w3f-gray-900);
+  --w3f-snack-close-color: var(--w3f-warning-900);
+}
+
+.w3f-snackbar:not(.w3f-snackbar--unstyled).w3f-snackbar--danger {
+  --w3f-snack-bg: var(--w3f-danger-700);
+  --w3f-snack-close-color: var(--w3f-danger-200);
+}
+
+.w3f-snackbar:not(.w3f-snackbar--unstyled).w3f-snackbar--info {
+  --w3f-snack-bg: var(--w3f-info-700);
+  --w3f-snack-close-color: var(--w3f-info-200);
+}

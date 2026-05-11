@@ -1,0 +1,41 @@
+/* Auto-generated from _menu.contract.css — DO NOT EDIT */
+.w3f-menu {
+  --w3f-menu-trigger-bg: transparent;
+  --w3f-menu-trigger-color: var(--w3f-white);
+  --w3f-menu-trigger-border-color: transparent;
+  --w3f-menu-trigger-radius-tl: var(--w3f-radius);
+  --w3f-menu-trigger-radius-tr: var(--w3f-radius);
+  --w3f-menu-trigger-radius-br: var(--w3f-radius);
+  --w3f-menu-trigger-radius-bl: var(--w3f-radius);
+  --w3f-menu-trigger-font-size: var(--w3f-text-base);
+  --w3f-menu-trigger-font-weight: 500;
+  --w3f-menu-trigger-shadow: var(--w3f-shadow-sm);
+  --w3f-menu-trigger-hover-bg: rgba(255,255,255,0.1);
+  --w3f-menu-trigger-active-bg: var(--w3f-gray-600);
+  --w3f-menu-trigger-active-border: var(--w3f-primary);
+  --w3f-menu-trigger-focus-shadow: 0 0 0 2px var(--w3f-primary-300);
+  --w3f-menu-dropdown-bg: var(--w3f-surface);
+  --w3f-menu-dropdown-border: var(--w3f-outline-variant);
+  --w3f-menu-dropdown-radius-tl: var(--w3f-radius-md);
+  --w3f-menu-dropdown-radius-tr: var(--w3f-radius-md);
+  --w3f-menu-dropdown-radius-br: var(--w3f-radius-md);
+  --w3f-menu-dropdown-radius-bl: var(--w3f-radius-md);
+  --w3f-menu-dropdown-shadow: var(--w3f-shadow-lg);
+  --w3f-menu-dropdown-min-width: 200px;
+  --w3f-menu-dropdown-pad: var(--w3f-space-1);
+  --w3f-menu-btn-color: var(--w3f-on-surface);
+  --w3f-menu-btn-font-size: var(--w3f-text-sm);
+  --w3f-menu-btn-pad-v: var(--w3f-space-2);
+  --w3f-menu-btn-pad-h: var(--w3f-space-4);
+  --w3f-menu-btn-hover-bg: var(--w3f-gray-100);
+  --w3f-menu-btn-hover-color: var(--w3f-primary);
+  --w3f-menu-btn-active-bg: var(--w3f-gray-200);
+  --w3f-menu-btn-is-active-bg: var(--w3f-gray-100);
+  --w3f-menu-btn-is-active-color: var(--w3f-primary);
+  --w3f-menu-arrow-color: var(--w3f-gray-400);
+  --w3f-menu-arrow-font-size: var(--w3f-text-xs);
+  --w3f-menu-arrow-hover-color: var(--w3f-primary);
+  --w3f-menu-transition: var(--w3f-transition-fast);
+  --w3f-menu-btn-focus-bg: inherit;
+  --w3f-menu-btn-focus-shadow: inherit;
+}

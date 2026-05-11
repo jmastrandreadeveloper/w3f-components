@@ -1,0 +1,76 @@
+/* _positioning.css */
+/* =============================================================
+   📍 UTILIDAD: POSICIONAMIENTO (para DisplayContainer)
+   ============================================================= */
+
+/* 1. Contenedor Padre (Equivalente a w3-display-container) */
+.w3f-position-container {
+  position: relative;
+  /* Nota: El usuario debe definir la altura (height) de este contenedor */
+}
+
+/* 2. Clases de Posicionamiento Absoluto (Hijos) */
+
+.w3f-position-topleft {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.w3f-position-topright {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.w3f-position-bottomleft {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.w3f-position-bottomright {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+/* Centrado horizontal y vertical (el más importante) */
+.w3f-position-middle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centrado perfecto */
+}
+
+/* Centrado horizontal superior */
+.w3f-position-top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Centrado horizontal inferior */
+.w3f-position-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Centrado vertical izquierdo */
+.w3f-position-left {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+/* Centrado vertical derecho */
+.w3f-position-right {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}

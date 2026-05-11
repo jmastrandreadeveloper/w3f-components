@@ -1,0 +1,42 @@
+/* Margins.css */
+/* =============================================================
+   📐 UTILIDAD: MARGINS (Márgenes)
+   ============================================================= */
+
+/* Margen en todas las direcciones */
+.w3f-m-0 { margin: 0; } /* */
+.w3f-m-1 { margin: var(--w3f-space-1); } /* */
+.w3f-m-2 { margin: var(--w3f-space-2); } /* */
+.w3f-m-3 { margin: var(--w3f-space-3); } /* */
+.w3f-m-4 { margin: var(--w3f-space-4); } /* */
+.w3f-m-5 { margin: var(--w3f-space-5); } /* */
+.w3f-m-6 { margin: var(--w3f-space-6); } /* */
+.w3f-m-8 { margin: var(--w3f-space-8); } /* */
+.w3f-m-auto { margin: auto; }
+
+/* Margen Top (mt) */
+.w3f-mt-0 { margin-top: 0; } /* */
+.w3f-mt-1 { margin-top: var(--w3f-space-1); } /* */
+.w3f-mt-2 { margin-top: var(--w3f-space-2); } /* */
+.w3f-mt-3 { margin-top: var(--w3f-space-3); } /* */
+.w3f-mt-4 { margin-top: var(--w3f-space-4); } /* */
+.w3f-mt-6 { margin-top: var(--w3f-space-6); } /* */
+.w3f-mt-8 { margin-top: var(--w3f-space-8); } /* */
+.w3f-mt-auto { margin-top: auto; }
+
+/* Margen Bottom (mb) */
+.w3f-mb-0 { margin-bottom: 0; } /* */
+.w3f-mb-1 { margin-bottom: var(--w3f-space-1); } /* */
+.w3f-mb-2 { margin-bottom: var(--w3f-space-2); } /* */
+.w3f-mb-3 { margin-bottom: var(--w3f-space-3); } /* */
+.w3f-mb-4 { margin-bottom: var(--w3f-space-4); } /* */
+.w3f-mb-6 { margin-bottom: var(--w3f-space-6); } /* */
+.w3f-mb-8 { margin-bottom: var(--w3f-space-8); } /* */
+.w3f-mb-auto { margin-bottom: auto; }
+
+/* Margen Horizontal (mx) */
+.w3f-mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Otras direcciones (ml, mr) */
+.w3f-ml-4 { margin-left: var(--w3f-space-4); }
+.w3f-mr-4 { margin-right: var(--w3f-space-4); }

@@ -1,0 +1,4 @@
+una AppBar es un contenedor que puede tener dentro un Menú, un ícono hamburguesa, iconos con notificaciones, iconos con notificaciones y un menú desplegable.
+cualquier cosa que se quiera mostrar en la AppBar se puede hacer con un contenedor. y usando los componentes
+que ya se han declarado antes
+Es decir que podemos armar una AppBar con los componentes que hemos creado anteriormente.

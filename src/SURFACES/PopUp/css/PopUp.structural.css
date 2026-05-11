@@ -1,0 +1,107 @@
+/* =====================================================================
+   POPUP COMPONENT — CSS Custom Properties
+   Basado en Overlay + Card
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-popup-overlay {
+  /* Overlay */
+  --w3f-popup-overlay-bg: rgba(0, 0, 0, 0.5);
+  --w3f-popup-overlay-z: var(--w3f-z-index-modal, 1000);
+  --w3f-popup-overlay-blur: 4px;
+  --w3f-popup-overlay-anim-duration: 0.2s;
+
+  /* Container */
+  --w3f-popup-container-max-width: 480px;
+  --w3f-popup-container-anim-duration: 0.3s;
+
+  /* Close button */
+  --w3f-popup-close-top: var(--w3f-space-2);
+  --w3f-popup-close-right: var(--w3f-space-4);
+  --w3f-popup-close-size: 1.5rem;
+  --w3f-popup-close-color: var(--w3f-gray-500);
+  --w3f-popup-close-hover-color: var(--w3f-danger);
+  --w3f-popup-close-transition: 0.2s;
+
+  /* Card */
+  --w3f-popup-card-shadow: var(--w3f-shadow-xl);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--w3f-popup-overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--w3f-popup-overlay-z);
+  backdrop-filter: blur(var(--w3f-popup-overlay-blur));
+  animation: fadeIn var(--w3f-popup-overlay-anim-duration) ease-out;
+}
+
+.w3f-popup-container {
+  position: relative;
+  width: 90%;
+  max-width: var(--w3f-popup-container-max-width);
+  animation: scaleUp var(--w3f-popup-container-anim-duration) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.w3f-popup-container--sm { --w3f-popup-container-max-width: 360px; }
+.w3f-popup-container--md { --w3f-popup-container-max-width: 480px; }
+.w3f-popup-container--lg { --w3f-popup-container-max-width: 680px; }
+
+/* Botón de cierre (X) */
+.w3f-popup-close-btn {
+  position: absolute;
+  top: var(--w3f-popup-close-top);
+  right: var(--w3f-popup-close-right);
+  background: transparent;
+  border: none;
+  font-size: var(--w3f-popup-close-size);
+  color: var(--w3f-popup-close-color);
+  cursor: pointer;
+  z-index: 20;
+  transition: color var(--w3f-popup-close-transition);
+}
+
+.w3f-popup-close-btn:hover {
+  color: var(--w3f-popup-close-hover-color);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Card del PopUp */
+.w3f-popup-card {
+  box-shadow: var(--w3f-popup-card-shadow) !important;
+}
+
+/* Gap entre botones — !important invierte prioridad de layers (structural gana sobre presets) */
+.w3f-popup-card .w3f-slot-actions,
+.w3f-popup-card .w3f-card__actions {
+  gap: 1rem !important;
+}

@@ -1,0 +1,164 @@
+/* ── PAPER OVERRIDES ──
+   Migrated from manual _paper.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   PAPER PRESET — Visual styles via CSS custom properties
+   Active when .w3f-paper is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-paper-theme-warm { --w3f-paper-bg: #fef9ef; ... }
+   ===================================================================== */
+
+/* -- BASE ------------------------------------------------------------ */
+.w3f-paper:not(.w3f-paper--unstyled) {
+  background-color: var(--w3f-paper-bg);
+  box-shadow: var(--w3f-paper-shadow);
+  border-radius: var(--w3f-paper-radius-tl) var(--w3f-paper-radius-tr) var(--w3f-paper-radius-br) var(--w3f-paper-radius-bl);
+  padding-top: var(--w3f-paper-padding-top);
+  padding-right: var(--w3f-paper-padding-right);
+  padding-bottom: var(--w3f-paper-padding-bottom);
+  padding-left: var(--w3f-paper-padding-left);
+  margin: var(--w3f-paper-margin-top) var(--w3f-paper-margin-right) var(--w3f-paper-margin-bottom) var(--w3f-paper-margin-left);
+
+  /* Grid background */
+  background-image:
+    /* Lineas verticales principales (cada 4 cuadros) */
+    repeating-linear-gradient(to right,
+      transparent,
+      transparent calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval) - var(--w3f-paper-grid-major-thickness)),
+      var(--w3f-paper-grid-color) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval) - var(--w3f-paper-grid-major-thickness)),
+      var(--w3f-paper-grid-color) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval))),
+    /* Lineas horizontales principales (cada 4 cuadros) */
+    repeating-linear-gradient(to bottom,
+      transparent,
+      transparent calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval) - var(--w3f-paper-grid-major-thickness)),
+      var(--w3f-paper-grid-color) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval) - var(--w3f-paper-grid-major-thickness)),
+      var(--w3f-paper-grid-color) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval))),
+    /* Lineas verticales finas */
+    repeating-linear-gradient(to right,
+      transparent,
+      transparent calc(var(--w3f-paper-grid-size) - var(--w3f-paper-grid-thickness)),
+      var(--w3f-paper-grid-color-secondary) calc(var(--w3f-paper-grid-size) - var(--w3f-paper-grid-thickness)),
+      var(--w3f-paper-grid-color-secondary) var(--w3f-paper-grid-size)),
+    /* Lineas horizontales finas */
+    repeating-linear-gradient(to bottom,
+      transparent,
+      transparent calc(var(--w3f-paper-grid-size) - var(--w3f-paper-grid-thickness)),
+      var(--w3f-paper-grid-color-secondary) calc(var(--w3f-paper-grid-size) - var(--w3f-paper-grid-thickness)),
+      var(--w3f-paper-grid-color-secondary) var(--w3f-paper-grid-size));
+
+  background-size:
+    calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval)) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval)),
+    calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval)) calc(var(--w3f-paper-grid-size) * var(--w3f-paper-grid-major-interval)),
+    var(--w3f-paper-grid-size) var(--w3f-paper-grid-size),
+    var(--w3f-paper-grid-size) var(--w3f-paper-grid-size);
+
+  background-position: bottom left;
+}
+
+/* -- GRID OPACITY ---------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  background-color: transparent;
+  opacity: var(--w3f-paper-grid-opacity, 0.1);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* -- SUBTLE VARIANT -------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--subtle {
+  --w3f-paper-grid-color: var(--w3f-gray-200);
+  --w3f-paper-grid-color-secondary: var(--w3f-gray-100);
+}
+
+/* -- BOLD VARIANT ---------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--bold {
+  --w3f-paper-grid-color: var(--w3f-gray-400);
+  --w3f-paper-grid-color-secondary: var(--w3f-gray-300);
+}
+
+/* -- ELEVATED -------------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--elevated {
+  box-shadow: var(--w3f-paper-shadow-elevated);
+}
+
+/* -- FLAT ------------------------------------------------------------ */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--flat {
+  box-shadow: none;
+  border: 1px solid var(--w3f-paper-flat-border-color);
+}
+
+/* -- ROUNDED --------------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--rounded {
+  border-radius: var(--w3f-paper-radius-rounded-tl) var(--w3f-paper-radius-rounded-tr) var(--w3f-paper-radius-rounded-br) var(--w3f-paper-radius-rounded-bl);
+}
+
+/* -- SIZES (padding) ------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--sm {
+  padding: var(--w3f-space-4);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--md {
+  padding: var(--w3f-space-6);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--lg {
+  padding: var(--w3f-space-8);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--xl {
+  padding: var(--w3f-space-10);
+}
+
+/* -- GRID COLOR VARIANTS --------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-primary {
+  --w3f-paper-grid-color: var(--w3f-primary-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-primary-100);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-secondary {
+  --w3f-paper-grid-color: var(--w3f-secondary-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-secondary-100);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-success {
+  --w3f-paper-grid-color: var(--w3f-success-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-success-100);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-warning {
+  --w3f-paper-grid-color: var(--w3f-warning-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-warning-100);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-danger {
+  --w3f-paper-grid-color: var(--w3f-danger-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-danger-100);
+}
+
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--grid-info {
+  --w3f-paper-grid-color: var(--w3f-info-300);
+  --w3f-paper-grid-color-secondary: var(--w3f-info-100);
+}
+
+/* -- UTILITIES (margin/padding based on grid) ------------------------ */
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-m-1 { margin: var(--w3f-paper-grid-size); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-m-2 { margin: calc(var(--w3f-paper-grid-size) * 2); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-m-3 { margin: calc(var(--w3f-paper-grid-size) * 3); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-m-4 { margin: calc(var(--w3f-paper-grid-size) * 4); }
+
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-p-1 { padding: var(--w3f-paper-grid-size); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-p-2 { padding: calc(var(--w3f-paper-grid-size) * 2); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-p-3 { padding: calc(var(--w3f-paper-grid-size) * 3); }
+.w3f-paper:not(.w3f-paper--unstyled) .w3f-paper-p-4 { padding: calc(var(--w3f-paper-grid-size) * 4); }
+
+/* -- DEBUG ----------------------------------------------------------- */
+.w3f-paper:not(.w3f-paper--unstyled).w3f-paper--debug::before {
+  border: 2px dashed var(--w3f-paper-debug-color);
+  opacity: 0.3;
+}

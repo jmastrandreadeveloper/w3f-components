@@ -1,0 +1,181 @@
+/* =====================================================================
+   📝 FORM - W3F Framework v2.0
+   Estilos para el componente Form (submit-based)
+   ===================================================================== */
+
+/* =============================================================
+   🎯 BASE
+   ============================================================= */
+
+.w3f-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--w3f-space-4);
+    width: 100%;
+}
+
+/* =============================================================
+   📐 VARIANTES DE LAYOUT
+   ============================================================= */
+
+.w3f-form--inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.w3f-form--stacked {
+    flex-direction: column;
+}
+
+/* =============================================================
+   ⏳ ESTADO SUBMITTING
+   ============================================================= */
+
+.w3f-form--submitting {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.w3f-form--submitting::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: inherit;
+    z-index: 1;
+}
+
+/* =============================================================
+   🎯 FORM GROUP
+   ============================================================= */
+
+.w3f-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--w3f-space-2);
+    margin-bottom: var(--w3f-space-4);
+}
+
+.w3f-form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* =============================================================
+   🎯 FORM ROW
+   ============================================================= */
+
+.w3f-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--w3f-space-4);
+    margin-bottom: var(--w3f-space-4);
+}
+
+.w3f-form-row>* {
+    flex: 1;
+    min-width: 0;
+}
+
+.w3f-form-row>.w3f-form-group {
+    margin-bottom: 0;
+}
+
+/* =============================================================
+   🏷️ LABELS
+   ============================================================= */
+
+.w3f-label {
+    display: inline-block;
+    font-size: var(--w3f-text-sm);
+    font-weight: 500;
+    color: var(--w3f-on-surface);
+    margin-bottom: var(--w3f-space-1);
+    line-height: 1.5;
+}
+
+.w3f-label-required::after {
+    content: ' *';
+    color: var(--w3f-danger);
+}
+
+/* =============================================================
+   ❌ ERROR & HELP MESSAGES
+   ============================================================= */
+
+.w3f-error-message {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-danger);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+    animation: w3f-form-error-fade 0.2s ease-out;
+}
+
+.w3f-success-message {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-success);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+}
+
+.w3f-help-text {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-gray-500);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+}
+
+/* =============================================================
+   🎬 ANIMACIONES
+   ============================================================= */
+
+@keyframes w3f-form-error-fade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =============================================================
+   📱 RESPONSIVE
+   ============================================================= */
+
+@media (max-width: 640px) {
+    .w3f-form--inline {
+        flex-direction: column;
+    }
+
+    .w3f-form-row {
+        flex-direction: column;
+    }
+}
+
+/* =============================================================
+   🌙 DARK THEME
+   ============================================================= */
+
+.w3f-theme-dark .w3f-form--submitting::after {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* =============================================================
+   ♿ REDUCED MOTION
+   ============================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .w3f-error-message {
+        animation: none;
+    }
+}

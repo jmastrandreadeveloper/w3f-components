@@ -1,0 +1,42 @@
+/* _flex_container.css */
+/* =============================================================
+   📐 LAYOUT: FLEX CONTAINER (Contenedor Flexible)
+   ============================================================= */
+
+/* --- Display --- */
+.w3f-flex { display: flex; }
+.w3f-inline-flex { display: inline-flex; }
+
+/* --- Flex Direction --- */
+.w3f-flex-row { flex-direction: row; }
+.w3f-flex-row-reverse { flex-direction: row-reverse; }
+.w3f-flex-col { flex-direction: column; }
+.w3f-flex-col-reverse { flex-direction: column-reverse; }
+
+/* --- Flex Wrap --- */
+.w3f-flex-wrap { flex-wrap: wrap; }
+.w3f-flex-nowrap { flex-wrap: nowrap; }
+.w3f-flex-wrap-reverse { flex-wrap: wrap-reverse; }
+
+/* --- Justify Content (Eje Principal) --- */
+.w3f-justify-start { justify-content: flex-start; }
+.w3f-justify-end { justify-content: flex-end; }
+.w3f-justify-center { justify-content: center; }
+.w3f-justify-between { justify-content: space-between; }
+.w3f-justify-around { justify-content: space-around; }
+.w3f-justify-evenly { justify-content: space-evenly; }
+
+/* --- Align Items (Eje Cruzado - Una línea) --- */
+.w3f-items-start { align-items: flex-start; }
+.w3f-items-end { align-items: flex-end; }
+.w3f-items-center { align-items: center; }
+.w3f-items-baseline { align-items: baseline; }
+.w3f-items-stretch { align-items: stretch; }
+
+/* --- Align Content (Eje Cruzado - Multilínea) --- */
+.w3f-content-start { align-content: flex-start; }
+.w3f-content-end { align-content: flex-end; }
+.w3f-content-center { align-content: center; }
+.w3f-content-between { align-content: space-between; }
+.w3f-content-around { align-content: space-around; }
+.w3f-content-stretch { align-content: stretch; }

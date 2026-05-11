@@ -1,0 +1,14 @@
+/* =====================================================================
+   W3Fussion TRAITS — Composable utility classes
+   Layer: w3f-traits (sits between structural and presets)
+   ===================================================================== */
+
+@import url('./_color-variants.css');
+@import url('./_sizing.css');
+@import url('./_effects.css');
+@import url('./_radius.css');
+@import url('./_shadows.css');
+@import url('./_spacing.css');
+@import url('./_typography.css');
+@import url('./_transitions.css');
+@import url('./_glow.css');

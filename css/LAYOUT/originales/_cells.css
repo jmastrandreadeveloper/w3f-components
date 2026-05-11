@@ -1,0 +1,28 @@
+/* Cells.css */
+/* =============================================================
+   ⚛️ UTILIDAD: CELLS (Ítem/Célula de Grid o Flex)
+   ============================================================= */
+
+/* Clase base para un elemento dentro de un layout de celdas */
+.w3f-cell {
+  padding: var(--w3f-space-2);
+  display: block;
+}
+
+/* Variantes de contenido de celda */
+.w3f-cell-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.w3f-cell-center {
+  align-items: center;
+  text-align: center;
+}
+
+.w3f-cell-vcenter {
+  align-items: center;
+}

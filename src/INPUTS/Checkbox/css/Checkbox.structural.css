@@ -1,0 +1,157 @@
+/* =====================================================================
+   CHECKBOX — Structural base (layout, position, resets)
+   Visual styles live in PRESETS/_checkbox.preset.css
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-checkbox-wrapper {
+  /* Layout */
+  --w3f-cb-gap: var(--w3f-space-2);
+  --w3f-cb-transition: opacity var(--w3f-transition-fast);
+
+  /* Input */
+  --w3f-cb-size: 1.25rem;
+  --w3f-cb-border-color: var(--w3f-outline);
+  --w3f-cb-border-radius-tl: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-tr: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-br: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-bl: var(--w3f-radius-sm);
+  --w3f-cb-bg: var(--w3f-surface);
+  --w3f-cb-checked-bg: var(--w3f-primary);
+  --w3f-cb-checked-border-color: var(--w3f-primary);
+  --w3f-cb-check-color: var(--w3f-on-primary, white);
+  --w3f-cb-hover-border-color: var(--w3f-primary);
+  --w3f-cb-hover-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  --w3f-cb-focus-outline-color: var(--w3f-primary);
+  --w3f-cb-focus-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+
+  /* Label */
+  --w3f-cb-label-padding-top: 0px;
+  --w3f-cb-label-padding-right: 0px;
+  --w3f-cb-label-padding-bottom: 0px;
+  --w3f-cb-label-padding-left: 0px;
+  --w3f-cb-label-color: var(--w3f-on-surface);
+  --w3f-cb-label-font-size: var(--w3f-text-base);
+
+  /* Children */
+  --w3f-cb-children-border-color: var(--w3f-outline-variant);
+
+  /* Disabled */
+  --w3f-cb-disabled-opacity: 0.6;
+  --w3f-cb-disabled-bg: var(--w3f-gray-100);
+  --w3f-cb-disabled-border-color: var(--w3f-gray-300);
+  --w3f-cb-disabled-label-color: var(--w3f-gray-500);
+
+  /* Color variants */
+  --w3f-cb-success-color: var(--w3f-success);
+  --w3f-cb-warning-color: var(--w3f-warning);
+  --w3f-cb-danger-color: var(--w3f-danger);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--w3f-cb-gap);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Contenedor principal del componente */
+.w3f-component-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--w3f-space-2);
+}
+
+/* Estilo del Input (Checkbox nativo personalizado) — structural */
+.w3f-checkbox-input {
+    /* Reset basico */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Tamano y espaciado */
+    width: var(--w3f-cb-size);
+    height: var(--w3f-cb-size);
+    margin: 0;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    /* Centrar el check icon */
+    display: grid;
+    place-content: center;
+}
+
+/* El "check" visual usando un pseudo-elemento (structural shape) */
+.w3f-checkbox-input::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.w3f-checkbox-input:checked::before {
+    transform: scale(1);
+}
+
+/* Focus (Accesibilidad) */
+.w3f-checkbox-input:focus-visible {
+    outline: 2px solid var(--w3f-cb-focus-outline-color);
+    outline-offset: 2px;
+}
+
+/* Eliminar outline en navegadores antiguos que no soportan :focus-visible */
+.w3f-checkbox-input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Etiqueta de texto — structural */
+.w3f-checkbox-label {
+    user-select: none;
+    cursor: pointer;
+    flex: 1;
+    word-break: break-word;
+}
+
+/* Contenedor de hijos (contenido anidado) — structural */
+.w3f-checkbox-children {
+    margin-left: calc(var(--w3f-cb-size) + var(--w3f-cb-gap));
+    overflow: hidden;
+}
+
+/* Animacion para los hijos */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ====================
+   Estados Deshabilitados (structural)
+   ==================== */
+.w3f-checkbox-wrapper--disabled {
+    cursor: not-allowed;
+}
+
+.w3f-checkbox-wrapper--disabled .w3f-checkbox-input {
+    cursor: not-allowed;
+}
+
+.w3f-checkbox-wrapper--disabled .w3f-checkbox-label {
+    cursor: not-allowed;
+}
+
+/* Eliminar efectos hover cuando esta deshabilitado */
+.w3f-checkbox-wrapper--disabled .w3f-checkbox-input:hover {
+    box-shadow: none;
+}

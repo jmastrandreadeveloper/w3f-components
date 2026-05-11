@@ -1,0 +1,45 @@
+/* ── FORM-FIELD OVERRIDES ──
+   Migrated from manual _form-field.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   FORM FIELD PRESET — Visual styles via CSS custom properties
+   Active when .w3f-form-field is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-form-field-theme-ocean { --w3f-ff-label-color: #0e7490; ... }
+   ===================================================================== */
+
+/* ── ROOT ────────────────────────────────────────────────────────────── */
+.w3f-form-field:not(.w3f-form-field--unstyled) {
+  margin-bottom: var(--w3f-ff-margin-bottom, var(--w3f-space-6, 1.5rem));
+}
+
+/* ── LABEL ───────────────────────────────────────────────────────────── */
+.w3f-form-field:not(.w3f-form-field--unstyled) .w3f-form-field__label {
+  font-size: var(--w3f-ff-label-font-size, var(--w3f-text-sm, 0.875rem));
+  font-weight: var(--w3f-ff-label-font-weight, 500);
+  color: var(--w3f-ff-label-color, var(--w3f-gray-700, #374151));
+  margin-bottom: var(--w3f-ff-label-margin-bottom, var(--w3f-space-1, 0.25rem));
+  line-height: 1.5;
+}
+
+/* ── INLINE LABEL ────────────────────────────────────────────────────── */
+.w3f-form-field:not(.w3f-form-field--unstyled).w3f-form-field--inline .w3f-form-field__label {
+  margin-bottom: 0;
+}
+
+/* ── ERROR STATE ─────────────────────────────────────────────────────── */
+.w3f-form-field:not(.w3f-form-field--unstyled).has-error .w3f-form-field__label {
+  color: var(--w3f-ff-error-color, var(--w3f-danger, #dc2626));
+}
+
+/* ── DISABLED STATE ──────────────────────────────────────────────────── */
+.w3f-form-field:not(.w3f-form-field--unstyled).is-disabled {
+  opacity: var(--w3f-ff-disabled-opacity, 0.6);
+}
+
+.w3f-form-field:not(.w3f-form-field--unstyled).is-disabled .w3f-form-field__label {
+  color: var(--w3f-ff-disabled-label-color, var(--w3f-gray-400, #9ca3af));
+}

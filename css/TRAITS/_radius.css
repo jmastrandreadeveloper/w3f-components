@@ -1,0 +1,13 @@
+/* =====================================================================
+   RADIUS TRAITS
+   ===================================================================== */
+
+.w3f-rounded-none { border-radius: var(--w3f-radius-none); }
+.w3f-rounded-sm   { border-radius: var(--w3f-radius-sm); }
+.w3f-rounded      { border-radius: var(--w3f-radius); }
+.w3f-rounded-md   { border-radius: var(--w3f-radius-md); }
+.w3f-rounded-lg   { border-radius: var(--w3f-radius-lg); }
+.w3f-rounded-xl   { border-radius: var(--w3f-radius-xl); }
+.w3f-rounded-2xl  { border-radius: var(--w3f-radius-2xl); }
+.w3f-rounded-3xl  { border-radius: var(--w3f-radius-3xl); }
+.w3f-rounded-full { border-radius: var(--w3f-radius-full); }

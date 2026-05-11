@@ -1,0 +1,169 @@
+/* ── DRAWER OVERRIDES ──
+   Migrated from manual _drawer.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   DRAWER PRESET — Visual styles via CSS custom properties
+   Active when .w3f-drawer is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-drawer-theme-dark { --w3f-drawer-bg: #1f2937; ... }
+   ===================================================================== */
+
+/* -- ROOT ------------------------------------------------------------ */
+.w3f-drawer:not(.w3f-drawer--unstyled) {
+  background: var(--w3f-drawer-bg);
+  color: var(--w3f-drawer-color);
+  transition: transform var(--w3f-drawer-transition);
+}
+
+/* -- TEMPORARY (box-shadow) ------------------------------------------ */
+.w3f-drawer--temporary:not(.w3f-drawer--unstyled) {
+  box-shadow: var(--w3f-drawer-shadow);
+}
+
+/* -- BACKDROP -------------------------------------------------------- */
+.w3f-drawer:not(.w3f-drawer--unstyled) ~ .w3f-drawer__backdrop,
+.w3f-drawer-root:not(.w3f-drawer-root--unstyled) .w3f-drawer__backdrop {
+  background: var(--w3f-drawer-backdrop-bg);
+  transition: opacity var(--w3f-drawer-transition);
+}
+
+/* -- PERSISTENT BORDERS ---------------------------------------------- */
+.w3f-drawer--persistent:not(.w3f-drawer--unstyled) {
+  border-right: 1px solid var(--w3f-drawer-border-color-right);
+  transition:
+    transform var(--w3f-drawer-transition),
+    margin var(--w3f-drawer-transition),
+    width var(--w3f-drawer-transition),
+    height var(--w3f-drawer-transition);
+}
+
+.w3f-drawer--persistent:not(.w3f-drawer--unstyled).w3f-drawer--right {
+  border-right: none;
+  border-left: 1px solid var(--w3f-drawer-border-color-left);
+}
+
+.w3f-drawer--persistent:not(.w3f-drawer--unstyled).w3f-drawer--top {
+  border-right: none;
+  border-bottom: 1px solid var(--w3f-drawer-border-color-bottom);
+}
+
+.w3f-drawer--persistent:not(.w3f-drawer--unstyled).w3f-drawer--bottom {
+  border-right: none;
+  border-top: 1px solid var(--w3f-drawer-border-color-top);
+}
+
+/* -- PERMANENT BORDERS ----------------------------------------------- */
+.w3f-drawer--permanent:not(.w3f-drawer--unstyled) {
+  border-right: 1px solid var(--w3f-drawer-border-color-right);
+}
+
+.w3f-drawer--permanent:not(.w3f-drawer--unstyled).w3f-drawer--right {
+  border-right: none;
+  border-left: 1px solid var(--w3f-drawer-border-color-left);
+}
+
+.w3f-drawer--permanent:not(.w3f-drawer--unstyled).w3f-drawer--top {
+  border-right: none;
+  border-bottom: 1px solid var(--w3f-drawer-border-color-bottom);
+}
+
+.w3f-drawer--permanent:not(.w3f-drawer--unstyled).w3f-drawer--bottom {
+  border-right: none;
+  border-top: 1px solid var(--w3f-drawer-border-color-top);
+}
+
+/* -- CLOSE BUTTON ---------------------------------------------------- */
+.w3f-drawer:not(.w3f-drawer--unstyled) .w3f-drawer__close {
+  color: var(--w3f-drawer-close-color);
+  border-radius: var(--w3f-drawer-close-radius-tl) var(--w3f-drawer-close-radius-tr) var(--w3f-drawer-close-radius-br) var(--w3f-drawer-close-radius-bl);
+  transition:
+    background-color var(--w3f-drawer-transition),
+    color var(--w3f-drawer-transition);
+}
+
+.w3f-drawer:not(.w3f-drawer--unstyled) .w3f-drawer__close:hover {
+  background: var(--w3f-drawer-close-hover-bg);
+  color: var(--w3f-drawer-close-hover-color);
+}
+
+.w3f-drawer:not(.w3f-drawer--unstyled) .w3f-drawer__close:focus-visible {
+  outline: 2px solid var(--w3f-drawer-focus-color);
+  outline-offset: 2px;
+}
+
+/* -- COLOR SCHEMES — set accent variable so it wins over defaults.css  */
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--secondary {
+  --w3f-drawer-accent-color: var(--w3f-secondary, #f97316);
+}
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--success {
+  --w3f-drawer-accent-color: var(--w3f-success, #10b981);
+}
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--warning {
+  --w3f-drawer-accent-color: var(--w3f-warning, #f59e0b);
+}
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--danger {
+  --w3f-drawer-accent-color: var(--w3f-danger, #ef4444);
+}
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--info {
+  --w3f-drawer-accent-color: var(--w3f-info, #06b6d4);
+}
+
+/* -- ACCENT COLORS --------------------------------------------------- */
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--primary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--secondary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--success,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--warning,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--danger,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--info {
+  border-top: var(--w3f-drawer-accent-width) solid var(--w3f-drawer-accent-color);
+}
+
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--primary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--secondary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--success,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--warning,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--danger,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--left.w3f-drawer--info {
+  border-top: none;
+  border-right: var(--w3f-drawer-accent-width) solid var(--w3f-drawer-accent-color);
+}
+
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--primary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--secondary,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--success,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--warning,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--danger,
+.w3f-drawer:not(.w3f-drawer--unstyled).w3f-drawer--right.w3f-drawer--info {
+  border-top: none;
+  border-left: var(--w3f-drawer-accent-width) solid var(--w3f-drawer-accent-color);
+}
+
+/* -- SCROLLBAR ------------------------------------------------------- */
+.w3f-drawer:not(.w3f-drawer--unstyled)::-webkit-scrollbar-thumb {
+  background: var(--w3f-drawer-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.w3f-drawer:not(.w3f-drawer--unstyled)::-webkit-scrollbar-thumb:hover {
+  background: var(--w3f-drawer-scrollbar-thumb-hover);
+}
+
+/* -- DARK THEME ------------------------------------------------------ */
+.w3f-theme-dark .w3f-drawer:not(.w3f-drawer--unstyled) {
+  --w3f-drawer-bg: var(--w3f-gray-900, #111827);
+  --w3f-drawer-color: var(--w3f-gray-100, #f3f4f6);
+  --w3f-drawer-border-color-top: var(--w3f-gray-700, #374151);
+  --w3f-drawer-border-color-right: var(--w3f-gray-700, #374151);
+  --w3f-drawer-border-color-bottom: var(--w3f-gray-700, #374151);
+  --w3f-drawer-border-color-left: var(--w3f-gray-700, #374151);
+  --w3f-drawer-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --w3f-drawer-backdrop-bg: rgba(0, 0, 0, 0.7);
+  --w3f-drawer-close-color: var(--w3f-gray-400, #9ca3af);
+  --w3f-drawer-close-hover-bg: var(--w3f-gray-800, #1f2937);
+  --w3f-drawer-close-hover-color: var(--w3f-gray-100, #f3f4f6);
+  --w3f-drawer-scrollbar-thumb: var(--w3f-gray-600, #4b5563);
+  --w3f-drawer-scrollbar-thumb-hover: var(--w3f-gray-500, #6b7280);
+}

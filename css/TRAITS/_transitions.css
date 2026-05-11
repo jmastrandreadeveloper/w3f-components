@@ -1,0 +1,30 @@
+/* =====================================================================
+   TRANSITION TRAITS
+   ===================================================================== */
+
+.w3f-animate {
+  transition: all var(--w3f-transition-normal);
+}
+
+.w3f-animate-fast {
+  transition: all var(--w3f-transition-fast);
+}
+
+.w3f-animate-slow {
+  transition: all var(--w3f-transition-slow);
+}
+
+.w3f-animate-colors {
+  transition: background-color var(--w3f-transition-fast),
+              color var(--w3f-transition-fast),
+              border-color var(--w3f-transition-fast);
+}
+
+.w3f-animate-transform {
+  transition: transform var(--w3f-transition-fast),
+              box-shadow var(--w3f-transition-fast);
+}
+
+.w3f-no-animate {
+  transition: none;
+}

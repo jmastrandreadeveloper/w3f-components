@@ -1,0 +1,138 @@
+/* Auto-generated from _input.contract.css — DO NOT EDIT */
+
+/* ── Field ── */
+.w3f-input:not(.w3f-input--unstyled) {
+  background-color: var(--w3f-input-bg);
+  padding-top: var(--w3f-input-padding-top);
+  padding-right: var(--w3f-input-padding-right);
+  padding-bottom: var(--w3f-input-padding-bottom);
+  padding-left: var(--w3f-input-padding-left);
+  border-top-left-radius: var(--w3f-input-radius-tl);
+  border-top-right-radius: var(--w3f-input-radius-tr);
+  border-bottom-right-radius: var(--w3f-input-radius-br);
+  border-bottom-left-radius: var(--w3f-input-radius-bl);
+  border-top-width: var(--w3f-input-border-width-top);
+  border-right-width: var(--w3f-input-border-width-right);
+  border-bottom-width: var(--w3f-input-border-width-bottom);
+  border-left-width: var(--w3f-input-border-width-left);
+  transition: var(--w3f-input-transition);
+}
+
+/* ── Text ── */
+.w3f-input:not(.w3f-input--unstyled) {
+  color: var(--w3f-input-color);
+  font-size: var(--w3f-input-font-size);
+  font-weight: var(--w3f-input-font-weight);
+  font-family: var(--w3f-input-font-family);
+  line-height: var(--w3f-input-line-height);
+  text-align: var(--w3f-input-text-align);
+  caret-color: var(--w3f-input-caret-color);
+  color: var(--w3f-input-placeholder-color);
+}
+
+/* ── Wrapper ── */
+.w3f-input:not(.w3f-input--unstyled)-wrapper {
+  background-color: var(--w3f-input-wrapper-bg);
+  padding: var(--w3f-input-wrapper-padding);
+  border-top-color: var(--w3f-input-wrapper-border-color-top);
+  border-right-color: var(--w3f-input-wrapper-border-color-right);
+  border-bottom-color: var(--w3f-input-wrapper-border-color-bottom);
+  border-left-color: var(--w3f-input-wrapper-border-color-left);
+}
+
+/* ── Label ── */
+.w3f-input:not(.w3f-input--unstyled)-label {
+  color: var(--w3f-input-label-color);
+  font-size: var(--w3f-input-label-font-size);
+  left: var(--w3f-input-label-position-left);
+  padding-top: var(--w3f-input-label-padding-top);
+  padding-right: var(--w3f-input-label-padding-right);
+  padding-bottom: var(--w3f-input-label-padding-bottom);
+  padding-left: var(--w3f-input-label-padding-left);
+  transition: var(--w3f-input-label-transition);
+  top: var(--w3f-input-label-float-top);
+  font-size: var(--w3f-input-label-float-font-size);
+  color: var(--w3f-input-label-float-color);
+  background-color: var(--w3f-input-label-float-bg);
+  color: var(--w3f-input-label-focus-color);
+}
+
+/* ── Icons ── */
+.w3f-input:not(.w3f-input--unstyled)-icon {
+  color: var(--w3f-input-icon-color);
+  left: var(--w3f-input-icon-leading-left);
+  right: var(--w3f-input-icon-trailing-right);
+}
+
+/* ── Messages ── */
+.w3f-input:not(.w3f-input--unstyled)-message {
+  font-size: var(--w3f-input-message-font-size);
+  color: var(--w3f-input-message-error-color);
+  color: var(--w3f-input-message-helper-color);
+}
+
+/* ── Container ── */
+.w3f-input:not(.w3f-input--unstyled)-container {
+  margin-top: var(--w3f-input-container-margin-top);
+  margin-right: var(--w3f-input-container-margin-right);
+  margin-bottom: var(--w3f-input-container-margin-bottom);
+  margin-left: var(--w3f-input-container-margin-left);
+}
+
+/* ── Hover ── */
+.w3f-input:not(.w3f-input--unstyled)-wrapper:hover {
+  border-color: var(--w3f-input-hover-border-color);
+  background-color: var(--w3f-input-hover-bg);
+}
+
+/* ── Focus ── */
+.w3f-input:not(.w3f-input--unstyled)-wrapper:focus-within {
+  border-color: var(--w3f-input-focus-border-color);
+  background-color: var(--w3f-input-focus-bg);
+  color: var(--w3f-input-icon-focus-color);
+  color: var(--w3f-input-label-focus-color-active);
+}
+
+/* ── Error ── */
+.w3f-input:not(.w3f-input--unstyled)[aria-invalid="true"] {
+  border-color: var(--w3f-input-error-border-color);
+  background-color: var(--w3f-input-error-bg);
+  color: var(--w3f-input-error-color);
+  font-size: var(--w3f-input-error-font-size);
+  color: var(--w3f-input-icon-error-color);
+}
+
+/* ── Disabled ── */
+.w3f-input:not(.w3f-input--unstyled):disabled {
+  background-color: var(--w3f-input-disabled-bg);
+  color: var(--w3f-input-disabled-color);
+  opacity: var(--w3f-input-disabled-opacity);
+  cursor: var(--w3f-input-disabled-cursor);
+}
+
+/* ── Outlined ── */
+.w3f-input:not(.w3f-input--unstyled).w3f-input--outlined {
+  background-color: var(--w3f-input-outlined-bg);
+  border-color: var(--w3f-input-outlined-border-color);
+  border-width: var(--w3f-input-outlined-border-width);
+  border-color: var(--w3f-input-outlined-hover-border-color);
+  border-color: var(--w3f-input-outlined-focus-border-color);
+}
+
+/* ── Ghost ── */
+.w3f-input:not(.w3f-input--unstyled).w3f-input--ghost {
+  background-color: var(--w3f-input-ghost-bg);
+  border-bottom-color: var(--w3f-input-ghost-border-color);
+  border-bottom-width: var(--w3f-input-ghost-border-width);
+  border-bottom-color: var(--w3f-input-ghost-hover-border-color);
+  border-bottom-color: var(--w3f-input-ghost-focus-border-color);
+}
+
+/* ── Soft ── */
+.w3f-input:not(.w3f-input--unstyled).w3f-input--soft {
+  background-color: var(--w3f-input-soft-bg);
+  border-color: var(--w3f-input-soft-border-color);
+  background-color: var(--w3f-input-soft-hover-bg);
+  border-color: var(--w3f-input-soft-focus-border-color);
+}
+

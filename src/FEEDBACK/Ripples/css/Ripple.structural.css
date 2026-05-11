@@ -1,0 +1,212 @@
+/* =====================================================================
+   🌊 RIPPLE CONTAINER - Efecto de onda material design
+   Componente mejorado con variables del framework
+   ===================================================================== */
+
+.w3f-ripple-container {
+  /* Custom Properties */
+  --w3f-ripple-duration: 0.6s;
+  --w3f-ripple-opacity: 0.4;
+  --w3f-ripple-hover-y: -2px;
+  --w3f-ripple-hover-shadow: var(--w3f-shadow-md);
+  --w3f-ripple-active-shadow: var(--w3f-shadow);
+  --w3f-ripple-color: rgba(255, 255, 255, var(--w3f-ripple-opacity));
+
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  /* Mejora de rendimiento */
+  transform: translateZ(0);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: transform var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast);
+}
+
+/* Estado hover del contenedor */
+.w3f-ripple-container:hover {
+  transform: translateY(var(--w3f-ripple-hover-y));
+  box-shadow: var(--w3f-ripple-hover-shadow);
+}
+
+/* Estado activo */
+.w3f-ripple-container:active {
+  transform: translateY(0);
+  box-shadow: var(--w3f-ripple-active-shadow);
+}
+
+/* Contenedor interno para el contenido */
+.w3f-ripple-content {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.w3f-ripple-content>* {
+  pointer-events: auto;
+}
+
+/* Elemento ripple individual */
+.w3f-ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: w3f-ripple-animation var(--w3f-ripple-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  /* z-index: 2 — must render above .w3f-ripple-content (z-index:1) to be visible */
+  z-index: 2;
+  background-color: var(--w3f-ripple-color);
+}
+
+/* Animación del ripple */
+@keyframes w3f-ripple-animation {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* =====================================================================
+   🎨 VARIANTES DE COLOR
+   Regla: fondo oscuro/saturado → ripple blanco; fondo claro → ripple oscuro.
+   ===================================================================== */
+
+/* Ripple en contenedores con fondo primario (class) */
+.w3f-ripple-container.w3f-bg-primary .w3f-ripple,
+.w3f-ripple-container[data-ripple="primary"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Ripple en contenedores con fondo secundario (class) */
+.w3f-ripple-container.w3f-bg-secondary .w3f-ripple,
+.w3f-ripple-container[data-ripple="secondary"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Ripple en contenedores con fondo claro */
+.w3f-ripple-container.w3f-bg-surface .w3f-ripple,
+.w3f-ripple-container[data-ripple="light"] .w3f-ripple {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Ripple en contenedores con fondo oscuro */
+.w3f-ripple-container.w3f-bg-gray-800 .w3f-ripple,
+.w3f-ripple-container.w3f-bg-gray-900 .w3f-ripple,
+.w3f-ripple-container[data-ripple="dark"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── data-ripple-color (prop `color` del componente) ─────────────── */
+
+/* Fondos oscuros/saturados → ripple blanco */
+.w3f-ripple-container[data-ripple-color="primary"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.w3f-ripple-container[data-ripple-color="secondary"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.w3f-ripple-container[data-ripple-color="success"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.w3f-ripple-container[data-ripple-color="danger"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.w3f-ripple-container[data-ripple-color="info"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+.w3f-ripple-container[data-ripple-color="dark"] .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Fondos claros → ripple oscuro */
+.w3f-ripple-container[data-ripple-color="warning"] .w3f-ripple {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.w3f-ripple-container[data-ripple-color="light"] .w3f-ripple {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* =====================================================================
+   🎯 ESTADOS Y MODIFICADORES
+   ===================================================================== */
+
+/* Contenedor deshabilitado */
+.w3f-ripple-container:disabled,
+.w3f-ripple-container[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Ripple sin elevación en hover */
+.w3f-ripple-container.w3f-ripple-flat:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ripple con bordes redondeados */
+.w3f-ripple-container.w3f-ripple-rounded {
+  border-radius: var(--w3f-radius-lg);
+}
+
+.w3f-ripple-container.w3f-ripple-rounded-full {
+  border-radius: var(--w3f-radius-full);
+}
+
+/* =====================================================================
+   📱 RESPONSIVE Y ACCESIBILIDAD
+   ===================================================================== */
+
+/* Reducir movimiento para usuarios que lo prefieren */
+@media (prefers-reduced-motion: reduce) {
+  .w3f-ripple-container {
+    transition: none;
+  }
+
+  .w3f-ripple {
+    animation-duration: 0.01ms;
+  }
+
+  .w3f-ripple-container:hover {
+    transform: none;
+  }
+}
+
+/* Indicador de foco para accesibilidad */
+.w3f-ripple-container:focus-visible {
+  outline: 2px solid var(--w3f-primary);
+  outline-offset: 2px;
+}
+
+/* Modo oscuro automático */
+@media (prefers-color-scheme: dark) {
+  .w3f-ripple-container:not([data-ripple]) .w3f-ripple {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* =====================================================================
+   🎨 TEMA OSCURO
+   ===================================================================== */
+
+.w3f-theme-dark .w3f-ripple-container:not([data-ripple-color]) .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.w3f-theme-dark .w3f-ripple-container.w3f-bg-surface .w3f-ripple {
+  background-color: rgba(255, 255, 255, 0.15);
+}

@@ -1,0 +1,157 @@
+/* =====================================================================
+   Progress Bar Component — Structural + CSS Custom Properties
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-progress-bar-container {
+  /* Container */
+  --w3f-pbar-height: var(--w3f-space-6);
+  --w3f-pbar-radius-tl: var(--w3f-radius-full);
+  --w3f-pbar-radius-tr: var(--w3f-radius-full);
+  --w3f-pbar-radius-br: var(--w3f-radius-full);
+  --w3f-pbar-radius-bl: var(--w3f-radius-full);
+
+  /* Fill */
+  --w3f-pbar-transition: width var(--w3f-transition-normal);
+
+  /* Text */
+  --w3f-pbar-text-color: var(--w3f-on-primary);
+  --w3f-pbar-text-font-size: var(--w3f-text-sm);
+  --w3f-pbar-text-font-weight: 500;
+  --w3f-pbar-text-padding-top: var(--w3f-space-2);
+  --w3f-pbar-text-padding-right: var(--w3f-space-2);
+  --w3f-pbar-text-padding-bottom: var(--w3f-space-2);
+  --w3f-pbar-text-padding-left: var(--w3f-space-2);
+
+  /* Colors */
+  --w3f-pbar-track-bg: var(--w3f-gray-200);
+  --w3f-pbar-fill-bg: var(--w3f-primary);
+  --w3f-pbar-buffer-bg: var(--w3f-primary-200);
+
+  /* Buffer */
+  --w3f-pbar-buffer-opacity: 0.3;
+
+  /* Indeterminate animation */
+  --w3f-pbar-indeterminate-width: 30%;
+  --w3f-pbar-indeterminate-duration: 1.5s;
+  --w3f-pbar-pulse-duration: 2s;
+
+  height: var(--w3f-pbar-height);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Estilo de la barra de llenado */
+.w3f-progress-bar-fill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 2;
+}
+
+/* Estilo del texto dentro de la barra */
+.w3f-progress-bar-text {
+  padding-top: var(--w3f-pbar-text-padding-top);
+  padding-right: var(--w3f-pbar-text-padding-right);
+  padding-bottom: var(--w3f-pbar-text-padding-bottom);
+  padding-left: var(--w3f-pbar-text-padding-left);
+  white-space: nowrap;
+}
+
+/* Estilo de la barra de bufer (para ProgressBarBuffer) */
+.w3f-progress-bar-buffer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------
+   Progress Bar Indeterminada (Animacion)
+   --------------------------------------------------------------------- */
+
+.w3f-indeterminate-bar {
+  overflow: hidden;
+  position: relative;
+}
+
+.w3f-indeterminate-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--w3f-pbar-indeterminate-width);
+}
+
+@keyframes w3f-indeterminate-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(350%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes w3f-indeterminate-pulse {
+  0%,
+  100% {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateX(350%);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Variantes de tamano — structural only
+   --------------------------------------------------------------------- */
+
+/* Small (sm) */
+.w3f-progress-bar-container-sm {
+  --w3f-pbar-height: var(--w3f-space-4);
+  --w3f-pbar-text-font-size: var(--w3f-text-xs);
+  --w3f-pbar-text-padding-top: var(--w3f-space-1);
+  --w3f-pbar-text-padding-right: var(--w3f-space-1);
+  --w3f-pbar-text-padding-bottom: var(--w3f-space-1);
+  --w3f-pbar-text-padding-left: var(--w3f-space-1);
+
+  height: var(--w3f-pbar-height);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Large (lg) */
+.w3f-progress-bar-container-lg {
+  --w3f-pbar-height: var(--w3f-space-8);
+  --w3f-pbar-text-font-size: var(--w3f-text-base);
+  --w3f-pbar-text-font-weight: 600;
+  --w3f-pbar-text-padding-top: var(--w3f-space-3);
+  --w3f-pbar-text-padding-right: var(--w3f-space-3);
+  --w3f-pbar-text-padding-bottom: var(--w3f-space-3);
+  --w3f-pbar-text-padding-left: var(--w3f-space-3);
+
+  height: var(--w3f-pbar-height);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Ajustes para barras pequenas - ocultar texto si es muy estrecho */
+@media (max-width: 640px) {
+  .w3f-progress-bar-container-sm .w3f-progress-bar-text {
+    display: none;
+  }
+}

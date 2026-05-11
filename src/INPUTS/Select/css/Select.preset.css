@@ -1,0 +1,64 @@
+/* Auto-generated from _select.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) {
+  margin-bottom: var(--w3f-sel-margin-bottom);
+}
+
+/* ── Select ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select {
+  padding-top: var(--w3f-sel-padding-top);
+  padding-right: var(--w3f-sel-padding-right);
+  padding-bottom: var(--w3f-sel-padding-bottom);
+  padding-left: var(--w3f-sel-padding-left);
+  font-size: var(--w3f-sel-font-size);
+  color: inherit;
+  border-color: var(--w3f-sel-border-color);
+  border-top-left-radius: var(--w3f-sel-radius-tl);
+  border-top-right-radius: var(--w3f-sel-radius-tr);
+  border-bottom-right-radius: var(--w3f-sel-radius-br);
+  border-bottom-left-radius: var(--w3f-sel-radius-bl);
+  text-align: var(--w3f-sel-text-align);
+  transition: var(--w3f-sel-transition);
+}
+
+/* ── Focus ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select:focus {
+  border-color: var(--w3f-sel-focus-border-color);
+}
+
+/* ── Label ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select-label {
+  color: var(--w3f-sel-label-color);
+  background-color: var(--w3f-sel-label-floating-bg);
+  transition: var(--w3f-sel-label-transition);
+}
+
+/* ── Icon ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select-icon {
+  color: var(--w3f-sel-icon-color);
+  transition: var(--w3f-sel-icon-transition);
+}
+
+/* ── Message ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select-message--helper {
+  font-size: var(--w3f-sel-message-font-size);
+  color: var(--w3f-sel-helper-color);
+}
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select-message--error {
+  font-size: var(--w3f-sel-message-font-size);
+  color: var(--w3f-sel-error-color);
+}
+
+/* ── Disabled ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select:disabled {
+  background-color: var(--w3f-sel-disabled-bg);
+  color: var(--w3f-sel-disabled-color);
+}
+
+/* ── Multiple ── */
+.w3f-select-container:not(.w3f-select-container--unstyled) .w3f-select[multiple] option:checked {
+  background-color: var(--w3f-sel-multiple-checked-bg);
+  color: var(--w3f-sel-multiple-checked-color);
+}
+

@@ -1,0 +1,32 @@
+/* Auto-generated from _paper.contract.css — DO NOT EDIT */
+
+/* ── Paper Base ── */
+.w3f-paper:not(.w3f-paper--unstyled) {
+  background-color: var(--w3f-paper-bg);
+  box-shadow: var(--w3f-paper-shadow);
+  border-top-left-radius: var(--w3f-paper-radius-tl);
+  border-top-right-radius: var(--w3f-paper-radius-tr);
+  border-bottom-right-radius: var(--w3f-paper-radius-br);
+  border-bottom-left-radius: var(--w3f-paper-radius-bl);
+  padding-top: var(--w3f-paper-padding-top);
+  padding-right: var(--w3f-paper-padding-right);
+  padding-bottom: var(--w3f-paper-padding-bottom);
+  padding-left: var(--w3f-paper-padding-left);
+  margin-top: var(--w3f-paper-margin-top);
+  margin-right: var(--w3f-paper-margin-right);
+  margin-bottom: var(--w3f-paper-margin-bottom);
+  margin-left: var(--w3f-paper-margin-left);
+}
+
+/* ── Grid Pattern ── */
+.w3f-paper:not(.w3f-paper--unstyled) {
+  color: var(--w3f-paper-grid-color);
+  opacity: var(--w3f-paper-grid-opacity);
+}
+
+/* ── Variants ── */
+.w3f-paper:not(.w3f-paper--unstyled) {
+  color: var(--w3f-paper-flat-border-color);
+  color: var(--w3f-paper-debug-color);
+}
+

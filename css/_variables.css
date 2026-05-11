@@ -1,0 +1,191 @@
+/* =====================================================================
+   🎨 SISTEMA DE VARIABLES Y TOKENS DE DISEÑO (Variables CSS Globales)
+   Este archivo debe cargarse primero.
+   ===================================================================== */
+
+:root {
+  /* 🎯 Colores principales */
+  --w3f-primary: #2563eb;    /* blue-600 */
+  --w3f-primary-50: #eff6ff;
+  --w3f-primary-100: #dbeafe;
+  --w3f-primary-200: #bfdbfe;
+  --w3f-primary-300: #93c5fd;
+  --w3f-primary-400: #60a5fa;
+  --w3f-primary-500: #3b82f6;
+  --w3f-primary-600: #2563eb;
+  --w3f-primary-700: #1d4ed8;
+  --w3f-primary-800: #1e40af;
+  --w3f-primary-900: #1e3a8a;
+
+  /* 🟡 Colores Secundarios (Secondary - Orange) */
+  --w3f-secondary: #f97316;    /* orange-500 */
+  --w3f-secondary-50: #fff7ed;
+  --w3f-secondary-100: #ffedd5;
+  --w3f-secondary-200: #fed7aa;
+  --w3f-secondary-300: #fdba74;
+  --w3f-secondary-400: #fb923c;
+  --w3f-secondary-500: #f97316;
+  --w3f-secondary-600: #ea580c;
+  --w3f-secondary-700: #c2410c;
+  --w3f-secondary-800: #9a3412;
+  --w3f-secondary-900: #7c2d12;
+  /* ... y así sucesivamente hasta el 900 */
+
+  
+  /* ✅ Success (Emerald/Green) */
+  --w3f-success: #10b981;    /* emerald-500 */
+  --w3f-success-50: #ecfdf5;
+  --w3f-success-100: #d1fae5;
+  --w3f-success-200: #a7f3d0;
+  --w3f-success-300: #6ee7b7;
+  --w3f-success-400: #34d399;
+  --w3f-success-500: #10b981;
+  --w3f-success-600: #059669;
+  --w3f-success-700: #047857;
+  --w3f-success-800: #065f46;
+  --w3f-success-900: #064e3b;
+
+/* ⚠️ Warning (Amber/Yellow) */
+  --w3f-warning: #f59e0b;    /* amber-500 */
+  --w3f-warning-50: #fffbeb;
+  --w3f-warning-100: #fef3c7;
+  --w3f-warning-200: #fde68a;
+  --w3f-warning-300: #fcd34d;
+  --w3f-warning-400: #fbbf24;
+  --w3f-warning-500: #f59e0b;
+  --w3f-warning-600: #d97706;
+  --w3f-warning-700: #b45309;
+  --w3f-warning-800: #92400e;
+  --w3f-warning-900: #78350f;
+
+  /* 🔴 Danger (Red) */
+  --w3f-danger: #ef4444;     /* red-500 */
+  --w3f-danger-50: #fef2f2;
+  --w3f-danger-100: #fee2e2;
+  --w3f-danger-200: #fecaca;
+  --w3f-danger-300: #fca5a5;
+  --w3f-danger-400: #f87171;
+  --w3f-danger-500: #ef4444;
+  --w3f-danger-600: #dc2626;
+  --w3f-danger-700: #b91c1c;
+  --w3f-danger-800: #991b1b;
+  --w3f-danger-900: #7f1d1d;
+
+  /* ℹ️ Info (Cyan) */
+  --w3f-info: #06b6d4;       /* cyan-500 */
+  --w3f-info-50: #ecfeff;
+  --w3f-info-100: #cffafe;
+  --w3f-info-200: #a5f3fc;
+  --w3f-info-300: #67e8f9;
+  --w3f-info-400: #22d3ee;
+  --w3f-info-500: #06b6d4;
+  --w3f-info-600: #0891b2;
+  --w3f-info-700: #0e7490;
+  --w3f-info-800: #155e75;
+  --w3f-info-900: #164e63;
+
+  /* ⚙️ Colores Neutros (Grises) */
+  --w3f-gray-50: #f9fafb;
+  --w3f-gray-100: #f3f4f6;
+  --w3f-gray-200: #e5e7eb;
+  --w3f-gray-300: #d1d5db;
+  --w3f-gray-400: #9ca3af;
+  --w3f-gray-500: #6b7280;
+  --w3f-gray-600: #4b5563;
+  --w3f-gray-700: #374151;
+  --w3f-gray-800: #1f2937;
+  --w3f-gray-900: #111827;
+
+  /* 🎨 Paleta de Superficie (Light Theme Defaults) */
+  --w3f-background: var(--w3f-gray-50);
+  --w3f-surface: #ffffff;
+  --w3f-surface-variant: var(--w3f-gray-100);
+  --w3f-on-background: var(--w3f-gray-900);
+  --w3f-on-surface: var(--w3f-gray-800);
+  --w3f-on-primary: #ffffff;
+  --w3f-outline: var(--w3f-gray-400);
+  --w3f-outline-variant: var(--w3f-gray-200);
+
+  /* 📏 Espaciado (Space) */
+  --w3f-space-1: 0.25rem;  /* 4px */
+  --w3f-space-2: 0.5rem;   /* 8px */
+  --w3f-space-3: 0.75rem;  /* 12px */
+  --w3f-space-4: 1rem;     /* 16px */
+  --w3f-space-5: 1.25rem;  /* 20px */
+  --w3f-space-6: 1.5rem;   /* 24px */
+  --w3f-space-8: 2rem;     /* 32px */
+  --w3f-space-10: 2.5rem;  /* 40px */
+  --w3f-space-12: 3rem;    /* 48px */
+  --w3f-space-16: 4rem;    /* 64px */
+
+  /* 🔠 Tipografía - todas la tipografías se centran acá pero antes deben ser cargadas en el index.html */
+  --w3f-font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --w3f-text-4xs: 0.5rem;    /* 8px  — xxxs */
+  --w3f-text-3xs: 0.5625rem; /* 9px  — xxs  */
+  --w3f-text-2xs: 0.625rem;  /* 10px — xs   */
+  --w3f-text-xs: 0.75rem;
+  --w3f-text-sm: 0.875rem;
+  --w3f-text-base: 1rem;
+  --w3f-text-lg: 1.125rem;
+  --w3f-text-xl: 1.25rem;
+  --w3f-text-2xl: 1.5rem;
+  --w3f-text-3xl: 1.875rem;
+
+  /* * Variables específicas para otras tipografías cargadas.
+   * Esto te permite alternar fuentes fácilmente sin usar @import.
+   */
+  --w3f-font-display: 'Playfair Display', serif;
+  --w3f-font-mono: 'Space Mono', monospace;
+  --w3f-font-icon: 'FontAwesome';
+
+  /* 🟦 Bordes y Sombras */
+  --w3f-radius-none: 0;
+  --w3f-radius-sm: 0.125rem;
+  --w3f-radius: 0.25rem;
+  --w3f-radius-md: 0.375rem;
+  --w3f-radius-lg: 0.5rem;
+  --w3f-radius-xl: 0.75rem;
+  --w3f-radius-2xl: 1rem;
+  --w3f-radius-3xl: 1.5rem;
+  --w3f-radius-full: 9999px;
+
+  /* 🌑 Sombras */
+  --w3f-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --w3f-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --w3f-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --w3f-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --w3f-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* 💨 Transiciones */
+  --w3f-transition-fast: 150ms ease-out;
+  --w3f-transition-normal: 300ms ease;
+  --w3f-transition-slow: 500ms ease;
+}
+
+/* =====================================================================
+   🌙 TEMA OSCURO (Dark Theme - Opcional)
+   ===================================================================== */
+
+/* Clase para aplicar el tema oscuro a un contenedor específico o al body */
+.w3f-theme-dark {
+  /* 🎯 Colores principales ajustados para mejor contraste */
+  --w3f-primary: #60a5fa;
+  --w3f-secondary: #fb923c;
+
+  /* 🎨 Paleta de Superficie (Dark Theme) */
+  --w3f-background: var(--w3f-gray-900);
+  --w3f-surface: var(--w3f-gray-800);
+  --w3f-surface-variant: var(--w3f-gray-700);
+  --w3f-on-background: var(--w3f-gray-50);
+  --w3f-on-surface: var(--w3f-gray-100);
+  --w3f-on-primary: var(--w3f-gray-900);
+  --w3f-outline: var(--w3f-gray-600);
+  --w3f-outline-variant: var(--w3f-gray-700);
+
+  /* 🌑 Sombras ajustadas para modo oscuro */
+  --w3f-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --w3f-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --w3f-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --w3f-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --w3f-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+}

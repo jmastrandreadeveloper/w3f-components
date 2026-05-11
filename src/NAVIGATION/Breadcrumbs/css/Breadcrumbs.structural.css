@@ -1,0 +1,288 @@
+/* =====================================================================
+   Breadcrumbs Component — Structural + CSS Custom Properties
+   Visual styles live in PRESETS/_breadcrumbs.preset.css
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumbs {
+  /* Item colors */
+  --w3f-bc-item-color: var(--w3f-gray-600);
+  --w3f-bc-item-hover-color: var(--w3f-primary);
+  --w3f-bc-active-color: var(--w3f-on-surface, #111827);
+
+  /* Separator */
+  --w3f-bc-separator-color: var(--w3f-gray-400, #9ca3af);
+  --w3f-bc-separator-margin: 8px;
+
+  /* Expand button */
+  --w3f-bc-expand-bg: var(--w3f-gray-100, #f3f4f6);
+  --w3f-bc-expand-hover-bg: var(--w3f-gray-200, #e5e7eb);
+  --w3f-bc-expand-color: var(--w3f-gray-600);
+  --w3f-bc-expand-hover-color: var(--w3f-primary);
+
+  /* Focus & interaction */
+  --w3f-bc-focus-color: var(--w3f-primary, #3b82f6);
+  --w3f-bc-transition: 0.15s;
+  --w3f-bc-disabled-opacity: 0.5;
+
+  /* Variants */
+  --w3f-bc-border: var(--w3f-outline-variant);
+  --w3f-bc-bg: var(--w3f-primary);
+
+  display: flex;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------
+   List (ol)
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+/* ---------------------------------------------------------------------
+   List item (li) - holds item + separator
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Separator
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumbs__separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 var(--w3f-bc-separator-margin);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.w3f-breadcrumbs__separator svg {
+  display: block;
+}
+
+/* ---------------------------------------------------------------------
+   Breadcrumb Item (link / span)
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--w3f-space-1, 4px);
+  white-space: nowrap;
+}
+
+a.w3f-breadcrumb-item {
+  cursor: pointer;
+}
+
+/* Active (current page) */
+.w3f-breadcrumb-item--active {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Disabled */
+.w3f-breadcrumb-item--disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Icon inside item */
+.w3f-breadcrumb-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.w3f-breadcrumb-item__icon svg {
+  display: block;
+}
+
+.w3f-breadcrumb-item__text {
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------------
+   Expand button (ellipsis)
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumb-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------
+   Sizes — structural (icon sizes, expand sizes)
+   --------------------------------------------------------------------- */
+
+/* Small */
+.w3f-breadcrumbs--sm .w3f-breadcrumb-item__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.w3f-breadcrumbs--sm .w3f-breadcrumbs__separator {
+  margin: 0 var(--w3f-space-1, 4px);
+}
+
+.w3f-breadcrumbs--sm .w3f-breadcrumbs__separator svg {
+  width: 12px;
+  height: 12px;
+}
+
+.w3f-breadcrumbs--sm .w3f-breadcrumb-expand {
+  width: 22px;
+  height: 22px;
+}
+
+.w3f-breadcrumbs--sm .w3f-breadcrumb-expand svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Medium (default) */
+.w3f-breadcrumbs--md .w3f-breadcrumb-item__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.w3f-breadcrumbs--md .w3f-breadcrumbs__separator svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Large */
+.w3f-breadcrumbs--lg .w3f-breadcrumb-item__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.w3f-breadcrumbs--lg .w3f-breadcrumbs__separator {
+  margin: 0 var(--w3f-space-3, 12px);
+}
+
+.w3f-breadcrumbs--lg .w3f-breadcrumbs__separator svg {
+  width: 16px;
+  height: 16px;
+}
+
+.w3f-breadcrumbs--lg .w3f-breadcrumb-expand {
+  width: 32px;
+  height: 32px;
+}
+
+/* ---------------------------------------------------------------------
+   Color Schemes - override component variables
+   --------------------------------------------------------------------- */
+
+.w3f-breadcrumbs--primary {
+  --w3f-bc-active-color: var(--w3f-primary, #3b82f6);
+  --w3f-bc-item-hover-color: var(--w3f-primary, #3b82f6);
+}
+
+.w3f-breadcrumbs--secondary {
+  --w3f-bc-active-color: var(--w3f-secondary, #f97316);
+  --w3f-bc-item-hover-color: var(--w3f-secondary, #f97316);
+}
+
+.w3f-breadcrumbs--success {
+  --w3f-bc-active-color: var(--w3f-success, #10b981);
+  --w3f-bc-item-hover-color: var(--w3f-success, #10b981);
+}
+
+.w3f-breadcrumbs--warning {
+  --w3f-bc-active-color: var(--w3f-warning, #f59e0b);
+  --w3f-bc-item-hover-color: var(--w3f-warning, #f59e0b);
+}
+
+.w3f-breadcrumbs--danger {
+  --w3f-bc-active-color: var(--w3f-danger, #ef4444);
+  --w3f-bc-item-hover-color: var(--w3f-danger, #ef4444);
+}
+
+.w3f-breadcrumbs--info {
+  --w3f-bc-active-color: var(--w3f-info, #06b6d4);
+  --w3f-bc-item-hover-color: var(--w3f-info, #06b6d4);
+}
+
+/* ---------------------------------------------------------------------
+   Dark Theme — var overrides
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-breadcrumbs {
+  --w3f-bc-item-color: var(--w3f-gray-400, #9ca3af);
+  --w3f-bc-item-hover-color: var(--w3f-gray-100, #f3f4f6);
+  --w3f-bc-active-color: var(--w3f-gray-100, #f3f4f6);
+  --w3f-bc-separator-color: var(--w3f-gray-600, #4b5563);
+  --w3f-bc-expand-bg: var(--w3f-gray-800, #1f2937);
+  --w3f-bc-expand-hover-bg: var(--w3f-gray-700, #374151);
+  --w3f-bc-expand-color: var(--w3f-gray-400, #9ca3af);
+  --w3f-bc-expand-hover-color: var(--w3f-gray-100, #f3f4f6);
+}
+
+/* Dark - color overrides */
+.w3f-theme-dark .w3f-breadcrumbs--primary {
+  --w3f-bc-active-color: var(--w3f-primary-400, #60a5fa);
+  --w3f-bc-item-hover-color: var(--w3f-primary-400, #60a5fa);
+}
+
+.w3f-theme-dark .w3f-breadcrumbs--secondary {
+  --w3f-bc-active-color: var(--w3f-secondary-400, #fb923c);
+  --w3f-bc-item-hover-color: var(--w3f-secondary-400, #fb923c);
+}
+
+.w3f-theme-dark .w3f-breadcrumbs--success {
+  --w3f-bc-active-color: var(--w3f-success-400, #34d399);
+  --w3f-bc-item-hover-color: var(--w3f-success-400, #34d399);
+}
+
+.w3f-theme-dark .w3f-breadcrumbs--warning {
+  --w3f-bc-active-color: var(--w3f-warning-400, #fbbf24);
+  --w3f-bc-item-hover-color: var(--w3f-warning-400, #fbbf24);
+}
+
+.w3f-theme-dark .w3f-breadcrumbs--danger {
+  --w3f-bc-active-color: var(--w3f-danger-400, #f87171);
+  --w3f-bc-item-hover-color: var(--w3f-danger-400, #f87171);
+}
+
+.w3f-theme-dark .w3f-breadcrumbs--info {
+  --w3f-bc-active-color: var(--w3f-info-400, #22d3ee);
+  --w3f-bc-item-hover-color: var(--w3f-info-400, #22d3ee);
+}
+
+/* ---------------------------------------------------------------------
+   Reduced Motion
+   --------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .w3f-breadcrumb-item,
+  .w3f-breadcrumb-expand {
+    transition-duration: 0ms !important;
+  }
+}

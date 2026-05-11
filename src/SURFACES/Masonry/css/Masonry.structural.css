@@ -1,0 +1,197 @@
+/* ============================================================
+   Masonry — W3Fussion SURFACES CSS — CSS Custom Properties
+   Three variants: column / flex / grid
+   ============================================================ */
+
+/* ============================================
+   Custom Properties (configurable)
+   ============================================ */
+
+.w3f-masonry {
+  /* Shared */
+  --w3f-msn-gap: 1rem;
+  --w3f-msn-base: 280px;
+
+  /* Column variant responsive columns */
+  --w3f-msn-cols-xs: 1;
+  --w3f-msn-cols-sm: 2;
+  --w3f-msn-cols-md: 3;
+  --w3f-msn-cols-lg: 4;
+  --w3f-msn-cols-xl: var(--w3f-msn-cols-lg);
+
+  /* Card */
+  --w3f-msn-card-bg: var(--w3f-surface);
+  --w3f-msn-card-border: var(--w3f-outline-variant);
+  --w3f-msn-card-radius: var(--w3f-radius-lg);
+  --w3f-msn-card-shadow-hover: var(--w3f-shadow-lg);
+  --w3f-msn-card-transition: var(--w3f-transition-normal);
+
+  /* Card body */
+  --w3f-msn-card-body-pad: var(--w3f-space-4);
+  --w3f-msn-card-body-gap: var(--w3f-space-3);
+
+  /* Card title */
+  --w3f-msn-card-title-font-size: var(--w3f-text-lg);
+  --w3f-msn-card-title-font-weight: 700;
+  --w3f-msn-card-title-color: var(--w3f-on-surface);
+
+  /* Focus */
+  --w3f-msn-focus-color: var(--w3f-primary);
+
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Column Variant ──────────────────────────────────────────── */
+.w3f-masonry--column {
+  column-count: var(--w3f-msn-cols-xs);
+  column-gap:   var(--w3f-msn-gap);
+}
+
+@media (min-width: 640px) {
+  .w3f-masonry--column { column-count: var(--w3f-msn-cols-sm); }
+}
+@media (min-width: 768px) {
+  .w3f-masonry--column { column-count: var(--w3f-msn-cols-md); }
+}
+@media (min-width: 1024px) {
+  .w3f-masonry--column { column-count: var(--w3f-msn-cols-lg); }
+}
+@media (min-width: 1280px) {
+  .w3f-masonry--column {
+    column-count: var(--w3f-msn-cols-xl);
+  }
+}
+
+/* ── Flex Variant ────────────────────────────────────────────── */
+.w3f-masonry--flex {
+  display:         flex;
+  flex-wrap:       wrap;
+  align-items:     flex-start;
+  justify-content: flex-start;
+}
+
+/* Pseudo-element acts as an invisible filler to prevent last row stretching */
+.w3f-masonry--flex::after {
+  content: '';
+  flex: 1 0 var(--w3f-msn-base);
+}
+
+/* ── Grid Variant ────────────────────────────────────────────── */
+.w3f-masonry--grid {
+  display:     grid;
+  align-items: start;
+}
+
+/* ── Item (shared across all variants) ──────────────────────── */
+.w3f-masonry-item {
+  break-inside:   avoid;    /* column mode */
+  display:        flex;
+  flex-direction: column;
+  min-width:      0;
+}
+
+/* Column: vertical gap via margin-bottom */
+.w3f-masonry--column .w3f-masonry-item {
+  margin-bottom: var(--w3f-msn-gap);
+}
+
+/* ── Flex item sizes ─────────────────────────────────────────── */
+.w3f-masonry--flex .w3f-masonry-item--small {
+  flex: 0 0 var(--w3f-msn-base);
+}
+.w3f-masonry--flex .w3f-masonry-item--medium {
+  flex: 0 0 calc(var(--w3f-msn-base) * 1.6 + var(--w3f-msn-gap));
+}
+.w3f-masonry--flex .w3f-masonry-item--large {
+  flex: 0 0 calc(var(--w3f-msn-base) * 2.3 + var(--w3f-msn-gap) * 2);
+}
+.w3f-masonry--flex .w3f-masonry-item--full {
+  flex: 1 1 100%;
+}
+
+/* ── Grid item sizes ─────────────────────────────────────────── */
+.w3f-masonry--grid .w3f-masonry-item--small  { grid-column: span 1; }
+.w3f-masonry--grid .w3f-masonry-item--medium { grid-column: span 2; }
+.w3f-masonry--grid .w3f-masonry-item--large  { grid-column: span 3; }
+.w3f-masonry--grid .w3f-masonry-item--full   { grid-column: 1 / -1; }
+
+/* ── Responsive: collapse sizes on small screens ─────────────── */
+@media (max-width: 639px) {
+  .w3f-masonry--flex .w3f-masonry-item--medium,
+  .w3f-masonry--flex .w3f-masonry-item--large {
+    flex: 1 1 100%;
+  }
+  .w3f-masonry--grid .w3f-masonry-item--medium,
+  .w3f-masonry--grid .w3f-masonry-item--large,
+  .w3f-masonry--grid .w3f-masonry-item--full {
+    grid-column: span 1;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .w3f-masonry--grid .w3f-masonry-item--large {
+    grid-column: span 2;
+  }
+  .w3f-masonry--grid .w3f-masonry-item--full {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+.w3f-masonry-card {
+  background:    var(--w3f-msn-card-bg);
+  border:        1px solid var(--w3f-msn-card-border);
+  border-radius: var(--w3f-msn-card-radius);
+  overflow:      hidden;
+  height:        100%;
+  display:       flex;
+  flex-direction: column;
+  transition:    transform  var(--w3f-msn-card-transition),
+                 box-shadow var(--w3f-msn-card-transition);
+}
+
+.w3f-masonry-card--hover:hover {
+  transform:  translateY(-4px);
+  box-shadow: var(--w3f-msn-card-shadow-hover);
+  cursor:     default;
+}
+
+.w3f-masonry-card[role="button"]:hover,
+.w3f-masonry-card[role="button"]:focus-visible {
+  outline: 2px solid var(--w3f-msn-focus-color);
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+/* ── Card Header (gradient strip) ───────────────────────────── */
+.w3f-masonry-card__header {
+  position:    relative;
+  overflow:    hidden;
+  width:       100%;
+  flex-shrink: 0;
+}
+
+.w3f-masonry-card__header::after {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+/* ── Card Body ───────────────────────────────────────────────── */
+.w3f-masonry-card__body {
+  padding: var(--w3f-msn-card-body-pad);
+  flex:    1;
+  display: flex;
+  flex-direction: column;
+  gap:     var(--w3f-msn-card-body-gap);
+}
+
+.w3f-masonry-card__title {
+  font-size:   var(--w3f-msn-card-title-font-size);
+  font-weight: var(--w3f-msn-card-title-font-weight);
+  color:       var(--w3f-msn-card-title-color);
+  margin:      0;
+  line-height: 1.3;
+}

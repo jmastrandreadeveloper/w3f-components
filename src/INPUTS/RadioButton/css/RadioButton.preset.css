@@ -1,0 +1,41 @@
+/* Auto-generated from _radio.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.radio-material:not(.w3f-radio--unstyled) {
+  transition: var(--w3f-radio-transition);
+}
+
+/* ── Checkmark ── */
+.radio-material:not(.w3f-radio--unstyled) .radio-checkmark {
+  background-color: var(--w3f-radio-bg);
+  border-color: var(--w3f-radio-border-color);
+  border-width: var(--w3f-radio-border-width);
+  border-style: var(--w3f-radio-border-style);
+  border-top-left-radius: var(--w3f-radio-radius-tl);
+  border-top-right-radius: var(--w3f-radio-radius-tr);
+  border-bottom-right-radius: var(--w3f-radio-radius-br);
+  border-bottom-left-radius: var(--w3f-radio-radius-bl);
+}
+
+/* ── Dot ── */
+.radio-material:not(.w3f-radio--unstyled) .radio-checkmark::after {
+  background-color: var(--w3f-radio-dot-color);
+}
+
+/* ── Hover ── */
+.radio-material:not(.w3f-radio--unstyled):hover input:not(:checked) ~ .radio-checkmark {
+  background-color: var(--w3f-radio-hover-bg);
+  border-color: var(--w3f-radio-hover-border-color);
+}
+
+/* ── Checked ── */
+.radio-material:not(.w3f-radio--unstyled) input:checked ~ .radio-checkmark {
+  background-color: var(--w3f-radio-checked-bg);
+  border-color: var(--w3f-radio-checked-border-color);
+}
+
+/* ── Disabled ── */
+.radio-material:not(.w3f-radio--unstyled).radio-disabled {
+  opacity: var(--w3f-radio-disabled-opacity);
+}
+

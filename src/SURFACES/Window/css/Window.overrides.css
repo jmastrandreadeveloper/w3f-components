@@ -1,0 +1,208 @@
+/* ── WINDOW OVERRIDES ──
+   Migrated from manual _window.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   WINDOW PRESET — Visual styles via CSS custom properties
+   Active when .w3f-window is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-window-theme-terminal { --w3f-win-bg: #1a1b26; ... }
+   ===================================================================== */
+
+/* -- BASE ------------------------------------------------------------ */
+.w3f-window:not(.w3f-window--unstyled) {
+  background-color: var(--w3f-win-bg);
+  color: var(--w3f-win-color);
+  box-shadow: var(--w3f-win-shadow);
+  border-radius: var(--w3f-win-radius-tl) var(--w3f-win-radius-tr) var(--w3f-win-radius-br) var(--w3f-win-radius-bl);
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--w3f-win-border-color-top) var(--w3f-win-border-color-right) var(--w3f-win-border-color-bottom) var(--w3f-win-border-color-left);
+  transition: box-shadow var(--w3f-win-transition),
+    border-color var(--w3f-win-transition),
+    border-radius var(--w3f-win-transition),
+    opacity var(--w3f-win-transition);
+}
+
+/* -- TITLEBAR -------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-titlebar {
+  background-color: var(--w3f-win-tb-bg);
+  border-bottom: 1px solid var(--w3f-win-tb-border-color);
+}
+
+/* -- TITLE ----------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-title {
+  font-size: var(--w3f-win-title-font);
+  font-weight: var(--w3f-win-title-weight);
+  color: var(--w3f-win-title-color);
+}
+
+/* -- CONTROL BUTTONS ------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-control-btn {
+  color: var(--w3f-win-ctrl-color);
+  border-radius: var(--w3f-win-ctrl-radius-tl) var(--w3f-win-ctrl-radius-tr) var(--w3f-win-ctrl-radius-br) var(--w3f-win-ctrl-radius-bl);
+  transition: background-color var(--w3f-win-ctrl-transition);
+  font-size: 14px;
+}
+
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-control-btn:hover {
+  background-color: var(--w3f-win-ctrl-hover-bg);
+}
+
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-control-btn:focus {
+  outline: 2px solid var(--w3f-win-ctrl-focus-color);
+  outline-offset: 2px;
+}
+
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-control-btn--close:hover {
+  background-color: var(--w3f-win-ctrl-close-hover-bg);
+  color: var(--w3f-win-ctrl-close-hover-color);
+}
+
+/* -- BODY ------------------------------------------------------------ */
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-body {
+  background-color: var(--w3f-win-body-bg);
+}
+
+/* -- FOOTER ---------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled) .w3f-window-footer {
+  border-top: 1px solid var(--w3f-win-footer-border-color);
+  background-color: var(--w3f-win-footer-bg);
+}
+
+/* -- FOCUSED STATE --------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--focused {
+  box-shadow: var(--w3f-win-focused-shadow);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--focused .w3f-window-titlebar {
+  background-color: var(--w3f-win-focused-tb-bg);
+}
+
+/* -- OVERLAY --------------------------------------------------------- */
+.w3f-window-overlay {
+  background-color: var(--w3f-win-overlay-bg);
+  animation: window-overlay-fade-in 0.2s ease-out;
+}
+
+/* -- OS: WINDOWS ----------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--windows {
+  border-radius: var(--w3f-win-os-win-radius-tl) var(--w3f-win-os-win-radius-tr) var(--w3f-win-os-win-radius-br) var(--w3f-win-os-win-radius-bl);
+  box-shadow: var(--w3f-win-os-win-shadow);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--windows .w3f-window-titlebar {
+  background-color: var(--w3f-win-bg);
+  border-bottom: 1px solid var(--w3f-win-border-color-bottom);
+}
+
+/* -- OS: MACOS ------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos {
+  border-radius: var(--w3f-win-os-mac-radius-tl) var(--w3f-win-os-mac-radius-tr) var(--w3f-win-os-mac-radius-br) var(--w3f-win-os-mac-radius-bl);
+  box-shadow: var(--w3f-win-os-mac-shadow);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-titlebar {
+  background: var(--w3f-win-os-mac-tb-bg);
+  border-bottom: 1px solid var(--w3f-win-os-mac-tb-border);
+  padding: var(--w3f-space-2) var(--w3f-space-4);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-control-btn {
+  border-radius: var(--w3f-radius-full);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-control-btn--close {
+  background-color: #ff5f57;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-control-btn--minimize {
+  background-color: #febc2e;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-control-btn--maximize {
+  background-color: #28c840;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-control-btn:hover {
+  opacity: 0.8;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-titlebar:hover .w3f-window-control-btn svg,
+.w3f-window:not(.w3f-window--unstyled).w3f-window--macos .w3f-window-titlebar:hover .w3f-window-control-btn span {
+  font-size: 8px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* -- OS: LINUX ------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux {
+  border-radius: var(--w3f-win-os-linux-radius-tl) var(--w3f-win-os-linux-radius-tr) var(--w3f-win-os-linux-radius-br) var(--w3f-win-os-linux-radius-bl);
+  box-shadow: var(--w3f-win-os-linux-shadow);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux .w3f-window-titlebar {
+  background-color: var(--w3f-win-os-linux-tb-bg);
+  color: white;
+  border-bottom: none;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux .w3f-window-title {
+  color: white;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux .w3f-window-control-btn {
+  color: white;
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux .w3f-window-control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.w3f-window:not(.w3f-window--unstyled).w3f-window--linux .w3f-window-control-btn--close:hover {
+  background-color: var(--w3f-win-ctrl-close-hover-bg);
+}
+
+/* -- BORDERED -------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--bordered {
+  border: 2px solid var(--w3f-win-bordered-color);
+}
+
+/* -- NO SHADOW ------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--no-shadow {
+  box-shadow: none;
+}
+
+/* -- DISABLED -------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--disabled {
+  opacity: var(--w3f-win-disabled-opacity);
+}
+
+/* -- LOADING OVERLAY ------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--loading::after {
+  background-color: var(--w3f-win-loading-overlay);
+}
+
+/* -- DRAGGING -------------------------------------------------------- */
+.w3f-window:not(.w3f-window--unstyled).w3f-window--dragging {
+  opacity: 0.9;
+}
+
+/* -- DARK THEME: FOCUSED --------------------------------------------- */
+.w3f-theme-dark .w3f-window:not(.w3f-window--unstyled).w3f-window--focused .w3f-window-titlebar {
+  border-color: var(--w3f-primary);
+}
+
+/* -- RESPONSIVE (visual) --------------------------------------------- */
+@media (max-width: 768px) {
+  .w3f-window:not(.w3f-window--unstyled) .w3f-window-body {
+    padding: var(--w3f-space-4);
+  }
+
+  .w3f-window:not(.w3f-window--unstyled) .w3f-window-footer {
+    padding: var(--w3f-space-3) var(--w3f-space-4);
+    flex-wrap: wrap;
+  }
+}

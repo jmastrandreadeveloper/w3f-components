@@ -1,0 +1,42 @@
+/* =====================================================================
+   TYPOGRAPHY TRAITS
+   ===================================================================== */
+
+/* ── Font Weight ────────────────────────────────────────────────────── */
+
+.w3f-font-light    { font-weight: 300; }
+.w3f-font-normal   { font-weight: 400; }
+.w3f-font-medium   { font-weight: 500; }
+.w3f-font-semibold { font-weight: 600; }
+.w3f-font-bold     { font-weight: 700; }
+
+/* ── Text Transform ─────────────────────────────────────────────────── */
+
+.w3f-uppercase  { text-transform: uppercase; }
+.w3f-lowercase  { text-transform: lowercase; }
+.w3f-capitalize { text-transform: capitalize; }
+.w3f-normal-case { text-transform: none; }
+
+/* ── Letter Spacing ─────────────────────────────────────────────────── */
+
+.w3f-tracking-tight  { letter-spacing: -0.025em; }
+.w3f-tracking-normal { letter-spacing: 0; }
+.w3f-tracking-wide   { letter-spacing: 0.05em; }
+.w3f-tracking-wider  { letter-spacing: 0.1em; }
+
+/* ── Font Size ──────────────────────────────────────────────────────── */
+
+.w3f-text-xs   { font-size: var(--w3f-text-xs); }
+.w3f-text-sm   { font-size: var(--w3f-text-sm); }
+.w3f-text-base { font-size: var(--w3f-text-base); }
+.w3f-text-lg   { font-size: var(--w3f-text-lg); }
+.w3f-text-xl   { font-size: var(--w3f-text-xl); }
+.w3f-text-2xl  { font-size: var(--w3f-text-2xl); }
+.w3f-text-3xl  { font-size: var(--w3f-text-3xl); }
+
+/* ── Line Height ────────────────────────────────────────────────────── */
+
+.w3f-leading-none   { line-height: 1; }
+.w3f-leading-tight  { line-height: 1.25; }
+.w3f-leading-normal { line-height: 1.5; }
+.w3f-leading-relaxed { line-height: 1.75; }

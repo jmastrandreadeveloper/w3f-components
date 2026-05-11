@@ -1,0 +1,15 @@
+/* Auto-generated from _app-bar.contract.css — DO NOT EDIT */
+.w3f-app-bar {
+  --w3f-appbar-bg: var(--w3f-primary);
+  --w3f-appbar-color: white;
+  --w3f-appbar-shadow: none;
+  --w3f-appbar-elevated-shadow: var(--w3f-shadow-md);
+  --w3f-appbar-border-color: transparent;
+  --w3f-appbar-z-index: 1100;
+  --w3f-appbar-toolbar-min-height: 56px;
+  --w3f-appbar-toolbar-pad-h: var(--w3f-space-4);
+  --w3f-appbar-toolbar-gap: 8px;
+  --w3f-appbar-slot-gap: 8px;
+  --w3f-appbar-title-font-size: 1.25rem;
+  --w3f-appbar-title-font-weight: 600;
+}

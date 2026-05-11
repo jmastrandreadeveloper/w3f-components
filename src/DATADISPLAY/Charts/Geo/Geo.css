@@ -1,0 +1,14 @@
+/* ─── Geo / Choropleth structural CSS ──────────────────────────────── */
+
+.w3f-chart-geo {
+    position: relative;
+    width: 100%;
+}
+
+.w3f-chart-geo .w3f-chart__container {
+    position: relative;
+}
+
+.w3f-chart-geo--unstyled .w3f-chart__svg {
+    /* Let the consumer control all visuals */
+}

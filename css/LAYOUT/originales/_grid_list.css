@@ -1,0 +1,42 @@
+/* GridWithDividers.css */
+/* =============================================================
+   📋 COMPONENTE: GRID LIST (Lista basada en Grid)
+   ============================================================= */
+
+.w3f-grid-list {
+  display: grid;
+  gap: var(--w3f-space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Estilos de ítem de lista dentro del Grid */
+.w3f-grid-list-item {
+  display: block;
+  background-color: var(--w3f-surface-variant);
+  border-radius: var(--w3f-radius);
+  padding: var(--w3f-space-4);
+  transition: background-color var(--w3f-transition-fast);
+}
+
+.w3f-grid-list-item:hover {
+  background-color: var(--w3f-gray-100);
+}
+
+/* Configuraciones comunes de columna */
+.w3f-grid-list-2-cols {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .w3f-grid-list-2-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .w3f-grid-list-2-cols {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

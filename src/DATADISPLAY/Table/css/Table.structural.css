@@ -1,0 +1,470 @@
+/* =====================================================================
+   Table Component — Structural + CSS Custom Properties
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (configurable)
+   --------------------------------------------------------------------- */
+
+.w3f-table-container {
+  /* Container */
+  --w3f-table-radius-tl: var(--w3f-radius-lg);
+  --w3f-table-radius-tr: var(--w3f-radius-lg);
+  --w3f-table-radius-br: var(--w3f-radius-lg);
+  --w3f-table-radius-bl: var(--w3f-radius-lg);
+  --w3f-table-bg: var(--w3f-surface, #ffffff);
+  --w3f-table-border-color-top: var(--w3f-gray-200);
+  --w3f-table-border-color-right: var(--w3f-gray-200);
+  --w3f-table-border-color-bottom: var(--w3f-gray-200);
+  --w3f-table-border-color-left: var(--w3f-gray-200);
+
+  /* Shadow */
+  --w3f-table-shadow: none;
+
+  /* Header */
+  --w3f-table-thead-bg: var(--w3f-gray-50, #f9fafb);
+  --w3f-table-th-color: var(--w3f-gray-600);
+  --w3f-table-th-border-color: var(--w3f-gray-200);
+  --w3f-table-th-font-size: var(--w3f-text-xs);
+  --w3f-table-th-padding-top: var(--w3f-space-3);
+  --w3f-table-th-padding-right: var(--w3f-space-4);
+  --w3f-table-th-padding-bottom: var(--w3f-space-3);
+  --w3f-table-th-padding-left: var(--w3f-space-4);
+
+  /* Header sortable */
+  --w3f-table-th-hover-color: var(--w3f-gray-900);
+  --w3f-table-th-hover-bg: var(--w3f-gray-100, #f3f4f6);
+  --w3f-table-sort-icon-color: var(--w3f-gray-400);
+  --w3f-table-sort-active-color: var(--w3f-primary);
+
+  /* Body */
+  --w3f-table-font-size: var(--w3f-text-sm);
+  --w3f-table-color: var(--w3f-on-surface, #1f2937);
+  --w3f-table-td-padding-top: var(--w3f-space-3);
+  --w3f-table-td-padding-right: var(--w3f-space-4);
+  --w3f-table-td-padding-bottom: var(--w3f-space-3);
+  --w3f-table-td-padding-left: var(--w3f-space-4);
+  --w3f-table-td-border-color: var(--w3f-gray-100);
+  --w3f-table-row-hover-bg: var(--w3f-gray-50, #f9fafb);
+
+  /* Striped */
+  --w3f-table-striped-bg: var(--w3f-gray-50, #f9fafb);
+  --w3f-table-striped-hover-bg: var(--w3f-gray-100, #f3f4f6);
+
+  /* Bordered */
+  --w3f-table-bordered-color: var(--w3f-gray-200);
+
+  /* Empty state */
+  --w3f-table-empty-color: var(--w3f-gray-400);
+
+  /* Toolbar */
+  --w3f-table-toolbar-border-color: var(--w3f-gray-200);
+  --w3f-table-toolbar-padding-top: var(--w3f-space-3);
+  --w3f-table-toolbar-padding-right: var(--w3f-space-4);
+  --w3f-table-toolbar-padding-bottom: var(--w3f-space-3);
+  --w3f-table-toolbar-padding-left: var(--w3f-space-4);
+
+  /* Filter input */
+  --w3f-table-filter-bg: var(--w3f-surface, #ffffff);
+  --w3f-table-filter-color: var(--w3f-on-surface, #1f2937);
+  --w3f-table-filter-border: var(--w3f-gray-300);
+  --w3f-table-filter-icon-color: var(--w3f-gray-400);
+  --w3f-table-filter-placeholder-color: var(--w3f-gray-400);
+  --w3f-table-filter-focus-border: var(--w3f-primary);
+  --w3f-table-filter-focus-shadow: 0 0 0 3px var(--w3f-primary-100, rgba(59, 130, 246, 0.15));
+
+  /* Pagination */
+  --w3f-table-pgn-border-color: var(--w3f-gray-200);
+  --w3f-table-pgn-color: var(--w3f-gray-600);
+  --w3f-table-pgn-btn-bg: var(--w3f-surface, #ffffff);
+  --w3f-table-pgn-btn-color: var(--w3f-gray-700);
+  --w3f-table-pgn-btn-border: var(--w3f-gray-300);
+  --w3f-table-pgn-btn-hover-bg: var(--w3f-gray-50);
+  --w3f-table-pgn-btn-hover-border: var(--w3f-gray-400);
+  --w3f-table-pgn-select-bg: var(--w3f-surface, #ffffff);
+  --w3f-table-pgn-select-color: var(--w3f-on-surface, #1f2937);
+  --w3f-table-pgn-select-border: var(--w3f-gray-300);
+
+  /* Scrollbar */
+  --w3f-table-scroll-track: var(--w3f-gray-100, #f3f4f6);
+  --w3f-table-scroll-thumb: var(--w3f-gray-300, #d1d5db);
+  --w3f-table-scroll-thumb-hover: var(--w3f-gray-400, #9ca3af);
+
+  /* Resize handle */
+  --w3f-table-resize-color: var(--w3f-primary, #3b82f6);
+
+  /* Drag & drop */
+  --w3f-table-drag-ghost-bg: var(--w3f-surface, #ffffff);
+  --w3f-table-drag-ghost-border: var(--w3f-primary, #3b82f6);
+  --w3f-table-drag-ghost-color: var(--w3f-gray-700);
+  --w3f-table-drop-indicator-color: var(--w3f-primary, #3b82f6);
+
+  width: 100%;
+  overflow: hidden;
+  border-style: solid;
+  border-width: 1px;
+}
+
+/* ---------------------------------------------------------------------
+   Dark theme
+   --------------------------------------------------------------------- */
+
+.w3f-theme-dark .w3f-table-container {
+  --w3f-table-bg: var(--w3f-surface, #1f2937);
+  --w3f-table-border-color-top: var(--w3f-gray-700);
+  --w3f-table-border-color-right: var(--w3f-gray-700);
+  --w3f-table-border-color-bottom: var(--w3f-gray-700);
+  --w3f-table-border-color-left: var(--w3f-gray-700);
+  --w3f-table-thead-bg: var(--w3f-gray-800);
+  --w3f-table-th-color: var(--w3f-gray-300);
+  --w3f-table-th-border-color: var(--w3f-gray-600);
+  --w3f-table-th-hover-color: var(--w3f-gray-100);
+  --w3f-table-th-hover-bg: var(--w3f-gray-700);
+  --w3f-table-color: var(--w3f-gray-200);
+  --w3f-table-td-border-color: var(--w3f-gray-700);
+  --w3f-table-row-hover-bg: var(--w3f-gray-800);
+  --w3f-table-striped-bg: var(--w3f-gray-800);
+  --w3f-table-striped-hover-bg: var(--w3f-gray-700);
+  --w3f-table-toolbar-border-color: var(--w3f-gray-700);
+  --w3f-table-filter-bg: var(--w3f-gray-800);
+  --w3f-table-filter-color: var(--w3f-gray-100);
+  --w3f-table-filter-border: var(--w3f-gray-600);
+  --w3f-table-filter-focus-border: var(--w3f-primary-400);
+  --w3f-table-filter-focus-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+  --w3f-table-pgn-border-color: var(--w3f-gray-700);
+  --w3f-table-pgn-color: var(--w3f-gray-300);
+  --w3f-table-pgn-btn-bg: var(--w3f-gray-800);
+  --w3f-table-pgn-btn-color: var(--w3f-gray-300);
+  --w3f-table-pgn-btn-border: var(--w3f-gray-600);
+  --w3f-table-pgn-btn-hover-bg: var(--w3f-gray-700);
+  --w3f-table-pgn-btn-hover-border: var(--w3f-gray-500);
+  --w3f-table-pgn-select-bg: var(--w3f-gray-800);
+  --w3f-table-pgn-select-color: var(--w3f-gray-200);
+  --w3f-table-pgn-select-border: var(--w3f-gray-600);
+  --w3f-table-scroll-track: var(--w3f-gray-800);
+  --w3f-table-scroll-thumb: var(--w3f-gray-600);
+  --w3f-table-scroll-thumb-hover: var(--w3f-gray-500);
+  --w3f-table-resize-color: var(--w3f-primary-400);
+  --w3f-table-drag-ghost-bg: var(--w3f-gray-800);
+  --w3f-table-drag-ghost-border: var(--w3f-primary-400);
+  --w3f-table-drag-ghost-color: var(--w3f-gray-200);
+  --w3f-table-drop-indicator-color: var(--w3f-primary-400);
+}
+
+/* ---------------------------------------------------------------------
+   Toolbar (Filtro Global)
+   --------------------------------------------------------------------- */
+
+.w3f-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--w3f-table-toolbar-padding-top);
+  padding-right: var(--w3f-table-toolbar-padding-right);
+  padding-bottom: var(--w3f-table-toolbar-padding-bottom);
+  padding-left: var(--w3f-table-toolbar-padding-left);
+  border-bottom: 1px solid transparent;
+  gap: var(--w3f-space-3);
+}
+
+.w3f-table-filter {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.w3f-table-filter-icon {
+  position: absolute;
+  left: var(--w3f-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.w3f-table-filter-input {
+  width: 100%;
+  padding: var(--w3f-space-2) var(--w3f-space-3) var(--w3f-space-2) var(--w3f-space-10, 2.5rem);
+  border: 1px solid transparent;
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------
+   Tabla Base
+   --------------------------------------------------------------------- */
+
+.w3f-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Scrollable wrapper (vertical + horizontal) */
+.w3f-table-wrapper-scrollable {
+  overflow: auto;
+}
+
+.w3f-table-wrapper-scrollable thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Custom scrollbar sizing */
+.w3f-table-wrapper-scrollable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.w3f-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------- */
+
+.w3f-table th {
+  padding-top: var(--w3f-table-th-padding-top);
+  padding-right: var(--w3f-table-th-padding-right);
+  padding-bottom: var(--w3f-table-th-padding-bottom);
+  padding-left: var(--w3f-table-th-padding-left);
+  text-align: left;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+}
+
+.w3f-table th.w3f-table-sortable {
+  cursor: pointer;
+}
+
+.w3f-table-header-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--w3f-space-2);
+}
+
+.w3f-table-sort-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------
+   Body / Rows
+   --------------------------------------------------------------------- */
+
+.w3f-table td {
+  padding-top: var(--w3f-table-td-padding-top);
+  padding-right: var(--w3f-table-td-padding-right);
+  padding-bottom: var(--w3f-table-td-padding-bottom);
+  padding-left: var(--w3f-table-td-padding-left);
+  border-bottom: 1px solid transparent;
+  vertical-align: middle;
+}
+
+.w3f-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Empty State */
+.w3f-table-empty {
+  text-align: center;
+  padding: var(--w3f-space-8) var(--w3f-space-4);
+}
+
+/* ---------------------------------------------------------------------
+   Variantes de Tamano (Size Variants)
+   --------------------------------------------------------------------- */
+
+/* Small */
+.w3f-table-sm th,
+.w3f-table-sm td {
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+}
+
+/* Large */
+.w3f-table-lg th,
+.w3f-table-lg td {
+  padding: var(--w3f-space-4) var(--w3f-space-5, 1.25rem);
+}
+
+/* ---------------------------------------------------------------------
+   Variantes de Estilo (Style Variants) — structural
+   --------------------------------------------------------------------- */
+
+/* Bordered */
+.w3f-table-bordered th,
+.w3f-table-bordered td {
+  border: 1px solid transparent;
+}
+
+.w3f-table-bordered thead th {
+  border-bottom-width: 2px;
+}
+
+/* ---------------------------------------------------------------------
+   Paginacion
+   --------------------------------------------------------------------- */
+
+.w3f-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--w3f-table-toolbar-padding-top);
+  padding-right: var(--w3f-table-toolbar-padding-right);
+  padding-bottom: var(--w3f-table-toolbar-padding-bottom);
+  padding-left: var(--w3f-table-toolbar-padding-left);
+  border-top: 1px solid transparent;
+  flex-wrap: wrap;
+  gap: var(--w3f-space-3);
+}
+
+.w3f-table-pagination-info {
+  display: flex;
+  align-items: center;
+  gap: var(--w3f-space-2);
+}
+
+.w3f-table-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--w3f-space-1);
+}
+
+.w3f-table-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.w3f-table-pagination-btn:disabled {
+  cursor: not-allowed;
+}
+
+.w3f-table-pagination-text {
+  padding: 0 var(--w3f-space-2);
+  white-space: nowrap;
+}
+
+.w3f-table-page-size-select {
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  border: 1px solid transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------
+   Column Resize
+   --------------------------------------------------------------------- */
+
+.w3f-table-fixed {
+  table-layout: fixed;
+}
+
+.w3f-table-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+  z-index: 1;
+}
+
+body.w3f-table-resizing,
+body.w3f-table-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* ---------------------------------------------------------------------
+   Column Reorder (Drag & Drop)
+   --------------------------------------------------------------------- */
+
+.w3f-table-draggable {
+  cursor: grab;
+}
+
+.w3f-table-draggable:active {
+  cursor: grabbing;
+}
+
+.w3f-table-drag-ghost {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  padding-top: var(--w3f-table-th-padding-top);
+  padding-right: var(--w3f-table-th-padding-right);
+  padding-bottom: var(--w3f-table-th-padding-bottom);
+  padding-left: var(--w3f-table-th-padding-left);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.w3f-table-th-dragging {
+  opacity: 0.4;
+}
+
+.w3f-table-drop-indicator {
+  position: fixed;
+  z-index: 9999;
+  width: 2px;
+  pointer-events: none;
+}
+
+.w3f-table-drop-indicator::before,
+.w3f-table-drop-indicator::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+}
+
+.w3f-table-drop-indicator::before {
+  top: -4px;
+}
+
+.w3f-table-drop-indicator::after {
+  bottom: -4px;
+}
+
+body.w3f-table-dragging-body,
+body.w3f-table-dragging-body * {
+  cursor: grabbing !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .w3f-table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .w3f-table-filter {
+    max-width: 100%;
+  }
+
+  .w3f-table-pagination {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}

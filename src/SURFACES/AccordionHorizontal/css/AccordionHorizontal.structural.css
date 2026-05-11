@@ -1,0 +1,524 @@
+/* =====================================================================
+   ACCORDION HORIZONTAL — CSS Custom Properties
+   ===================================================================== */
+
+/* ============================================
+   Custom Properties (configurable)
+   ============================================ */
+
+.w3f-accordion-horizontal {
+  /* Background & Surface */
+  --w3f-acch-bg: var(--w3f-surface);
+  --w3f-acch-item-bg: var(--w3f-surface);
+  --w3f-acch-border-color: var(--w3f-outline-variant);
+  --w3f-acch-radius: var(--w3f-radius-lg);
+  --w3f-acch-shadow: var(--w3f-shadow-sm);
+  --w3f-acch-min-height: 400px;
+
+  /* Summary (tab vertical) */
+  --w3f-acch-summary-bg: var(--w3f-surface);
+  --w3f-acch-summary-color: var(--w3f-on-surface);
+  --w3f-acch-summary-font-family: var(--w3f-font-family);
+  --w3f-acch-summary-font-size: var(--w3f-text-base);
+  --w3f-acch-summary-font-weight: 600;
+  --w3f-acch-summary-gap: var(--w3f-space-3);
+  --w3f-acch-summary-pad-v: var(--w3f-space-6);
+  --w3f-acch-summary-pad-h: var(--w3f-space-3);
+  --w3f-acch-summary-hover-bg: var(--w3f-surface-variant);
+  --w3f-acch-summary-hover-color: var(--w3f-primary);
+  --w3f-acch-summary-min-width: 56px;
+
+  /* Icon */
+  --w3f-acch-icon-color: var(--w3f-gray-500);
+  --w3f-acch-icon-active-color: var(--w3f-primary);
+  --w3f-acch-icon-size: 20px;
+
+  /* Details */
+  --w3f-acch-details-bg: var(--w3f-surface);
+  --w3f-acch-details-color: var(--w3f-on-surface);
+  --w3f-acch-details-pad: var(--w3f-space-6);
+
+  /* Actions */
+  --w3f-acch-actions-bg: var(--w3f-surface-variant);
+  --w3f-acch-actions-border-color: var(--w3f-outline-variant);
+  --w3f-acch-actions-gap: var(--w3f-space-3);
+  --w3f-acch-actions-pad-v: var(--w3f-space-4);
+  --w3f-acch-actions-pad-h: var(--w3f-space-6);
+
+  /* Transition */
+  --w3f-acch-transition: var(--w3f-transition-fast);
+  --w3f-acch-transition-normal: var(--w3f-transition-normal);
+
+  /* Focus */
+  --w3f-acch-focus-color: var(--w3f-primary);
+
+  /* Disabled */
+  --w3f-acch-disabled-opacity: 0.5;
+
+  /* Collapsed/expanded sizes */
+  --w3f-acch-collapsed-width: 56px;
+  --w3f-acch-expanded-min-width: 280px;
+
+  /* Color accents (expanded state) */
+  --w3f-acch-primary-bg: var(--w3f-primary-50);
+  --w3f-acch-primary-color: var(--w3f-primary);
+  --w3f-acch-success-bg: var(--w3f-success-50);
+  --w3f-acch-success-color: var(--w3f-success);
+  --w3f-acch-warning-bg: var(--w3f-warning-50);
+  --w3f-acch-warning-color: var(--w3f-warning);
+  --w3f-acch-danger-bg: var(--w3f-danger-50);
+  --w3f-acch-danger-color: var(--w3f-danger);
+  --w3f-acch-info-bg: var(--w3f-info-50);
+  --w3f-acch-info-color: var(--w3f-info);
+
+  width: 100%;
+  display: flex;
+  gap: 0;
+  background-color: var(--w3f-acch-bg);
+  border: 1px solid var(--w3f-acch-border-color);
+  border-radius: var(--w3f-acch-radius);
+  overflow: hidden;
+  box-shadow: var(--w3f-acch-shadow);
+  min-height: var(--w3f-acch-min-height);
+}
+
+/* ============================================
+   ITEM HORIZONTAL
+   ============================================ */
+
+.w3f-accordion-item-horizontal {
+  display: flex;
+  flex-direction: row;
+  transition: flex var(--w3f-acch-transition-normal);
+  border-right: 1px solid var(--w3f-acch-border-color);
+  position: relative;
+  background-color: var(--w3f-acch-item-bg);
+}
+
+.w3f-accordion-item-horizontal:last-child {
+  border-right: none;
+}
+
+/* Item colapsado: ocupa solo el ancho del tab */
+.w3f-accordion-item-horizontal:not(.w3f-accordion-expanded) {
+  flex: 0 0 var(--w3f-acch-collapsed-width);
+}
+
+/* Item expandido: toma el espacio disponible */
+.w3f-accordion-item-horizontal.w3f-accordion-expanded {
+  flex: 1 1 0%;
+  min-width: var(--w3f-acch-expanded-min-width);
+}
+
+/* Item deshabilitado */
+.w3f-accordion-item-horizontal-disabled {
+  opacity: var(--w3f-acch-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ============================================
+   SUMMARY HORIZONTAL (TAB VERTICAL)
+   ============================================ */
+
+.w3f-accordion-summary-horizontal {
+  writing-mode: vertical-lr;
+  padding: var(--w3f-acch-summary-pad-v) var(--w3f-acch-summary-pad-h);
+  background-color: var(--w3f-acch-summary-bg);
+  border: none;
+  color: var(--w3f-acch-summary-color);
+  font-family: var(--w3f-acch-summary-font-family);
+  font-size: var(--w3f-acch-summary-font-size);
+  font-weight: var(--w3f-acch-summary-font-weight);
+  cursor: pointer;
+  transition: background-color var(--w3f-acch-transition), color var(--w3f-acch-transition);
+  display: flex;
+  align-items: center;
+  gap: var(--w3f-acch-summary-gap);
+  white-space: nowrap;
+  min-width: var(--w3f-acch-summary-min-width);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.w3f-accordion-summary-horizontal:hover {
+  background-color: var(--w3f-acch-summary-hover-bg);
+  color: var(--w3f-acch-summary-hover-color);
+}
+
+.w3f-accordion-summary-horizontal:focus-visible {
+  outline: 2px solid var(--w3f-acch-focus-color);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.w3f-accordion-summary-horizontal:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================
+   ICONO HORIZONTAL
+   ============================================ */
+
+.w3f-accordion-icon-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--w3f-acch-icon-size);
+  height: var(--w3f-acch-icon-size);
+  flex-shrink: 0;
+  color: var(--w3f-acch-icon-color);
+  transition: transform var(--w3f-acch-transition), color var(--w3f-acch-transition);
+  /* Chevron apunta a la derecha -> hacia el contenido */
+  transform: rotate(0deg);
+}
+
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  transform: rotate(180deg);
+  color: var(--w3f-acch-icon-active-color);
+}
+
+/* ============================================
+   CONTENIDO HORIZONTAL (expansion lateral)
+   ============================================ */
+
+.w3f-accordion-content-horizontal {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns var(--w3f-acch-transition-normal);
+  overflow: hidden;
+  height: 100%;
+  flex: 1;
+}
+
+.w3f-accordion-content-horizontal.w3f-accordion-show {
+  grid-template-columns: 1fr;
+}
+
+.w3f-accordion-content-wrapper-horizontal {
+  min-width: 0;
+  overflow: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   DETAILS HORIZONTAL
+   ============================================ */
+
+.w3f-accordion-details-horizontal {
+  padding: var(--w3f-acch-details-pad);
+  color: var(--w3f-acch-details-color);
+  line-height: 1.6;
+  background-color: var(--w3f-acch-details-bg);
+  flex: 1;
+}
+
+.w3f-accordion-details-horizontal p {
+  margin: 0 0 var(--w3f-space-4) 0;
+}
+
+.w3f-accordion-details-horizontal p:last-child {
+  margin-bottom: 0;
+}
+
+.w3f-accordion-details-horizontal ul,
+.w3f-accordion-details-horizontal ol {
+  margin: 0 0 var(--w3f-space-4) 0;
+  padding-left: var(--w3f-space-6);
+}
+
+.w3f-accordion-details-horizontal ul:last-child,
+.w3f-accordion-details-horizontal ol:last-child {
+  margin-bottom: 0;
+}
+
+.w3f-accordion-details-horizontal li {
+  margin-bottom: var(--w3f-space-2);
+}
+
+/* ============================================
+   ACTIONS HORIZONTAL
+   ============================================ */
+
+.w3f-accordion-actions-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--w3f-acch-actions-gap);
+  padding: var(--w3f-acch-actions-pad-v) var(--w3f-acch-actions-pad-h);
+  background-color: var(--w3f-acch-actions-bg);
+  border-top: 1px solid var(--w3f-acch-actions-border-color);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   ORIENTACION DEL TEXTO EN EL TAB
+   ============================================ */
+
+/* Letras derechas apiladas verticalmente (default) */
+.w3f-accordion-summary-h-upright {
+  text-orientation: upright;
+}
+
+/* Letras rotadas 90 en sentido horario */
+.w3f-accordion-summary-h-cw {
+  text-orientation: mixed;
+}
+
+/* Letras rotadas 90 en sentido antihorario */
+.w3f-accordion-summary-h-ccw {
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  flex-direction: row-reverse;
+}
+
+/* Icono en modo antihorario: se compensa la rotacion del padre */
+.w3f-accordion-summary-h-ccw .w3f-accordion-icon-horizontal {
+  transform: rotate(180deg);
+}
+
+.w3f-accordion-summary-h-ccw[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  transform: rotate(0deg);
+  color: var(--w3f-acch-icon-active-color);
+}
+
+/* ============================================
+   VARIANTES DE ESTILO
+   ============================================ */
+
+/* Outlined */
+.w3f-accordion-horizontal.w3f-accordion-h-outlined {
+  border-width: 2px;
+  box-shadow: none;
+}
+
+/* Elevated */
+.w3f-accordion-horizontal.w3f-accordion-elevated {
+  box-shadow: var(--w3f-shadow-md);
+  border: none;
+}
+
+/* Borderless */
+.w3f-accordion-horizontal.w3f-accordion-borderless {
+  border: none;
+  box-shadow: none;
+}
+
+.w3f-accordion-horizontal.w3f-accordion-borderless .w3f-accordion-item-horizontal {
+  border-right: 1px solid var(--w3f-acch-border-color);
+}
+
+/* ============================================
+   COLORES DE ACENTO (en estado expandido)
+   ============================================ */
+
+.w3f-accordion-item-horizontal.w3f-color-primary.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal {
+  background-color: var(--w3f-acch-primary-bg);
+  border-right: 3px solid var(--w3f-acch-primary-color);
+  color: var(--w3f-acch-primary-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-success.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal {
+  background-color: var(--w3f-acch-success-bg);
+  border-right: 3px solid var(--w3f-acch-success-color);
+  color: var(--w3f-acch-success-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-warning.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal {
+  background-color: var(--w3f-acch-warning-bg);
+  border-right: 3px solid var(--w3f-acch-warning-color);
+  color: var(--w3f-acch-warning-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-danger.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal {
+  background-color: var(--w3f-acch-danger-bg);
+  border-right: 3px solid var(--w3f-acch-danger-color);
+  color: var(--w3f-acch-danger-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-info.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal {
+  background-color: var(--w3f-acch-info-bg);
+  border-right: 3px solid var(--w3f-acch-info-color);
+  color: var(--w3f-acch-info-color);
+}
+
+/* Iconos con color del acento */
+.w3f-accordion-item-horizontal.w3f-color-primary.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  color: var(--w3f-acch-primary-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-success.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  color: var(--w3f-acch-success-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-warning.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  color: var(--w3f-acch-warning-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-danger.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  color: var(--w3f-acch-danger-color);
+}
+
+.w3f-accordion-item-horizontal.w3f-color-info.w3f-accordion-expanded
+.w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+  color: var(--w3f-acch-info-color);
+}
+
+/* ============================================
+   TAMANOS
+   ============================================ */
+
+/* Pequeno */
+.w3f-accordion-horizontal.w3f-accordion-h-sm .w3f-accordion-item-horizontal:not(.w3f-accordion-expanded) {
+  flex-basis: 44px;
+}
+
+.w3f-accordion-horizontal.w3f-accordion-h-sm .w3f-accordion-summary-horizontal {
+  font-size: var(--w3f-text-sm);
+  min-width: 44px;
+  padding: var(--w3f-space-4) var(--w3f-space-2);
+}
+
+.w3f-accordion-horizontal.w3f-accordion-h-sm .w3f-accordion-details-horizontal {
+  padding: var(--w3f-space-4);
+  font-size: var(--w3f-text-sm);
+}
+
+.w3f-accordion-horizontal.w3f-accordion-h-sm .w3f-accordion-icon-horizontal {
+  width: 16px;
+  height: 16px;
+}
+
+/* Grande */
+.w3f-accordion-horizontal.w3f-accordion-h-lg .w3f-accordion-item-horizontal:not(.w3f-accordion-expanded) {
+  flex-basis: 72px;
+}
+
+.w3f-accordion-horizontal.w3f-accordion-h-lg .w3f-accordion-summary-horizontal {
+  font-size: var(--w3f-text-lg);
+  min-width: 72px;
+  padding: var(--w3f-space-8) var(--w3f-space-4);
+}
+
+.w3f-accordion-horizontal.w3f-accordion-h-lg .w3f-accordion-details-horizontal {
+  padding: var(--w3f-space-8);
+  font-size: var(--w3f-text-base);
+}
+
+/* ============================================
+   TEMA OSCURO
+   ============================================ */
+
+.w3f-theme-dark .w3f-accordion-horizontal {
+  --w3f-acch-primary-bg: rgba(37, 99, 235, 0.1);
+  --w3f-acch-success-bg: rgba(16, 185, 129, 0.1);
+  --w3f-acch-warning-bg: rgba(245, 158, 11, 0.1);
+  --w3f-acch-danger-bg: rgba(239, 68, 68, 0.1);
+  --w3f-acch-info-bg: rgba(6, 182, 212, 0.1);
+}
+
+/* ============================================
+   RESPONSIVE — mobile: degrada a vertical
+   ============================================ */
+
+@media (max-width: 768px) {
+  .w3f-accordion-horizontal {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .w3f-accordion-item-horizontal {
+    flex-direction: column;
+    border-right: none;
+    border-bottom: 1px solid var(--w3f-acch-border-color);
+  }
+
+  .w3f-accordion-item-horizontal:last-child {
+    border-bottom: none;
+  }
+
+  .w3f-accordion-item-horizontal:not(.w3f-accordion-expanded) {
+    flex: 0 0 auto;
+  }
+
+  .w3f-accordion-item-horizontal.w3f-accordion-expanded {
+    flex: 1 1 auto;
+    min-width: auto;
+  }
+
+  /* El tab vuelve a ser horizontal — se resetean todas las orientaciones */
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-summary-h-upright,
+  .w3f-accordion-summary-h-cw,
+  .w3f-accordion-summary-h-ccw {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    transform: none;
+    padding: var(--w3f-space-4) var(--w3f-space-6);
+    flex-direction: row;
+    min-width: auto;
+  }
+
+  .w3f-accordion-icon-horizontal {
+    transform: rotate(0deg);
+  }
+
+  .w3f-accordion-summary-horizontal[aria-expanded="true"] .w3f-accordion-icon-horizontal {
+    transform: rotate(90deg);
+  }
+
+  /* El contenido degrada a expansion vertical */
+  .w3f-accordion-content-horizontal {
+    grid-template-columns: 1fr;
+    grid-template-rows: 0fr;
+    height: auto;
+  }
+
+  .w3f-accordion-content-horizontal.w3f-accordion-show {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  .w3f-accordion-content-wrapper-horizontal {
+    min-width: auto;
+    min-height: 0;
+    height: auto;
+  }
+
+  /* Bordes de color en mobile: lado izquierdo en lugar de derecho */
+  .w3f-accordion-item-horizontal.w3f-color-primary.w3f-accordion-expanded
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-item-horizontal.w3f-color-success.w3f-accordion-expanded
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-item-horizontal.w3f-color-warning.w3f-accordion-expanded
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-item-horizontal.w3f-color-danger.w3f-accordion-expanded
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-item-horizontal.w3f-color-info.w3f-accordion-expanded
+  .w3f-accordion-summary-horizontal {
+    border-right: none;
+    border-left: 3px solid;
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .w3f-accordion-item-horizontal,
+  .w3f-accordion-content-horizontal,
+  .w3f-accordion-summary-horizontal,
+  .w3f-accordion-icon-horizontal {
+    transition: none;
+  }
+}

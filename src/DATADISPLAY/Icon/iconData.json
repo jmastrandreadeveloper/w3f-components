@@ -1,0 +1,147 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "totalIcons": 50,
+    "library": "lucide-react",
+    "description": "Conjunto de iconos más utilizados organizados por categorías"
+  },
+  "categories": {
+    "navigation": {
+      "label": "Navegación",
+      "icons": [
+        { "name": "Home", "description": "Inicio", "keywords": ["casa", "principal", "inicio"] },
+        { "name": "Menu", "description": "Menú", "keywords": ["hamburguesa", "opciones"] },
+        { "name": "ChevronLeft", "description": "Flecha izquierda", "keywords": ["anterior", "atrás"] },
+        { "name": "ChevronRight", "description": "Flecha derecha", "keywords": ["siguiente", "adelante"] },
+        { "name": "ChevronUp", "description": "Flecha arriba", "keywords": ["subir"] },
+        { "name": "ChevronDown", "description": "Flecha abajo", "keywords": ["bajar"] },
+        { "name": "ArrowLeft", "description": "Flecha izquierda", "keywords": ["volver"] },
+        { "name": "ArrowRight", "description": "Flecha derecha", "keywords": ["continuar"] }
+      ]
+    },
+    "actions": {
+      "label": "Acciones",
+      "icons": [
+        { "name": "Heart", "description": "Corazón", "keywords": ["like", "favorito", "amor"] },
+        { "name": "Star", "description": "Estrella", "keywords": ["favorito", "destacado"] },
+        { "name": "Bookmark", "description": "Marcador", "keywords": ["guardar", "marcar"] },
+        { "name": "Share", "description": "Compartir", "keywords": ["enviar", "distribuir"] },
+        { "name": "Download", "description": "Descargar", "keywords": ["bajar", "obtener"] },
+        { "name": "Upload", "description": "Subir", "keywords": ["cargar", "enviar"] },
+        { "name": "Copy", "description": "Copiar", "keywords": ["duplicar", "clonar"] },
+        { "name": "Edit", "description": "Editar", "keywords": ["modificar", "escribir"] },
+        { "name": "Trash", "description": "Eliminar", "keywords": ["borrar", "basura", "delete"] },
+        { "name": "Plus", "description": "Agregar", "keywords": ["añadir", "nuevo", "crear"] },
+        { "name": "Minus", "description": "Quitar", "keywords": ["remover", "restar"] }
+      ]
+    },
+    "communication": {
+      "label": "Comunicación",
+      "icons": [
+        { "name": "Mail", "description": "Correo", "keywords": ["email", "mensaje"] },
+        { "name": "MessageSquare", "description": "Mensaje", "keywords": ["chat", "conversación"] },
+        { "name": "Phone", "description": "Teléfono", "keywords": ["llamar", "contacto"] },
+        { "name": "Video", "description": "Video", "keywords": ["videollamada", "cámara"] },
+        { "name": "Send", "description": "Enviar", "keywords": ["mandar", "transmitir"] },
+        { "name": "Bell", "description": "Notificación", "keywords": ["alerta", "campana"] }
+      ]
+    },
+    "media": {
+      "label": "Medios",
+      "icons": [
+        { "name": "Play", "description": "Reproducir", "keywords": ["iniciar", "comenzar"] },
+        { "name": "Pause", "description": "Pausar", "keywords": ["detener", "parar"] },
+        { "name": "Volume2", "description": "Volumen", "keywords": ["audio", "sonido"] },
+        { "name": "VolumeX", "description": "Silenciar", "keywords": ["mute", "sin sonido"] },
+        { "name": "Music", "description": "Música", "keywords": ["audio", "canción"] },
+        { "name": "Image", "description": "Imagen", "keywords": ["foto", "picture"] },
+        { "name": "Film", "description": "Película", "keywords": ["video", "cine"] },
+        { "name": "Camera", "description": "Cámara", "keywords": ["foto", "captura"] }
+      ]
+    },
+    "files": {
+      "label": "Archivos",
+      "icons": [
+        { "name": "File", "description": "Archivo", "keywords": ["documento", "file"] },
+        { "name": "FileText", "description": "Documento", "keywords": ["texto", "archivo"] },
+        { "name": "Folder", "description": "Carpeta", "keywords": ["directorio", "folder"] },
+        { "name": "FolderOpen", "description": "Carpeta abierta", "keywords": ["directorio abierto"] },
+        { "name": "Save", "description": "Guardar", "keywords": ["almacenar", "save"] }
+      ]
+    },
+    "status": {
+      "label": "Estados",
+      "icons": [
+        { "name": "Check", "description": "Correcto", "keywords": ["ok", "confirmado", "tick"] },
+        { "name": "X", "description": "Cerrar", "keywords": ["cancelar", "equis", "close"] },
+        { "name": "AlertCircle", "description": "Alerta", "keywords": ["advertencia", "info"] },
+        { "name": "AlertTriangle", "description": "Advertencia", "keywords": ["peligro", "warning"] },
+        { "name": "Info", "description": "Información", "keywords": ["ayuda", "help"] },
+        { "name": "CheckCircle", "description": "Éxito", "keywords": ["completado", "success"] },
+        { "name": "XCircle", "description": "Error", "keywords": ["fallido", "error"] },
+        { "name": "Loader2", "description": "Cargando", "keywords": ["loading", "spinner"] }
+      ]
+    },
+    "social": {
+      "label": "Redes Sociales",
+      "icons": [
+        { "name": "Facebook", "description": "Facebook", "keywords": ["red social", "fb"] },
+        { "name": "Twitter", "description": "Twitter", "keywords": ["red social", "x"] },
+        { "name": "Instagram", "description": "Instagram", "keywords": ["red social", "ig"] },
+        { "name": "Linkedin", "description": "LinkedIn", "keywords": ["red social", "profesional"] },
+        { "name": "Github", "description": "GitHub", "keywords": ["código", "desarrollo"] },
+        { "name": "Youtube", "description": "YouTube", "keywords": ["video", "streaming"] }
+      ]
+    },
+    "ui": {
+      "label": "Interfaz",
+      "icons": [
+        { "name": "Settings", "description": "Configuración", "keywords": ["ajustes", "opciones"] },
+        { "name": "Search", "description": "Buscar", "keywords": ["encontrar", "lupa"] },
+        { "name": "Filter", "description": "Filtrar", "keywords": ["ordenar", "clasificar"] },
+        { "name": "Grid", "description": "Cuadrícula", "keywords": ["vista", "grid"] },
+        { "name": "List", "description": "Lista", "keywords": ["vista", "listado"] },
+        { "name": "MoreVertical", "description": "Más opciones", "keywords": ["menú", "vertical"] },
+        { "name": "MoreHorizontal", "description": "Más opciones", "keywords": ["menú", "horizontal"] },
+        { "name": "Eye", "description": "Ver", "keywords": ["visualizar", "mostrar"] },
+        { "name": "EyeOff", "description": "Ocultar", "keywords": ["esconder", "no ver"] }
+      ]
+    },
+    "user": {
+      "label": "Usuario",
+      "icons": [
+        { "name": "User", "description": "Usuario", "keywords": ["perfil", "persona"] },
+        { "name": "Users", "description": "Usuarios", "keywords": ["grupo", "personas"] },
+        { "name": "UserPlus", "description": "Agregar usuario", "keywords": ["invitar", "nuevo"] },
+        { "name": "UserMinus", "description": "Quitar usuario", "keywords": ["eliminar", "remover"] },
+        { "name": "UserCheck", "description": "Usuario verificado", "keywords": ["confirmado", "aprobado"] }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "title": "Ejemplo básico",
+      "code": "<Icon name=\"Home\" size={24} color=\"currentColor\" />"
+    },
+    {
+      "title": "Con tamaño predefinido",
+      "code": "<Icon name=\"Heart\" size=\"lg\" color=\"red\" />"
+    },
+    {
+      "title": "Botón con icono",
+      "code": "<IconButton name=\"Download\" label=\"Descargar\" variant=\"primary\" onClick={handleClick} />"
+    },
+    {
+      "title": "Icono con badge",
+      "code": "<IconBadge name=\"Bell\" badge={5} badgeColor=\"danger\" />"
+    },
+    {
+      "title": "Icono animado",
+      "code": "<IconAnimated name=\"Loader2\" speed=\"fast\" />"
+    },
+    {
+      "title": "Grupo de iconos",
+      "code": "<IconGroup icons={[{name: 'Home'}, {name: 'Heart'}, {name: 'Star'}]} spacing=\"md\" />"
+    }
+  ]
+}

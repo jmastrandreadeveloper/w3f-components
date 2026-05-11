@@ -1,0 +1,364 @@
+/* ── TABS OVERRIDES ──
+   Migrated from manual _tabs.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   TABS PRESET — Visual styles via CSS custom properties
+   Active when .w3f-tabs-container is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-tabs-theme-dark { --w3f-tabs-list-bg: #1a1a2e; ... }
+   ===================================================================== */
+
+/* -- TITLE ----------------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-title {
+  font-size: var(--w3f-tabs-title-font);
+  font-weight: var(--w3f-tabs-title-weight);
+  color: var(--w3f-tabs-title-color);
+}
+
+/* -- LIST ------------------------------------------------------------ */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-list {
+  background-color: var(--w3f-tabs-list-bg);
+  border-radius: var(--w3f-tabs-list-radius-tl) var(--w3f-tabs-list-radius-tr) var(--w3f-tabs-list-radius-br) var(--w3f-tabs-list-radius-bl);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-horizontal .w3f-tabs-list {
+  border-bottom: 2px solid var(--w3f-tabs-list-border-color);
+  border-radius: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--w3f-tabs-list-scrollbar-color) transparent;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-horizontal .w3f-tabs-list::-webkit-scrollbar {
+  height: 4px;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-horizontal .w3f-tabs-list::-webkit-scrollbar-thumb {
+  background-color: var(--w3f-tabs-list-scrollbar-color);
+  border-radius: var(--w3f-tabs-list-scrollbar-radius);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical .w3f-tabs-list {
+  border-right: 2px solid var(--w3f-tabs-list-border-color);
+  border-bottom: none;
+}
+
+/* -- ITEM ------------------------------------------------------------ */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item {
+  padding: var(--w3f-tabs-item-padding-top, var(--w3f-space-3)) var(--w3f-tabs-item-padding-right, var(--w3f-space-5)) var(--w3f-tabs-item-padding-bottom, var(--w3f-space-3)) var(--w3f-tabs-item-padding-left, var(--w3f-space-5));
+  text-align: var(--w3f-tabs-item-text-align, center);
+  gap: var(--w3f-tabs-item-gap, var(--w3f-space-2));
+  font-size: var(--w3f-tabs-item-font);
+  font-weight: var(--w3f-tabs-item-weight);
+  color: var(--w3f-tabs-item-color);
+  background-color: transparent;
+  border: none;
+  transition: color var(--w3f-tabs-item-transition),
+    background-color var(--w3f-tabs-item-transition),
+    border-color var(--w3f-tabs-item-transition);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item:hover {
+  color: var(--w3f-tabs-item-hover-color);
+  background-color: var(--w3f-tabs-item-hover-bg);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item:focus-visible {
+  outline: 2px solid var(--w3f-tabs-item-focus-color);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* -- DEFAULT VARIANT (active) ---------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-default .w3f-tabs-item-active {
+  color: var(--w3f-tabs-active-color);
+  background-color: var(--w3f-tabs-active-bg);
+  font-weight: var(--w3f-tabs-active-weight);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-horizontal.w3f-tabs-default .w3f-tabs-item-active::after {
+  background-color: currentColor;
+  border-radius: var(--w3f-tabs-list-scrollbar-radius) var(--w3f-tabs-list-scrollbar-radius) 0 0;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical.w3f-tabs-default .w3f-tabs-item-active::after {
+  background-color: currentColor;
+  border-radius: var(--w3f-tabs-list-scrollbar-radius) 0 0 var(--w3f-tabs-list-scrollbar-radius);
+}
+
+/* -- PILLS VARIANT --------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-pills .w3f-tabs-item {
+  border-radius: var(--w3f-tabs-pill-radius-tl) var(--w3f-tabs-pill-radius-tr) var(--w3f-tabs-pill-radius-br) var(--w3f-tabs-pill-radius-bl);
+  margin: var(--w3f-tabs-pill-margin);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-pills .w3f-tabs-item-active {
+  color: var(--w3f-tabs-pill-active-color);
+  background-color: var(--w3f-tabs-pill-active-bg);
+  font-weight: var(--w3f-tabs-active-weight);
+  box-shadow: var(--w3f-tabs-pill-shadow);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-pills .w3f-tabs-item:hover:not(.w3f-tabs-item-active) {
+  background-color: var(--w3f-tabs-pill-hover-bg);
+}
+
+/* -- UNDERLINE VARIANT ----------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-underline .w3f-tabs-item {
+  padding-bottom: var(--w3f-space-3);
+  border-bottom: 2px solid transparent;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-underline .w3f-tabs-item-active {
+  color: var(--w3f-tabs-underline-color);
+  border-bottom-color: currentColor;
+  font-weight: var(--w3f-tabs-active-weight);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical.w3f-tabs-underline .w3f-tabs-item {
+  padding-right: var(--w3f-space-4);
+  border-bottom: none;
+  border-right: 3px solid transparent;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical.w3f-tabs-underline .w3f-tabs-item-active {
+  border-right-color: currentColor;
+  border-bottom: none;
+}
+
+/* -- COLOR SCHEMES --------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-primary {
+  --w3f-tabs-scheme-color: var(--w3f-primary);
+  --w3f-tabs-scheme-on-color: var(--w3f-on-primary);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-primary .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-primary.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-tabs-scheme-color);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* Secondary */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-secondary {
+  --w3f-tabs-scheme-color: var(--w3f-secondary);
+  --w3f-tabs-scheme-on-color: var(--w3f-on-primary);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-secondary .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-secondary.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-tabs-scheme-color);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* Success */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-success {
+  --w3f-tabs-scheme-color: var(--w3f-success);
+  --w3f-tabs-scheme-on-color: var(--w3f-on-primary);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-success .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-success.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-tabs-scheme-color);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* Info */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-info {
+  --w3f-tabs-scheme-color: var(--w3f-info);
+  --w3f-tabs-scheme-on-color: var(--w3f-on-primary);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-info .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-info.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-tabs-scheme-color);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* Warning */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-warning {
+  --w3f-tabs-scheme-color: var(--w3f-warning-700);
+  --w3f-tabs-scheme-on-color: var(--w3f-gray-900);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-warning .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-warning.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-warning);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* Danger */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-danger {
+  --w3f-tabs-scheme-color: var(--w3f-danger);
+  --w3f-tabs-scheme-on-color: var(--w3f-on-primary);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-danger .w3f-tabs-item-active {
+  color: var(--w3f-tabs-scheme-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-color-danger.w3f-tabs-pills .w3f-tabs-item-active {
+  background-color: var(--w3f-tabs-scheme-color);
+  color: var(--w3f-tabs-scheme-on-color);
+}
+
+/* -- HIGHLIGHT ------------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item-highlight {
+  background-color: var(--w3f-tabs-highlight-bg) !important;
+  color: var(--w3f-tabs-highlight-color) !important;
+  font-weight: 600 !important;
+  box-shadow: var(--w3f-tabs-highlight-shadow);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item-highlight:hover {
+  background-color: var(--w3f-tabs-highlight-hover-bg) !important;
+  transform: translateY(-1px);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item-highlight .w3f-tabs-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* -- CLOSE BUTTON ---------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-close-btn {
+  border-radius: var(--w3f-tabs-close-radius);
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity var(--w3f-tabs-item-transition),
+    background-color var(--w3f-tabs-item-transition),
+    transform var(--w3f-tabs-item-transition);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-close-btn:hover {
+  opacity: 1;
+  background-color: var(--w3f-tabs-close-hover-bg);
+  transform: scale(1.1);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* -- PANEL ----------------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-panel {
+  padding: var(--w3f-tabs-panel-padding-top, var(--w3f-space-6)) var(--w3f-tabs-panel-padding-right, var(--w3f-space-6)) var(--w3f-tabs-panel-padding-bottom, var(--w3f-space-6)) var(--w3f-tabs-panel-padding-left, var(--w3f-space-6));
+  text-align: var(--w3f-tabs-panel-text-align, left);
+  background-color: var(--w3f-tabs-panel-bg);
+  border-radius: var(--w3f-tabs-panel-radius-tl) var(--w3f-tabs-panel-radius-tr) var(--w3f-tabs-panel-radius-br) var(--w3f-tabs-panel-radius-bl);
+  animation: w3f-tabs-fade-in 0.2s ease-out;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-horizontal .w3f-tabs-panel {
+  border: 1px solid var(--w3f-tabs-panel-border-color);
+  border-top: none;
+  border-radius: 0 0 var(--w3f-tabs-panel-radius-br) var(--w3f-tabs-panel-radius-bl);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical .w3f-tabs-panel {
+  border: 1px solid var(--w3f-tabs-panel-border-color);
+  border-left: none;
+  border-radius: 0 var(--w3f-tabs-panel-radius-tr) var(--w3f-tabs-panel-radius-br) 0;
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-panel-title {
+  font-size: var(--w3f-tabs-panel-title-font);
+  font-weight: 600;
+  color: var(--w3f-tabs-panel-title-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-panel-text {
+  color: var(--w3f-tabs-panel-text-color);
+  line-height: 1.6;
+}
+
+/* -- EMPTY STATE ----------------------------------------------------- */
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-empty {
+  background-color: var(--w3f-tabs-empty-bg);
+  border: 2px dashed var(--w3f-tabs-empty-border-color);
+  border-radius: var(--w3f-tabs-panel-radius-tl) var(--w3f-tabs-panel-radius-tr) var(--w3f-tabs-panel-radius-br) var(--w3f-tabs-panel-radius-bl);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-empty-icon {
+  color: var(--w3f-tabs-empty-icon-color);
+}
+
+.w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-empty-text {
+  font-size: var(--w3f-text-lg);
+  color: var(--w3f-tabs-empty-text-color);
+}
+
+/* -- ANIMATION ------------------------------------------------------- */
+@keyframes w3f-tabs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -- RESPONSIVE (visual overrides) ----------------------------------- */
+@media (max-width: 768px) {
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical .w3f-tabs-list {
+    border-right: none;
+    border-bottom: 2px solid var(--w3f-tabs-list-border-color);
+  }
+
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-vertical .w3f-tabs-panel {
+    border-left: 1px solid var(--w3f-tabs-panel-border-color);
+    border-top: none;
+    border-radius: 0 0 var(--w3f-tabs-panel-radius-br) var(--w3f-tabs-panel-radius-bl);
+  }
+
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-item {
+    padding: var(--w3f-space-2) var(--w3f-space-4);
+    font-size: var(--w3f-text-sm);
+  }
+
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-panel {
+    padding: var(--w3f-space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-title {
+    font-size: var(--w3f-text-lg);
+  }
+
+  .w3f-tabs-container:not(.w3f-tabs-container--unstyled) .w3f-tabs-close-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* -- DARK MODE ------------------------------------------------------- */
+.w3f-theme-dark .w3f-tabs-container:not(.w3f-tabs-container--unstyled) {
+  --w3f-tabs-item-color: var(--w3f-gray-400);
+  --w3f-tabs-item-hover-color: var(--w3f-gray-100);
+  --w3f-tabs-item-hover-bg: var(--w3f-gray-700);
+  --w3f-tabs-active-bg: var(--w3f-gray-700);
+  --w3f-tabs-close-hover-bg: rgba(255, 255, 255, 0.1);
+  --w3f-tabs-empty-bg: var(--w3f-gray-800);
+  --w3f-tabs-empty-border-color: var(--w3f-gray-600);
+  --w3f-tabs-empty-icon-color: var(--w3f-gray-500);
+  --w3f-tabs-empty-text-color: var(--w3f-gray-400);
+}

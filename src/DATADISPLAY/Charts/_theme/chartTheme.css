@@ -1,0 +1,64 @@
+/* =====================================================================
+   W3F Charts — CSS variable contract
+   Consumed by every chart and its primitives.
+   Override these vars to theme charts globally or per chart.
+   ===================================================================== */
+
+:root {
+    /* Fonts & text */
+    --w3f-chart-font-family: inherit;
+    --w3f-chart-text-color: var(--w3f-text-primary, #1f2937);
+    --w3f-chart-secondary-text-color: var(--w3f-text-secondary, #6b7280);
+
+    /* Axes */
+    --w3f-chart-axis-stroke: var(--w3f-gray-300, #d1d5db);
+    --w3f-chart-axis-tick-stroke: var(--w3f-gray-300, #d1d5db);
+    --w3f-chart-axis-tick-label-color: var(--w3f-text-secondary, #6b7280);
+    --w3f-chart-axis-tick-label-size: 11px;
+    --w3f-chart-axis-label-color: var(--w3f-text-primary, #1f2937);
+    --w3f-chart-axis-label-size: 12px;
+
+    /* Grid */
+    --w3f-chart-grid-stroke: var(--w3f-gray-200, #e5e7eb);
+    --w3f-chart-grid-stroke-dasharray: 2 4;
+    --w3f-chart-grid-opacity: 1;
+
+    /* Bars / marks */
+    --w3f-chart-mark-fill: var(--w3f-primary, #6366f1);
+    --w3f-chart-mark-stroke: transparent;
+    --w3f-chart-mark-stroke-width: 0;
+    --w3f-chart-mark-hover-opacity: 0.8;
+    --w3f-chart-mark-radius: 2px;
+
+    /* Lines */
+    --w3f-chart-line-stroke: var(--w3f-primary, #6366f1);
+    --w3f-chart-line-stroke-width: 2px;
+
+    /* Area */
+    --w3f-chart-area-fill: var(--w3f-primary, #6366f1);
+    --w3f-chart-area-opacity: 0.2;
+
+    /* Tooltip */
+    --w3f-chart-tooltip-bg: rgba(17, 24, 39, 0.95);
+    --w3f-chart-tooltip-color: #f9fafb;
+    --w3f-chart-tooltip-radius: 6px;
+    --w3f-chart-tooltip-padding: 8px 12px;
+    --w3f-chart-tooltip-font-size: 12px;
+    --w3f-chart-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    /* Legend */
+    --w3f-chart-legend-gap: 12px;
+    --w3f-chart-legend-margin: 8px;
+    --w3f-chart-legend-font-size: 12px;
+    --w3f-chart-legend-color: var(--w3f-text-primary, #1f2937);
+    --w3f-chart-legend-swatch-size: 12px;
+    --w3f-chart-legend-swatch-radius: 2px;
+
+    /* Title / subtitle */
+    --w3f-chart-title-size: 1rem;
+    --w3f-chart-title-weight: 600;
+    --w3f-chart-title-color: var(--w3f-text-primary, #1f2937);
+    --w3f-chart-subtitle-size: 0.8rem;
+    --w3f-chart-subtitle-weight: 400;
+    --w3f-chart-subtitle-color: var(--w3f-text-secondary, #6b7280);
+}

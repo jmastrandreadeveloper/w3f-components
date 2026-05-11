@@ -1,0 +1,110 @@
+/* =====================================================================
+   NOTE — Structural CSS (layout only, always applied)
+   Visual styles are in PRESETS/_note.preset.css
+   ===================================================================== */
+
+/* ── BASE ────────────────────────────────────────────────────────────── */
+
+.w3f-note {
+    /* ── Contract vars ── */
+    --w3f-note-margin-top: var(--w3f-space-4);
+    --w3f-note-margin-right: var(--w3f-space-4);
+    --w3f-note-margin-bottom: var(--w3f-space-4);
+    --w3f-note-margin-left: var(--w3f-space-4);
+    --w3f-note-padding: var(--w3f-space-4);
+    --w3f-note-padding-top: var(--w3f-note-padding);
+    --w3f-note-padding-right: var(--w3f-note-padding);
+    --w3f-note-padding-bottom: var(--w3f-note-padding);
+    --w3f-note-padding-left: var(--w3f-note-padding);
+    --w3f-note-radius: 0;
+    --w3f-note-radius-tl: var(--w3f-note-radius);
+    --w3f-note-radius-tr: var(--w3f-note-radius);
+    --w3f-note-radius-br: var(--w3f-note-radius);
+    --w3f-note-radius-bl: var(--w3f-note-radius);
+    --w3f-note-shadow: none;
+    --w3f-note-font-size: inherit;
+    --w3f-note-line-height: inherit;
+    --w3f-note-border-width: 0;
+    --w3f-note-border-width-top: var(--w3f-note-border-width);
+    --w3f-note-border-width-right: var(--w3f-note-border-width);
+    --w3f-note-border-width-bottom: var(--w3f-note-border-width);
+    --w3f-note-border-width-left: var(--w3f-space-4);
+    --w3f-note-icon-margin: var(--w3f-space-4);
+    --w3f-note-icon-color: inherit;
+    --w3f-note-icon-size: inherit;
+    --w3f-note-text-font-size: inherit;
+    --w3f-note-text-line-height: inherit;
+    --w3f-note-dismiss-margin: var(--w3f-space-4);
+    --w3f-note-dismiss-padding-top: var(--w3f-space-1);
+    --w3f-note-dismiss-padding-right: var(--w3f-space-1);
+    --w3f-note-dismiss-padding-bottom: var(--w3f-space-1);
+    --w3f-note-dismiss-padding-left: var(--w3f-space-1);
+    --w3f-note-dismiss-opacity: 0.7;
+    --w3f-note-dismiss-hover-opacity: 1;
+    --w3f-note-dismiss-size: var(--w3f-text-lg);
+    --w3f-note-dismiss-color: inherit;
+    --w3f-note-info-bg: var(--w3f-primary-100);
+    --w3f-note-info-border: var(--w3f-primary-700);
+    --w3f-note-info-color: var(--w3f-primary-900);
+    --w3f-note-success-bg: var(--w3f-success-100);
+    --w3f-note-success-border: var(--w3f-success-700);
+    --w3f-note-success-color: var(--w3f-success-900);
+    --w3f-note-warning-bg: var(--w3f-warning-100);
+    --w3f-note-warning-border: var(--w3f-warning-700);
+    --w3f-note-warning-color: var(--w3f-warning-900);
+    --w3f-note-danger-bg: var(--w3f-danger-100);
+    --w3f-note-danger-border: var(--w3f-danger-700);
+    --w3f-note-danger-color: var(--w3f-danger-900);
+
+    /* Additional */
+    --w3f-note-text-align: left;
+    --w3f-note-gap: var(--w3f-space-3);
+    --w3f-note-border: currentColor;
+    --w3f-note-bg: var(--w3f-info);
+
+    border-style: solid;
+    border-width: 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* ── CONTENT CONTAINER ───────────────────────────────────────────────── */
+
+.w3f-note-content-container {
+    display: flex;
+    flex-grow: 1;
+    align-items: flex-start;
+}
+
+/* ── ICON ────────────────────────────────────────────────────────────── */
+
+.w3f-note-icon {
+    flex-shrink: 0;
+}
+
+/* ── TEXT CONTENT ────────────────────────────────────────────────────── */
+
+.w3f-note-text-content {
+    flex-grow: 1;
+}
+
+.w3f-note-text-content>*:last-child {
+    margin-bottom: 0;
+}
+
+/* ── DISMISS BUTTON ──────────────────────────────────────────────────── */
+
+.w3f-note-dismiss {
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* ── BORDER UTILITIES ────────────────────────────────────────────────── */
+
+.w3f-border-l-4 { border-left-width: var(--w3f-note-border-width-left); }
+.w3f-border-r-4 { border-right-width: var(--w3f-note-border-width-right); }
+.w3f-border-t-4 { border-top-width: var(--w3f-note-border-width-top); }
+.w3f-border-b-4 { border-bottom-width: var(--w3f-note-border-width-bottom); }

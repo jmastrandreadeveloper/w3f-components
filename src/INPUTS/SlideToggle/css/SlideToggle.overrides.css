@@ -1,0 +1,125 @@
+/* ── SLIDE-TOGGLE OVERRIDES ──
+   Migrated from manual _slide-toggle.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   SLIDE TOGGLE PRESET — Visual styles via CSS custom properties
+   Active when .w3f-slide-toggle is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-slide-toggle-theme-ocean { --w3f-toggle-track-bg: ...; }
+   ===================================================================== */
+
+/* ── TRACK ──────────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__track {
+  background-color: var(--w3f-toggle-track-bg, var(--w3f-gray-300));
+  border-radius: var(--w3f-toggle-track-radius-tl, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-tr, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-br, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-bl, var(--w3f-radius-full));
+  transition: var(--w3f-toggle-track-transition, background-color var(--w3f-transition-normal));
+}
+
+/* ── TRACK CHECKED ──────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-track-checked-bg, var(--w3f-primary));
+}
+
+/* ── TRACK HOVER ────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__track:hover {
+  background-color: var(--w3f-toggle-track-hover-bg, var(--w3f-gray-400));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__track.is-checked:hover {
+  background-color: var(--w3f-toggle-track-checked-hover-bg, var(--w3f-primary-700));
+}
+
+/* ── HANDLE ─────────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__handle {
+  background-color: var(--w3f-toggle-handle-bg, var(--w3f-surface));
+  border-radius: var(--w3f-toggle-handle-radius-tl, var(--w3f-radius-full)) var(--w3f-toggle-handle-radius-tr, var(--w3f-radius-full)) var(--w3f-toggle-handle-radius-br, var(--w3f-radius-full)) var(--w3f-toggle-handle-radius-bl, var(--w3f-radius-full));
+  box-shadow: var(--w3f-toggle-handle-shadow, var(--w3f-shadow));
+  transition: var(--w3f-toggle-handle-transition, transform var(--w3f-transition-normal));
+}
+
+/* ── HANDLE DRAGGING ────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) .w3f-slide-toggle__handle.is-dragging {
+  box-shadow: var(--w3f-toggle-handle-drag-shadow, var(--w3f-shadow-md));
+}
+
+/* ── DISABLED TRACK ─────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).is-disabled .w3f-slide-toggle__track {
+  background-color: var(--w3f-toggle-disabled-track-bg, var(--w3f-gray-200));
+  opacity: var(--w3f-toggle-disabled-opacity, 0.6);
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).is-disabled .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-disabled-track-checked-bg, var(--w3f-primary-300));
+}
+
+/* ── DISABLED HANDLE ────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).is-disabled .w3f-slide-toggle__handle {
+  background-color: var(--w3f-toggle-disabled-handle-bg, var(--w3f-gray-100));
+  box-shadow: var(--w3f-toggle-disabled-handle-shadow, var(--w3f-shadow-sm));
+}
+
+/* ── FOCUS ──────────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled):focus-visible {
+  outline: 2px solid var(--w3f-toggle-focus-outline-color, var(--w3f-primary));
+  outline-offset: 2px;
+  border-radius: var(--w3f-toggle-track-radius-tl, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-tr, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-br, var(--w3f-radius-full)) var(--w3f-toggle-track-radius-bl, var(--w3f-radius-full));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).is-disabled:focus-visible {
+  outline-color: var(--w3f-toggle-focus-disabled-outline-color, var(--w3f-gray-400));
+}
+
+/* ── COLOR VARIANT: SECONDARY ──────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--secondary .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-secondary-bg, var(--w3f-secondary));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--secondary .w3f-slide-toggle__track.is-checked:hover {
+  background-color: var(--w3f-toggle-secondary-hover-bg, var(--w3f-secondary-600));
+}
+
+/* ── COLOR VARIANT: SUCCESS ────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--success .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-success-bg, var(--w3f-success));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--success .w3f-slide-toggle__track.is-checked:hover {
+  background-color: var(--w3f-toggle-success-hover-bg, var(--w3f-success-600));
+}
+
+/* ── COLOR VARIANT: WARNING ────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--warning .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-warning-bg, var(--w3f-warning));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--warning .w3f-slide-toggle__track.is-checked:hover {
+  background-color: var(--w3f-toggle-warning-hover-bg, var(--w3f-warning-600));
+}
+
+/* ── COLOR VARIANT: DANGER ─────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--danger .w3f-slide-toggle__track.is-checked {
+  background-color: var(--w3f-toggle-danger-bg, var(--w3f-danger));
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled).w3f-slide-toggle--danger .w3f-slide-toggle__track.is-checked:hover {
+  background-color: var(--w3f-toggle-danger-hover-bg, var(--w3f-danger-600));
+}
+
+/* ── LABEL ──────────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) ~ .w3f-slide-toggle__label {
+  color: var(--w3f-on-surface);
+  font-size: var(--w3f-text-base);
+}
+
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) ~ .w3f-slide-toggle__label--disabled {
+  color: var(--w3f-gray-400);
+}
+
+/* ── CHECK ICON ─────────────────────────────────────────────────────── */
+.w3f-slide-toggle:not(.w3f-slide-toggle--unstyled) ~ .w3f-slide-toggle__check-icon {
+  color: var(--w3f-success);
+  font-size: var(--w3f-text-lg);
+}

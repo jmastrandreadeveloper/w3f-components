@@ -1,0 +1,111 @@
+/* _colors.css */
+/* =============================================================
+   🎨 UTILIDADES DE COLOR (BACKGROUND Y TEXTO)
+   Mapea las variables CSS de _variables.css a clases de utilidad.
+   ============================================================= */
+
+/* --- UTILIDADES DE FONDO (w3f-bg-*) --- */
+
+/* Colores de Superficie (Se adaptan automáticamente al tema oscuro) */
+.w3f-bg-background { background-color: var(--w3f-background) !important; }
+.w3f-bg-surface { background-color: var(--w3f-surface) !important; }
+.w3f-bg-surface-variant { background-color: var(--w3f-surface-variant) !important; }
+.w3f-bg-primary { background-color: var(--w3f-primary) !important; }
+
+/* Colores de Grises */
+.w3f-bg-gray-50 { background-color: var(--w3f-gray-50) !important; }
+.w3f-bg-gray-100 { background-color: var(--w3f-gray-100) !important; }
+.w3f-bg-gray-200 { background-color: var(--w3f-gray-200) !important; }
+.w3f-bg-gray-300 { background-color: var(--w3f-gray-300) !important; }
+.w3f-bg-gray-800 { background-color: var(--w3f-gray-800) !important; }
+.w3f-bg-gray-900 { background-color: var(--w3f-gray-900) !important; }
+
+/* Colores Semánticos */
+.w3f-bg-success { background-color: var(--w3f-success) !important; }
+.w3f-bg-danger { background-color: var(--w3f-danger) !important; }
+
+/* --- UTILIDADES DE TEXTO (w3f-text-*) --- */
+
+/* Colores de Texto (Se adaptan automáticamente al tema oscuro) */
+.w3f-text-on-background { color: var(--w3f-on-background) !important; }
+.w3f-text-on-surface { color: var(--w3f-on-surface) !important; }
+.w3f-text-on-primary { color: var(--w3f-on-primary) !important; }
+.w3f-text-primary { color: var(--w3f-primary) !important; }
+
+/* Colores Específicos (útil para override o cuando no hay un token semántico) */
+.w3f-text-white { color: #ffffff !important; }
+.w3f-text-gray-400 { color: var(--w3f-gray-400) !important; }
+.w3f-text-gray-900 { color: var(--w3f-gray-900) !important; }
+
+/* Shades semánticos — texto */
+.w3f-text-primary-50  { color: var(--w3f-primary-50)  !important; }
+.w3f-text-primary-100 { color: var(--w3f-primary-100) !important; }
+.w3f-text-primary-200 { color: var(--w3f-primary-200) !important; }
+.w3f-text-primary-300 { color: var(--w3f-primary-300) !important; }
+.w3f-text-primary-400 { color: var(--w3f-primary-400) !important; }
+.w3f-text-primary-500 { color: var(--w3f-primary-500) !important; }
+.w3f-text-primary-600 { color: var(--w3f-primary-600) !important; }
+.w3f-text-primary-700 { color: var(--w3f-primary-700) !important; }
+.w3f-text-primary-800 { color: var(--w3f-primary-800) !important; }
+.w3f-text-primary-900 { color: var(--w3f-primary-900) !important; }
+
+.w3f-text-success-50  { color: var(--w3f-success-50)  !important; }
+.w3f-text-success-100 { color: var(--w3f-success-100) !important; }
+.w3f-text-success-200 { color: var(--w3f-success-200) !important; }
+.w3f-text-success-300 { color: var(--w3f-success-300) !important; }
+.w3f-text-success-400 { color: var(--w3f-success-400) !important; }
+.w3f-text-success-500 { color: var(--w3f-success-500) !important; }
+.w3f-text-success-600 { color: var(--w3f-success-600) !important; }
+.w3f-text-success-700 { color: var(--w3f-success-700) !important; }
+.w3f-text-success-800 { color: var(--w3f-success-800) !important; }
+.w3f-text-success-900 { color: var(--w3f-success-900) !important; }
+
+.w3f-text-warning-50  { color: var(--w3f-warning-50)  !important; }
+.w3f-text-warning-100 { color: var(--w3f-warning-100) !important; }
+.w3f-text-warning-200 { color: var(--w3f-warning-200) !important; }
+.w3f-text-warning-300 { color: var(--w3f-warning-300) !important; }
+.w3f-text-warning-400 { color: var(--w3f-warning-400) !important; }
+.w3f-text-warning-500 { color: var(--w3f-warning-500) !important; }
+.w3f-text-warning-600 { color: var(--w3f-warning-600) !important; }
+.w3f-text-warning-700 { color: var(--w3f-warning-700) !important; }
+.w3f-text-warning-800 { color: var(--w3f-warning-800) !important; }
+.w3f-text-warning-900 { color: var(--w3f-warning-900) !important; }
+
+.w3f-text-danger-50  { color: var(--w3f-danger-50)  !important; }
+.w3f-text-danger-100 { color: var(--w3f-danger-100) !important; }
+.w3f-text-danger-200 { color: var(--w3f-danger-200) !important; }
+.w3f-text-danger-300 { color: var(--w3f-danger-300) !important; }
+.w3f-text-danger-400 { color: var(--w3f-danger-400) !important; }
+.w3f-text-danger-500 { color: var(--w3f-danger-500) !important; }
+.w3f-text-danger-600 { color: var(--w3f-danger-600) !important; }
+.w3f-text-danger-700 { color: var(--w3f-danger-700) !important; }
+.w3f-text-danger-800 { color: var(--w3f-danger-800) !important; }
+.w3f-text-danger-900 { color: var(--w3f-danger-900) !important; }
+
+.w3f-text-info-50  { color: var(--w3f-info-50)  !important; }
+.w3f-text-info-100 { color: var(--w3f-info-100) !important; }
+.w3f-text-info-200 { color: var(--w3f-info-200) !important; }
+.w3f-text-info-300 { color: var(--w3f-info-300) !important; }
+.w3f-text-info-400 { color: var(--w3f-info-400) !important; }
+.w3f-text-info-500 { color: var(--w3f-info-500) !important; }
+.w3f-text-info-600 { color: var(--w3f-info-600) !important; }
+.w3f-text-info-700 { color: var(--w3f-info-700) !important; }
+.w3f-text-info-800 { color: var(--w3f-info-800) !important; }
+.w3f-text-info-900 { color: var(--w3f-info-900) !important; }
+
+.w3f-text-secondary-50  { color: var(--w3f-secondary-50)  !important; }
+.w3f-text-secondary-100 { color: var(--w3f-secondary-100) !important; }
+.w3f-text-secondary-200 { color: var(--w3f-secondary-200) !important; }
+.w3f-text-secondary-300 { color: var(--w3f-secondary-300) !important; }
+.w3f-text-secondary-400 { color: var(--w3f-secondary-400) !important; }
+.w3f-text-secondary-500 { color: var(--w3f-secondary-500) !important; }
+.w3f-text-secondary-600 { color: var(--w3f-secondary-600) !important; }
+.w3f-text-secondary-700 { color: var(--w3f-secondary-700) !important; }
+.w3f-text-secondary-800 { color: var(--w3f-secondary-800) !important; }
+.w3f-text-secondary-900 { color: var(--w3f-secondary-900) !important; }
+
+* 🟡 Colores Secundarios */
+.w3f-bg-secondary-50 { background-color: var(--w3f-secondary-50) !important; }
+.w3f-bg-secondary-100 { background-color: var(--w3f-secondary-100) !important; }
+.w3f-bg-secondary-200 { background-color: var(--w3f-secondary-200) !important; } /* <-- Regla a añadir/confirmar */
+/* ... */

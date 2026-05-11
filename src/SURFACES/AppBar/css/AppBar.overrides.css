@@ -1,0 +1,74 @@
+/* ── APP-BAR OVERRIDES ──
+   Migrated from manual _app-bar.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   APP BAR PRESET — Visual styles via CSS custom properties
+   Active when .w3f-app-bar is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-app-bar-theme-dark { --w3f-appbar-bg: #111827; ... }
+   ===================================================================== */
+
+/* -- BASE ------------------------------------------------------------ */
+.w3f-app-bar:not(.w3f-app-bar--unstyled) {
+  background-color: var(--w3f-appbar-bg);
+  color: var(--w3f-appbar-color);
+  box-shadow: var(--w3f-appbar-shadow);
+}
+
+/* -- TITLE ----------------------------------------------------------- */
+.w3f-app-bar:not(.w3f-app-bar--unstyled) .w3f-app-bar__title {
+  font-size: var(--w3f-appbar-title-font-size);
+  font-weight: var(--w3f-appbar-title-font-weight);
+}
+
+/* -- COLOR VARIANTS — set variables so they win over defaults.css ---- */
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--primary {
+  --w3f-appbar-bg: var(--w3f-primary);
+  --w3f-appbar-color: var(--w3f-on-primary);
+}
+
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--secondary {
+  --w3f-appbar-bg: var(--w3f-secondary, var(--w3f-gray-600));
+  --w3f-appbar-color: var(--w3f-on-secondary, white);
+}
+
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--surface {
+  --w3f-appbar-bg: var(--w3f-surface);
+  --w3f-appbar-color: var(--w3f-on-surface);
+  --w3f-appbar-border-color: var(--w3f-outline-variant);
+  border-bottom: 1px solid var(--w3f-appbar-border-color);
+}
+
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--transparent {
+  background-color: transparent;
+  color: inherit;
+}
+
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--dark {
+  --w3f-appbar-bg: var(--w3f-gray-900);
+  --w3f-appbar-color: var(--w3f-gray-100);
+}
+
+/* -- ELEVATION ------------------------------------------------------- */
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--elevated {
+  box-shadow: var(--w3f-appbar-elevated-shadow);
+}
+
+/* -- SIZES ----------------------------------------------------------- */
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--sm .w3f-app-bar__title {
+  font-size: var(--w3f-text-base);
+}
+
+.w3f-app-bar:not(.w3f-app-bar--unstyled).w3f-app-bar--lg .w3f-app-bar__title {
+  font-size: var(--w3f-text-xl);
+}
+
+/* -- RESPONSIVE ------------------------------------------------------ */
+@media (max-width: 768px) {
+  .w3f-app-bar:not(.w3f-app-bar--unstyled) .w3f-app-bar__title {
+    font-size: var(--w3f-text-base);
+  }
+}

@@ -1,0 +1,119 @@
+/* Auto-generated from _transfer-list.contract.css — DO NOT EDIT */
+
+/* ── Transfer List Base ── */
+.w3f-transfer:not(.w3f-transfer--unstyled) {
+  height: var(--w3f-tl-height);
+  gap: var(--w3f-tl-gap);
+  opacity: var(--w3f-tl-disabled-opacity);
+}
+
+/* ── Panel ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__panel {
+  background-color: var(--w3f-tl-panel-bg);
+  color: var(--w3f-tl-panel-border-color);
+  border-top-left-radius: var(--w3f-tl-panel-radius-tl);
+  border-top-right-radius: var(--w3f-tl-panel-radius-tr);
+  border-bottom-right-radius: var(--w3f-tl-panel-radius-br);
+  border-bottom-left-radius: var(--w3f-tl-panel-radius-bl);
+  transition: var(--w3f-tl-panel-transition);
+  color: var(--w3f-tl-panel-drop-border-color);
+  box-shadow: var(--w3f-tl-panel-drop-shadow);
+}
+
+/* ── Header ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__header {
+  background-color: var(--w3f-tl-header-bg);
+  color: var(--w3f-tl-header-border-color);
+  font-size: var(--w3f-tl-title-font-size);
+  color: var(--w3f-tl-title-color);
+  color: var(--w3f-tl-count-color);
+}
+
+/* ── Checkboxes ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__checkbox {
+  color: var(--w3f-tl-checkbox-border-color);
+  border-top-left-radius: var(--w3f-tl-checkbox-radius-tl);
+  border-top-right-radius: var(--w3f-tl-checkbox-radius-tr);
+  border-bottom-right-radius: var(--w3f-tl-checkbox-radius-br);
+  border-bottom-left-radius: var(--w3f-tl-checkbox-radius-bl);
+  background-color: var(--w3f-tl-checkbox-bg);
+  background-color: var(--w3f-tl-checkbox-checked-bg);
+  color: var(--w3f-tl-checkbox-checked-border-color);
+  transition: var(--w3f-tl-checkbox-transition);
+}
+
+/* ── Search ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__search {
+  color: var(--w3f-tl-search-border-color);
+  border-top-left-radius: var(--w3f-tl-search-radius-tl);
+  border-top-right-radius: var(--w3f-tl-search-radius-tr);
+  border-bottom-right-radius: var(--w3f-tl-search-radius-br);
+  border-bottom-left-radius: var(--w3f-tl-search-radius-bl);
+  background-color: var(--w3f-tl-search-bg);
+  color: var(--w3f-tl-search-color);
+  font-size: var(--w3f-tl-search-font-size);
+  color: var(--w3f-tl-search-icon-color);
+  color: var(--w3f-tl-search-placeholder-color);
+  color: var(--w3f-tl-search-focus-border-color);
+  box-shadow: var(--w3f-tl-search-focus-shadow);
+}
+
+/* ── Item ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__item {
+  transition: var(--w3f-tl-item-transition);
+  background-color: var(--w3f-tl-item-hover-bg);
+  background-color: var(--w3f-tl-item-selected-bg);
+  background-color: var(--w3f-tl-item-selected-hover-bg);
+  color: var(--w3f-tl-item-label-color);
+  font-size: var(--w3f-tl-item-label-font-size);
+  color: var(--w3f-tl-item-desc-color);
+  opacity: var(--w3f-tl-item-disabled-opacity);
+  opacity: var(--w3f-tl-item-dragging-opacity);
+}
+
+/* ── Empty State ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__empty {
+  color: var(--w3f-tl-empty-color);
+  font-size: var(--w3f-tl-empty-font-size);
+}
+
+/* ── Scrollbar ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__panel {
+  color: var(--w3f-tl-scrollbar-color);
+  color: var(--w3f-tl-scrollbar-hover-color);
+}
+
+/* ── Action Buttons ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__actions {
+  background-color: var(--w3f-tl-btn-bg);
+  color: var(--w3f-tl-btn-border-color);
+  border-top-left-radius: var(--w3f-tl-btn-radius-tl);
+  border-top-right-radius: var(--w3f-tl-btn-radius-tr);
+  border-bottom-right-radius: var(--w3f-tl-btn-radius-br);
+  border-bottom-left-radius: var(--w3f-tl-btn-radius-bl);
+  color: var(--w3f-tl-btn-color);
+  background-color: var(--w3f-tl-btn-hover-bg);
+  color: var(--w3f-tl-btn-hover-border-color);
+  color: var(--w3f-tl-btn-hover-color);
+  background-color: var(--w3f-tl-btn-active-bg);
+  opacity: var(--w3f-tl-btn-disabled-opacity);
+}
+
+/* ── Drag Ghost ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__ghost {
+  background-color: var(--w3f-tl-ghost-bg);
+  color: var(--w3f-tl-ghost-border-color);
+  border-top-left-radius: var(--w3f-tl-ghost-radius-tl);
+  border-top-right-radius: var(--w3f-tl-ghost-radius-tr);
+  border-bottom-right-radius: var(--w3f-tl-ghost-radius-br);
+  border-bottom-left-radius: var(--w3f-tl-ghost-radius-bl);
+  box-shadow: var(--w3f-tl-ghost-shadow);
+  color: var(--w3f-tl-ghost-color);
+  font-size: var(--w3f-tl-ghost-font-size);
+}
+
+/* ── Drop Indicator ── */
+.w3f-transfer:not(.w3f-transfer--unstyled)-list__drop-indicator {
+  color: var(--w3f-tl-drop-color);
+}
+

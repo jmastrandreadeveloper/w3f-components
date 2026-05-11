@@ -1,0 +1,11 @@
+.w3f-chart-heatmap {
+    position: relative;
+    width: 100%;
+}
+
+.w3f-chart-heatmap .w3f-chart__container {
+    position: relative;
+}
+
+.w3f-chart-heatmap--unstyled .w3f-chart__svg {
+}

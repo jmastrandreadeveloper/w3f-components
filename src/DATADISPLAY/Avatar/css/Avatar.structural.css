@@ -1,0 +1,187 @@
+/* =====================================================================
+   AVATAR — Structural layout + CSS custom property contract
+   Visual defaults in PRESETS/_avatar.preset.css
+   ===================================================================== */
+
+.w3f-avatar {
+  /* ── Contract vars ── */
+  --w3f-avatar-bg: var(--w3f-primary-600);
+  --w3f-avatar-color: var(--w3f-on-primary);
+  --w3f-avatar-radius: var(--w3f-radius-full);
+  --w3f-avatar-radius-tl: var(--w3f-avatar-radius);
+  --w3f-avatar-radius-tr: var(--w3f-avatar-radius);
+  --w3f-avatar-radius-br: var(--w3f-avatar-radius);
+  --w3f-avatar-radius-bl: var(--w3f-avatar-radius);
+  --w3f-avatar-border-width: 0;
+  --w3f-avatar-border-width-top: var(--w3f-avatar-border-width);
+  --w3f-avatar-border-width-right: var(--w3f-avatar-border-width);
+  --w3f-avatar-border-width-bottom: var(--w3f-avatar-border-width);
+  --w3f-avatar-border-width-left: var(--w3f-avatar-border-width);
+  --w3f-avatar-border-color-top: transparent;
+  --w3f-avatar-border-color-right: transparent;
+  --w3f-avatar-border-color-bottom: transparent;
+  --w3f-avatar-border-color-left: transparent;
+  --w3f-avatar-shadow: none;
+  --w3f-avatar-font-weight: 500;
+  --w3f-avatar-img-filter: none;
+  --w3f-avatar-img-opacity: 1;
+  --w3f-avatar-text-transform: uppercase;
+  --w3f-avatar-text-color: inherit;
+  --w3f-avatar-text-letter-spacing: normal;
+  --w3f-avatar-status-online: var(--w3f-success-500);
+  --w3f-avatar-status-offline: var(--w3f-gray-400);
+  --w3f-avatar-status-busy: var(--w3f-danger-500);
+  --w3f-avatar-status-away: var(--w3f-warning-500);
+  --w3f-avatar-status-ring-color: var(--w3f-surface);
+  --w3f-avatar-status-ring-width: 2px;
+  --w3f-avatar-badge-bg: var(--w3f-danger-500);
+  --w3f-avatar-badge-color: var(--w3f-on-primary);
+  --w3f-avatar-badge-font-size: var(--w3f-text-xs);
+  --w3f-avatar-badge-ring-color: var(--w3f-surface);
+  --w3f-avatar-badge-ring-width: 2px;
+  --w3f-avatar-hover-scale: 1.05;
+  --w3f-avatar-hover-shadow: var(--w3f-shadow-md);
+  --w3f-avatar-active-scale: 0.98;
+  --w3f-avatar-font-size: inherit;
+  --w3f-avatar-status-position: 0;
+  --w3f-avatar-status-size: 25%;
+  --w3f-avatar-status-min-size: 10px;
+  --w3f-avatar-status-radius: var(--w3f-radius-full);
+  --w3f-avatar-badge-offset-y: 0px;
+  --w3f-avatar-badge-offset-x: 0px;
+  --w3f-avatar-badge-min-width: 18px;
+  --w3f-avatar-badge-height: 18px;
+  --w3f-avatar-badge-radius: var(--w3f-radius-full);
+  --w3f-avatar-badge-font-weight: 600;
+  --w3f-avatar-group-overlap: 12px;
+  --w3f-avatar-group-hover-lift: -4px;
+
+  /* ── Structural ── */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* =====================================================================
+   SIZES — structural dimensions
+   ===================================================================== */
+
+.w3f-avatar-small {
+  width: 32px;
+  height: 32px;
+}
+
+.w3f-avatar-medium {
+  width: 48px;
+  height: 48px;
+}
+
+.w3f-avatar-large {
+  width: 64px;
+  height: 64px;
+}
+
+.w3f-avatar-xlarge {
+  width: 96px;
+  height: 96px;
+}
+
+/* =====================================================================
+   CONTENT — structural
+   ===================================================================== */
+
+.w3f-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.w3f-avatar-text {
+  line-height: 1;
+}
+
+/* =====================================================================
+   HOVER / ACTIVE — structural cursor
+   ===================================================================== */
+
+.w3f-avatar-hoverable {
+  cursor: pointer;
+}
+
+/* =====================================================================
+   WRAPPER (status + badge container) — structural
+   ===================================================================== */
+
+.w3f-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* =====================================================================
+   STATUS DOT — structural positioning
+   ===================================================================== */
+
+.w3f-avatar-status {
+  position: absolute;
+  bottom: var(--w3f-avatar-status-position, 0);
+  right: var(--w3f-avatar-status-position, 0);
+  width: var(--w3f-avatar-status-size, 25%);
+  height: var(--w3f-avatar-status-size, 25%);
+  min-width: var(--w3f-avatar-status-min-size, 10px);
+  min-height: var(--w3f-avatar-status-min-size, 10px);
+  box-sizing: content-box;
+}
+
+/* =====================================================================
+   BADGE OVERLAY — structural positioning
+   ===================================================================== */
+
+.w3f-avatar-badge {
+  position: absolute;
+  top: var(--w3f-avatar-badge-offset-y, 0px);
+  right: var(--w3f-avatar-badge-offset-x, 0px);
+  min-width: var(--w3f-avatar-badge-min-width, 18px);
+  height: var(--w3f-avatar-badge-height, 18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* =====================================================================
+   AVATAR GROUP — structural layout
+   ===================================================================== */
+
+.w3f-avatar-group {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: calc(var(--w3f-avatar-group-overlap, 12px) * -1);
+}
+
+.w3f-avatar-group .w3f-avatar,
+.w3f-avatar-group .w3f-avatar-wrapper {
+  margin-left: calc(var(--w3f-avatar-group-overlap, 12px) * -1);
+  box-sizing: content-box;
+}
+
+.w3f-avatar-group .w3f-avatar-wrapper .w3f-avatar {
+  border: none;
+}
+
+/* =====================================================================
+   RESPONSIVE — structural size adjustments
+   ===================================================================== */
+
+@media (max-width: 640px) {
+  .w3f-avatar-xlarge {
+    width: 80px;
+    height: 80px;
+  }
+}

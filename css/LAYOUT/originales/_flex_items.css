@@ -1,0 +1,24 @@
+/* FlexItems.css */
+/* =============================================================
+   📐 LAYOUT: FLEX ITEMS (Ítems flexibles)
+   ============================================================= */
+
+/* Flex Grow */
+.w3f-flex-grow { flex-grow: 1; }
+.w3f-flex-grow-0 { flex-grow: 0; }
+
+/* Flex Shrink */
+.w3f-flex-shrink { flex-shrink: 1; }
+.w3f-flex-shrink-0 { flex-shrink: 0; }
+
+/* Auto Margins (para centrar o separar ítems) */
+.w3f-ml-auto { margin-left: auto; }
+.w3f-mr-auto { margin-right: auto; }
+
+/* Orden de ítems */
+.w3f-order-first { order: -9999; }
+.w3f-order-last { order: 9999; }
+.w3f-order-none { order: 0; }
+.w3f-order-1 { order: 1; }
+.w3f-order-2 { order: 2; }
+.w3f-order-3 { order: 3; }

@@ -1,0 +1,72 @@
+/* =====================================================================
+   BOTTOM SHEET PANEL PRESET — Visual styles via CSS custom properties
+   Active when .bottom-sheet-panel is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-bottom-sheet-panel-theme-glass { --w3f-bsp-bg: rgba(255,255,255,0.9); ... }
+   ===================================================================== */
+
+/* ── BACKDROP ────────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) {
+  background-color: var(--w3f-bsp-backdrop-bg);
+  transition: var(--w3f-bsp-backdrop-transition);
+}
+
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled).is-open {
+  background-color: var(--w3f-bsp-backdrop-bg-open);
+}
+
+/* ── PANEL ───────────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-panel {
+  background-color: var(--w3f-bsp-bg);
+  border-radius: var(--w3f-bsp-radius-tl) var(--w3f-bsp-radius-tr) var(--w3f-bsp-radius-br) var(--w3f-bsp-radius-bl);
+  box-shadow: var(--w3f-bsp-shadow);
+  transition: var(--w3f-bsp-transition);
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-header {
+  border-bottom-color: var(--w3f-bsp-header-border-color);
+}
+
+/* ── TITLE ───────────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-title {
+  font-size: var(--w3f-bsp-title-font-size);
+  font-weight: var(--w3f-bsp-title-font-weight);
+  color: var(--w3f-bsp-title-color);
+}
+
+/* ── CLOSE BUTTON ────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-close-btn {
+  color: var(--w3f-bsp-close-color);
+  border-radius: var(--w3f-bsp-close-radius-tl) var(--w3f-bsp-close-radius-tr) var(--w3f-bsp-close-radius-br) var(--w3f-bsp-close-radius-bl);
+  transition: background-color 150ms ease;
+}
+
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-close-btn:hover {
+  background-color: var(--w3f-bsp-close-hover-bg);
+}
+
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-close-btn:active {
+  background-color: var(--w3f-bsp-close-active-bg);
+}
+
+/* ── CONTENT SCROLLBAR ───────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-content::-webkit-scrollbar-track {
+  background: var(--w3f-bsp-scrollbar-track-bg);
+  border-radius: var(--w3f-bsp-scrollbar-track-radius);
+}
+
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-content::-webkit-scrollbar-thumb {
+  background: var(--w3f-bsp-scrollbar-thumb-bg);
+  border-radius: var(--w3f-bsp-scrollbar-track-radius);
+}
+
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-content::-webkit-scrollbar-thumb:hover {
+  background: var(--w3f-bsp-scrollbar-thumb-hover-bg);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────── */
+.bottom-sheet-backdrop:not(.w3f-bottom-sheet-panel--unstyled) .bottom-sheet-footer {
+  border-top-color: var(--w3f-bsp-footer-border-color);
+}

@@ -1,0 +1,38 @@
+/* Auto-generated from _tag.contract.css — DO NOT EDIT */
+
+/* ── Tag Base ── */
+.w3f-tag-base:not(.w3f-tag-base--unstyled) {
+  background-color: var(--w3f-tag-bg);
+  color: var(--w3f-tag-color);
+  border-top-left-radius: var(--w3f-tag-radius-tl);
+  border-top-right-radius: var(--w3f-tag-radius-tr);
+  border-bottom-right-radius: var(--w3f-tag-radius-br);
+  border-bottom-left-radius: var(--w3f-tag-radius-bl);
+  font-size: var(--w3f-tag-font-size);
+  font-weight: var(--w3f-tag-font-weight);
+  line-height: var(--w3f-tag-line-height);
+  white-space: var(--w3f-tag-white-space);
+  border-top-width: var(--w3f-tag-border-width-top);
+  border-right-width: var(--w3f-tag-border-width-right);
+  border-bottom-width: var(--w3f-tag-border-width-bottom);
+  border-left-width: var(--w3f-tag-border-width-left);
+  box-shadow: var(--w3f-tag-shadow);
+  letter-spacing: var(--w3f-tag-letter-spacing);
+  text-transform: var(--w3f-tag-text-transform);
+  transition: var(--w3f-tag-transition);
+  cursor: var(--w3f-tag-cursor);
+  max-width: var(--w3f-tag-max-width);
+}
+
+/* ── Hover ── */
+.w3f-tag-base:not(.w3f-tag-base--unstyled) .w3f-tag:hover {
+  background-color: var(--w3f-tag-hover-bg);
+  color: var(--w3f-tag-hover-color);
+  box-shadow: var(--w3f-tag-hover-shadow);
+  padding-top: var(--w3f-tag-padding-top);
+  padding-right: var(--w3f-tag-padding-right);
+  padding-bottom: var(--w3f-tag-padding-bottom);
+  padding-left: var(--w3f-tag-padding-left);
+  text-align: var(--w3f-tag-text-align);
+}
+

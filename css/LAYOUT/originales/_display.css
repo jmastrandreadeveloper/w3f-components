@@ -1,0 +1,35 @@
+/* Display.css */
+/* =============================================================
+   📱 UTILIDAD: DISPLAY (Visualización)
+   ============================================================= */
+
+/* Utilidades de display (No responsive) */
+.w3f-block { display: block; } /* */
+.w3f-inline { display: inline; } /* */
+.w3f-inline-block { display: inline-block; } /* */
+.w3f-hidden { display: none; } /* */
+
+/* Utilidades de display para Flex y Grid */
+.w3f-flex { display: flex; } /* */
+.w3f-inline-flex { display: inline-flex; } /* */
+.w3f-grid { display: grid; } /* */
+
+/* Utilidades responsive */
+@media (min-width: 640px) {
+  .w3f-sm\:block { display: block; } /* */
+  .w3f-sm\:hidden { display: none; } /* */
+  .w3f-sm\:flex { display: flex; } /* */
+  .w3f-sm\:grid { display: grid; } /* */
+}
+
+@media (min-width: 768px) {
+  .w3f-md\:block { display: block; } /* */
+  .w3f-md\:hidden { display: none; } /* */
+  .w3f-md\:flex { display: flex; } /* */
+}
+
+@media (min-width: 1024px) {
+  .w3f-lg\:block { display: block; } /* */
+  .w3f-lg\:hidden { display: none; } /* */
+  .w3f-lg\:flex { display: flex; } /* */
+}

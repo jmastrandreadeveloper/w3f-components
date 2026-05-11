@@ -1,0 +1,144 @@
+/* ── BOTTOM-NAV OVERRIDES ──
+   Migrated from manual _bottom-nav.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   BottomNavigation — Preset (visual layer, opt-out via --unstyled)
+   ===================================================================== */
+
+/* ── Root ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) {
+  background: var(--w3f-bnav-bg);
+  transition: background-color var(--w3f-bnav-transition), box-shadow var(--w3f-bnav-transition);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled).w3f-bottom-nav--filled {
+  border-top: var(--w3f-bnav-border-top);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled).w3f-bottom-nav--elevated {
+  box-shadow: var(--w3f-bnav-elevated-shadow);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled).w3f-bottom-nav--disabled {
+  opacity: var(--w3f-bnav-disabled-opacity);
+}
+
+/* ── Action Item ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action {
+  color: var(--w3f-bnav-color);
+  transition: color var(--w3f-bnav-transition), padding var(--w3f-bnav-transition);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action::before {
+  transition: background-color var(--w3f-bnav-transition);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action:hover::before {
+  background: var(--w3f-bnav-hover-bg);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action--disabled {
+  opacity: var(--w3f-bnav-action-disabled-opacity);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action:focus-visible::before {
+  outline-color: var(--w3f-bnav-focus-color);
+}
+
+/* ── Active state ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action--active {
+  color: var(--w3f-bnav-active-color);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action--active .w3f-bottom-nav-action__icon::after {
+  background: var(--w3f-bnav-pill-bg);
+}
+
+/* ── Icon ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action__icon {
+  width: var(--w3f-bnav-icon-size);
+  height: var(--w3f-bnav-icon-size);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action__icon svg {
+  width: var(--w3f-bnav-icon-size);
+  height: var(--w3f-bnav-icon-size);
+}
+
+/* ── Label ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action__label {
+  font-size: var(--w3f-bnav-label-font);
+  font-weight: var(--w3f-bnav-label-weight);
+}
+
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action--active .w3f-bottom-nav-action__label {
+  font-weight: var(--w3f-bnav-label-active-weight);
+}
+
+/* ── Badge ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled) .w3f-bottom-nav-action__badge {
+  background: var(--w3f-bnav-badge-bg);
+  color: var(--w3f-bnav-badge-color);
+  border: var(--w3f-bnav-badge-border);
+}
+
+/* ── Variant: flat — must win over the default background set above ── */
+.w3f-bottom-nav:not(.w3f-bottom-nav--unstyled).w3f-bottom-nav--flat {
+  background: transparent;
+  box-shadow: none;
+  border-top: none;
+}
+
+/* ── Color Schemes ─────────────────────────────────────────────────────
+   Defined here (w3f-presets, imported last) so they win over the
+   primary defaults set in defaults.css (same layer, later = wins).
+   ─────────────────────────────────────────────────────────────────── */
+
+.w3f-bottom-nav--secondary {
+  --w3f-bnav-active-color: var(--w3f-secondary, #f97316);
+  --w3f-bnav-pill-bg:      var(--w3f-secondary-100, rgba(249, 115, 22, 0.12));
+}
+
+.w3f-bottom-nav--success {
+  --w3f-bnav-active-color: var(--w3f-success, #10b981);
+  --w3f-bnav-pill-bg:      var(--w3f-success-100, rgba(16, 185, 129, 0.12));
+}
+
+.w3f-bottom-nav--warning {
+  --w3f-bnav-active-color: var(--w3f-warning, #f59e0b);
+  --w3f-bnav-pill-bg:      var(--w3f-warning-100, rgba(245, 158, 11, 0.12));
+}
+
+.w3f-bottom-nav--danger {
+  --w3f-bnav-active-color: var(--w3f-danger, #ef4444);
+  --w3f-bnav-pill-bg:      var(--w3f-danger-100, rgba(239, 68, 68, 0.12));
+}
+
+.w3f-bottom-nav--info {
+  --w3f-bnav-active-color: var(--w3f-info, #06b6d4);
+  --w3f-bnav-pill-bg:      var(--w3f-info-100, rgba(6, 182, 212, 0.12));
+}
+
+/* Dark theme color schemes */
+.w3f-theme-dark .w3f-bottom-nav--secondary {
+  --w3f-bnav-active-color: var(--w3f-secondary-400, #fb923c);
+  --w3f-bnav-pill-bg:      rgba(251, 146, 60, 0.15);
+}
+.w3f-theme-dark .w3f-bottom-nav--success {
+  --w3f-bnav-active-color: var(--w3f-success-400, #34d399);
+  --w3f-bnav-pill-bg:      rgba(52, 211, 153, 0.15);
+}
+.w3f-theme-dark .w3f-bottom-nav--warning {
+  --w3f-bnav-active-color: var(--w3f-warning-400, #fbbf24);
+  --w3f-bnav-pill-bg:      rgba(251, 191, 36, 0.15);
+}
+.w3f-theme-dark .w3f-bottom-nav--danger {
+  --w3f-bnav-active-color: var(--w3f-danger-400, #f87171);
+  --w3f-bnav-pill-bg:      rgba(248, 113, 113, 0.15);
+}
+.w3f-theme-dark .w3f-bottom-nav--info {
+  --w3f-bnav-active-color: var(--w3f-info-400, #22d3ee);
+  --w3f-bnav-pill-bg:      rgba(34, 211, 238, 0.15);
+}

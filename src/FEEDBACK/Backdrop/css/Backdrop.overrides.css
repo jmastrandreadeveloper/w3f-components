@@ -1,0 +1,21 @@
+/* ── BACKDROP OVERRIDES ──
+   Migrated from manual _backdrop.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   BACKDROP PRESET — Visual styles via CSS custom properties
+   Active when .w3f-backdrop is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-backdrop-theme-blur { --w3f-backdrop-blur: 8px; ... }
+   ===================================================================== */
+
+/* -- BASE ------------------------------------------------------------ */
+.w3f-backdrop:not(.w3f-backdrop--unstyled) {
+  background-color: var(--w3f-backdrop-bg, rgba(0, 0, 0, 0.5));
+  backdrop-filter: blur(var(--w3f-backdrop-blur, 0));
+  -webkit-backdrop-filter: blur(var(--w3f-backdrop-blur, 0));
+  transition: var(--w3f-backdrop-transition, all 0.3s);
+  z-index: var(--w3f-backdrop-z, 1000);
+}

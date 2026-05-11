@@ -1,0 +1,322 @@
+/* =====================================================================
+   Estilos Especificos del Componente RangeSlider — STRUCTURAL only
+   (visuals in _range-slider.preset.css)
+   ===================================================================== */
+
+:root {
+    /* Variables especificas del slider para facil personalizacion */
+    --w3f-slider-thumb-size: 20px;
+    --w3f-slider-track-height: 8px;
+    --w3f-slider-label-offset: 48px;
+    --w3f-slider-clickable-height: 40px;
+}
+
+/* ---------------------------------------------------------------------
+   Custom Properties (contract)
+   --------------------------------------------------------------------- */
+
+/* Contenedor principal del componente (wrapper) */
+.w3f-range-slider-wrapper {
+    /* Track */
+    --w3f-rslider-track-bg: var(--w3f-gray-200);
+    --w3f-rslider-track-radius-tl: var(--w3f-radius);
+    --w3f-rslider-track-radius-tr: var(--w3f-radius);
+    --w3f-rslider-track-radius-br: var(--w3f-radius);
+    --w3f-rslider-track-radius-bl: var(--w3f-radius);
+    --w3f-rslider-active-bg: var(--w3f-primary-600);
+
+    /* Thumb */
+    --w3f-rslider-thumb-bg: var(--w3f-primary);
+    --w3f-rslider-thumb-border-color: var(--w3f-surface);
+    --w3f-rslider-thumb-radius-tl: var(--w3f-radius-full);
+    --w3f-rslider-thumb-radius-tr: var(--w3f-radius-full);
+    --w3f-rslider-thumb-radius-br: var(--w3f-radius-full);
+    --w3f-rslider-thumb-radius-bl: var(--w3f-radius-full);
+    --w3f-rslider-thumb-shadow: var(--w3f-shadow-md);
+    --w3f-rslider-thumb-hover-shadow: var(--w3f-shadow-lg);
+    --w3f-rslider-thumb-drag-shadow: var(--w3f-shadow-xl);
+
+    /* Labels */
+    --w3f-rslider-label-bg: var(--w3f-gray-800);
+    --w3f-rslider-label-color: var(--w3f-on-primary);
+    --w3f-rslider-label-radius-tl: var(--w3f-radius);
+    --w3f-rslider-label-radius-tr: var(--w3f-radius);
+    --w3f-rslider-label-radius-br: var(--w3f-radius);
+    --w3f-rslider-label-radius-bl: var(--w3f-radius);
+    --w3f-rslider-label-font-size: var(--w3f-text-xs);
+    --w3f-rslider-label-shadow: var(--w3f-shadow-md);
+    --w3f-rslider-label-arrow-color: var(--w3f-gray-800);
+
+    /* Value labels */
+    --w3f-rslider-value-text-color: var(--w3f-gray-600);
+    --w3f-rslider-value-bg: var(--w3f-primary);
+    --w3f-rslider-value-color: var(--w3f-on-primary);
+    --w3f-rslider-value-radius-tl: var(--w3f-radius-xl);
+    --w3f-rslider-value-radius-tr: var(--w3f-radius-xl);
+    --w3f-rslider-value-radius-br: var(--w3f-radius-xl);
+    --w3f-rslider-value-radius-bl: var(--w3f-radius-xl);
+    --w3f-rslider-value-font-size: var(--w3f-text-sm);
+    --w3f-rslider-value-transition: background-color var(--w3f-transition-fast);
+
+    /* Focus */
+    --w3f-rslider-focus-color: var(--w3f-primary);
+
+    /* Disabled */
+    --w3f-rslider-disabled-opacity: 0.5;
+
+    /* Dark theme */
+    --w3f-rslider-dark-track-bg: var(--w3f-gray-700);
+    --w3f-rslider-dark-value-text-color: var(--w3f-gray-400);
+    --w3f-rslider-dark-thumb-border-color: var(--w3f-gray-800);
+
+    position: relative;
+    max-width: 400px;
+}
+
+/* Estado disabled */
+.w3f-range-slider-wrapper.is-disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Base de la pista (Track) */
+.w3f-range-track {
+    height: var(--w3f-slider-track-height);
+    position: relative;
+    z-index: 1;
+}
+
+/* Barra de progreso (Active Range) */
+.w3f-range-active {
+    height: 100%;
+    position: absolute;
+    z-index: 2;
+}
+
+/* Area clickeable para saltos directos */
+.w3f-range-clickable-area {
+    position: absolute;
+    width: 100%;
+    height: var(--w3f-slider-clickable-height);
+    top: calc(var(--w3f-slider-clickable-height) / -2 + var(--w3f-slider-track-height) / 2);
+    left: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.w3f-range-clickable-area:active {
+    cursor: grabbing;
+}
+
+/* --- ESTILOS DEL THUMB PERSONALIZADO --- */
+
+.w3f-range-thumb-custom {
+    position: absolute;
+    width: var(--w3f-slider-thumb-size);
+    height: var(--w3f-slider-thumb-size);
+    cursor: grab;
+    z-index: 5;
+    transform: translateX(-50%);
+    top: calc(var(--w3f-space-12) + var(--w3f-space-5) - var(--w3f-slider-thumb-size) / 2 + var(--w3f-slider-track-height) / 2);
+}
+
+/* Estado de arrastre y hover */
+.w3f-range-thumb-custom:hover {
+    z-index: 7;
+}
+
+.w3f-range-thumb-custom.is-dragging {
+    cursor: grabbing;
+    z-index: 8;
+}
+
+/* Modificadores para cuando los thumbs estan cerca */
+.w3f-range-thumb-custom.is-close-min {
+    z-index: 7;
+}
+
+.w3f-range-thumb-custom.is-close-min:hover,
+.w3f-range-thumb-custom.is-close-min.is-dragging {
+    z-index: 8;
+}
+
+.w3f-range-thumb-custom.is-close-max {
+    z-index: 6;
+}
+
+.w3f-range-thumb-custom.is-close-max:hover,
+.w3f-range-thumb-custom.is-close-max.is-dragging {
+    z-index: 7;
+}
+
+/* --- ESTILOS DE ETIQUETAS (THUMB LABELS) --- */
+
+.w3f-range-label {
+    position: absolute;
+    top: calc(var(--w3f-slider-label-offset) * -1);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.w3f-range-label-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px);
+}
+
+/* Flecha del label */
+.w3f-range-label-arrow {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+}
+
+/* Modificadores de posicion de label cerca (para evitar solapamiento) */
+.w3f-range-label-min.is-close {
+    transform: translateX(-120%) translateY(0);
+}
+
+.w3f-range-label-min.is-close.w3f-range-label-visible {
+    transform: translateX(-120%) translateY(-2px);
+}
+
+.w3f-range-label-max.is-close {
+    transform: translateX(20%) translateY(0);
+}
+
+.w3f-range-label-max.is-close.w3f-range-label-visible {
+    transform: translateX(20%) translateY(-2px);
+}
+
+.w3f-range-label-min.is-close .w3f-range-label-arrow {
+    left: 80%;
+}
+
+.w3f-range-label-max.is-close .w3f-range-label-arrow {
+    left: 20%;
+}
+
+/* --- ETIQUETAS DE VALOR INFERIORES --- */
+
+.w3f-value-label-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+.w3f-value-label-group {
+    text-align: center;
+}
+
+.w3f-value-label-text {
+    display: block;
+}
+
+.w3f-value-label-value {
+    display: inline-block;
+    min-width: 40px;
+}
+
+/* --- ESTILOS DE ACCESIBILIDAD (Inputs) --- */
+
+.w3f-range-input-a11y {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: var(--w3f-slider-clickable-height);
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    position: absolute;
+    top: calc(var(--w3f-slider-clickable-height) / -2 + var(--w3f-slider-track-height) / 2 + var(--w3f-space-5));
+    left: 0;
+    padding: 0;
+    opacity: 0;
+    z-index: 4;
+}
+
+.w3f-range-input-a11y:disabled {
+    cursor: not-allowed;
+}
+
+/* El input min solo ocupa el lado izquierdo para evitar conflictos */
+.w3f-range-input-min {
+    clip-path: inset(0 50% 0 0);
+}
+
+/* El input max solo ocupa el lado derecho para evitar conflictos */
+.w3f-range-input-max {
+    clip-path: inset(0 0 0 50%);
+}
+
+/* --- CLASE DE ACCESIBILIDAD PARA LECTORES DE PANTALLA --- */
+
+.w3f-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* --- SOPORTE PARA RTL (RIGHT-TO-LEFT) --- */
+
+[dir="rtl"] .w3f-range-slider-wrapper {
+    direction: rtl;
+}
+
+[dir="rtl"] .w3f-range-thumb-custom.is-close-min {
+    transform: translateX(130%) scale(1.1);
+}
+
+[dir="rtl"] .w3f-range-thumb-custom.is-close-max {
+    transform: translateX(-30%) scale(1.1);
+}
+
+[dir="rtl"] .w3f-range-label-min.is-close {
+    transform: translateX(120%) translateY(0);
+}
+
+[dir="rtl"] .w3f-range-label-max.is-close {
+    transform: translateX(-20%) translateY(0);
+}
+
+/* --- TEMA OSCURO --- */
+
+.w3f-theme-dark .w3f-range-slider-wrapper {
+    --w3f-rslider-track-bg: var(--w3f-gray-700);
+    --w3f-rslider-value-text-color: var(--w3f-gray-400);
+    --w3f-rslider-thumb-border-color: var(--w3f-gray-800);
+}
+
+/* --- RESPONSIVE --- */
+
+@media (max-width: 640px) {
+    .w3f-range-slider-wrapper {
+        max-width: 100%;
+    }
+
+    :root {
+        --w3f-slider-thumb-size: 18px;
+    }
+}
+
+/* --- ANIMACIONES MEJORADAS --- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .w3f-range-thumb-custom,
+    .w3f-range-active,
+    .w3f-range-label,
+    .w3f-value-label-value {
+        transition: none;
+    }
+}

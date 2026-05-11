@@ -1,0 +1,107 @@
+/* Auto-generated from _autocomplete.contract.css — DO NOT EDIT */
+
+/* ── Autocomplete Base ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) {
+  margin-bottom: var(--w3f-ac-margin-bottom);
+  font-family: var(--w3f-ac-font-family);
+}
+
+/* ── Input ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__input {
+  padding-top: var(--w3f-ac-input-padding-top);
+  padding-right: var(--w3f-ac-input-padding-right);
+  padding-bottom: var(--w3f-ac-input-padding-bottom);
+  padding-left: var(--w3f-ac-input-padding-left);
+  background-color: var(--w3f-ac-input-bg);
+  color: var(--w3f-ac-input-color);
+  color: var(--w3f-ac-input-border-color);
+  border-top-left-radius: var(--w3f-ac-input-radius-tl);
+  border-top-right-radius: var(--w3f-ac-input-radius-tr);
+  border-bottom-right-radius: var(--w3f-ac-input-radius-br);
+  border-bottom-left-radius: var(--w3f-ac-input-radius-bl);
+  font-size: var(--w3f-ac-input-font-size);
+  transition: var(--w3f-ac-input-transition);
+}
+
+/* ── Clear Button ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__clear {
+  color: var(--w3f-ac-clear-color);
+  color: var(--w3f-ac-clear-hover-color);
+  background-color: var(--w3f-ac-clear-hover-bg);
+  border-top-left-radius: var(--w3f-ac-clear-radius-tl);
+  border-top-right-radius: var(--w3f-ac-clear-radius-tr);
+  border-bottom-right-radius: var(--w3f-ac-clear-radius-br);
+  border-bottom-left-radius: var(--w3f-ac-clear-radius-bl);
+}
+
+/* ── Dropdown ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__list {
+  background-color: var(--w3f-ac-list-bg);
+  color: var(--w3f-ac-list-border-color);
+  border-top-left-radius: var(--w3f-ac-list-radius-tl);
+  border-top-right-radius: var(--w3f-ac-list-radius-tr);
+  border-bottom-right-radius: var(--w3f-ac-list-radius-br);
+  border-bottom-left-radius: var(--w3f-ac-list-radius-bl);
+  box-shadow: var(--w3f-ac-list-shadow);
+  max-height: var(--w3f-ac-list-max-height);
+  color: var(--w3f-ac-list-scrollbar-color);
+  color: var(--w3f-ac-list-scrollbar-hover-color);
+}
+
+/* ── Item ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__item {
+  padding-top: var(--w3f-ac-item-padding-top);
+  padding-right: var(--w3f-ac-item-padding-right);
+  padding-bottom: var(--w3f-ac-item-padding-bottom);
+  padding-left: var(--w3f-ac-item-padding-left);
+  color: var(--w3f-ac-item-color);
+  color: var(--w3f-ac-item-border-color);
+  font-size: var(--w3f-ac-item-font-size);
+  background-color: var(--w3f-ac-item-hover-bg);
+  background-color: var(--w3f-ac-item-active-bg);
+  color: var(--w3f-ac-item-active-color);
+  color: var(--w3f-ac-item-active-border-color);
+  transition: var(--w3f-ac-item-transition);
+}
+
+/* ── Highlight ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__highlight {
+  color: var(--w3f-ac-highlight-color);
+  color: var(--w3f-ac-match-highlight-color);
+}
+
+/* ── Empty State ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__empty {
+  color: var(--w3f-ac-empty-color);
+  font-size: var(--w3f-ac-empty-font-size);
+}
+
+/* ── Icons ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__icon {
+  color: var(--w3f-ac-icon-color);
+  color: var(--w3f-ac-icon-error-color);
+  color: var(--w3f-ac-spinner-color);
+}
+
+/* ── Focus ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) .w3f-autocomplete__input:focus {
+  color: var(--w3f-ac-focus-outline-color);
+}
+
+/* ── Error ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled).w3f-autocomplete--error {
+  color: var(--w3f-ac-error-border-color);
+  color: var(--w3f-ac-error-color);
+}
+
+/* ── Variants ── */
+.w3f-autocomplete:not(.w3f-autocomplete--unstyled) {
+  background-color: var(--w3f-ac-filled-bg);
+  background-color: var(--w3f-ac-filled-focus-bg);
+  color: var(--w3f-ac-flushed-border-color);
+  border-top-left-radius: var(--w3f-ac-pill-radius-tl);
+  border-top-right-radius: var(--w3f-ac-pill-radius-tr);
+  border-bottom-right-radius: var(--w3f-ac-pill-radius-br);
+  border-bottom-left-radius: var(--w3f-ac-pill-radius-bl);
+}
+

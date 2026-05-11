@@ -1,0 +1,29 @@
+/* =====================================================================
+   SIZING TRAITS
+   Composable size classes: padding + font-size combos
+   ===================================================================== */
+
+.w3f-size-xs {
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  font-size: var(--w3f-text-xs);
+}
+
+.w3f-size-sm {
+  padding: var(--w3f-space-1) var(--w3f-space-4);
+  font-size: var(--w3f-text-xs);
+}
+
+.w3f-size-md {
+  padding: var(--w3f-space-2) var(--w3f-space-6);
+  font-size: var(--w3f-text-sm);
+}
+
+.w3f-size-lg {
+  padding: var(--w3f-space-3) var(--w3f-space-8);
+  font-size: var(--w3f-text-base);
+}
+
+.w3f-size-xl {
+  padding: var(--w3f-space-4) var(--w3f-space-10);
+  font-size: var(--w3f-text-lg);
+}

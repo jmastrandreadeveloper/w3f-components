@@ -1,0 +1,38 @@
+/* Auto-generated from _checkbox.contract.css — DO NOT EDIT */
+.w3f-checkbox-wrapper {
+  --w3f-cb-gap: var(--w3f-space-2);
+  --w3f-cb-transition: opacity var(--w3f-transition-fast);
+  --w3f-cb-size: 1.25rem;
+  --w3f-cb-bg: var(--w3f-surface);
+  --w3f-cb-border-color: var(--w3f-outline);
+  --w3f-cb-border-width-top: 2px;
+  --w3f-cb-border-width-right: 2px;
+  --w3f-cb-border-width-bottom: 2px;
+  --w3f-cb-border-width-left: 2px;
+  --w3f-cb-border-style: solid;
+  --w3f-cb-border-radius-tl: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-tr: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-br: var(--w3f-radius-sm);
+  --w3f-cb-border-radius-bl: var(--w3f-radius-sm);
+  --w3f-cb-checked-bg: var(--w3f-primary);
+  --w3f-cb-checked-border-color: var(--w3f-primary);
+  --w3f-cb-check-color: var(--w3f-on-primary, white);
+  --w3f-cb-hover-border-color: var(--w3f-primary);
+  --w3f-cb-hover-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  --w3f-cb-focus-outline-color: var(--w3f-primary);
+  --w3f-cb-focus-shadow: 0 0 0 4px rgba(37,99,235,0.2);
+  --w3f-cb-label-padding-top: 0px;
+  --w3f-cb-label-padding-right: 0px;
+  --w3f-cb-label-padding-bottom: 0px;
+  --w3f-cb-label-padding-left: 0px;
+  --w3f-cb-label-color: var(--w3f-on-surface);
+  --w3f-cb-label-font-size: var(--w3f-text-base);
+  --w3f-cb-children-border-color: var(--w3f-outline-variant);
+  --w3f-cb-disabled-opacity: 0.6;
+  --w3f-cb-disabled-bg: var(--w3f-gray-100);
+  --w3f-cb-disabled-border-color: var(--w3f-gray-300);
+  --w3f-cb-disabled-label-color: var(--w3f-gray-500);
+  --w3f-cb-success-color: var(--w3f-success);
+  --w3f-cb-warning-color: var(--w3f-warning);
+  --w3f-cb-danger-color: var(--w3f-danger);
+}

@@ -1,0 +1,86 @@
+/* =====================================================================
+   BADGE — Structural CSS (layout only, always applied)
+   Visual styles are in PRESETS/_badge.preset.css
+   ===================================================================== */
+
+.w3f-badge {
+  /* ── Custom Properties ── */
+  --w3f-badge-bg: var(--w3f-primary);
+  --w3f-badge-color: var(--w3f-on-primary);
+  --w3f-badge-font-size: 0.75rem;
+  --w3f-badge-font-weight: 600;
+  --w3f-badge-line-height: 1;
+  --w3f-badge-radius: var(--w3f-radius-full);
+  --w3f-badge-radius-tl: var(--w3f-badge-radius);
+  --w3f-badge-radius-tr: var(--w3f-badge-radius);
+  --w3f-badge-radius-br: var(--w3f-badge-radius);
+  --w3f-badge-radius-bl: var(--w3f-badge-radius);
+  --w3f-badge-border-width: 0;
+  --w3f-badge-border-width-top: var(--w3f-badge-border-width);
+  --w3f-badge-border-width-right: var(--w3f-badge-border-width);
+  --w3f-badge-border-width-bottom: var(--w3f-badge-border-width);
+  --w3f-badge-border-width-left: var(--w3f-badge-border-width);
+  --w3f-badge-border-color-top: transparent;
+  --w3f-badge-border-color-right: transparent;
+  --w3f-badge-border-color-bottom: transparent;
+  --w3f-badge-border-color-left: transparent;
+  --w3f-badge-shadow: none;
+  --w3f-badge-py: 0.125rem;
+  --w3f-badge-px: 0.5rem;
+  --w3f-badge-padding-top: var(--w3f-badge-py);
+  --w3f-badge-padding-right: var(--w3f-badge-px);
+  --w3f-badge-padding-bottom: var(--w3f-badge-py);
+  --w3f-badge-padding-left: var(--w3f-badge-px);
+  --w3f-badge-text-align: center;
+  --w3f-badge-min-width: 1.25rem;
+  --w3f-badge-height: 1.25rem;
+  --w3f-badge-offset: 0px;
+  --w3f-badge-transition: all var(--w3f-transition-fast);
+  --w3f-badge-dot-size: 0.625rem;
+  --w3f-badge-dot-bg: var(--w3f-badge-bg);
+  --w3f-badge-dot-border-width: 2px;
+  --w3f-badge-dot-border-color: var(--w3f-surface);
+  --w3f-badge-outline-bg: transparent;
+  --w3f-badge-outline-border-width: 2px;
+  --w3f-badge-outline-border-color: currentColor;
+  --w3f-badge-outline-color: var(--w3f-primary);
+  --w3f-badge-soft-bg: var(--w3f-primary-100);
+  --w3f-badge-soft-color: var(--w3f-primary-700);
+  --w3f-badge-pulse-duration: 2s;
+  --w3f-badge-animate-duration: 0.5s;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+/* ── Positioning (structural — always applied) ───────────────────── */
+
+.badge-top-right     { position: absolute; top: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); right: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1));  transform: translate(50%, -50%); }
+.badge-top-left      { position: absolute; top: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); left: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1));   transform: translate(-50%, -50%); }
+.badge-top-center    { position: absolute; top: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); left: 50%;                              transform: translate(-50%, -50%); }
+.badge-bottom-right  { position: absolute; bottom: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); right: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); transform: translate(50%, 50%); }
+.badge-bottom-left   { position: absolute; bottom: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); left: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1));  transform: translate(-50%, 50%); }
+.badge-bottom-center { position: absolute; bottom: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); left: 50%;                             transform: translate(-50%, 50%); }
+.badge-middle-right  { position: absolute; top: 50%; right: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1)); transform: translate(50%, -50%); }
+.badge-middle-left   { position: absolute; top: 50%; left: var(--w3f-badge-offset, calc(var(--w3f-space-1) * -1));  transform: translate(-50%, -50%); }
+
+/* ── Invisible (structural utility) ──────────────────────────────── */
+
+.w3f-badge-invisible { opacity: 0; pointer-events: none; }
+
+/* ── Keyframes (shared between preset and structural) ────────────── */
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes badge-bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}

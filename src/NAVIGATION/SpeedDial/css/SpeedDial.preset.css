@@ -1,0 +1,47 @@
+/* Auto-generated from _speed-dial.contract.css — DO NOT EDIT */
+
+/* ── FAB Button ── */
+.w3f-speed-dial:not(.w3f-speed-dial--unstyled) {
+  background-color: var(--w3f-sdial-fab-bg);
+  color: var(--w3f-sdial-fab-color);
+  box-shadow: var(--w3f-sdial-fab-shadow);
+  box-shadow: var(--w3f-sdial-fab-hover-shadow);
+  box-shadow: var(--w3f-sdial-fab-active-shadow);
+  background-color: var(--w3f-sdial-fab-hover-bg);
+  background-color: var(--w3f-sdial-fab-active-bg);
+  border-top-left-radius: var(--w3f-sdial-fab-radius-tl);
+  border-top-right-radius: var(--w3f-sdial-fab-radius-tr);
+  border-bottom-right-radius: var(--w3f-sdial-fab-radius-br);
+  border-bottom-left-radius: var(--w3f-sdial-fab-radius-bl);
+  color: var(--w3f-sdial-focus-color);
+  transition: var(--w3f-sdial-transition);
+  gap: var(--w3f-sdial-gap);
+}
+
+/* ── Action Item ── */
+.w3f-speed-dial:not(.w3f-speed-dial--unstyled) .w3f-speed-dial__action {
+  background-color: var(--w3f-sdial-action-bg);
+  color: var(--w3f-sdial-action-color);
+  box-shadow: var(--w3f-sdial-action-shadow);
+  box-shadow: var(--w3f-sdial-action-hover-shadow);
+}
+
+/* ── Tooltip ── */
+.w3f-speed-dial:not(.w3f-speed-dial--unstyled) .w3f-speed-dial__tooltip {
+  background-color: var(--w3f-sdial-tooltip-bg);
+  color: var(--w3f-sdial-tooltip-color);
+  box-shadow: var(--w3f-sdial-tooltip-shadow);
+}
+
+/* ── Backdrop ── */
+.w3f-speed-dial:not(.w3f-speed-dial--unstyled) .w3f-speed-dial__backdrop {
+  background-color: var(--w3f-sdial-backdrop-bg);
+}
+
+/* ── Disabled ── */
+.w3f-speed-dial:not(.w3f-speed-dial--unstyled).w3f-speed-dial--disabled {
+  opacity: var(--w3f-sdial-disabled-opacity);
+  box-shadow: var(--w3f-sdial-action-active-shadow);
+  box-shadow: var(--w3f-sdial-action-disabled-shadow);
+}
+

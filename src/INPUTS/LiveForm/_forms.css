@@ -1,0 +1,327 @@
+/* =====================================================================
+   📝 FORMS - W3F Framework v2.0
+   Estilos para Form, LiveForm y componentes de formulario
+   ===================================================================== */
+
+/* =============================================================
+   🎯 FORM GROUP
+   ============================================================= */
+
+.w3f-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--w3f-space-2);
+    margin-bottom: var(--w3f-space-4);
+}
+
+.w3f-form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* =============================================================
+   🏷️ LABELS
+   ============================================================= */
+
+.w3f-label {
+    display: inline-block;
+    font-size: var(--w3f-text-sm);
+    font-weight: 500;
+    color: var(--w3f-on-surface);
+    margin-bottom: var(--w3f-space-1);
+    line-height: 1.5;
+}
+
+.w3f-label-required::after {
+    content: ' *';
+    color: var(--w3f-danger);
+}
+
+/* =============================================================
+   📝 INPUTS
+   ============================================================= */
+
+.w3f-input {
+    display: block;
+    width: 100%;
+    padding: var(--w3f-space-3) var(--w3f-space-4);
+    font-size: var(--w3f-text-base);
+    font-family: var(--w3f-font-family);
+    line-height: 1.5;
+    color: var(--w3f-on-surface);
+    background-color: var(--w3f-surface);
+    border: 1px solid var(--w3f-outline);
+    border-radius: var(--w3f-radius-md);
+    transition:
+        border-color var(--w3f-transition-fast),
+        box-shadow var(--w3f-transition-fast),
+        background-color var(--w3f-transition-fast);
+}
+
+.w3f-input::placeholder {
+    color: var(--w3f-gray-400);
+    opacity: 1;
+}
+
+/* Input States */
+.w3f-input:hover {
+    border-color: var(--w3f-gray-400);
+}
+
+.w3f-input:focus {
+    outline: none;
+    border-color: var(--w3f-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background-color: var(--w3f-surface);
+}
+
+.w3f-input:disabled {
+    background-color: var(--w3f-gray-100);
+    color: var(--w3f-gray-500);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.w3f-input:read-only {
+    background-color: var(--w3f-gray-50);
+    cursor: default;
+}
+
+/* Input Error State */
+.w3f-input-error,
+.w3f-input.w3f-error {
+    border-color: var(--w3f-danger);
+    background-color: var(--w3f-danger-50);
+}
+
+.w3f-input-error:focus,
+.w3f-input.w3f-error:focus {
+    border-color: var(--w3f-danger);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Input Success State */
+.w3f-input-success,
+.w3f-input.w3f-success {
+    border-color: var(--w3f-success);
+    background-color: var(--w3f-success-50);
+}
+
+.w3f-input-success:focus,
+.w3f-input.w3f-success:focus {
+    border-color: var(--w3f-success);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Input Sizes */
+.w3f-input-sm {
+    padding: var(--w3f-space-2) var(--w3f-space-3);
+    font-size: var(--w3f-text-sm);
+}
+
+.w3f-input-lg {
+    padding: var(--w3f-space-4) var(--w3f-space-5);
+    font-size: var(--w3f-text-lg);
+}
+
+/* =============================================================
+   📋 TEXTAREA
+   ============================================================= */
+
+.w3f-textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: var(--w3f-space-3) var(--w3f-space-4);
+    font-size: var(--w3f-text-base);
+    font-family: var(--w3f-font-family);
+    line-height: 1.5;
+    color: var(--w3f-on-surface);
+    background-color: var(--w3f-surface);
+    border: 1px solid var(--w3f-outline);
+    border-radius: var(--w3f-radius-md);
+    resize: vertical;
+    transition:
+        border-color var(--w3f-transition-fast),
+        box-shadow var(--w3f-transition-fast);
+}
+
+.w3f-textarea:focus {
+    outline: none;
+    border-color: var(--w3f-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* =============================================================
+   ☑️ CHECKBOX & RADIO
+   ============================================================= */
+
+.w3f-checkbox,
+.w3f-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--w3f-space-2);
+    cursor: pointer;
+}
+
+.w3f-checkbox input[type="checkbox"],
+.w3f-radio input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+    accent-color: var(--w3f-primary);
+}
+
+.w3f-checkbox input[type="checkbox"]:disabled,
+.w3f-radio input[type="radio"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* =============================================================
+   📋 SELECT
+   ============================================================= */
+
+.w3f-select {
+    display: block;
+    width: 100%;
+    padding: var(--w3f-space-3) var(--w3f-space-4);
+    padding-right: var(--w3f-space-8);
+    font-size: var(--w3f-text-base);
+    font-family: var(--w3f-font-family);
+    line-height: 1.5;
+    color: var(--w3f-on-surface);
+    background-color: var(--w3f-surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right var(--w3f-space-3) center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem;
+    border: 1px solid var(--w3f-outline);
+    border-radius: var(--w3f-radius-md);
+    appearance: none;
+    cursor: pointer;
+    transition:
+        border-color var(--w3f-transition-fast),
+        box-shadow var(--w3f-transition-fast);
+}
+
+.w3f-select:focus {
+    outline: none;
+    border-color: var(--w3f-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.w3f-select:disabled {
+    background-color: var(--w3f-gray-100);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =============================================================
+   ❌ ERROR MESSAGES
+   ============================================================= */
+
+.w3f-error-message {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-danger);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+}
+
+.w3f-success-message {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-success);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+}
+
+.w3f-help-text {
+    display: block;
+    font-size: var(--w3f-text-sm);
+    color: var(--w3f-gray-500);
+    margin-top: var(--w3f-space-1);
+    line-height: 1.4;
+}
+
+/* =============================================================
+   🎨 INPUT WITH ICON
+   ============================================================= */
+
+.w3f-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.w3f-input-icon {
+    position: absolute;
+    left: var(--w3f-space-3);
+    color: var(--w3f-gray-400);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.w3f-input-group .w3f-input {
+    padding-left: var(--w3f-space-10);
+}
+
+.w3f-input-icon-right {
+    left: auto;
+    right: var(--w3f-space-3);
+}
+
+.w3f-input-group .w3f-input-icon-right~.w3f-input {
+    padding-right: var(--w3f-space-10);
+    padding-left: var(--w3f-space-4);
+}
+
+/* =============================================================
+   🎯 FORM ROW
+   ============================================================= */
+
+.w3f-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--w3f-space-4);
+    margin-bottom: var(--w3f-space-4);
+}
+
+.w3f-form-row>* {
+    flex: 1;
+    min-width: 0;
+}
+
+.w3f-form-row>.w3f-form-group {
+    margin-bottom: 0;
+}
+
+/* =============================================================
+   🌙 DARK THEME
+   ============================================================= */
+
+.w3f-theme-dark .w3f-input,
+.w3f-theme-dark .w3f-textarea,
+.w3f-theme-dark .w3f-select {
+    background-color: var(--w3f-surface);
+    color: var(--w3f-on-surface);
+    border-color: var(--w3f-outline);
+}
+
+.w3f-theme-dark .w3f-input::placeholder,
+.w3f-theme-dark .w3f-textarea::placeholder {
+    color: var(--w3f-gray-500);
+}
+
+.w3f-theme-dark .w3f-input:disabled,
+.w3f-theme-dark .w3f-textarea:disabled,
+.w3f-theme-dark .w3f-select:disabled {
+    background-color: var(--w3f-gray-700);
+    color: var(--w3f-gray-400);
+}
+
+/* =============================================================
+   ✨ END OF W3F FORMS
+   ============================================================= */

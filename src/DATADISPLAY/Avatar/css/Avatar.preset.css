@@ -1,0 +1,62 @@
+/* Auto-generated from _avatar.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-avatar:not(.w3f-avatar--unstyled) {
+  background-color: var(--w3f-avatar-bg);
+  color: var(--w3f-avatar-color);
+  border-top-left-radius: var(--w3f-avatar-radius-tl);
+  border-top-right-radius: var(--w3f-avatar-radius-tr);
+  border-bottom-right-radius: var(--w3f-avatar-radius-br);
+  border-bottom-left-radius: var(--w3f-avatar-radius-bl);
+  border-top-width: var(--w3f-avatar-border-width-top);
+  border-right-width: var(--w3f-avatar-border-width-right);
+  border-bottom-width: var(--w3f-avatar-border-width-bottom);
+  border-left-width: var(--w3f-avatar-border-width-left);
+  box-shadow: var(--w3f-avatar-shadow);
+  font-weight: var(--w3f-avatar-font-weight);
+}
+
+/* ── Image ── */
+.w3f-avatar:not(.w3f-avatar--unstyled) .w3f-avatar__img {
+  filter: var(--w3f-avatar-img-filter);
+  opacity: var(--w3f-avatar-img-opacity);
+}
+
+/* ── Initials ── */
+.w3f-avatar:not(.w3f-avatar--unstyled) .w3f-avatar__text {
+  text-transform: var(--w3f-avatar-text-transform);
+  color: var(--w3f-avatar-text-color);
+  letter-spacing: var(--w3f-avatar-text-letter-spacing);
+}
+
+/* ── Status Dot ── */
+.w3f-avatar:not(.w3f-avatar--unstyled) .w3f-avatar__status {
+  position: var(--w3f-avatar-status-position);
+  color: var(--w3f-avatar-status-ring-color);
+  width: var(--w3f-avatar-status-ring-width);
+}
+
+/* ── Badge Overlay ── */
+.w3f-avatar:not(.w3f-avatar--unstyled) .w3f-avatar__badge {
+  min-width: var(--w3f-avatar-badge-min-width);
+  height: var(--w3f-avatar-badge-height);
+  background-color: var(--w3f-avatar-badge-bg);
+  color: var(--w3f-avatar-badge-color);
+  font-size: var(--w3f-avatar-badge-font-size);
+  color: var(--w3f-avatar-badge-ring-color);
+  width: var(--w3f-avatar-badge-ring-width);
+}
+
+/* ── Hover ── */
+.w3f-avatar:not(.w3f-avatar--unstyled):not(.w3f-avatar--disabled):hover {
+  transform: scale(var(--w3f-avatar-hover-scale));
+  box-shadow: var(--w3f-avatar-hover-shadow);
+  font-size: var(--w3f-avatar-font-size);
+}
+
+/* ── Active ── */
+.w3f-avatar:not(.w3f-avatar--unstyled):active {
+  transform: scale(var(--w3f-avatar-active-scale));
+  font-weight: var(--w3f-avatar-badge-font-weight);
+}
+

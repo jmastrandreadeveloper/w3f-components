@@ -1,0 +1,85 @@
+/* =====================================================================
+   ⚡ LIVE FORM - W3F Framework v2.0
+   Estilos para el componente LiveForm (real-time)
+   ===================================================================== */
+
+/* =============================================================
+   🎯 BASE
+   ============================================================= */
+
+.w3f-live-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--w3f-space-4);
+    width: 100%;
+    position: relative;
+}
+
+/* =============================================================
+   ✨ ESTADO ACTIVO (tiene valores)
+   ============================================================= */
+
+.w3f-live-form--active {
+    border-color: var(--w3f-primary-100);
+}
+
+/* Indicador visual de "live" */
+.w3f-live-form::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+            var(--w3f-primary) 0%,
+            var(--w3f-primary-300) 50%,
+            var(--w3f-primary) 100%);
+    border-radius: var(--w3f-radius-full);
+    transition: width var(--w3f-transition-normal) ease-out;
+    opacity: 0;
+}
+
+.w3f-live-form--active::before {
+    width: 100%;
+    opacity: 1;
+}
+
+/* =============================================================
+   🎬 ANIMACIÓN DE PULSO EN CAMBIOS
+   ============================================================= */
+
+@keyframes w3f-live-pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
+}
+
+/* =============================================================
+   🌙 DARK THEME
+   ============================================================= */
+
+.w3f-theme-dark .w3f-live-form::before {
+    background: linear-gradient(90deg,
+            var(--w3f-primary-400) 0%,
+            var(--w3f-primary-200) 50%,
+            var(--w3f-primary-400) 100%);
+}
+
+/* =============================================================
+   ♿ REDUCED MOTION
+   ============================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .w3f-live-form::before {
+        transition: none;
+    }
+}

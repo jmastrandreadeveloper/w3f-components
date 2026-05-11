@@ -1,0 +1,56 @@
+/* Auto-generated from _number-field.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-numberfield-wrapper:not(.w3f-numberfield-wrapper--unstyled) {
+  border-top-left-radius: var(--w3f-nf-radius-tl);
+  border-top-right-radius: var(--w3f-nf-radius-tr);
+  border-bottom-right-radius: var(--w3f-nf-radius-br);
+  border-bottom-left-radius: var(--w3f-nf-radius-bl);
+}
+
+/* ── Input ── */
+.w3f-numberfield-wrapper:not(.w3f-numberfield-wrapper--unstyled) .w3f-numberfield-input {
+  padding-top: var(--w3f-nf-input-padding-top);
+  padding-right: var(--w3f-nf-input-padding-right);
+  padding-bottom: var(--w3f-nf-input-padding-bottom);
+  padding-left: var(--w3f-nf-input-padding-left);
+  font-family: var(--w3f-nf-input-font-family);
+  font-size: var(--w3f-nf-input-font-size);
+  line-height: var(--w3f-nf-input-line-height);
+  color: var(--w3f-nf-input-color);
+  background-color: var(--w3f-nf-input-bg);
+  border-top-width: var(--w3f-nf-input-border-width-top);
+  border-right-width: var(--w3f-nf-input-border-width-right);
+  border-bottom-width: var(--w3f-nf-input-border-width-bottom);
+  border-left-width: var(--w3f-nf-input-border-width-left);
+  color: var(--w3f-nf-input-border-color);
+  box-shadow: var(--w3f-nf-input-shadow);
+  transition: var(--w3f-nf-input-transition);
+}
+
+/* ── Spin Buttons ── */
+.w3f-numberfield-wrapper:not(.w3f-numberfield-wrapper--unstyled) .w3f-number-field__spin {
+  width: var(--w3f-nf-spin-width);
+  color: var(--w3f-nf-spin-border-color);
+  color: var(--w3f-nf-spin-color);
+  font-size: var(--w3f-nf-spin-font-size);
+  transition: var(--w3f-nf-spin-transition);
+  background-color: var(--w3f-nf-spin-hover-bg);
+  color: var(--w3f-nf-spin-hover-color);
+  background-color: var(--w3f-nf-spin-active-bg);
+  color: var(--w3f-nf-spin-active-color);
+}
+
+/* ── Focus ── */
+.w3f-numberfield-wrapper:not(.w3f-numberfield-wrapper--unstyled) .w3f-number-field {
+  color: var(--w3f-nf-focus-color);
+  color: var(--w3f-nf-focus-border-color);
+}
+
+/* ── Disabled ── */
+.w3f-numberfield-wrapper:not(.w3f-numberfield-wrapper--unstyled) .w3f-number-field {
+  color: var(--w3f-nf-disabled-color);
+  opacity: var(--w3f-nf-disabled-opacity);
+  color: var(--w3f-nf-error-color);
+}
+

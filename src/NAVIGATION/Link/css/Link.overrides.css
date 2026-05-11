@@ -1,0 +1,244 @@
+/* ── LINK OVERRIDES ──
+   Migrated from manual _link.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   LINK PRESET — Visual styles via CSS custom properties
+   Active when .w3f-link is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-link-theme-subtle { --w3f-link-color: #6b7280; ... }
+   ===================================================================== */
+
+/* -- ROOT ------------------------------------------------------------ */
+.w3f-link:not(.w3f-link--unstyled) {
+  color: var(--w3f-link-color);
+  transition:
+    color var(--w3f-link-transition),
+    text-decoration-color var(--w3f-link-transition),
+    opacity var(--w3f-link-transition);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--w3f-link-decoration-color);
+}
+
+/* -- HOVER ----------------------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled):hover {
+  color: var(--w3f-link-hover-color);
+  text-decoration-color: var(--w3f-link-hover-decoration-color);
+}
+
+/* -- VISITED --------------------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled):visited {
+  color: var(--w3f-link-visited-color);
+}
+
+/* -- FOCUS ----------------------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled):focus-visible {
+  outline: 2px solid var(--w3f-link-focus-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* -- DISABLED -------------------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled).w3f-link--disabled {
+  opacity: var(--w3f-link-disabled-opacity);
+}
+
+/* -- UNDERLINE VARIANTS ---------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled).w3f-link--underline-always {
+  text-decoration: underline;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--underline-hover {
+  text-decoration: none;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--underline-hover:hover {
+  text-decoration: underline;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--underline-none {
+  text-decoration: none;
+}
+
+/* -- TYPOGRAPHY VARIANTS --------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--subtitle1 {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--subtitle2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--body1 {
+  font-size: var(--w3f-text-base, 1rem);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--body2 {
+  font-size: var(--w3f-text-sm, 0.875rem);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--caption {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--overline {
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* -- COLOR SCHEMES — set variables so they win over defaults.css ----- */
+.w3f-link:not(.w3f-link--unstyled).w3f-link--secondary {
+  --w3f-link-color: var(--w3f-secondary, #f97316);
+  --w3f-link-hover-color: var(--w3f-secondary-700, #c2410c);
+  --w3f-link-decoration-color: rgba(249, 115, 22, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-secondary-700, #c2410c);
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--success {
+  --w3f-link-color: var(--w3f-success, #10b981);
+  --w3f-link-hover-color: var(--w3f-success-700, #047857);
+  --w3f-link-decoration-color: rgba(16, 185, 129, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-success-700, #047857);
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--warning {
+  --w3f-link-color: var(--w3f-warning, #f59e0b);
+  --w3f-link-hover-color: var(--w3f-warning-700, #b45309);
+  --w3f-link-decoration-color: rgba(245, 158, 11, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-warning-700, #b45309);
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--danger {
+  --w3f-link-color: var(--w3f-danger, #ef4444);
+  --w3f-link-hover-color: var(--w3f-danger-700, #b91c1c);
+  --w3f-link-decoration-color: rgba(239, 68, 68, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-danger-700, #b91c1c);
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--info {
+  --w3f-link-color: var(--w3f-info, #06b6d4);
+  --w3f-link-hover-color: var(--w3f-info-700, #0e7490);
+  --w3f-link-decoration-color: rgba(6, 182, 212, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-info-700, #0e7490);
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--default {
+  --w3f-link-color: var(--w3f-on-surface, #111827);
+  --w3f-link-hover-color: var(--w3f-primary, #3b82f6);
+  --w3f-link-decoration-color: var(--w3f-gray-400, #9ca3af);
+  --w3f-link-hover-decoration-color: var(--w3f-primary, #3b82f6);
+}
+
+/* -- COLOR: INHERIT -------------------------------------------------- */
+.w3f-link:not(.w3f-link--unstyled).w3f-link--inherit {
+  color: inherit;
+  text-decoration-color: currentColor;
+}
+
+.w3f-link:not(.w3f-link--unstyled).w3f-link--inherit:hover {
+  opacity: 0.75;
+}
+
+/* -- DARK THEME COLOR SCHEMES --------------------------------------- */
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--primary {
+  --w3f-link-color: var(--w3f-primary-400, #60a5fa);
+  --w3f-link-hover-color: var(--w3f-primary-300, #93c5fd);
+  --w3f-link-decoration-color: rgba(96, 165, 250, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-primary-300, #93c5fd);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--secondary {
+  --w3f-link-color: var(--w3f-secondary-400, #fb923c);
+  --w3f-link-hover-color: var(--w3f-secondary-300, #fdba74);
+  --w3f-link-decoration-color: rgba(251, 146, 60, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-secondary-300, #fdba74);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--success {
+  --w3f-link-color: var(--w3f-success-400, #34d399);
+  --w3f-link-hover-color: var(--w3f-success-300, #6ee7b7);
+  --w3f-link-decoration-color: rgba(52, 211, 153, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-success-300, #6ee7b7);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--warning {
+  --w3f-link-color: var(--w3f-warning-400, #fbbf24);
+  --w3f-link-hover-color: var(--w3f-warning-300, #fcd34d);
+  --w3f-link-decoration-color: rgba(251, 191, 36, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-warning-300, #fcd34d);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--danger {
+  --w3f-link-color: var(--w3f-danger-400, #f87171);
+  --w3f-link-hover-color: var(--w3f-danger-300, #fca5a5);
+  --w3f-link-decoration-color: rgba(248, 113, 113, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-danger-300, #fca5a5);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--info {
+  --w3f-link-color: var(--w3f-info-400, #22d3ee);
+  --w3f-link-hover-color: var(--w3f-info-300, #67e8f9);
+  --w3f-link-decoration-color: rgba(34, 211, 238, 0.4);
+  --w3f-link-hover-decoration-color: var(--w3f-info-300, #67e8f9);
+}
+
+.w3f-theme-dark .w3f-link:not(.w3f-link--unstyled).w3f-link--default {
+  --w3f-link-color: var(--w3f-gray-200, #e5e7eb);
+  --w3f-link-hover-color: var(--w3f-primary-400, #60a5fa);
+  --w3f-link-decoration-color: var(--w3f-gray-600, #4b5563);
+  --w3f-link-hover-decoration-color: var(--w3f-primary-400, #60a5fa);
+}

@@ -1,0 +1,234 @@
+/* =====================================================================
+   SLIDE TOGGLE COMPONENT — Structural only
+   Componente de interruptor deslizante siguiendo el sistema de tokens Fusion.
+   Visual styles live in PRESETS/_slide-toggle.preset.css
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (contract — consumed by preset)
+   --------------------------------------------------------------------- */
+
+.w3f-slide-toggle {
+    /* Dimensions */
+    --w3f-toggle-width: 44px;
+    --w3f-toggle-height: 22px;
+
+    /* Track */
+    --w3f-toggle-track-bg: var(--w3f-gray-300);
+    --w3f-toggle-track-checked-bg: var(--w3f-primary);
+    --w3f-toggle-track-hover-bg: var(--w3f-gray-400);
+    --w3f-toggle-track-checked-hover-bg: var(--w3f-primary-700);
+    --w3f-toggle-track-radius-tl: var(--w3f-radius-full);
+    --w3f-toggle-track-radius-tr: var(--w3f-radius-full);
+    --w3f-toggle-track-radius-br: var(--w3f-radius-full);
+    --w3f-toggle-track-radius-bl: var(--w3f-radius-full);
+    --w3f-toggle-track-transition: background-color var(--w3f-transition-normal);
+
+    /* Handle */
+    --w3f-toggle-handle-size: 18px;
+    --w3f-toggle-handle-bg: var(--w3f-surface);
+    --w3f-toggle-handle-radius-tl: var(--w3f-radius-full);
+    --w3f-toggle-handle-radius-tr: var(--w3f-radius-full);
+    --w3f-toggle-handle-radius-br: var(--w3f-radius-full);
+    --w3f-toggle-handle-radius-bl: var(--w3f-radius-full);
+    --w3f-toggle-handle-shadow: var(--w3f-shadow);
+    --w3f-toggle-handle-drag-shadow: var(--w3f-shadow-md);
+    --w3f-toggle-handle-offset: var(--w3f-space-1);
+    --w3f-toggle-handle-transition: transform var(--w3f-transition-normal);
+
+    /* Disabled */
+    --w3f-toggle-disabled-track-bg: var(--w3f-gray-200);
+    --w3f-toggle-disabled-track-checked-bg: var(--w3f-primary-300);
+    --w3f-toggle-disabled-handle-bg: var(--w3f-gray-100);
+    --w3f-toggle-disabled-handle-shadow: var(--w3f-shadow-sm);
+    --w3f-toggle-disabled-opacity: 0.6;
+
+    /* Focus */
+    --w3f-toggle-focus-outline-color: var(--w3f-primary);
+    --w3f-toggle-focus-disabled-outline-color: var(--w3f-gray-400);
+
+    /* Color variants */
+    --w3f-toggle-secondary-bg: var(--w3f-secondary);
+    --w3f-toggle-secondary-hover-bg: var(--w3f-secondary-600);
+    --w3f-toggle-success-bg: var(--w3f-success);
+    --w3f-toggle-success-hover-bg: var(--w3f-success-600);
+    --w3f-toggle-warning-bg: var(--w3f-warning);
+    --w3f-toggle-warning-hover-bg: var(--w3f-warning-600);
+    --w3f-toggle-danger-bg: var(--w3f-danger);
+    --w3f-toggle-danger-hover-bg: var(--w3f-danger-600);
+
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: var(--w3f-toggle-width);
+    height: var(--w3f-toggle-height);
+    user-select: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ===================================================================
+   2. TRACK — structural
+   =================================================================== */
+
+.w3f-slide-toggle__track {
+    position: absolute;
+    inset: 0;
+}
+
+/* ===================================================================
+   3. HANDLE — structural
+   =================================================================== */
+
+.w3f-slide-toggle__handle {
+    position: absolute;
+    height: var(--w3f-toggle-handle-size);
+    width: var(--w3f-toggle-handle-size);
+    left: var(--w3f-toggle-handle-offset);
+    top: 0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+/* Estado durante el arrastre — structural (disable transition) */
+.w3f-slide-toggle__handle.is-dragging {
+    transition: none;
+}
+
+/* Estado deshabilitado — structural cursor */
+.w3f-slide-toggle.is-disabled {
+    cursor: not-allowed;
+}
+
+.w3f-slide-toggle.is-disabled .w3f-slide-toggle__track {
+    cursor: not-allowed;
+}
+
+/* ===================================================================
+   4. VARIANTES DE TAMANO — var overrides only
+   =================================================================== */
+
+.w3f-slide-toggle--sm {
+    --w3f-toggle-width: 36px;
+    --w3f-toggle-height: 18px;
+    --w3f-toggle-handle-size: 14px;
+}
+
+.w3f-slide-toggle--lg {
+    --w3f-toggle-width: 52px;
+    --w3f-toggle-height: 26px;
+    --w3f-toggle-handle-size: 22px;
+}
+
+/* ===================================================================
+   5. VARIANTES DE COLOR — var overrides only
+   =================================================================== */
+
+.w3f-slide-toggle--secondary {
+    --w3f-toggle-track-checked-bg: var(--w3f-toggle-secondary-bg);
+    --w3f-toggle-track-checked-hover-bg: var(--w3f-toggle-secondary-hover-bg);
+}
+
+.w3f-slide-toggle--success {
+    --w3f-toggle-track-checked-bg: var(--w3f-toggle-success-bg);
+    --w3f-toggle-track-checked-hover-bg: var(--w3f-toggle-success-hover-bg);
+}
+
+.w3f-slide-toggle--warning {
+    --w3f-toggle-track-checked-bg: var(--w3f-toggle-warning-bg);
+    --w3f-toggle-track-checked-hover-bg: var(--w3f-toggle-warning-hover-bg);
+}
+
+.w3f-slide-toggle--danger {
+    --w3f-toggle-track-checked-bg: var(--w3f-toggle-danger-bg);
+    --w3f-toggle-track-checked-hover-bg: var(--w3f-toggle-danger-hover-bg);
+}
+
+/* ===================================================================
+   6. LOADING ANIMATION — structural (keyframes)
+   =================================================================== */
+
+.w3f-slide-toggle.is-loading .w3f-slide-toggle__handle {
+    animation: w3f-slide-toggle-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes w3f-slide-toggle-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ===================================================================
+   7. TEMA OSCURO — var overrides only
+   =================================================================== */
+
+.w3f-theme-dark .w3f-slide-toggle {
+    --w3f-toggle-track-bg: var(--w3f-gray-700);
+    --w3f-toggle-track-hover-bg: var(--w3f-gray-600);
+    --w3f-toggle-handle-bg: var(--w3f-gray-200);
+    --w3f-toggle-handle-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+    --w3f-toggle-disabled-track-bg: var(--w3f-gray-800);
+}
+
+/* ===================================================================
+   8. UTILIDADES
+   =================================================================== */
+
+.w3f-slide-toggle,
+.w3f-slide-toggle * {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* ===================================================================
+   9. LAYOUT CONTAINER Y LABEL — structural
+   =================================================================== */
+
+.w3f-slide-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.w3f-slide-toggle-container--label-left {
+    flex-direction: row-reverse;
+}
+
+.w3f-slide-toggle__label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.w3f-slide-toggle__label--right {
+    margin-left: var(--w3f-space-3);
+}
+
+.w3f-slide-toggle__label--left {
+    margin-right: var(--w3f-space-3);
+}
+
+.w3f-slide-toggle__label--disabled {
+    cursor: not-allowed;
+}
+
+.w3f-slide-toggle__check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    margin-left: var(--w3f-space-2);
+}
+
+.w3f-slide-toggle__messages {
+    margin-top: var(--w3f-space-2);
+}

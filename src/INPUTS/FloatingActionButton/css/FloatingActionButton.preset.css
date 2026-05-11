@@ -1,0 +1,46 @@
+/* Auto-generated from _fab.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-fab:not(.w3f-fab--unstyled) {
+  border-top-left-radius: var(--w3f-fab-radius-tl);
+  border-top-right-radius: var(--w3f-fab-radius-tr);
+  border-bottom-right-radius: var(--w3f-fab-radius-br);
+  border-bottom-left-radius: var(--w3f-fab-radius-bl);
+  background-color: var(--w3f-fab-bg);
+  color: var(--w3f-fab-color);
+  box-shadow: var(--w3f-fab-shadow);
+  transition: var(--w3f-fab-transition);
+  font-family: var(--w3f-fab-font-family);
+  font-weight: var(--w3f-fab-font-weight);
+  z-index: var(--w3f-fab-z-index);
+  right: var(--w3f-fab-position-right);
+  gap: var(--w3f-fab-group-gap);
+}
+
+/* ── Hover / Active ── */
+.w3f-fab:not(.w3f-fab--unstyled):not(.w3f-fab--disabled):hover {
+  background-color: var(--w3f-fab-hover-bg);
+  box-shadow: var(--w3f-fab-hover-shadow);
+  background-color: var(--w3f-fab-active-bg);
+  box-shadow: var(--w3f-fab-active-shadow);
+  color: var(--w3f-fab-focus-outline-color);
+}
+
+/* ── Tooltip Label ── */
+.w3f-fab:not(.w3f-fab--unstyled) .w3f-fab__label {
+  background-color: var(--w3f-fab-label-bg);
+  color: var(--w3f-fab-label-color);
+  border-top-left-radius: var(--w3f-fab-label-radius-tl);
+  border-top-right-radius: var(--w3f-fab-label-radius-tr);
+  border-bottom-right-radius: var(--w3f-fab-label-radius-br);
+  border-bottom-left-radius: var(--w3f-fab-label-radius-bl);
+  font-size: var(--w3f-fab-label-font-size);
+  box-shadow: var(--w3f-fab-label-shadow);
+}
+
+/* ── Disabled ── */
+.w3f-fab:not(.w3f-fab--unstyled).w3f-fab--disabled {
+  opacity: var(--w3f-fab-disabled-opacity);
+  box-shadow: var(--w3f-fab-disabled-shadow);
+}
+

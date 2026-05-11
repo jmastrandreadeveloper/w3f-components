@@ -1,0 +1,21 @@
+/* Auto-generated from _bottom-nav.contract.css — DO NOT EDIT */
+.w3f-bottom-nav {
+  --w3f-bnav-bg: var(--w3f-surface);
+  --w3f-bnav-color: var(--w3f-gray-500);
+  --w3f-bnav-border-top: 1px solid var(--w3f-gray-200);
+  --w3f-bnav-elevated-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+  --w3f-bnav-transition: 150ms ease-out;
+  --w3f-bnav-focus-color: var(--w3f-primary);
+  --w3f-bnav-disabled-opacity: 0.5;
+  --w3f-bnav-active-color: var(--w3f-primary);
+  --w3f-bnav-hover-bg: var(--w3f-gray-100);
+  --w3f-bnav-action-disabled-opacity: 0.4;
+  --w3f-bnav-icon-size: 24px;
+  --w3f-bnav-label-font: 0.75rem;
+  --w3f-bnav-label-weight: 500;
+  --w3f-bnav-label-active-weight: 600;
+  --w3f-bnav-badge-bg: var(--w3f-danger);
+  --w3f-bnav-badge-color: #ffffff;
+  --w3f-bnav-badge-border: none;
+  --w3f-bnav-pill-bg: var(--w3f-primary-100);
+}

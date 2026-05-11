@@ -1,0 +1,10 @@
+/* =====================================================================
+   SHADOW TRAITS
+   ===================================================================== */
+
+.w3f-shadow-none { box-shadow: none; }
+.w3f-shadow-sm   { box-shadow: var(--w3f-shadow-sm); }
+.w3f-shadow      { box-shadow: var(--w3f-shadow); }
+.w3f-shadow-md   { box-shadow: var(--w3f-shadow-md); }
+.w3f-shadow-lg   { box-shadow: var(--w3f-shadow-lg); }
+.w3f-shadow-xl   { box-shadow: var(--w3f-shadow-xl); }

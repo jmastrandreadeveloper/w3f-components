@@ -1,0 +1,303 @@
+/* ============================================================
+   TimePicker — W3Fussion UTILS CSS
+   Covers: TimePicker (dropdown) & StaticTimePicker (inline)
+   ============================================================ */
+
+/* ── Wrapper ── */
+.w3f-timepicker {
+  position: relative;
+  display: inline-block;
+  font-family: var(--w3f-font-sans);
+}
+
+/* ── Input Trigger ── */
+.w3f-timepicker-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.w3f-timepicker-input {
+  width: 100%;
+  padding: var(--w3f-space-2) var(--w3f-space-5) var(--w3f-space-2) var(--w3f-space-3);
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-md);
+  font-size: var(--w3f-text-sm);
+  background: var(--w3f-surface);
+  color: var(--w3f-on-surface);
+  cursor: pointer;
+  min-width: 160px;
+  transition: border-color var(--w3f-transition-fast),
+              box-shadow var(--w3f-transition-fast);
+  font-family: var(--w3f-font-mono, monospace);
+  letter-spacing: 0.06em;
+}
+
+.w3f-timepicker-input:focus {
+  outline: none;
+  border-color: var(--w3f-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.w3f-timepicker-input-icon {
+  position: absolute;
+  right: var(--w3f-space-3);
+  color: var(--w3f-on-surface);
+  opacity: 0.5;
+  pointer-events: none;
+  font-size: var(--w3f-text-base);
+}
+
+/* ── Dropdown Panel ── */
+.w3f-timepicker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  background: var(--w3f-surface);
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-lg);
+  box-shadow: var(--w3f-shadow-lg);
+  padding: var(--w3f-space-4);
+  animation: w3f-tp-fadein 0.14s ease;
+}
+
+@keyframes w3f-tp-fadein {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Panel Base (shared by dropdown + inline) ── */
+.w3f-timepicker-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--w3f-space-3);
+  min-width: 220px;
+}
+
+/* ── Digital Display ── */
+.w3f-timepicker-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--w3f-space-1);
+  padding: var(--w3f-space-3) var(--w3f-space-4);
+  background: var(--w3f-primary);
+  border-radius: var(--w3f-radius-md);
+  color: #fff;
+}
+
+.w3f-timepicker-display-time {
+  font-size: var(--w3f-text-2xl, 1.5rem);
+  font-weight: 700;
+  font-family: var(--w3f-font-mono, monospace);
+  letter-spacing: 0.08em;
+}
+
+.w3f-timepicker-display-ampm {
+  font-size: var(--w3f-text-sm);
+  font-weight: 600;
+  opacity: 0.85;
+  align-self: flex-end;
+  padding-bottom: 3px;
+}
+
+/* ── Wheels Container ── */
+.w3f-timepicker-wheels {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+/* ── Separator ── */
+.w3f-timepicker-separator {
+  font-size: var(--w3f-text-xl, 1.25rem);
+  font-weight: 700;
+  color: var(--w3f-on-surface);
+  opacity: 0.4;
+  line-height: 1;
+  user-select: none;
+  padding-bottom: 2px;
+}
+
+/* ── Single Column ── */
+.w3f-timepicker-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--w3f-space-1);
+}
+
+.w3f-timepicker-column-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--w3f-on-surface);
+  opacity: 0.5;
+}
+
+/* ── Scroll Wheel ── */
+.w3f-timepicker-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 132px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-md);
+  background: var(--w3f-surface-variant);
+  width: 52px;
+  position: relative;
+}
+
+.w3f-timepicker-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Highlight lines for selected item */
+.w3f-timepicker-scroll::before,
+.w3f-timepicker-scroll::after {
+  content: '';
+  position: sticky;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  pointer-events: none;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.w3f-timepicker-scroll::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--w3f-surface-variant), transparent);
+}
+
+.w3f-timepicker-scroll::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--w3f-surface-variant), transparent);
+}
+
+/* ── Scroll Item ── */
+.w3f-timepicker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-size: var(--w3f-text-base);
+  font-family: var(--w3f-font-mono, monospace);
+  color: var(--w3f-on-surface);
+  opacity: 0.4;
+  scroll-snap-align: center;
+  border: none;
+  background: transparent;
+  transition: opacity var(--w3f-transition-fast),
+              color var(--w3f-transition-fast),
+              font-weight var(--w3f-transition-fast);
+  font-weight: 400;
+}
+
+.w3f-timepicker-item:hover {
+  opacity: 0.7;
+  background: var(--w3f-surface);
+}
+
+.w3f-timepicker-item--selected {
+  opacity: 1;
+  color: var(--w3f-primary);
+  font-weight: 700;
+  font-size: var(--w3f-text-lg, 1.125rem);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* ── AM/PM Toggle ── */
+.w3f-timepicker-ampm {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-left: var(--w3f-space-2);
+}
+
+.w3f-timepicker-ampm-btn {
+  padding: var(--w3f-space-1) var(--w3f-space-2);
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-md);
+  background: transparent;
+  color: var(--w3f-on-surface);
+  font-size: var(--w3f-text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--w3f-transition-fast),
+              color var(--w3f-transition-fast);
+  min-width: 36px;
+  text-align: center;
+}
+
+.w3f-timepicker-ampm-btn--active {
+  background: var(--w3f-primary);
+  color: #fff;
+  border-color: var(--w3f-primary);
+}
+
+.w3f-timepicker-ampm-btn:hover:not(.w3f-timepicker-ampm-btn--active) {
+  background: var(--w3f-surface-variant);
+}
+
+/* ── Step Buttons ── */
+.w3f-timepicker-step-btn {
+  width: 52px;
+  height: 24px;
+  border: none;
+  background: var(--w3f-surface-variant);
+  border-radius: var(--w3f-radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--w3f-on-surface);
+  font-size: var(--w3f-text-base);
+  transition: background var(--w3f-transition-fast);
+}
+
+.w3f-timepicker-step-btn:hover {
+  background: var(--w3f-primary);
+  color: #fff;
+}
+
+/* ── Action Bar ── */
+.w3f-timepicker-actions {
+  display: flex;
+  gap: var(--w3f-space-2);
+  justify-content: flex-end;
+  padding-top: var(--w3f-space-2);
+  border-top: 1px solid var(--w3f-outline-variant);
+}
+
+/* ── Inline mode (StaticTimePicker) ── */
+.w3f-timepicker-inline {
+  background: var(--w3f-surface);
+  border: 1px solid var(--w3f-outline-variant);
+  border-radius: var(--w3f-radius-lg);
+  padding: var(--w3f-space-4);
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--w3f-space-3);
+}
+
+/* ── Output ── */
+.w3f-timepicker-output {
+  background: var(--w3f-surface-variant);
+  border-radius: var(--w3f-radius-md);
+  padding: var(--w3f-space-2) var(--w3f-space-3);
+  font-size: var(--w3f-text-xs);
+  font-family: var(--w3f-font-mono, monospace);
+  color: var(--w3f-on-surface);
+  opacity: 0.8;
+  margin-top: var(--w3f-space-2);
+}

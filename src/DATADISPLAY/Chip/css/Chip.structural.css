@@ -1,0 +1,92 @@
+/* _input-chip.css — Chip structural + layout */
+
+/* =========================================
+   Contenedor InputChipContainer — Structural
+   ========================================= */
+.w3f-chip-input-container {
+    /* Contract vars */
+    --w3f-chip-container-bg: var(--w3f-surface);
+    --w3f-chip-container-border-color: var(--w3f-outline-variant);
+    --w3f-chip-container-radius: var(--w3f-radius-lg);
+    --w3f-chip-container-shadow: var(--w3f-shadow-sm);
+    --w3f-chip-container-focus-border: var(--w3f-primary);
+    --w3f-chip-container-focus-shadow: 0 0 0 3px var(--w3f-primary-100);
+
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+}
+
+.w3f-chip-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--w3f-space-2);
+    flex-grow: 1;
+}
+
+.w3f-chip-input-field {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    background-color: transparent;
+    outline: none;
+    height: 32px;
+}
+
+/* =========================================
+   Componente CHIP Individual — Structural
+   Uses CSS custom properties for theming.
+   Visual defaults in PRESETS/_chip.preset.css
+   ========================================= */
+.w3f-chip {
+    /* ── Shorthand vars ── */
+    --w3f-chip-radius: var(--w3f-radius-full);
+    --w3f-chip-radius-tl: var(--w3f-chip-radius);
+    --w3f-chip-radius-tr: var(--w3f-chip-radius);
+    --w3f-chip-radius-br: var(--w3f-chip-radius);
+    --w3f-chip-radius-bl: var(--w3f-chip-radius);
+    --w3f-chip-border-width: 2px;
+    --w3f-chip-border-width-top: var(--w3f-chip-border-width);
+    --w3f-chip-border-width-right: var(--w3f-chip-border-width);
+    --w3f-chip-border-width-bottom: var(--w3f-chip-border-width);
+    --w3f-chip-border-width-left: var(--w3f-chip-border-width);
+    --w3f-chip-close-radius: var(--w3f-radius-full);
+    --w3f-chip-close-radius-tl: var(--w3f-chip-close-radius);
+    --w3f-chip-close-radius-tr: var(--w3f-chip-close-radius);
+    --w3f-chip-close-radius-br: var(--w3f-chip-close-radius);
+    --w3f-chip-close-radius-bl: var(--w3f-chip-close-radius);
+
+    display: inline-flex;
+    align-items: var(--w3f-chip-align, center);
+    justify-content: var(--w3f-chip-justify, center);
+    flex-direction: var(--w3f-chip-direction, row);
+    gap: var(--w3f-chip-gap, 0);
+    min-height: var(--w3f-chip-min-height, auto);
+    outline: none;
+}
+
+/* Label — Structural */
+.w3f-chip__label {
+    max-width: var(--w3f-chip-label-max-width, none);
+    overflow: var(--w3f-chip-label-overflow, visible);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Close button — structural */
+.w3f-chip-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    order: var(--w3f-chip-close-order, 1);
+}
+
+/* Panel de ayuda — structural */
+.w3f-chip-help {
+    /* Contract vars */
+    --w3f-chip-help-bg: var(--w3f-info-50);
+    --w3f-chip-help-border-color: var(--w3f-info);
+    --w3f-chip-help-color: var(--w3f-on-surface);
+}

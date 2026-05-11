@@ -1,0 +1,94 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
+/**
+ * Componente ToggleButton adaptado al sistema W3F.
+ * Puede usarse individualmente o dentro de un ToggleButtonGroup.
+ * 
+ * @component
+ * @example
+ * <ToggleButton value="bold" selected={true} onChange={handleChange}>
+ *   Bold
+ * </ToggleButton>
+ */
+const ToggleButton = ({
+  children,
+  value,
+  selected = false,
+  onChange,
+  color = 'primary',
+  size = 'md',
+  fullWidth = false,
+  className = '',
+  disabled = false,
+  'aria-label': ariaLabel,
+  ...props
+}) => {
+  // Construcción dinámica de clases siguiendo metodología BEM
+  const classes = [
+    'w3f-toggle-button',
+    selected && 'w3f-toggle-button--selected',
+    selected && color !== 'primary' && `w3f-toggle-button--${color}`,
+    `w3f-toggle-button--${size}`,
+    fullWidth && 'w3f-toggle-button--full',
+    disabled && 'w3f-toggle-button--disabled',
+    className
+  ].filter(Boolean).join(' ');
+
+  const handleClick = (event) => {
+    if (!disabled && onChange) {
+      onChange(event, value);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    // Mejora de accesibilidad: activar con Space o Enter
+    if ((event.key === ' ' || event.key === 'Enter') && !disabled) {
+      event.preventDefault();
+      handleClick(event);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      role="button"
+      className={classes}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-pressed={selected}
+      aria-label={ariaLabel}
+      aria-disabled={disabled}
+      disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+ToggleButton.propTypes = {
+  /** Contenido del botón */
+  children: PropTypes.node.isRequired,
+  /** Valor único que identifica este botón */
+  value: PropTypes.any.isRequired,
+  /** Estado de selección */
+  selected: PropTypes.bool,
+  /** Callback cuando cambia la selección: (event, value) => void */
+  onChange: PropTypes.func,
+  /** Color del botón cuando está seleccionado */
+  color: PropTypes.oneOf(['primary', 'secondary', 'success', 'danger', 'warning', 'info']),
+  /** Tamaño del botón */
+  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  /** Si el botón ocupa todo el ancho disponible */
+  fullWidth: PropTypes.bool,
+  /** Clases CSS adicionales */
+  className: PropTypes.string,
+  /** Estado deshabilitado */
+  disabled: PropTypes.bool,
+  /** Etiqueta ARIA para accesibilidad */
+  'aria-label': PropTypes.string,
+};
+
+export default ToggleButton;

@@ -1,0 +1,207 @@
+/* =============================================================
+   ⏱️ RELOJ ANALÓGICO - Componente de Reloj con Variables CSS
+   ============================================================= */
+
+/* Variables CSS para personalización del reloj */
+:root {
+    /* Dimensiones y colores del marco del reloj */
+    --w3f-clock-border-width: var(--w3f-space-2);
+    --w3f-clock-border-color: var(--w3f-on-surface);
+    --w3f-clock-background: var(--w3f-surface);
+
+    /* Colores de las manecillas */
+    --w3f-clock-hour-hand-color: var(--w3f-on-surface);
+    --w3f-clock-minute-hand-color: var(--w3f-gray-600);
+    --w3f-clock-second-hand-color: var(--w3f-danger);
+    --w3f-clock-center-dot-color: var(--w3f-primary);
+
+    /* Colores de los tics (marcas) */
+    --w3f-clock-tic-hour-color: var(--w3f-on-surface);
+    --w3f-clock-tic-minute-color: var(--w3f-gray-500);
+
+    /* Tamaños del punto central */
+    --w3f-clock-center-dot-size: var(--w3f-space-4);
+}
+
+/* Tema oscuro - Ajustes de colores para mejor contraste */
+.w3f-theme-dark {
+    --w3f-clock-border-color: var(--w3f-gray-300);
+    --w3f-clock-hour-hand-color: var(--w3f-gray-100);
+    --w3f-clock-minute-hand-color: var(--w3f-gray-400);
+    --w3f-clock-second-hand-color: var(--w3f-danger-400);
+    --w3f-clock-center-dot-color: var(--w3f-primary-400);
+    --w3f-clock-tic-hour-color: var(--w3f-gray-100);
+    --w3f-clock-tic-minute-color: var(--w3f-gray-600);
+}
+
+/* =============================================================
+   Contenedor Principal del Reloj
+   ============================================================= */
+
+.w3f-clock-analog {
+    /* Layout y posicionamiento */
+    display: block;
+    position: relative;
+
+    /* Forma circular */
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+
+    /* Centrado automático */
+    margin: var(--w3f-space-4) auto;
+
+    /* Estilos visuales */
+    background-color: var(--w3f-clock-background);
+    border: var(--w3f-clock-border-width) solid var(--w3f-clock-border-color);
+    box-shadow: var(--w3f-shadow-xl);
+
+    /* Asegurar que el contenido no se desborde */
+    overflow: hidden;
+
+    /* Transición suave para cambios de tema */
+    transition:
+        background-color var(--w3f-transition-fast),
+        border-color var(--w3f-transition-fast),
+        box-shadow var(--w3f-transition-fast);
+}
+
+/* Variante sin margen (útil cuando está dentro de un contenedor específico) */
+.w3f-clock-analog.w3f-clock-no-margin {
+    margin: 0;
+}
+
+/* =============================================================
+   Manecillas del Reloj
+   ============================================================= */
+
+.w3f-clock-analog-hand {
+    /* Posicionamiento absoluto desde el centro */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    /* El origen de rotación está en la base de la manecilla */
+    transform-origin: 50% 100%;
+
+    /* Bordes redondeados para un look más suave */
+    border-radius: var(--w3f-radius-sm);
+
+    /* Transición suave para el movimiento */
+    transition: transform var(--w3f-transition-fast);
+
+    /* Sombra sutil para dar profundidad */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Manecilla de hora - más gruesa y corta */
+.w3f-clock-hour-hand {
+    /* Los estilos específicos de color y tamaño se aplican inline */
+}
+
+/* Manecilla de minuto - mediana */
+.w3f-clock-minute-hand {
+    /* Los estilos específicos de color y tamaño se aplican inline */
+}
+
+/* Manecilla de segundo - fina y larga, con animación más suave */
+.w3f-clock-second-hand {
+    transition: transform 0.05s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* =============================================================
+   Punto Central del Reloj
+   ============================================================= */
+
+.w3f-clock-center-dot {
+    /* Posicionamiento centrado */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* Forma circular */
+    width: var(--w3f-clock-center-dot-size);
+    height: var(--w3f-clock-center-dot-size);
+    border-radius: 50%;
+
+    /* Color y estilo */
+    background-color: var(--w3f-clock-center-dot-color);
+
+    /* Asegurar que esté por encima de las manecillas */
+    z-index: 50;
+
+    /* Sombra para dar profundidad */
+    box-shadow:
+        0 0 0 2px var(--w3f-clock-background),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+
+    /* Transición suave */
+    transition:
+        background-color var(--w3f-transition-fast),
+        box-shadow var(--w3f-transition-fast);
+}
+
+/* =============================================================
+   Variantes y Estados
+   ============================================================= */
+
+/* Reloj con hover effect (opcional) */
+.w3f-clock-analog:hover {
+    box-shadow: var(--w3f-shadow-2xl);
+    transform: scale(1.01);
+    transition:
+        box-shadow var(--w3f-transition-normal),
+        transform var(--w3f-transition-normal);
+}
+
+/* Reloj compacto (para tamaños pequeños) */
+.w3f-clock-analog.w3f-clock-compact {
+    border-width: calc(var(--w3f-clock-border-width) / 2);
+    box-shadow: var(--w3f-shadow-md);
+}
+
+/* Reloj grande (para tamaños grandes) */
+.w3f-clock-analog.w3f-clock-large {
+    border-width: calc(var(--w3f-clock-border-width) * 1.5);
+}
+
+/* =============================================================
+   Accesibilidad
+   ============================================================= */
+
+/* Reducir movimiento para usuarios que lo prefieran */
+@media (prefers-reduced-motion: reduce) {
+
+    .w3f-clock-analog-hand,
+    .w3f-clock-analog {
+        transition: none;
+    }
+
+    .w3f-clock-second-hand {
+        /* Ocultar manecilla de segundos si el movimiento causa problemas */
+        /* Descomentar si es necesario: */
+        /* display: none; */
+    }
+}
+
+/* =============================================================
+   Responsive Design
+   ============================================================= */
+
+/* En pantallas pequeñas, ajustar sombras y bordes */
+@media (max-width: 640px) {
+    .w3f-clock-analog {
+        box-shadow: var(--w3f-shadow-lg);
+        border-width: calc(var(--w3f-clock-border-width) * 0.75);
+    }
+}
+
+/* En pantallas grandes, mejorar la presentación */
+@media (min-width: 1024px) {
+    .w3f-clock-analog:hover {
+        box-shadow:
+            var(--w3f-shadow-2xl),
+            0 0 0 4px rgba(var(--w3f-primary), 0.1);
+    }
+}

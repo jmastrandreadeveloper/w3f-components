@@ -1,0 +1,132 @@
+/* ── NUMBER-FIELD OVERRIDES ──
+   Migrated from manual _number-field.preset.css
+   Contains: variants, compound selectors, fallbacks, complex logic
+   Safe to trim once generated preset is verified identical. */
+
+/* =====================================================================
+   NUMBER FIELD PRESET — Visual styles via CSS custom properties
+   Active when .w3f-numberfield-wrapper is NOT unstyled (default behavior).
+
+   Theme classes override these variables:
+     .w3f-number-field-theme-ocean { --w3f-nf-input-border-color: ...; }
+   ===================================================================== */
+
+/* ── INPUT ──────────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input {
+  color: var(--w3f-nf-input-color, inherit);
+  background-color: var(--w3f-nf-input-bg, transparent);
+  border-style: solid;
+  border-width: var(--w3f-nf-input-border-width-top, 1px) var(--w3f-nf-input-border-width-right, 1px) var(--w3f-nf-input-border-width-bottom, 1px) var(--w3f-nf-input-border-width-left, 1px);
+  border-color: var(--w3f-nf-input-border-color, var(--w3f-gray-300, #d1d5db));
+  border-radius: var(--w3f-nf-radius-tl, var(--w3f-radius, 0.25rem)) var(--w3f-nf-radius-tr, var(--w3f-radius, 0.25rem)) var(--w3f-nf-radius-br, var(--w3f-radius, 0.25rem)) var(--w3f-nf-radius-bl, var(--w3f-radius, 0.25rem));
+  box-shadow: var(--w3f-nf-input-shadow, none);
+  font-family: var(--w3f-nf-input-font-family, inherit);
+  font-size: var(--w3f-nf-input-font-size, 1rem);
+  transition: var(--w3f-nf-input-transition, border-color 0.2s, box-shadow 0.2s);
+}
+
+/* ── INPUT FOCUS ────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input:focus {
+  border-color: var(--w3f-nf-focus-border-color, var(--w3f-primary, #2563eb));
+  box-shadow: 0 0 0 1px var(--w3f-nf-focus-border-color, var(--w3f-primary, #2563eb));
+  outline: none;
+}
+
+/* ── SPIN BUTTONS CONTAINER ─────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-buttons {
+  border-left: 1px solid var(--w3f-nf-spin-border-color, var(--w3f-outline-variant, #e5e7eb));
+  transition: border-color var(--w3f-transition-fast);
+}
+
+/* ── SPIN BUTTON ────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button {
+  color: var(--w3f-nf-spin-color, var(--w3f-gray-500, #6b7280));
+  font-size: var(--w3f-nf-spin-font-size, 0.625rem);
+  transition: var(--w3f-nf-spin-transition, background-color var(--w3f-transition-fast), color var(--w3f-transition-fast));
+}
+
+/* ── SPIN BUTTON HOVER ──────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button:hover:not(:disabled) {
+  background-color: var(--w3f-nf-spin-hover-bg, var(--w3f-primary-50, #eff6ff));
+  color: var(--w3f-nf-spin-hover-color, var(--w3f-primary, #2563eb));
+}
+
+/* ── SPIN BUTTON ACTIVE ─────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button:active:not(:disabled) {
+  background-color: var(--w3f-nf-spin-active-bg, var(--w3f-primary-100, #dbeafe));
+  color: var(--w3f-nf-spin-active-color, var(--w3f-primary-700, #1d4ed8));
+}
+
+/* ── SPIN BUTTON FOCUS ──────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button:focus-visible {
+  outline: 2px solid var(--w3f-nf-focus-color, var(--w3f-primary, #2563eb));
+  outline-offset: -2px;
+}
+
+/* ── SPIN BUTTON UP BORDER ──────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button--up {
+  border-bottom: 1px solid var(--w3f-nf-spin-border-color, var(--w3f-outline-variant, #e5e7eb));
+  border-radius: 0 var(--w3f-nf-radius-tr, var(--w3f-radius, 0.25rem)) 0 0;
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button--down {
+  border-radius: 0 0 var(--w3f-nf-radius-br, var(--w3f-radius, 0.25rem)) 0;
+}
+
+/* ── DISABLED ──────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-spin-button:disabled {
+  color: var(--w3f-nf-disabled-color, var(--w3f-gray-300, #d1d5db));
+  opacity: var(--w3f-nf-disabled-opacity, 0.5);
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input:disabled ~ .w3f-numberfield-spin-buttons {
+  opacity: var(--w3f-nf-disabled-opacity, 0.5);
+}
+
+/* ── FOCUS STATE: SPIN CONTAINER ────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input:focus ~ .w3f-numberfield-spin-buttons {
+  border-left-color: var(--w3f-nf-focus-border-color, var(--w3f-primary, #2563eb));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input:focus ~ .w3f-numberfield-spin-buttons .w3f-numberfield-spin-button:not(:hover):not(:focus-visible) {
+  color: var(--w3f-nf-focus-color, var(--w3f-primary, #2563eb));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input:focus ~ .w3f-numberfield-spin-buttons .w3f-numberfield-spin-button--up {
+  border-bottom-color: var(--w3f-nf-focus-border-color, var(--w3f-primary, #2563eb));
+}
+
+/* ── ERROR STATE ────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input[aria-invalid="true"] {
+  border-color: var(--w3f-nf-error-color, var(--w3f-danger, #ef4444));
+  box-shadow: 0 0 0 1px var(--w3f-nf-error-color, var(--w3f-danger, #ef4444));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input[aria-invalid="true"] ~ .w3f-numberfield-spin-buttons {
+  border-left-color: var(--w3f-nf-error-color, var(--w3f-danger, #ef4444));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input[aria-invalid="true"] ~ .w3f-numberfield-spin-buttons .w3f-numberfield-spin-button:not(:hover):not(:focus-visible) {
+  color: var(--w3f-nf-error-color, var(--w3f-danger, #ef4444));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled) .w3f-numberfield-input[aria-invalid="true"] ~ .w3f-numberfield-spin-buttons .w3f-numberfield-spin-button--up {
+  border-bottom-color: var(--w3f-nf-error-color, var(--w3f-danger, #ef4444));
+}
+
+/* ── VARIANTS ──────────────────────────────────────────────────────── */
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled).w3f-number-field--outlined .w3f-numberfield-input {
+  background: transparent;
+  border: 1px solid var(--w3f-nf-input-border-color, var(--w3f-gray-300, #d1d5db));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled).w3f-number-field--ghost .w3f-numberfield-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--w3f-nf-input-border-color, var(--w3f-gray-300, #d1d5db));
+}
+
+.w3f-numberfield-wrapper:not(.w3f-number-field--unstyled).w3f-number-field--soft .w3f-numberfield-input {
+  background: color-mix(in srgb, var(--w3f-primary, #2563eb) 8%, transparent);
+  border: 1px solid transparent;
+}

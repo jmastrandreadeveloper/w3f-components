@@ -1,0 +1,4 @@
+/* @w3f/components — tokens.css
+   Declaraciones @property de los contratos CSS.
+   Incluye todos los --w3f-* custom properties tipados. */
+@import './_variables.css';

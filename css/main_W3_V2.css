@@ -1,0 +1,282 @@
+/* =====================================================================
+   W3Fussion CSS Framework — Main Entry
+   Layer order: reset → structural → traits → presets → overrides
+   ===================================================================== */
+
+@layer w3f-reset, w3f-structural, w3f-traits, w3f-presets, w3f-overrides;
+
+/* ── Layer: Reset + Variables ────────────────────────────────────────── */
+
+@import url('_variables.css')   layer(w3f-reset);
+@import url('_base.css')        layer(w3f-reset);
+@import url('_utilities.css')   layer(w3f-reset);
+@import url('./COLORS/_colors.css') layer(w3f-reset);
+
+/* ── Layer: Structural — component layout/behavior ──────────────────── */
+
+@import url('./LAYOUT/__layout.css')                  layer(w3f-structural);
+@import url('../../components/src/INPUTS/Autocomplete/css/Autocomplete.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Button/css/Button.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/ButtonGroup/css/ButtonGroup.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/ButtonToggle/css/ButtonToggle.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Input/css/Input.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Select/css/Select.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Checkbox/css/Checkbox.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/NumberField/css/NumberField.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/EmailField/css/EmailField.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/PasswordField/css/PasswordField.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Slider/css/Slider.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/RangeSlider/css/RangeSlider.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/RadioButton/css/RadioButton.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/SlideToggle/css/SlideToggle.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Rating/css/Rating.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/FloatingActionButton/css/FloatingActionButton.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/ToggleButton/css/ToggleButton.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/TransferList/css/TransferList.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/Form/css/Form.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/LiveForm/css/LiveForm.structural.css') layer(w3f-structural);
+@import url('../../components/src/INPUTS/FormField/css/FormField.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Avatar/css/Avatar.structural.css') layer(w3f-structural);
+/* _card.css removed — Card_2 (now Card) is the definitive version */
+@import url('../../components/src/DATADISPLAY/Badge/css/Badge.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Card/css/Card.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Chip/css/Chip.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Dialog/css/Dialog.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Dividers/css/Dividers.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/BottomSheetPanel/css/BottomSheetPanel.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Fonts/css/Fonts.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Image/css/Image.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Note/css/Note.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Tag/css/Tag.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Tooltip/css/Tooltip.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/ProgressBar/css/ProgressBar.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/ProgressSpinner/css/ProgressSpinner.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Reloj/css/Reloj.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/TreeRefactorized/css/TreeRefactorized.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Table/css/Table.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Console/css/Console.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Marquee/css/Marquee.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/css/Charts.structural.css') layer(w3f-structural);
+@import url('../../components/src/FEEDBACK/Alert/css/Alert.structural.css') layer(w3f-structural);
+@import url('../../components/src/FEEDBACK/Backdrop/css/Backdrop.structural.css') layer(w3f-structural);
+@import url('../../components/src/FEEDBACK/Ripples/css/Ripple.structural.css') layer(w3f-structural);
+@import url('../../components/src/FEEDBACK/Snackbar/css/Snackbar.structural.css') layer(w3f-structural);
+@import url('../../components/src/FEEDBACK/Notifications/css/Notification.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Acordion/css/Accordion.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/AccordionHorizontal/css/AccordionHorizontal.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/AppBar/css/AppBar.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Paper/css/Paper.structural.css') layer(w3f-structural);
+@import url('./SURFACES/_section-title.css')           layer(w3f-structural);
+@import url('../../components/src/SURFACES/Menu/css/Menu.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Sidenav/css/Sidenav.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Window/css/Window.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/WindowGrid/css/WindowGrid.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/PopUp/css/PopUp.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Masonry/css/Masonry.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Tabs/css/Tabs.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/ImageGallery/css/ImageGallery.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/BottomNavigation/css/BottomNavigation.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/Breadcrumbs/css/Breadcrumbs.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/Drawer/css/Drawer.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/Link/css/Link.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/Pagination/css/Pagination.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/SpeedDial/css/SpeedDial.structural.css') layer(w3f-structural);
+@import url('../../components/src/NAVIGATION/Stepper/css/Stepper.structural.css') layer(w3f-structural);
+@import url('../../components/src/UTILS/ConfigurableGrid/css/ConfigurableGrid.structural.css') layer(w3f-structural);
+@import url('../../components/src/UTILS/GridClaude/css/GridClaude.structural.css')             layer(w3f-structural);
+@import url('../../components/src/UTILS/DatePicker/css/DatePicker.structural.css')             layer(w3f-structural);
+@import url('../../components/src/UTILS/TimePicker/css/TimePicker.structural.css')             layer(w3f-structural);
+@import url('../../components/src/UTILS/GridEditor/css/GridEditor.structural.css')             layer(w3f-structural);
+@import url('../../components/src/UTILS/ComponentEditor/css/ComponentEditor.structural.css')   layer(w3f-structural);
+@import url('../../components/src/UTILS/AvatarStyleEditor/css/AvatarStyleEditor.structural.css') layer(w3f-structural);
+@import url('./UTILS/_layout-primitive.css')            layer(w3f-structural);
+@import url('../../components/src/UTILS/CardBuilder/css/CardBuilder.structural.css')           layer(w3f-structural);
+@import url('../../components/src/UTILS/FormBuilder/css/FormBuilder.structural.css')           layer(w3f-structural);
+@import url('../../components/src/AUTH/AuthLogin/css/AuthLogin.structural.css')                layer(w3f-structural);
+@import url('../../components/src/MEDIA/VideoPlayer/css/VideoPlayer.structural.css')           layer(w3f-structural);
+@import url('../../components/src/MEDIA/AudioPlayer/css/AudioPlayer.structural.css')           layer(w3f-structural);
+@import url('../../components/src/COMMERCE/ShoppingCart/css/ShoppingCart.structural.css')      layer(w3f-structural);
+@import url('../../components/src/COMMERCE/PaymentGateway/css/PaymentGateway.structural.css') layer(w3f-structural);
+
+/* ── W3 Studio ──────────────────────────────────────────── */
+@import url('./W3STUDIO/_studio.css')                  layer(w3f-structural);
+@import url('./W3STUDIO/_page-builder.css')            layer(w3f-structural);
+@import url('./W3STUDIO/_trait-composer.css')           layer(w3f-structural);
+@import url('./W3STUDIO/_theme-prompt.css')             layer(w3f-structural);
+@import url('./W3STUDIO/_vars-configurator.css')        layer(w3f-structural);
+@import url('./W3STUDIO/_color-theme-generator.css')   layer(w3f-structural);
+@import url('./W3STUDIO/_bridge-inspector.css')        layer(w3f-structural);
+@import url('./W3STUDIO/_contract-inspector.css')      layer(w3f-structural);
+@import url('./W3STUDIO/_help-panel.css')              layer(w3f-structural);
+@import url('./W3STUDIO/_hub.css')                     layer(w3f-structural);
+@import url('./W3STUDIO/_node-editor.css')             layer(w3f-structural);
+@import url('./W3STUDIO/_service-builder.css')         layer(w3f-structural);
+@import url('./W3STUDIO/_editor-config.css')           layer(w3f-structural);
+@import url('./W3STUDIO/_text-builder.css')            layer(w3f-structural);
+@import url('./W3STUDIO/_project-map.css')             layer(w3f-structural);
+@import url('./W3STUDIO/_builder-framework.css')       layer(w3f-structural);
+@import url('./W3STUDIO/_data-analytics.css')          layer(w3f-structural);
+@import url('./W3STUDIO/_animation-builder.css')       layer(w3f-structural);
+@import url('./W3STUDIO/_collaboration.css')           layer(w3f-structural);
+@import url('./W3STUDIO/_css-customizer.css')          layer(w3f-structural);
+
+/* ── Layer: Traits — composable utility classes ─────────────────────── */
+/* NOTE: Each trait file is imported directly (not via _traits.css barrel)
+   to avoid nested @import inside layer() — which breaks in Vite dev mode
+   because postcss-import can't handle @import inside @layer blocks.
+   See: https://github.com/vitejs/vite/issues/18384                     */
+
+@import url('./TRAITS/_color-variants.css')             layer(w3f-traits);
+@import url('./TRAITS/_sizing.css')                     layer(w3f-traits);
+@import url('./TRAITS/_effects.css')                    layer(w3f-traits);
+@import url('./TRAITS/_radius.css')                     layer(w3f-traits);
+@import url('./TRAITS/_shadows.css')                    layer(w3f-traits);
+@import url('./TRAITS/_spacing.css')                    layer(w3f-traits);
+@import url('./TRAITS/_typography.css')                 layer(w3f-traits);
+@import url('./TRAITS/_transitions.css')                layer(w3f-traits);
+@import url('./TRAITS/_glow.css')                       layer(w3f-traits);
+
+/* ── Layer: Presets — opt-in bundles replicating current look ────────── */
+/* NOTE: Same flattening applied here — each preset file imported directly */
+
+/* INPUTS */
+@import url('../../components/src/INPUTS/Button/css/Button.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Button/css/Button.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Button/css/Button.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Checkbox/css/Checkbox.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Checkbox/css/Checkbox.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Checkbox/css/Checkbox.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/RadioButton/css/RadioButton.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/RadioButton/css/RadioButton.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/RadioButton/css/RadioButton.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Input/css/Input.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Input/css/Input.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Input/css/Input.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Select/css/Select.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Select/css/Select.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Select/css/Select.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/NumberField/css/NumberField.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/NumberField/css/NumberField.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/NumberField/css/NumberField.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Slider/css/Slider.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Slider/css/Slider.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Slider/css/Slider.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/RangeSlider/css/RangeSlider.preset.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Rating/css/Rating.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Rating/css/Rating.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Rating/css/Rating.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/SlideToggle/css/SlideToggle.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/SlideToggle/css/SlideToggle.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/SlideToggle/css/SlideToggle.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/ToggleButton/css/ToggleButton.preset.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/Autocomplete/css/Autocomplete.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/Autocomplete/css/Autocomplete.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/Autocomplete/css/Autocomplete.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/FormField/css/FormField.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/FormField/css/FormField.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/FormField/css/FormField.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/TransferList/css/TransferList.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/TransferList/css/TransferList.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/TransferList/css/TransferList.overrides.css') layer(w3f-presets);
+@import url('../../components/src/INPUTS/FloatingActionButton/css/FloatingActionButton.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/INPUTS/FloatingActionButton/css/FloatingActionButton.preset.css')   layer(w3f-presets);
+@import url('../../components/src/INPUTS/FloatingActionButton/css/FloatingActionButton.overrides.css') layer(w3f-presets);
+
+/* DATADISPLAY */
+@import url('../../components/src/DATADISPLAY/Badge/css/Badge.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Badge/css/Badge.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Badge/css/Badge.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Tag/css/Tag.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Tag/css/Tag.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Tag/css/Tag.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Chip/css/Chip.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Chip/css/Chip.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Chip/css/Chip.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Avatar/css/Avatar.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Avatar/css/Avatar.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Avatar/css/Avatar.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Card/css/Card.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Card/css/Card.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Card/css/Card.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Note/css/Note.preset.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/ProgressBar/css/ProgressBar.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/ProgressBar/css/ProgressBar.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/ProgressBar/css/ProgressBar.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Table/css/Table.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Table/css/Table.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Table/css/Table.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dividers/css/Dividers.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dividers/css/Dividers.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dividers/css/Dividers.overrides.css') layer(w3f-presets);
+@import url('../../components/src/SURFACES/Paper/css/Paper.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/Paper/css/Paper.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/Paper/css/Paper.overrides.css') layer(w3f-presets);
+
+/* SURFACES */
+@import url('../../components/src/SURFACES/Acordion/css/Accordion.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/Acordion/css/Accordion.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/Acordion/css/Accordion.overrides.css') layer(w3f-presets);
+@import url('../../components/src/SURFACES/Tabs/css/Tabs.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/Tabs/css/Tabs.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/Tabs/css/Tabs.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dialog/css/Dialog.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dialog/css/Dialog.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Dialog/css/Dialog.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Drawer/css/Drawer.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Drawer/css/Drawer.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Drawer/css/Drawer.overrides.css') layer(w3f-presets);
+@import url('../../components/src/SURFACES/AppBar/css/AppBar.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/AppBar/css/AppBar.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/AppBar/css/AppBar.overrides.css') layer(w3f-presets);
+@import url('../../components/src/SURFACES/Menu/css/Menu.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/Menu/css/Menu.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/Menu/css/Menu.overrides.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/BottomSheetPanel/css/BottomSheetPanel.preset.css') layer(w3f-presets);
+@import url('../../components/src/SURFACES/Window/css/Window.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/SURFACES/Window/css/Window.preset.css')   layer(w3f-presets);
+@import url('../../components/src/SURFACES/Window/css/Window.overrides.css') layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Backdrop/css/Backdrop.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Backdrop/css/Backdrop.preset.css')   layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Backdrop/css/Backdrop.overrides.css') layer(w3f-presets);
+
+/* NAVIGATION */
+@import url('../../components/src/NAVIGATION/Breadcrumbs/css/Breadcrumbs.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Breadcrumbs/css/Breadcrumbs.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Breadcrumbs/css/Breadcrumbs.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Pagination/css/Pagination.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Pagination/css/Pagination.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Pagination/css/Pagination.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Link/css/Link.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Link/css/Link.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Link/css/Link.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Stepper/css/Stepper.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Stepper/css/Stepper.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/Stepper/css/Stepper.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/SpeedDial/css/SpeedDial.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/SpeedDial/css/SpeedDial.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/SpeedDial/css/SpeedDial.overrides.css') layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/BottomNavigation/css/BottomNavigation.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/BottomNavigation/css/BottomNavigation.preset.css')   layer(w3f-presets);
+@import url('../../components/src/NAVIGATION/BottomNavigation/css/BottomNavigation.overrides.css') layer(w3f-presets);
+
+/* FEEDBACK */
+@import url('../../components/src/DATADISPLAY/Tooltip/css/Tooltip.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Tooltip/css/Tooltip.preset.css')   layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Tooltip/css/Tooltip.overrides.css') layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Notifications/css/Notification.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Notifications/css/Notification.preset.css')   layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Notifications/css/Notification.overrides.css') layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Snackbar/css/Snackbar.defaults.css')  layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Snackbar/css/Snackbar.preset.css')   layer(w3f-presets);
+@import url('../../components/src/FEEDBACK/Snackbar/css/Snackbar.overrides.css') layer(w3f-presets);
+
+/* ── Layer: Overrides — Theme classes (TC-generated) ───────────────── */
+
+@import url('./THEMES/_chip-themes-example.css')        layer(w3f-overrides);
+@import url('./THEMES/_button-themes-example.css')      layer(w3f-overrides);
+@import url('./THEMES/_badge-themes-example.css')       layer(w3f-overrides);
+@import url('./THEMES/_tag-themes-example.css')         layer(w3f-overrides);
+@import url('./THEMES/_avatar-themes-example.css')     layer(w3f-overrides);
+@import url('./THEMES/_card-themes-example.css')       layer(w3f-overrides);
+@import url('./THEMES/_input-themes-example.css')      layer(w3f-overrides);
+@import url('./THEMES/_note-themes-example.css')       layer(w3f-overrides);

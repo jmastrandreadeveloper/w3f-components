@@ -1,0 +1,269 @@
+/* _autocomplete.css — Structural only
+   =============================================================
+   COMPONENTE: AUTOCOMPLETE (Integrado con W3Fusion)
+   Visual styles live in PRESETS/_autocomplete.preset.css
+   ============================================================= */
+
+/* -------------------------------------------------------------
+   Custom Properties (contract — consumed by preset)
+   ------------------------------------------------------------- */
+
+.w3f-autocomplete {
+  /* Container */
+  --w3f-ac-margin-bottom: var(--w3f-space-6);
+  --w3f-ac-font-family: var(--w3f-font-family);
+
+  /* Input */
+  --w3f-ac-input-padding-top: var(--w3f-space-2);
+  --w3f-ac-input-padding-right: var(--w3f-space-3);
+  --w3f-ac-input-padding-bottom: var(--w3f-space-2);
+  --w3f-ac-input-padding-left: var(--w3f-space-3);
+  --w3f-ac-input-bg: var(--w3f-surface);
+  --w3f-ac-input-color: var(--w3f-on-surface);
+  --w3f-ac-input-border-color: var(--w3f-outline-variant);
+  --w3f-ac-input-border-color-hover: var(--w3f-outline);
+  --w3f-ac-input-border-color-focus: var(--w3f-primary);
+  --w3f-ac-input-radius-tl: var(--w3f-radius-lg);
+  --w3f-ac-input-radius-tr: var(--w3f-radius-lg);
+  --w3f-ac-input-radius-br: var(--w3f-radius-lg);
+  --w3f-ac-input-radius-bl: var(--w3f-radius-lg);
+  --w3f-ac-input-font-size: var(--w3f-text-base);
+  --w3f-ac-input-transition: background-color var(--w3f-transition-fast), color var(--w3f-transition-fast), border-color var(--w3f-transition-fast), box-shadow var(--w3f-transition-fast);
+
+  /* Clear button */
+  --w3f-ac-clear-color: var(--w3f-outline);
+  --w3f-ac-clear-hover-color: var(--w3f-danger);
+  --w3f-ac-clear-hover-bg: var(--w3f-danger-50, rgba(220, 38, 38, 0.1));
+  --w3f-ac-clear-radius-tl: var(--w3f-radius-sm);
+  --w3f-ac-clear-radius-tr: var(--w3f-radius-sm);
+  --w3f-ac-clear-radius-br: var(--w3f-radius-sm);
+  --w3f-ac-clear-radius-bl: var(--w3f-radius-sm);
+
+  /* Dropdown list */
+  --w3f-ac-list-bg: var(--w3f-surface);
+  --w3f-ac-list-border-color: var(--w3f-outline-variant);
+  --w3f-ac-list-radius-tl: var(--w3f-radius-lg);
+  --w3f-ac-list-radius-tr: var(--w3f-radius-lg);
+  --w3f-ac-list-radius-br: var(--w3f-radius-lg);
+  --w3f-ac-list-radius-bl: var(--w3f-radius-lg);
+  --w3f-ac-list-shadow: var(--w3f-shadow-md);
+  --w3f-ac-list-max-height: 300px;
+  --w3f-ac-list-scrollbar-color: var(--w3f-outline-variant);
+  --w3f-ac-list-scrollbar-hover-color: var(--w3f-outline);
+
+  /* Items */
+  --w3f-ac-item-padding-top: var(--w3f-space-2);
+  --w3f-ac-item-padding-right: var(--w3f-space-3);
+  --w3f-ac-item-padding-bottom: var(--w3f-space-2);
+  --w3f-ac-item-padding-left: var(--w3f-space-3);
+  --w3f-ac-item-color: var(--w3f-on-surface);
+  --w3f-ac-item-border-color: var(--w3f-outline-variant);
+  --w3f-ac-item-font-size: var(--w3f-text-base);
+  --w3f-ac-item-hover-bg: var(--w3f-surface-variant);
+  --w3f-ac-item-active-bg: var(--w3f-primary);
+  --w3f-ac-item-active-color: var(--w3f-on-primary);
+  --w3f-ac-item-active-border-color: var(--w3f-primary);
+  --w3f-ac-item-transition: background-color var(--w3f-transition-fast);
+
+  /* Highlight */
+  --w3f-ac-highlight-color: var(--w3f-primary-800);
+  --w3f-ac-match-highlight-color: var(--w3f-primary-700);
+
+  /* Empty / Message */
+  --w3f-ac-empty-color: var(--w3f-outline);
+  --w3f-ac-empty-font-size: var(--w3f-text-sm);
+
+  /* Icon */
+  --w3f-ac-icon-color: var(--w3f-outline);
+  --w3f-ac-icon-error-color: var(--w3f-danger);
+
+  /* Spinner */
+  --w3f-ac-spinner-color: var(--w3f-primary);
+
+  /* Focus ring */
+  --w3f-ac-focus-outline-color: var(--w3f-primary);
+
+  /* Error */
+  --w3f-ac-error-border-color: var(--w3f-danger);
+  --w3f-ac-error-color: var(--w3f-danger);
+
+  /* Filled variant */
+  --w3f-ac-filled-bg: var(--w3f-surface-variant);
+  --w3f-ac-filled-focus-bg: var(--w3f-surface);
+
+  /* Flushed variant */
+  --w3f-ac-flushed-border-color: var(--w3f-outline-variant);
+
+  /* Pill */
+  --w3f-ac-pill-radius-tl: var(--w3f-radius-full);
+  --w3f-ac-pill-radius-tr: var(--w3f-radius-full);
+  --w3f-ac-pill-radius-br: var(--w3f-radius-full);
+  --w3f-ac-pill-radius-bl: var(--w3f-radius-full);
+
+  position: relative;
+  width: 100%;
+  font-family: var(--w3f-ac-font-family);
+}
+
+.w3f-autocomplete-container {
+  position: relative;
+  margin-bottom: var(--w3f-ac-margin-bottom);
+}
+
+/* Label del autocomplete (block para ocupar linea completa) */
+.w3f-autocomplete-container .w3f-label {
+  display: block;
+}
+
+/* Wrapper con posicion relativa para posicionar iconos/clear */
+.w3f-autocomplete-wrapper {
+  position: relative;
+}
+
+/* --- INPUT — structural --- */
+.w3f-autocomplete-input {
+  width: 100%;
+  padding-top: var(--w3f-ac-input-padding-top);
+  padding-right: var(--w3f-ac-input-padding-right);
+  padding-bottom: var(--w3f-ac-input-padding-bottom);
+  padding-left: var(--w3f-ac-input-padding-left);
+  line-height: 1.5;
+  outline: none;
+}
+
+/* --- BOTON DE LIMPIAR — structural --- */
+.w3f-autocomplete-clear {
+  position: absolute;
+  right: var(--w3f-space-2);
+  top: 50%;
+  transform: translateY(-50%);
+
+  /* Reset de estilos de boton */
+  background: none;
+  border: none;
+  padding: var(--w3f-space-1);
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- LISTA DE SUGERENCIAS — structural --- */
+.w3f-autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: var(--w3f-z-dropdown, 150);
+
+  margin-top: var(--w3f-space-1);
+  max-height: var(--w3f-ac-list-max-height);
+  overflow-y: auto;
+
+  /* Mejoras de scroll */
+  scrollbar-width: thin;
+}
+
+.w3f-autocomplete-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.w3f-autocomplete-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- ITEMS — structural --- */
+.w3f-autocomplete-item {
+  padding-top: var(--w3f-ac-item-padding-top);
+  padding-right: var(--w3f-ac-item-padding-right);
+  padding-bottom: var(--w3f-ac-item-padding-bottom);
+  padding-left: var(--w3f-ac-item-padding-left);
+  cursor: pointer;
+
+  /* Evitar saltos de linea innecesarios */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- EMPTY STATE — structural --- */
+.w3f-autocomplete-empty {
+  padding: var(--w3f-space-4) var(--w3f-ac-item-padding-right);
+  text-align: center;
+}
+
+/* --- ICONO DE BUSQUEDA (IZQUIERDA) — structural --- */
+.w3f-autocomplete-icon-start {
+  position: absolute;
+  left: var(--w3f-ac-input-padding-left);
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* --- SPINNER DE CARGA — structural (keyframes) --- */
+.w3f-autocomplete-spinner {
+  animation: w3f-spin 1s linear infinite;
+}
+
+@keyframes w3f-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- AJUSTES DE PADDING DINAMICOS — structural --- */
+
+/* Input con icono a la izquierda */
+.w3f-input-has-icon {
+  padding-left: var(--w3f-space-10) !important;
+}
+
+.w3f-input-sm.w3f-input-has-icon {
+  padding-left: var(--w3f-space-8) !important;
+}
+
+.w3f-input-lg.w3f-input-has-icon {
+  padding-left: var(--w3f-space-12) !important;
+}
+
+/* Input con boton de limpiar a la derecha */
+.w3f-input-has-clear {
+  padding-right: var(--w3f-space-10) !important;
+}
+
+.w3f-input-sm.w3f-input-has-clear {
+  padding-right: var(--w3f-space-8) !important;
+}
+
+.w3f-input-lg.w3f-input-has-clear {
+  padding-right: var(--w3f-space-12) !important;
+}
+
+/* Mensajes (Loading / No results) — structural */
+.w3f-autocomplete-message {
+  padding: var(--w3f-space-4);
+  text-align: center;
+  user-select: none;
+}
+
+/* =============================================================
+   RESPONSIVE — structural
+   ============================================================= */
+
+@media (max-width: 768px) {
+  .w3f-autocomplete-list {
+    max-height: 200px;
+  }
+}

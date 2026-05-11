@@ -1,0 +1,109 @@
+/* ============================================================
+   W3F Marquee — Infinite scroll component
+   Prefix: .w3f-marquee*
+   ============================================================ */
+
+/* ── Container ────────────────────────────────────────────── */
+.w3f-marquee {
+  --marquee-speed: 30s;
+  --marquee-gap:   24px;
+
+  position: relative;
+  overflow: hidden;
+  width:    100%;
+}
+
+.w3f-marquee--vertical {
+  overflow-x: visible;
+  overflow-y: hidden;
+}
+
+/* ── Track: holds duplicated groups side by side ──────────── */
+.w3f-marquee__track {
+  display: flex;
+  width:   max-content;
+}
+
+.w3f-marquee--vertical .w3f-marquee__track {
+  flex-direction: column;
+  width:          100%;
+  height:         max-content;
+}
+
+/* ── Group: one copy of children ──────────────────────────── */
+.w3f-marquee__group {
+  display:     flex;
+  align-items: center;
+  gap:         var(--marquee-gap);
+  flex-shrink: 0;
+  padding-right: var(--marquee-gap);
+}
+
+.w3f-marquee--vertical .w3f-marquee__group {
+  flex-direction: column;
+  padding-right:  0;
+  padding-bottom: var(--marquee-gap);
+}
+
+/* ── Keyframes ────────────────────────────────────────────── */
+@keyframes w3f-marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes w3f-marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes w3f-marquee-up {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+@keyframes w3f-marquee-down {
+  from { transform: translateY(-50%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Direction modifiers ──────────────────────────────────── */
+.w3f-marquee__track--left {
+  animation: w3f-marquee-left var(--marquee-speed) linear infinite;
+}
+
+.w3f-marquee__track--right {
+  animation: w3f-marquee-right var(--marquee-speed) linear infinite;
+}
+
+.w3f-marquee__track--up {
+  animation: w3f-marquee-up var(--marquee-speed) linear infinite;
+}
+
+.w3f-marquee__track--down {
+  animation: w3f-marquee-down var(--marquee-speed) linear infinite;
+}
+
+/* ── Pause on hover ───────────────────────────────────────── */
+.w3f-marquee--pause-hover:hover .w3f-marquee__track {
+  animation-play-state: paused;
+}
+
+/* ── Items: default styling for common use (logos, etc.) ──── */
+.w3f-marquee__group > img {
+  height:     40px;
+  width:      auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ── Vertical sizing helper ───────────────────────────────── */
+.w3f-marquee--vertical {
+  height: 300px; /* override with inline style or a class */
+}
+
+/* ── Reduce motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .w3f-marquee__track {
+    animation-play-state: paused !important;
+  }
+}

@@ -1,0 +1,29 @@
+/* Auto-generated from _select.contract.css — DO NOT EDIT */
+.w3f-select-container {
+  --w3f-sel-margin-bottom: 1rem;
+  --w3f-sel-padding-top: 0.625rem;
+  --w3f-sel-padding-right: 0.75rem;
+  --w3f-sel-padding-bottom: 0.625rem;
+  --w3f-sel-padding-left: 0.75rem;
+  --w3f-sel-font-size: 0.875rem;
+  --w3f-sel-border-color: #d1d5db;
+  --w3f-sel-radius-tl: 0.375rem;
+  --w3f-sel-radius-tr: 0.375rem;
+  --w3f-sel-radius-br: 0.375rem;
+  --w3f-sel-radius-bl: 0.375rem;
+  --w3f-sel-text-align: left;
+  --w3f-sel-transition: 0.2s ease;
+  --w3f-sel-focus-border-color: var(--w3f-primary);
+  --w3f-sel-label-color: #6b7280;
+  --w3f-sel-label-floating-bg: #ffffff;
+  --w3f-sel-label-transition: 0.2s ease;
+  --w3f-sel-icon-color: #9ca3af;
+  --w3f-sel-icon-transition: 0.2s;
+  --w3f-sel-message-font-size: 0.75rem;
+  --w3f-sel-helper-color: #9ca3af;
+  --w3f-sel-error-color: var(--w3f-danger);
+  --w3f-sel-disabled-bg: #f3f4f6;
+  --w3f-sel-disabled-color: #9ca3af;
+  --w3f-sel-multiple-checked-bg: var(--w3f-primary);
+  --w3f-sel-multiple-checked-color: #ffffff;
+}

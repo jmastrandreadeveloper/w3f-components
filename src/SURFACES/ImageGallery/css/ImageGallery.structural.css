@@ -1,0 +1,519 @@
+/* =====================================================================
+   IMAGE GALLERY COMPONENT — CSS Custom Properties
+   ===================================================================== */
+
+/* ============================================
+   Custom Properties (configurable)
+   ============================================ */
+
+.w3f-gallery-container {
+  /* Title */
+  --w3f-gallery-title-font-size: var(--w3f-text-xl);
+  --w3f-gallery-title-font-weight: 600;
+  --w3f-gallery-title-color: var(--w3f-on-surface);
+  --w3f-gallery-title-margin-bottom: var(--w3f-space-4);
+
+  /* Layout */
+  --w3f-gallery-margin-bottom: var(--w3f-space-6);
+  --w3f-gallery-masonry-columns: 3;
+  --w3f-gallery-masonry-gap: var(--w3f-space-4);
+
+  /* Carousel */
+  --w3f-gallery-carousel-gap: var(--w3f-space-4);
+  --w3f-gallery-carousel-item-width: 300px;
+  --w3f-gallery-carousel-scrollbar-color: var(--w3f-gray-400);
+  --w3f-gallery-carousel-scrollbar-track: var(--w3f-gray-100);
+
+  /* Caption */
+  --w3f-gallery-caption-font-size: var(--w3f-text-sm);
+  --w3f-gallery-caption-color: var(--w3f-gray-600);
+
+  /* Empty state */
+  --w3f-gallery-empty-bg: var(--w3f-gray-50);
+  --w3f-gallery-empty-border-color: var(--w3f-outline-variant);
+  --w3f-gallery-empty-radius: var(--w3f-radius-lg);
+  --w3f-gallery-empty-icon-color: var(--w3f-gray-400);
+  --w3f-gallery-empty-text-color: var(--w3f-gray-600);
+
+  /* Transition */
+  --w3f-gallery-transition: var(--w3f-transition-normal);
+  --w3f-gallery-transition-fast: var(--w3f-transition-fast);
+
+  /* Focus */
+  --w3f-gallery-focus-color: var(--w3f-primary);
+
+  /* Lightbox */
+  --w3f-gallery-lightbox-z: 9999;
+  --w3f-gallery-lb-overlay-bg: rgba(0, 0, 0, 0.95);
+  --w3f-gallery-lb-image-radius: var(--w3f-radius-lg);
+  --w3f-gallery-lb-image-shadow: var(--w3f-shadow-xl);
+  --w3f-gallery-lb-caption-bg: rgba(0, 0, 0, 0.8);
+  --w3f-gallery-lb-caption-color: white;
+  --w3f-gallery-lb-counter-color: var(--w3f-gray-300);
+  --w3f-gallery-lb-btn-bg: rgba(0, 0, 0, 0.6);
+  --w3f-gallery-lb-btn-border: 2px solid rgba(255, 255, 255, 0.3);
+  --w3f-gallery-lb-btn-color: white;
+  --w3f-gallery-lb-btn-hover-bg: rgba(255, 255, 255, 0.2);
+  --w3f-gallery-lb-btn-size: 48px;
+  --w3f-gallery-lb-btn-icon-size: 24px;
+  --w3f-gallery-lb-btn-radius: var(--w3f-radius-full);
+
+  width: 100%;
+  margin-bottom: var(--w3f-gallery-margin-bottom);
+}
+
+/* ============================================
+   Title
+   ============================================ */
+
+.w3f-gallery-title {
+  font-size: var(--w3f-gallery-title-font-size);
+  font-weight: var(--w3f-gallery-title-font-weight);
+  color: var(--w3f-gallery-title-color);
+  margin-bottom: var(--w3f-gallery-title-margin-bottom);
+}
+
+/* ============================================
+   Layouts de Galeria
+   ============================================ */
+
+/* Grid Layout */
+.w3f-gallery-grid {
+  display: grid;
+  width: 100%;
+}
+
+/* Masonry Layout */
+.w3f-gallery-masonry {
+  column-count: var(--w3f-gallery-masonry-columns);
+  column-gap: var(--w3f-gallery-masonry-gap);
+}
+
+.w3f-gallery-masonry .w3f-gallery-item {
+  break-inside: avoid;
+  margin-bottom: var(--w3f-gallery-masonry-gap);
+}
+
+/* Carousel Layout - Scroll horizontal */
+.w3f-gallery-carousel {
+  display: flex;
+  gap: var(--w3f-gallery-carousel-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--w3f-gallery-carousel-scrollbar-color) transparent;
+  padding-bottom: var(--w3f-space-2);
+}
+
+.w3f-gallery-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.w3f-gallery-carousel::-webkit-scrollbar-thumb {
+  background-color: var(--w3f-gallery-carousel-scrollbar-color);
+  border-radius: var(--w3f-radius-full);
+}
+
+.w3f-gallery-carousel::-webkit-scrollbar-track {
+  background-color: var(--w3f-gallery-carousel-scrollbar-track);
+  border-radius: var(--w3f-radius-full);
+}
+
+.w3f-gallery-carousel .w3f-gallery-item {
+  flex: 0 0 auto;
+  width: var(--w3f-gallery-carousel-item-width);
+  scroll-snap-align: start;
+}
+
+/* ============================================
+   Items de Galeria
+   ============================================ */
+
+.w3f-gallery-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.w3f-gallery-image {
+  cursor: pointer;
+  transition: transform var(--w3f-gallery-transition);
+}
+
+/* Efecto hover heredado del componente Image */
+.w3f-gallery-image:hover {
+  opacity: 1;
+}
+
+/* ============================================
+   Captions
+   ============================================ */
+
+.w3f-gallery-caption {
+  margin-top: var(--w3f-space-2);
+  font-size: var(--w3f-gallery-caption-font-size);
+  color: var(--w3f-gallery-caption-color);
+  line-height: 1.4;
+}
+
+/* ============================================
+   Estado Vacio
+   ============================================ */
+
+.w3f-gallery-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--w3f-space-12) var(--w3f-space-6);
+  background-color: var(--w3f-gallery-empty-bg);
+  border: 2px dashed var(--w3f-gallery-empty-border-color);
+  border-radius: var(--w3f-gallery-empty-radius);
+  text-align: center;
+  min-height: 300px;
+}
+
+.w3f-gallery-empty-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--w3f-gallery-empty-icon-color);
+  margin-bottom: var(--w3f-space-4);
+}
+
+.w3f-gallery-empty-text {
+  font-size: var(--w3f-text-lg);
+  color: var(--w3f-gallery-empty-text-color);
+  margin: 0;
+}
+
+/* ============================================
+   Lightbox Modal
+   ============================================ */
+
+.w3f-lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--w3f-gallery-lb-overlay-bg);
+  z-index: var(--w3f-gallery-lightbox-z);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: w3f-lightbox-fade-in 0.3s ease-out;
+  padding: var(--w3f-space-4);
+}
+
+@keyframes w3f-lightbox-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.w3f-lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: w3f-lightbox-zoom-in 0.3s ease-out;
+}
+
+@keyframes w3f-lightbox-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.w3f-lightbox-image {
+  max-width: 100%;
+  max-height: calc(90vh - 100px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--w3f-gallery-lb-image-radius);
+  box-shadow: var(--w3f-gallery-lb-image-shadow);
+}
+
+.w3f-lightbox-caption {
+  background-color: var(--w3f-gallery-lb-caption-bg);
+  color: var(--w3f-gallery-lb-caption-color);
+  padding: var(--w3f-space-4);
+  border-radius: var(--w3f-radius-md);
+  margin-top: var(--w3f-space-4);
+  text-align: center;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--w3f-space-4);
+}
+
+.w3f-lightbox-caption p {
+  margin: 0;
+  font-size: var(--w3f-text-base);
+  line-height: 1.5;
+}
+
+.w3f-lightbox-counter {
+  font-size: var(--w3f-text-sm);
+  color: var(--w3f-gallery-lb-counter-color);
+  white-space: nowrap;
+}
+
+/* ============================================
+   Controles del Lightbox
+   ============================================ */
+
+.w3f-lightbox-close {
+  position: absolute;
+  top: var(--w3f-space-4);
+  right: var(--w3f-space-4);
+  width: var(--w3f-gallery-lb-btn-size);
+  height: var(--w3f-gallery-lb-btn-size);
+  background-color: var(--w3f-gallery-lb-btn-bg);
+  border: var(--w3f-gallery-lb-btn-border);
+  border-radius: var(--w3f-gallery-lb-btn-radius);
+  color: var(--w3f-gallery-lb-btn-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--w3f-gallery-transition-fast),
+              transform var(--w3f-gallery-transition-fast),
+              opacity var(--w3f-gallery-transition-fast);
+  z-index: calc(var(--w3f-gallery-lightbox-z) + 1);
+  padding: 0;
+}
+
+.w3f-lightbox-close:hover {
+  background-color: var(--w3f-gallery-lb-btn-hover-bg);
+  transform: scale(1.1);
+}
+
+.w3f-lightbox-close:active {
+  transform: scale(0.95);
+}
+
+.w3f-lightbox-close svg {
+  width: var(--w3f-gallery-lb-btn-icon-size);
+  height: var(--w3f-gallery-lb-btn-icon-size);
+  stroke-width: 2.5;
+}
+
+/* Botones de navegacion */
+.w3f-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--w3f-gallery-lb-btn-size);
+  height: var(--w3f-gallery-lb-btn-size);
+  background-color: var(--w3f-gallery-lb-btn-bg);
+  border: var(--w3f-gallery-lb-btn-border);
+  border-radius: var(--w3f-gallery-lb-btn-radius);
+  color: var(--w3f-gallery-lb-btn-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--w3f-gallery-transition-fast),
+              transform var(--w3f-gallery-transition-fast),
+              opacity var(--w3f-gallery-transition-fast);
+  z-index: calc(var(--w3f-gallery-lightbox-z) + 1);
+  padding: 0;
+}
+
+.w3f-lightbox-nav:hover {
+  background-color: var(--w3f-gallery-lb-btn-hover-bg);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.w3f-lightbox-nav:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.w3f-lightbox-prev {
+  left: var(--w3f-space-4);
+}
+
+.w3f-lightbox-next {
+  right: var(--w3f-space-4);
+}
+
+.w3f-lightbox-nav svg {
+  width: var(--w3f-gallery-lb-btn-icon-size);
+  height: var(--w3f-gallery-lb-btn-icon-size);
+  stroke-width: 2.5;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .w3f-gallery-masonry {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .w3f-gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .w3f-gallery-masonry {
+    column-count: 2;
+  }
+
+  .w3f-gallery-carousel .w3f-gallery-item {
+    width: 250px;
+  }
+
+  .w3f-lightbox-content {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .w3f-lightbox-image {
+    max-height: calc(95vh - 80px);
+  }
+
+  .w3f-lightbox-nav {
+    width: 40px;
+    height: 40px;
+  }
+
+  .w3f-lightbox-nav svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .w3f-lightbox-close {
+    width: 40px;
+    height: 40px;
+  }
+
+  .w3f-lightbox-close svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .w3f-lightbox-caption {
+    flex-direction: column;
+    gap: var(--w3f-space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .w3f-gallery-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--w3f-space-3) !important;
+  }
+
+  .w3f-gallery-masonry {
+    column-count: 1;
+  }
+
+  .w3f-gallery-carousel .w3f-gallery-item {
+    width: 200px;
+  }
+
+  .w3f-gallery-title {
+    font-size: var(--w3f-text-lg);
+  }
+
+  .w3f-lightbox-overlay {
+    padding: var(--w3f-space-2);
+  }
+
+  .w3f-lightbox-nav {
+    width: 36px;
+    height: 36px;
+  }
+
+  .w3f-lightbox-prev {
+    left: var(--w3f-space-2);
+  }
+
+  .w3f-lightbox-next {
+    right: var(--w3f-space-2);
+  }
+
+  .w3f-lightbox-close {
+    top: var(--w3f-space-2);
+    right: var(--w3f-space-2);
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+
+.w3f-theme-dark .w3f-gallery-container {
+  --w3f-gallery-caption-color: var(--w3f-gray-300);
+  --w3f-gallery-empty-bg: var(--w3f-gray-800);
+  --w3f-gallery-empty-border-color: var(--w3f-gray-600);
+  --w3f-gallery-empty-icon-color: var(--w3f-gray-500);
+  --w3f-gallery-empty-text-color: var(--w3f-gray-400);
+  --w3f-gallery-carousel-scrollbar-track: var(--w3f-gray-700);
+  --w3f-gallery-carousel-scrollbar-color: var(--w3f-gray-500);
+}
+
+/* ============================================
+   Accesibilidad
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .w3f-lightbox-overlay,
+  .w3f-lightbox-content,
+  .w3f-gallery-image,
+  .w3f-lightbox-nav,
+  .w3f-lightbox-close {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Focus visible para navegacion por teclado */
+.w3f-lightbox-close:focus-visible,
+.w3f-lightbox-nav:focus-visible {
+  outline: 3px solid var(--w3f-gallery-focus-color);
+  outline-offset: 2px;
+}
+
+.w3f-gallery-image:focus-visible {
+  outline: 3px solid var(--w3f-gallery-focus-color);
+  outline-offset: 2px;
+  border-radius: var(--w3f-radius-md);
+}
+
+/* ============================================
+   Estilos adicionales para el componente Image integrado
+   ============================================ */
+
+/* Asegurar que las imagenes en la galeria se comporten correctamente */
+.w3f-gallery-item .w3f-image-wrapper {
+  width: 100%;
+  display: block;
+}
+
+.w3f-gallery-item .w3f-image-base {
+  width: 100%;
+  height: auto;
+  display: block;
+}

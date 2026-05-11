@@ -1,0 +1,78 @@
+/* RadioButton.css — STRUCTURAL only (visuals in _radio.preset.css) */
+
+/* ---------------------------------------------------------------------
+   Custom Properties (contract)
+   --------------------------------------------------------------------- */
+
+.radio-material {
+    /* Radio vars */
+    --w3f-radio-size: var(--w3f-space-5);
+    --w3f-radio-bg: var(--w3f-gray-200);
+    --w3f-radio-border-color: var(--w3f-gray-400);
+    --w3f-radio-radius-tl: var(--w3f-radius-full);
+    --w3f-radio-radius-tr: var(--w3f-radius-full);
+    --w3f-radio-radius-br: var(--w3f-radius-full);
+    --w3f-radio-radius-bl: var(--w3f-radius-full);
+    --w3f-radio-transition: background-color var(--w3f-transition-fast), border-color var(--w3f-transition-fast), transform var(--w3f-transition-fast);
+    --w3f-radio-hover-bg: var(--w3f-gray-300);
+    --w3f-radio-checked-bg: var(--w3f-primary-600);
+    --w3f-radio-checked-border-color: var(--w3f-primary-600);
+    --w3f-radio-dot-color: var(--w3f-on-primary);
+    --w3f-radio-disabled-opacity: 0.5;
+
+    position: relative;
+    padding-left: 1.75rem;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.radio-material input {
+    /* Oculta el input nativo */
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.radio-checkmark {
+    /* El circulo visible — structural only */
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: var(--w3f-radio-size);
+    width: var(--w3f-radio-size);
+    border: 1px solid transparent;
+}
+
+/* El punto interior (Checkmark) */
+.radio-checkmark::after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Muestra el punto interior cuando esta Checked */
+.radio-material input:checked~.radio-checkmark::after {
+    display: block;
+}
+
+/* Estilo del punto interior — structural positioning */
+.radio-material .radio-checkmark::after {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* ---------------------------------------------------- */
+/* Estilos de Estado — structural only                  */
+/* ---------------------------------------------------- */
+
+.radio-disabled {
+    cursor: not-allowed;
+}

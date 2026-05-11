@@ -1,0 +1,27 @@
+/* Stacks.css */
+/* =============================================================
+   🥞 COMPONENTE: STACK (Pila vertical)
+   ============================================================= */
+
+/* Pila base (vertical) */
+.w3f-stack {
+  display: flex;
+  flex-direction: column;
+  /* Espacio por defecto, se puede sobrescribir con utilidades de gap */
+  gap: var(--w3f-space-4); 
+}
+
+/* Pila horizontal (inline) */
+.w3f-h-stack {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--w3f-space-4);
+}
+
+/* Pila para ítems pequeños (más compacto) */
+.w3f-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--w3f-space-2); 
+}

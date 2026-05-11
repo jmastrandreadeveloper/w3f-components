@@ -1,0 +1,43 @@
+/* =====================================================================
+   EFFECT TRAITS
+   Interactive behavior classes — composable with any component
+   ===================================================================== */
+
+/* ── Hoverable — requires a color-variant class for hover colors ───── */
+/* Base .w3f-hoverable has no effect alone; combined with color variants
+   it triggers the :hover rules defined in _color-variants.css */
+
+/* ── Pressable — scale-down on active ───────────────────────────────── */
+
+.w3f-pressable:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ── Focusable — visible focus ring ─────────────────────────────────── */
+
+.w3f-focusable:focus-visible {
+  outline: 2px solid var(--w3f-primary-400);
+  outline-offset: 2px;
+}
+
+/* ── Lift — hover lifts element up with shadow ──────────────────────── */
+
+.w3f-lift:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--w3f-shadow-md);
+}
+
+/* ── Disabled fade — reduced opacity when disabled ──────────────────── */
+
+.w3f-disabled-fade:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Active-press — deeper press with shadow reduction ──────────────── */
+
+.w3f-active-press:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: var(--w3f-shadow-sm);
+}

@@ -1,0 +1,28 @@
+/* Auto-generated from _speed-dial.contract.css — DO NOT EDIT */
+.w3f-speed-dial {
+  --w3f-sdial-fab-bg: var(--w3f-primary);
+  --w3f-sdial-fab-color: var(--w3f-on-primary);
+  --w3f-sdial-fab-shadow: var(--w3f-shadow-md);
+  --w3f-sdial-fab-hover-shadow: var(--w3f-shadow-lg);
+  --w3f-sdial-fab-active-shadow: var(--w3f-shadow-sm);
+  --w3f-sdial-fab-hover-bg: var(--w3f-primary-700);
+  --w3f-sdial-fab-active-bg: var(--w3f-primary-800);
+  --w3f-sdial-fab-radius-tl: var(--w3f-radius-full);
+  --w3f-sdial-fab-radius-tr: var(--w3f-radius-full);
+  --w3f-sdial-fab-radius-br: var(--w3f-radius-full);
+  --w3f-sdial-fab-radius-bl: var(--w3f-radius-full);
+  --w3f-sdial-focus-color: var(--w3f-primary-400);
+  --w3f-sdial-transition: var(--w3f-transition-fast);
+  --w3f-sdial-gap: var(--w3f-space-3);
+  --w3f-sdial-action-bg: var(--w3f-surface);
+  --w3f-sdial-action-color: var(--w3f-on-surface);
+  --w3f-sdial-action-shadow: var(--w3f-shadow-md);
+  --w3f-sdial-action-hover-shadow: var(--w3f-shadow-lg);
+  --w3f-sdial-tooltip-bg: var(--w3f-gray-800);
+  --w3f-sdial-tooltip-color: white;
+  --w3f-sdial-tooltip-shadow: var(--w3f-shadow-md);
+  --w3f-sdial-backdrop-bg: rgba(0,0,0,0.3);
+  --w3f-sdial-disabled-opacity: 0.5;
+  --w3f-sdial-action-active-shadow: inherit;
+  --w3f-sdial-action-disabled-shadow: inherit;
+}

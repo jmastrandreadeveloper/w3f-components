@@ -1,0 +1,72 @@
+/* Auto-generated from _checkbox.contract.css — DO NOT EDIT */
+
+/* ── Root ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) {
+  gap: var(--w3f-cb-gap);
+  transition: var(--w3f-cb-transition);
+}
+
+/* ── Input ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input {
+  background-color: var(--w3f-cb-bg);
+  border-color: var(--w3f-cb-border-color);
+  border-top-width: var(--w3f-cb-border-width-top);
+  border-right-width: var(--w3f-cb-border-width-right);
+  border-bottom-width: var(--w3f-cb-border-width-bottom);
+  border-left-width: var(--w3f-cb-border-width-left);
+  border-style: var(--w3f-cb-border-style);
+  border-top-left-radius: var(--w3f-cb-border-radius-tl);
+  border-top-right-radius: var(--w3f-cb-border-radius-tr);
+  border-bottom-right-radius: var(--w3f-cb-border-radius-br);
+  border-bottom-left-radius: var(--w3f-cb-border-radius-bl);
+}
+
+/* ── Checked ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input:checked {
+  background-color: var(--w3f-cb-checked-bg);
+  border-color: var(--w3f-cb-checked-border-color);
+}
+
+/* ── Hover ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input:hover:not(:disabled) {
+  border-color: var(--w3f-cb-hover-border-color);
+  box-shadow: var(--w3f-cb-hover-shadow);
+}
+
+/* ── Focus ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-input:focus-visible {
+  outline-color: var(--w3f-cb-focus-outline-color);
+  box-shadow: var(--w3f-cb-focus-shadow);
+}
+
+/* ── Label ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-label {
+  padding-top: var(--w3f-cb-label-padding-top);
+  padding-right: var(--w3f-cb-label-padding-right);
+  padding-bottom: var(--w3f-cb-label-padding-bottom);
+  padding-left: var(--w3f-cb-label-padding-left);
+  color: var(--w3f-cb-label-color);
+  font-size: var(--w3f-cb-label-font-size);
+}
+
+/* ── Children ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled) .w3f-checkbox-children {
+  border-left-color: var(--w3f-cb-children-border-color);
+}
+
+/* ── Disabled Wrapper ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled).w3f-checkbox-wrapper--disabled {
+  opacity: var(--w3f-cb-disabled-opacity);
+}
+
+/* ── Disabled Input ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled).w3f-checkbox-wrapper--disabled .w3f-checkbox-input {
+  background-color: var(--w3f-cb-disabled-bg);
+  border-color: var(--w3f-cb-disabled-border-color);
+}
+
+/* ── Disabled Label ── */
+.w3f-checkbox-wrapper:not(.w3f-checkbox-wrapper--unstyled).w3f-checkbox-wrapper--disabled .w3f-checkbox-label {
+  color: var(--w3f-cb-disabled-label-color);
+}
+
