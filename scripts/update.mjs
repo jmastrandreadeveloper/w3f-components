@@ -14,6 +14,7 @@
  *   --message "texto" Mensaje del commit (default: autogenerado)
  *   --dry-run         Muestra qué se haría sin ejecutarlo
  *   --no-build        Omite el paso de rebuild CSS
+ *   --manual-only     Sincroniza solo el manual (docs/manual/) — rápido
  *   --platform <path> Ruta al repo w3f-platform (override del default)
  *   --help            Muestra esta ayuda
  *
@@ -22,6 +23,8 @@
  *   node scripts/update.mjs --commit
  *   node scripts/update.mjs --push --message "feat: add Tooltip component"
  *   node scripts/update.mjs --dry-run
+ *   node scripts/update.mjs --manual-only
+ *   node scripts/update.mjs --manual-only --commit
  *   node scripts/update.mjs --platform /ruta/a/w3f-platform
  */
 
@@ -42,13 +45,14 @@ const hasFlag  = (f) => args.includes(f);
 const getArg   = (f) => { const i = args.indexOf(f); return i !== -1 ? args[i + 1] : null; };
 
 const opts = {
-  commit   : hasFlag('--commit') || hasFlag('--push'),
-  push     : hasFlag('--push'),
-  dryRun   : hasFlag('--dry-run'),
-  noBuild  : hasFlag('--no-build'),
-  message  : getArg('--message'),
-  platform : getArg('--platform'),
-  help     : hasFlag('--help') || hasFlag('-h'),
+  commit     : hasFlag('--commit') || hasFlag('--push'),
+  push       : hasFlag('--push'),
+  dryRun     : hasFlag('--dry-run'),
+  noBuild    : hasFlag('--no-build'),
+  manualOnly : hasFlag('--manual-only'),
+  message    : getArg('--message'),
+  platform   : getArg('--platform'),
+  help       : hasFlag('--help') || hasFlag('-h'),
 };
 
 // ─── Colores ──────────────────────────────────────────────────────────────────
@@ -88,6 +92,7 @@ Opciones:
   --message "texto"     Mensaje del commit personalizado
   --dry-run             Muestra qué se haría sin ejecutarlo
   --no-build            Omite el paso de rebuild de dist/w3f.css
+  --manual-only         Sincroniza solo el manual (docs/manual/) — rápido
   --platform <path>     Ruta al repo w3f-platform (default: hermano del repo)
   --help                Muestra esta ayuda
 
@@ -96,6 +101,8 @@ Ejemplos:
   node scripts/update.mjs --commit
   node scripts/update.mjs --push --message "feat: add Stepper fixes"
   node scripts/update.mjs --dry-run
+  node scripts/update.mjs --manual-only
+  node scripts/update.mjs --manual-only --commit --message "docs: cap 23 PageBuilder"
 `);
   process.exit(0);
 }
@@ -180,6 +187,69 @@ function syncFile(src, dest, label) {
   mkdirSync(dirname(dest), { recursive: true });
   cpSync(src, dest);
   ok(label);
+}
+
+// ─── Modo manual-only: saltar pasos 1-3 y 5 ──────────────────────────────────
+
+if (opts.manualOnly) {
+  header('Modo --manual-only: sincronizando solo docs/manual/');
+
+  const NIVELES = [
+    'nivel-1-principiante',
+    'nivel-2-intermedio',
+    'nivel-3-avanzado',
+    'nivel-4-experto',
+  ];
+
+  for (const nivel of NIVELES) {
+    const src  = join(DOCS_SRC, nivel);
+    const dest = join(TARGET, 'docs', 'manual', nivel);
+    if (existsSync(src)) {
+      syncDir(src, dest, `docs/manual/${nivel}`);
+    } else {
+      warn(`docs/manual/${nivel} — no encontrado`);
+    }
+  }
+
+  syncFile(
+    join(DOCS_SRC, 'README.md'),
+    join(TARGET, 'docs', 'manual', 'README.md'),
+    'docs/manual/README.md',
+  );
+
+  // Resumen y commit/push opcionales
+  const gitStatus = run('git status --short', { alwaysRun: true, allowFail: true });
+  const changed   = gitStatus.split('\n').filter(Boolean);
+
+  header('Resumen');
+  if (changed.length === 0) {
+    ok('Sin cambios — el manual ya estaba al día');
+  } else {
+    log(`${changed.length} archivo(s) cambiado(s):`);
+    changed.forEach(l => console.log(`    ${c.dim}${l}${c.reset}`));
+  }
+
+  if (opts.commit && changed.length > 0) {
+    const now     = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const msg     = opts.message ?? `docs: sync manual from w3f-platform (${dateStr})`;
+    if (opts.dryRun) {
+      dry(`git add docs/manual/`);
+      dry(`git commit -m "${msg}"`);
+    } else {
+      run('git add docs/manual/');
+      run(`git commit -m "${msg}"`);
+      ok(`Commit: ${msg}`);
+    }
+  }
+
+  if (opts.push) {
+    if (opts.dryRun) { dry('git push'); }
+    else { run('git push', { stdio: 'inherit' }); ok('Push completado'); }
+  }
+
+  console.log(`\n${c.bold}${c.green}  Manual sincronizado.${c.reset}\n`);
+  process.exit(0);
 }
 
 // ─── Paso 1: Componentes ─────────────────────────────────────────────────────

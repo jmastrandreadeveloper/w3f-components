@@ -27,6 +27,9 @@
     "update": "node scripts/update.mjs",
     "update:commit": "node scripts/update.mjs --commit",
     "update:push": "node scripts/update.mjs --push",
+    "update:manual": "node scripts/update.mjs --manual-only",
+    "update:manual:commit": "node scripts/update.mjs --manual-only --commit",
+    "update:manual:push": "node scripts/update.mjs --manual-only --push",
     "prepublishOnly": "node esbuild.config.js"
   },
   "peerDependencies": {
