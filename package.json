@@ -28,7 +28,8 @@
     "scripts/"
   ],
   "bin": {
-    "w3f-init": "scripts/init-nextjs.mjs"
+    "w3f-init"   : "scripts/init-nextjs.mjs",
+    "w3f-create" : "scripts/create-w3f-app.mjs"
   },
   "scripts": {
     "build": "node esbuild.config.js",
