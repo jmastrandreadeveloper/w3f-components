@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWithDividers/GridWithDividers.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 GridWithDividers Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const GRID_DIVIDER_DEFAULTS = {\r\n    gap: '1px',\r\n    initialSize: 250,\r\n    minSize: 100,\r\n    maxSize: 600,\r\n    orientation: 'vertical' as const,\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,wBAAwB;AAAA,EACjC,KAAK;AAAA,EACL,aAAa;AAAA,EACb,SAAS;AAAA,EACT,SAAS;AAAA,EACT,aAAa;AACjB;",
+  "names": []
+}

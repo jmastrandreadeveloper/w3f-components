@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.utils.ts"],
+  "sourcesContent": ["import type { ChartGridAxis } from './ChartGrid.types';\r\nimport { CHART_GRID_CLASSES } from './ChartGrid.constants';\r\n\r\nexport function buildGridClasses(axis: ChartGridAxis, className?: string): string {\r\n    const parts: string[] = [CHART_GRID_CLASSES.root];\r\n    if (axis === 'rows' || axis === 'both') parts.push(CHART_GRID_CLASSES.rows);\r\n    if (axis === 'columns' || axis === 'both') parts.push(CHART_GRID_CLASSES.columns);\r\n    if (className) parts.push(className);\r\n    return parts.join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,0BAA0B;AAE5B,SAAS,iBAAiB,MAAqB,WAA4B;AAC9E,QAAM,QAAkB,CAAC,mBAAmB,IAAI;AAChD,MAAI,SAAS,UAAU,SAAS,OAAQ,OAAM,KAAK,mBAAmB,IAAI;AAC1E,MAAI,SAAS,aAAa,SAAS,OAAQ,OAAM,KAAK,mBAAmB,OAAO;AAChF,MAAI,UAAW,OAAM,KAAK,SAAS;AACnC,SAAO,MAAM,KAAK,GAAG;AACzB;",
+  "names": []
+}

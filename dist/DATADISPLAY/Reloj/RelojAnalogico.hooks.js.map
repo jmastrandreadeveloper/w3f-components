@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Reloj/RelojAnalogico.hooks.ts"],
+  "sourcesContent": ["import { useState, useEffect } from 'react';\r\n\r\n/**\r\n * Hook para manejar el reloj en tiempo real.\r\n * Actualiza la fecha cada segundo.\r\n */\r\nexport const useClock = () => {\r\n    const [date, setDate] = useState(new Date());\r\n\r\n    useEffect(() => {\r\n        const timerID = setInterval(() => setDate(new Date()), 1000);\r\n        return () => clearInterval(timerID);\r\n    }, []);\r\n\r\n    return {\r\n        hours: date.getHours(),\r\n        minutes: date.getMinutes(),\r\n        seconds: date.getSeconds(),\r\n    };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,UAAU,iBAAiB;AAM7B,MAAM,WAAW,MAAM;AAC1B,QAAM,CAAC,MAAM,OAAO,IAAI,SAAS,oBAAI,KAAK,CAAC;AAE3C,YAAU,MAAM;AACZ,UAAM,UAAU,YAAY,MAAM,QAAQ,oBAAI,KAAK,CAAC,GAAG,GAAI;AAC3D,WAAO,MAAM,cAAc,OAAO;AAAA,EACtC,GAAG,CAAC,CAAC;AAEL,SAAO;AAAA,IACH,OAAO,KAAK,SAAS;AAAA,IACrB,SAAS,KAAK,WAAW;AAAA,IACzB,SAAS,KAAK,WAAW;AAAA,EAC7B;AACJ;",
+  "names": []
+}

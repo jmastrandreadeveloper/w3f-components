@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Menu/Menu.utils.ts"],
+  "sourcesContent": ["import type { MenuPosition } from './Menu.types';\r\nimport { MENU_CLASSES } from './Menu.constants';\r\n\r\nexport function buildDropdownClasses(position: MenuPosition): string {\r\n    const positionClass = {\r\n        right: MENU_CLASSES.dropdownRight,\r\n        center: MENU_CLASSES.dropdownCenter,\r\n        top: MENU_CLASSES.dropdownTop,\r\n        left: '',\r\n    }[position] || '';\r\n\r\n    return [MENU_CLASSES.dropdown, positionClass].filter(Boolean).join(' ');\r\n}\r\n\r\nexport function buildMenuClasses(\r\n    position: MenuPosition,\r\n    className?: string,\r\n    unstyled?: boolean,\r\n): string {\r\n    if (unstyled) {\r\n        return [MENU_CLASSES.container, 'w3f-menu--unstyled', className].filter(Boolean).join(' ');\r\n    }\r\n    return [MENU_CLASSES.container, className].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,oBAAoB;AAEtB,SAAS,qBAAqB,UAAgC;AACjE,QAAM,gBAAgB;AAAA,IAClB,OAAO,aAAa;AAAA,IACpB,QAAQ,aAAa;AAAA,IACrB,KAAK,aAAa;AAAA,IAClB,MAAM;AAAA,EACV,EAAE,QAAQ,KAAK;AAEf,SAAO,CAAC,aAAa,UAAU,aAAa,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC1E;AAEO,SAAS,iBACZ,UACA,WACA,UACM;AACN,MAAI,UAAU;AACV,WAAO,CAAC,aAAa,WAAW,sBAAsB,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAAA,EAC7F;AACA,SAAO,CAAC,aAAa,WAAW,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACvE;",
+  "names": []
+}

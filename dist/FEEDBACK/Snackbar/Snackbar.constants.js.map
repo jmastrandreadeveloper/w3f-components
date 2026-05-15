@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Snackbar/Snackbar.constants.ts"],
+  "sourcesContent": ["import type { SnackbarVariant, SnackbarAnchorOrigin } from './Snackbar.types';\r\n\r\nexport const SNACKBAR_DEFAULTS = {\r\n  autoHideDuration: 3000,\r\n  variant: 'default' as SnackbarVariant,\r\n  anchorOrigin: { vertical: 'bottom', horizontal: 'center' } as SnackbarAnchorOrigin,\r\n  exitAnimationDuration: 150,\r\n} as const;\r\n\r\nexport const SNACKBAR_VARIANTS: Record<SnackbarVariant, string> = {\r\n  default: '',\r\n  success: 'w3f-snackbar--success',\r\n  warning: 'w3f-snackbar--warning',\r\n  danger: 'w3f-snackbar--danger',\r\n  info: 'w3f-snackbar--info',\r\n};\r\n\r\nexport const SNACKBAR_POSITIONS: Record<string, string> = {\r\n  'top-left': 'w3f-snackbar--top-left',\r\n  'top-center': 'w3f-snackbar--top-center',\r\n  'top-right': 'w3f-snackbar--top-right',\r\n  'bottom-left': 'w3f-snackbar--bottom-left',\r\n  'bottom-center': '',\r\n  'bottom-right': 'w3f-snackbar--bottom-right',\r\n};\r\n"],
+  "mappings": "AAEO,MAAM,oBAAoB;AAAA,EAC/B,kBAAkB;AAAA,EAClB,SAAS;AAAA,EACT,cAAc,EAAE,UAAU,UAAU,YAAY,SAAS;AAAA,EACzD,uBAAuB;AACzB;AAEO,MAAM,oBAAqD;AAAA,EAChE,SAAS;AAAA,EACT,SAAS;AAAA,EACT,SAAS;AAAA,EACT,QAAQ;AAAA,EACR,MAAM;AACR;AAEO,MAAM,qBAA6C;AAAA,EACxD,YAAY;AAAA,EACZ,cAAc;AAAA,EACd,aAAa;AAAA,EACb,eAAe;AAAA,EACf,iBAAiB;AAAA,EACjB,gBAAgB;AAClB;",
+  "names": []
+}

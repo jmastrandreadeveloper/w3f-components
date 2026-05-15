@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Gauge/Gauge.hooks.ts"],
+  "sourcesContent": ["import { useMemo } from 'react';\r\nimport { buildGaugeScale, getGaugeColor } from './Gauge.utils';\r\n\r\nexport function useGaugeScale(min: number, max: number) {\r\n    return useMemo(() => buildGaugeScale(min, max), [min, max]);\r\n}\r\n\r\nexport function useGaugeColor(value: number, color: string, thresholds: unknown) {\r\n    return useMemo(() => getGaugeColor(value, color, thresholds as any), [value, color, thresholds]);\r\n}\r\n\r\nexport { useChartDimensions } from '../_base/hooks';\r\n"],
+  "mappings": "AAAA,SAAS,eAAe;AACxB,SAAS,iBAAiB,qBAAqB;AAExC,SAAS,cAAc,KAAa,KAAa;AACpD,SAAO,QAAQ,MAAM,gBAAgB,KAAK,GAAG,GAAG,CAAC,KAAK,GAAG,CAAC;AAC9D;AAEO,SAAS,cAAc,OAAe,OAAe,YAAqB;AAC7E,SAAO,QAAQ,MAAM,cAAc,OAAO,OAAO,UAAiB,GAAG,CAAC,OAAO,OAAO,UAAU,CAAC;AACnG;AAEA,SAAS,0BAA0B;",
+  "names": []
+}

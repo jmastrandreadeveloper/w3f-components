@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/LiveForm/LiveForm.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 LiveForm Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const LIVE_FORM_DEFAULTS = {\r\n    initialValues: {} as Record<string, any>,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const LIVE_FORM_CLASSES = {\r\n    base: 'w3f-live-form',\r\n    active: 'w3f-live-form--active',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,qBAAqB;AAAA,EAC9B,eAAe,CAAC;AAAA,EAChB,UAAU;AAAA,EACV,WAAW;AACf;AAGO,MAAM,oBAAoB;AAAA,EAC7B,MAAM;AAAA,EACN,QAAQ;AACZ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/FormField/FormField.utils.ts"],
+  "sourcesContent": ["import type { FormFieldLayout } from './FormField.types';\r\nimport { FORM_FIELD_CLASSES } from './FormField.constants';\r\n\r\nexport function buildFormFieldClasses(\r\n    layout: FormFieldLayout,\r\n    hasError: boolean,\r\n    disabled: boolean,\r\n    className?: string,\r\n    unstyled?: boolean,\r\n): string {\r\n    if (unstyled) {\r\n        return [FORM_FIELD_CLASSES.base, 'w3f-form-field--unstyled', className]\r\n            .filter(Boolean)\r\n            .join(' ');\r\n    }\r\n    return [\r\n        FORM_FIELD_CLASSES.base,\r\n        FORM_FIELD_CLASSES.layouts[layout],\r\n        hasError && FORM_FIELD_CLASSES.hasError,\r\n        disabled && FORM_FIELD_CLASSES.isDisabled,\r\n        className,\r\n    ]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,0BAA0B;AAE5B,SAAS,sBACZ,QACA,UACA,UACA,WACA,UACM;AACN,MAAI,UAAU;AACV,WAAO,CAAC,mBAAmB,MAAM,4BAA4B,SAAS,EACjE,OAAO,OAAO,EACd,KAAK,GAAG;AAAA,EACjB;AACA,SAAO;AAAA,IACH,mBAAmB;AAAA,IACnB,mBAAmB,QAAQ,MAAM;AAAA,IACjC,YAAY,mBAAmB;AAAA,IAC/B,YAAY,mBAAmB;AAAA,IAC/B;AAAA,EACJ,EACK,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;",
+  "names": []
+}

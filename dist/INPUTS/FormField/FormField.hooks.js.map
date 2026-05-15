@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/FormField/FormField.hooks.ts"],
+  "sourcesContent": ["import { useContext } from 'react';\r\nimport { FormContext, FormDispatchContext, FormMetaContext, FormFieldStoreContext } from '../Form/Form';\r\nimport type { FormContextValue } from '../Form/Form.types';\r\n\r\n/** @deprecated Use useFormDispatch + useFormFieldValue for better performance */\r\nexport const useFormFieldContext = (): FormContextValue | null => {\r\n    return useContext(FormContext);\r\n};\r\n\r\nexport const useFormFieldDispatch = () => useContext(FormDispatchContext);\r\nexport const useFormFieldMeta = () => useContext(FormMetaContext);\r\nexport const useFormFieldFieldStore = () => useContext(FormFieldStoreContext);\r\n"],
+  "mappings": "AAAA,SAAS,kBAAkB;AAC3B,SAAS,aAAa,qBAAqB,iBAAiB,6BAA6B;AAIlF,MAAM,sBAAsB,MAA+B;AAC9D,SAAO,WAAW,WAAW;AACjC;AAEO,MAAM,uBAAuB,MAAM,WAAW,mBAAmB;AACjE,MAAM,mBAAmB,MAAM,WAAW,eAAe;AACzD,MAAM,yBAAyB,MAAM,WAAW,qBAAqB;",
+  "names": []
+}

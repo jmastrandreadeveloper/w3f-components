@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.constants.ts"],
+  "sourcesContent": ["export const BAR_H_ROOT_CLASS = 'w3f-chart-bar-horizontal';\r\n\r\nexport const BAR_H_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    padding: 0.2,\r\n    barRadius: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAEzB,MAAM,iBAAiB;AAAA,EAC1B,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,SAAS;AAAA,EACT,WAAW;AAAA,EACX,UAAU;AACd;",
+  "names": []
+}

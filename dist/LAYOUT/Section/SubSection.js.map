@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Section/SubSection.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { SubSectionProps } from './Section.types';\r\nimport { SUBSECTION_CLASSES } from './Section.constants';\r\nimport { buildSubSectionClasses } from './Section.utils';\r\n\r\nexport type { SubSectionProps } from './Section.types';\r\n\r\n/**\r\n * SubSection Component - W3F Framework\r\n *\r\n * Sub-secci\u00F3n dentro de una Section con t\u00EDtulo m\u00E1s peque\u00F1o.\r\n */\r\nconst SubSection: React.FC<SubSectionProps> = ({\r\n    children,\r\n    title,\r\n    className,\r\n    style,\r\n    ...rest\r\n}) => {\r\n    const classes = buildSubSectionClasses(className);\r\n\r\n    return (\r\n        <div className={classes} style={style} {...rest}>\r\n            {title && <h3 className={SUBSECTION_CLASSES.title}>{title}</h3>}\r\n            {children}\r\n        </div>\r\n    );\r\n};\r\n\r\nSubSection.displayName = 'SubSection';\r\n\r\nexport { SubSection };\r\nexport default SubSection;\r\n"],
+  "mappings": ";AAwBQ,SACc,KADd;AApBR,SAAS,0BAA0B;AACnC,SAAS,8BAA8B;AASvC,MAAM,aAAwC,CAAC;AAAA,EAC3C;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA,GAAG;AACP,MAAM;AACF,QAAM,UAAU,uBAAuB,SAAS;AAEhD,SACI,qBAAC,SAAI,WAAW,SAAS,OAAe,GAAG,MACtC;AAAA,aAAS,oBAAC,QAAG,WAAW,mBAAmB,OAAQ,iBAAM;AAAA,IACzD;AAAA,KACL;AAER;AAEA,WAAW,cAAc;AAGzB,IAAO,qBAAQ;",
+  "names": []
+}

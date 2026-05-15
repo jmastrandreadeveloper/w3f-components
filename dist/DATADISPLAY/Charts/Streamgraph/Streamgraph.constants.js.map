@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Streamgraph/Streamgraph.constants.ts"],
+  "sourcesContent": ["export const STREAMGRAPH_ROOT_CLASS = 'w3f-chart-streamgraph';\r\n\r\nexport const STREAMGRAPH_DEFAULTS = {\r\n    curved: true,\r\n    fillOpacity: 0.8,\r\n    showXAxis: true,\r\n    showLegend: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,yBAAyB;AAE/B,MAAM,uBAAuB;AAAA,EAChC,QAAQ;AAAA,EACR,aAAa;AAAA,EACb,WAAW;AAAA,EACX,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

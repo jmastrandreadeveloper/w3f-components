@@ -14,16 +14,16 @@
  * Idempotent: safe to run multiple times.
  */
 
-import { execSync }                                              from 'child_process';
+import { execSync }                                                  from 'child_process';
 import { existsSync, readFileSync, writeFileSync, copyFileSync,
-         mkdirSync }                                            from 'fs';
-import { join, resolve, relative }                              from 'path';
-import { fileURLToPath }                                        from 'url';
+         mkdirSync }                                                 from 'fs';
+import { join, resolve, relative }                                   from 'path';
+import { fileURLToPath }                                             from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const cwd       = process.cwd();
 
-// ─── Console helpers ──────────────────────────────────────────────────────────
+// ─── Console helpers ─────────────────────────────────────────────────────────
 
 const c = {
   reset  : '\x1b[0m',
@@ -82,8 +82,8 @@ if (!existsSync(pkgJsonPath)) {
   process.exit(1);
 }
 
-const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
-const allDeps = { ...pkgJson.dependencies, ...pkgJson.devDependencies };
+const pkgJson  = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
+const allDeps  = { ...pkgJson.dependencies, ...pkgJson.devDependencies };
 
 if (!allDeps.next) {
   fail('"next" is not in your dependencies. Are you in a Next.js project root?');
@@ -100,8 +100,8 @@ const pm = detectPM();
 log(`Package manager: ${c.cyan}${pm}${c.reset}`);
 
 const toInstall = [];
-if (!allDeps['@w3f/components']) toInstall.push('@w3f/components');
-if (!allDeps['lucide-react'])    toInstall.push('lucide-react');
+if (!allDeps['@w3f/components'])  toInstall.push('@w3f/components');
+if (!allDeps['lucide-react'])     toInstall.push('lucide-react');
 
 if (toInstall.length === 0) {
   ok('@w3f/components and lucide-react are already installed');
@@ -129,48 +129,57 @@ if (!existsSync(publicDir)) {
 
 const cssTarget = join(publicDir, 'w3f.css');
 
-// Candidate sources in priority order (installed package first):
+// Candidate sources in priority order:
+//   1. Installed package dist (production / npm install)
+//   2. Monorepo dev mode (script running from packages/components/scripts/)
+//   3. Pre-built CSS in the apps/nextjs reference app (monorepo only)
 const cssCandidates = [
   join(cwd, 'node_modules', '@w3f', 'components', 'dist', 'w3f.css'),
   join(cwd, 'node_modules', '@w3f', 'components', 'dist', 'main_W3_V2.css'),
-  // Fallback for local dev / workspace setups
   resolve(__dirname, '..', 'dist', 'w3f.css'),
+  resolve(__dirname, '..', '..', '..', 'apps', 'nextjs', 'public', 'w3f.css'),
 ];
 
 let cssCopied = false;
 for (const src of cssCandidates) {
   if (existsSync(src)) {
     copyFileSync(src, cssTarget);
-    ok(`Copied w3f.css  (from: ${rel(src)})`);
+    ok(`Copied w3f.css  (source: ${rel(src)})`);
     cssCopied = true;
     break;
   }
 }
 
 if (!cssCopied) {
-  warn('Pre-built w3f.css not found in node_modules.');
-  warn('Build it manually and re-run this script:');
-  dim('  cd node_modules/@w3f/components && node esbuild.config.js');
-  warn('Or copy any pre-built w3f.css into your public/ folder manually.');
+  warn('Pre-built w3f.css not found. Build it manually after installation:');
+  dim('  npx esbuild node_modules/@w3f/components/css/main_W3_V2.css \\');
+  dim('    --bundle --outfile=public/w3f.css');
+  warn('Then re-run this script so the rest of the setup can continue.');
 }
 
 // ─── Step 3: Patch next.config ────────────────────────────────────────────────
 
 header('Step 3 — Configure next.config');
 
-const configCandidates = ['next.config.mjs', 'next.config.js', 'next.config.ts'];
+// Find existing config file
+const configCandidates = [
+  'next.config.mjs',
+  'next.config.js',
+  'next.config.ts',
+];
 const configFile = configCandidates.find((f) => existsSync(join(cwd, f)));
 
 if (!configFile) {
+  // Create a fresh next.config.mjs
   writeFileSync(
     join(cwd, 'next.config.mjs'),
     `/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Required: transpile W3F source TSX packages
+  // Required: transpile W3F workspace packages (source TSX, not pre-compiled)
   transpilePackages: ['@w3f/components'],
 
   // Suppress TypeScript build errors from nested workspace types.
-  // Verify types separately with: npx tsc --noEmit
+  // The app still compiles correctly; verify types separately with tsc.
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -185,14 +194,16 @@ export default nextConfig;
   let content  = readFileSync(configPath, 'utf8');
   let modified = false;
 
-  // transpilePackages
+  // --- transpilePackages ---
   if (!content.includes('@w3f/components')) {
     if (/transpilePackages\s*:\s*\[/.test(content)) {
+      // Append to existing array
       content  = content.replace(
         /transpilePackages\s*:\s*\[/,
         `transpilePackages: ['@w3f/components', `,
       );
     } else {
+      // Inject new key into the config object
       content  = content.replace(
         /(const nextConfig\s*=\s*\{)/,
         `$1\n  transpilePackages: ['@w3f/components'],`,
@@ -201,9 +212,10 @@ export default nextConfig;
     modified = true;
   }
 
-  // typescript.ignoreBuildErrors
+  // --- typescript.ignoreBuildErrors ---
   if (!content.includes('ignoreBuildErrors')) {
     if (/typescript\s*:\s*\{/.test(content)) {
+      // Add inside existing typescript block
       content  = content.replace(
         /typescript\s*:\s*\{/,
         `typescript: {\n    ignoreBuildErrors: true,`,
@@ -254,23 +266,28 @@ if (!layoutFile) {
   } else {
     let injected = false;
 
+    // Strategy A: inject right after <head>
     if (/<head[^>]*>/.test(layout)) {
       layout   = layout.replace(/<head([^>]*)>/, `<head$1>\n${LINK_BLOCK}`);
       injected = true;
-    } else if (layout.includes('</head>')) {
+    }
+    // Strategy B: inject right before </head>
+    else if (layout.includes('</head>')) {
       layout   = layout.replace('</head>', `${LINK_BLOCK}\n      </head>`);
       injected = true;
-    } else if (/<body[^>]*>/.test(layout)) {
+    }
+    // Strategy C: inject at the top of <body> as last resort
+    else if (/<body[^>]*>/.test(layout)) {
       layout   = layout.replace(/<body([^>]*)>/, `<body$1>\n${LINK_BLOCK}`);
       injected = true;
-      warn('No <head> found — CSS link injected inside <body> (move to <head> for best practice)');
+      warn('No <head> found — CSS link injected inside <body> (move it to <head> for best practice)');
     }
 
     if (injected) {
       writeFileSync(layoutFile, layout, 'utf8');
       ok(`Added CSS link to ${rel(layoutFile)}`);
     } else {
-      warn(`Could not auto-patch ${rel(layoutFile)}. Add manually inside <head>:`);
+      warn(`Could not auto-patch ${rel(layoutFile)}. Add this line manually inside <head>:`);
       dim(`  ${LINK_TAG}`);
     }
   }
@@ -292,7 +309,7 @@ ${c.bold}${c.green}  Setup complete!${c.reset}
   }
 
   ${c.yellow}Note:${c.reset} components that use state, events or context need ${c.cyan}'use client'${c.reset}
-  Pure display components (Text, Badge, Avatar with static data) can be Server Components.
+  at the top of the file. Pure display components can be Server Components.
 
-  ${c.dim}Full guide: node_modules/@w3f/components/docs/nextjs.md${c.reset}
+  ${c.dim}Docs: packages/docs/manual/README.md${c.reset}
 `);

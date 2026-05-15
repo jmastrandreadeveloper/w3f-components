@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/ButtonGroup/ButtonGroup.hooks.ts"],
+  "sourcesContent": ["import { useContext } from 'react';\r\nimport { FormContext, FormDispatchContext, FormMetaContext } from '../Form/Form';\r\n\r\n/**\r\n * Retorna el contexto del formulario si el grupo est\u00E1 dentro de un Form/LiveForm.\r\n * Devuelve null cuando se usa de forma independiente.\r\n * @deprecated Use useButtonGroupFormDispatch + useButtonGroupFormMeta for better performance\r\n */\r\nexport function useButtonGroupFormContext() {\r\n    return useContext(FormContext);\r\n}\r\n\r\nexport const useButtonGroupFormDispatch = () => useContext(FormDispatchContext);\r\nexport const useButtonGroupFormMeta = () => useContext(FormMetaContext);\r\n"],
+  "mappings": "AAAA,SAAS,kBAAkB;AAC3B,SAAS,aAAa,qBAAqB,uBAAuB;AAO3D,SAAS,4BAA4B;AACxC,SAAO,WAAW,WAAW;AACjC;AAEO,MAAM,6BAA6B,MAAM,WAAW,mBAAmB;AACvE,MAAM,yBAAyB,MAAM,WAAW,eAAe;",
+  "names": []
+}

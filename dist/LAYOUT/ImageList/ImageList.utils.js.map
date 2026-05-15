@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/ImageList/ImageList.utils.ts"],
+  "sourcesContent": ["import type { ImageListVariant } from './ImageList.types';\r\nimport { IMAGE_LIST_DEFAULTS } from './ImageList.constants';\r\n\r\n/**\r\n * Calcula el templateColumns seg\u00FAn la variante y cols.\r\n */\r\nexport function getTemplateColumns(variant: ImageListVariant, cols?: number): string {\r\n    if (variant === 'standard') {\r\n        return cols\r\n            ? `repeat(${cols}, 1fr)`\r\n            : `repeat(auto-fill, minmax(${IMAGE_LIST_DEFAULTS.standardMinWidth}, 1fr))`;\r\n    }\r\n    return `repeat(${cols || IMAGE_LIST_DEFAULTS.quiltedCols}, 1fr)`;\r\n}\r\n"],
+  "mappings": "AACA,SAAS,2BAA2B;AAK7B,SAAS,mBAAmB,SAA2B,MAAuB;AACjF,MAAI,YAAY,YAAY;AACxB,WAAO,OACD,UAAU,IAAI,WACd,4BAA4B,oBAAoB,gBAAgB;AAAA,EAC1E;AACA,SAAO,UAAU,QAAQ,oBAAoB,WAAW;AAC5D;",
+  "names": []
+}

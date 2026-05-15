@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/ProgressSpinner/ProgressSpinner.constants.ts"],
+  "sourcesContent": ["export const PROGRESS_SPINNER_DEFAULTS = {\r\n  mode: 'indeterminate' as const,\r\n  value: 0 as const,\r\n  strokeWidth: 4 as const,\r\n  size: 'md' as const,\r\n  color: 'primary' as const,\r\n  className: '' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,4BAA4B;AAAA,EACvC,MAAM;AAAA,EACN,OAAO;AAAA,EACP,aAAa;AAAA,EACb,MAAM;AAAA,EACN,OAAO;AAAA,EACP,WAAW;AAAA,EACX,UAAU;AACZ;",
+  "names": []
+}

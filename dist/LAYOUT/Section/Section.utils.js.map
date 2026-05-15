@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Section/Section.utils.ts"],
+  "sourcesContent": ["import { SECTION_CLASSES, SUBSECTION_CLASSES } from './Section.constants';\r\n\r\n/**\r\n * Construye las clases CSS de Section.\r\n */\r\nexport function buildSectionClasses(className?: string): string {\r\n    return [SECTION_CLASSES.base, className].filter(Boolean).join(' ');\r\n}\r\n\r\n/**\r\n * Construye las clases CSS de SubSection.\r\n */\r\nexport function buildSubSectionClasses(className?: string): string {\r\n    return [SUBSECTION_CLASSES.base, className].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,iBAAiB,0BAA0B;AAK7C,SAAS,oBAAoB,WAA4B;AAC5D,SAAO,CAAC,gBAAgB,MAAM,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACrE;AAKO,SAAS,uBAAuB,WAA4B;AAC/D,SAAO,CAAC,mBAAmB,MAAM,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACxE;",
+  "names": []
+}

@@ -1,0 +1,45 @@
+export declare const CART_DEFAULTS: {
+    readonly currency: "USD";
+    readonly currencySymbol: "$";
+    readonly taxRate: 0;
+    readonly shippingCost: 0;
+    readonly freeShippingThreshold: 0;
+    readonly variant: "default";
+    readonly color: "primary";
+    readonly showImage: true;
+    readonly showQuantityControls: true;
+    readonly showRemoveButton: true;
+    readonly showSubtotal: true;
+    readonly showTax: true;
+    readonly showShipping: true;
+    readonly emptyMessage: "Your cart is empty";
+};
+export declare const CART_CLASSES: {
+    readonly root: "w3f-cart";
+    readonly items: "w3f-cart__items";
+    readonly item: "w3f-cart__item";
+    readonly itemImage: "w3f-cart__item-image";
+    readonly itemInfo: "w3f-cart__item-info";
+    readonly itemName: "w3f-cart__item-name";
+    readonly itemDescription: "w3f-cart__item-description";
+    readonly itemPrice: "w3f-cart__item-price";
+    readonly itemQty: "w3f-cart__item-qty";
+    readonly itemQtyBtn: "w3f-cart__item-qty-btn";
+    readonly itemQtyValue: "w3f-cart__item-qty-value";
+    readonly itemRemove: "w3f-cart__item-remove";
+    readonly itemTotal: "w3f-cart__item-total";
+    readonly summary: "w3f-cart__summary";
+    readonly summaryRow: "w3f-cart__summary-row";
+    readonly summaryLabel: "w3f-cart__summary-label";
+    readonly summaryValue: "w3f-cart__summary-value";
+    readonly summaryTotal: "w3f-cart__summary-row--total";
+    readonly freeShipping: "w3f-cart__free-shipping";
+    readonly checkout: "w3f-cart__checkout";
+    readonly clear: "w3f-cart__clear";
+    readonly empty: "w3f-cart__empty";
+    readonly emptyIcon: "w3f-cart__empty-icon";
+    readonly emptyMessage: "w3f-cart__empty-message";
+    readonly header: "w3f-cart__header";
+    readonly itemRemoving: "w3f-cart__item--removing";
+};
+//# sourceMappingURL=ShoppingCart.constants.d.ts.map

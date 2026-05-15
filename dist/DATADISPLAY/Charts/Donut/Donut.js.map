@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Donut/Donut.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { DonutProps } from './Donut.types';\r\nimport { Pie } from '../Pie/Pie';\r\n\r\n/**\r\n * Donut chart \u2014 a Pie with a default inner radius of 0.55.\r\n * All Pie props are forwarded; override `innerRadius` for custom sizing.\r\n */\r\nconst Donut = React.forwardRef<HTMLDivElement, DonutProps>(\r\n    (props, ref) => <Pie ref={ref} innerRadius={0.55} {...props} />,\r\n);\r\nDonut.displayName = 'Donut';\r\nexport { Donut };\r\nexport default Donut;\r\n"],
+  "mappings": ";AAWoB;AATpB,OAAO,WAAW;AAElB,SAAS,WAAW;AAMpB,MAAM,QAAQ,MAAM;AAAA,EAChB,CAAC,OAAO,QAAQ,oBAAC,OAAI,KAAU,aAAa,MAAO,GAAG,OAAO;AACjE;AACA,MAAM,cAAc;AAEpB,IAAO,gBAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Paper/index.ts"],
+  "sourcesContent": ["export { Paper, default } from './Paper';\r\nexport type { PaperProps, PaperVariant, PaperGridColor, PaperSize } from './Paper.types';\r\n"],
+  "mappings": "AAAA,SAAS,OAAO,WAAAA,gBAAe;",
+  "names": ["default"]
+}

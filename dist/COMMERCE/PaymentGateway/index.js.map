@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/COMMERCE/PaymentGateway/index.ts"],
+  "sourcesContent": ["export { PaymentGateway, default } from './PaymentGateway';\r\nexport type {\r\n  PaymentGatewayProps,\r\n  PaymentMethod,\r\n  CardData,\r\n  PaymentData,\r\n  OrderItem,\r\n  CardBrand,\r\n} from './PaymentGateway.types';\r\n"],
+  "mappings": "AAAA,SAAS,gBAAgB,WAAAA,gBAAe;",
+  "names": ["default"]
+}

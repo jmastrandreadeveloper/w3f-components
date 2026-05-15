@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/TreemapChart/TreemapChart.constants.ts"],
+  "sourcesContent": ["export const TREEMAP_CHART_CLASSES = {\r\n  root: 'w3f-chart w3f-treemap-chart',\r\n  unstyled: 'w3f-chart w3f-treemap-chart w3f-treemap-chart--unstyled',\r\n  container: 'w3f-chart__container',\r\n} as const;\r\n\r\nexport const TREEMAP_CHART_DEFAULTS = {\r\n  width: 400,\r\n  height: 300,\r\n  unstyled: false,\r\n} as const;\r\n\r\nexport const DEFAULT_TREEMAP_COLORS = [\r\n  '#6366f1', '#f59e0b', '#10b981', '#ef4444',\r\n  '#8b5cf6', '#06b6d4', '#f97316', '#ec4899',\r\n] as const;\r\n"],
+  "mappings": "AAAO,MAAM,wBAAwB;AAAA,EACnC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,yBAAyB;AAAA,EACpC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,UAAU;AACZ;AAEO,MAAM,yBAAyB;AAAA,EACpC;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AAAA,EACjC;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AACnC;",
+  "names": []
+}

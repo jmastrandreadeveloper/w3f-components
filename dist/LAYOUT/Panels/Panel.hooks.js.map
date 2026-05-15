@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Panels/Panel.hooks.ts"],
+  "sourcesContent": ["import { useState, useCallback } from 'react';\r\n\r\n/**\r\n * Hook para manejar el estado de colapsado/desplegado de un panel.\r\n */\r\nexport const usePanelState = (initialState: boolean = true) => {\r\n    const [isOpen, setIsOpen] = useState(initialState);\r\n\r\n    const togglePanel = useCallback(() => {\r\n        setIsOpen(prev => !prev);\r\n    }, []);\r\n\r\n    return {\r\n        isOpen,\r\n        togglePanel,\r\n    };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,UAAU,mBAAmB;AAK/B,MAAM,gBAAgB,CAAC,eAAwB,SAAS;AAC3D,QAAM,CAAC,QAAQ,SAAS,IAAI,SAAS,YAAY;AAEjD,QAAM,cAAc,YAAY,MAAM;AAClC,cAAU,UAAQ,CAAC,IAAI;AAAA,EAC3B,GAAG,CAAC,CAAC;AAEL,SAAO;AAAA,IACH;AAAA,IACA;AAAA,EACJ;AACJ;",
+  "names": []
+}

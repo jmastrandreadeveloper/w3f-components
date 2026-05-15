@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.utils.ts"],
+  "sourcesContent": ["import type { DatumHierarchy } from '../_base/types';\r\nimport { TREE_DIAGRAM_ROOT_CLASS } from './TreeDiagram.constants';\r\nimport { buildChartRootClasses, resolveColorScheme } from '../_base/utils';\r\n\r\nexport function buildTreeDiagramClasses(className: string | undefined, unstyled: boolean | undefined): string {\r\n    return buildChartRootClasses(TREE_DIAGRAM_ROOT_CLASS, className, unstyled);\r\n}\r\n\r\nexport function buildTreeDiagramColors(count: number, colorScheme: unknown): string[] {\r\n    const palette = resolveColorScheme(colorScheme as any);\r\n    return Array.from({ length: count }, (_, i) => palette[i % palette.length]);\r\n}\r\n\r\nexport function buildTooltipContent(node: DatumHierarchy): string {\r\n    return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ''}`;\r\n}\r\n"],
+  "mappings": "AACA,SAAS,+BAA+B;AACxC,SAAS,uBAAuB,0BAA0B;AAEnD,SAAS,wBAAwB,WAA+B,UAAuC;AAC1G,SAAO,sBAAsB,yBAAyB,WAAW,QAAQ;AAC7E;AAEO,SAAS,uBAAuB,OAAe,aAAgC;AAClF,QAAM,UAAU,mBAAmB,WAAkB;AACrD,SAAO,MAAM,KAAK,EAAE,QAAQ,MAAM,GAAG,CAAC,GAAG,MAAM,QAAQ,IAAI,QAAQ,MAAM,CAAC;AAC9E;AAEO,SAAS,oBAAoB,MAA8B;AAC9D,SAAO,GAAG,KAAK,SAAS,KAAK,EAAE,KAAK,KAAK,OAAO,eAAe,KAAK,EAAE;AAC1E;",
+  "names": []
+}

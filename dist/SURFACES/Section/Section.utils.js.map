@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Section/Section.utils.ts"],
+  "sourcesContent": ["import { SECTION_CLASSES } from './Section.constants';\r\n\r\nexport function buildSectionPanelClassName(className: string, unstyled?: boolean): string {\r\n    const base = SECTION_CLASSES.marginBottom;\r\n    if (unstyled) return [`${base}--unstyled`, className].filter(Boolean).join(' ');\r\n    return `${base} ${className}`.trim();\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,uBAAuB;AAEzB,SAAS,2BAA2B,WAAmB,UAA4B;AACtF,QAAM,OAAO,gBAAgB;AAC7B,MAAI,SAAU,QAAO,CAAC,GAAG,IAAI,cAAc,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC9E,SAAO,GAAG,IAAI,IAAI,SAAS,GAAG,KAAK;AACvC;",
+  "names": []
+}

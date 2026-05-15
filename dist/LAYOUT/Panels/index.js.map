@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Panels/index.ts"],
+  "sourcesContent": ["export { Panel, default } from './Panel';\r\nexport { usePanelState } from './Panel.hooks';\r\nexport type { PanelProps } from './Panel.types';\r\n"],
+  "mappings": "AAAA,SAAS,OAAO,WAAAA,gBAAe;AAC/B,SAAS,qBAAqB;",
+  "names": ["default"]
+}

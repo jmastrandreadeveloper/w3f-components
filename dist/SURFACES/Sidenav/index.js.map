@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Sidenav/index.ts"],
+  "sourcesContent": ["export { Sidenav, default } from './Sidenav';\r\nexport type { SidenavProps, SidenavVariant, TreeNodeData } from './Sidenav.types';\r\n"],
+  "mappings": "AAAA,SAAS,SAAS,WAAAA,gBAAe;",
+  "names": ["default"]
+}

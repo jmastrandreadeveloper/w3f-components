@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Area/Area.constants.ts"],
+  "sourcesContent": ["export const AREA_ROOT_CLASS = 'w3f-chart-area';\r\n\r\nexport const AREA_DEFAULTS = {\r\n    curved: true,\r\n    fillOpacity: 0.3,\r\n    showLine: true,\r\n    strokeWidth: 2,\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,kBAAkB;AAExB,MAAM,gBAAgB;AAAA,EACzB,QAAQ;AAAA,EACR,aAAa;AAAA,EACb,UAAU;AAAA,EACV,aAAa;AAAA,EACb,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

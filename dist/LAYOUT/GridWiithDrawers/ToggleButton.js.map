@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWiithDrawers/ToggleButton.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { ToggleButtonProps } from './GridWithDrawer.types';\r\nimport { GRID_DRAWER_CLASSES } from './GridWithDrawer.constants';\r\n\r\nexport type { ToggleButtonProps } from './GridWithDrawer.types';\r\n\r\n/**\r\n * ToggleButton - Bot\u00F3n para colapsar/expandir el drawer.\r\n */\r\nconst ToggleButton: React.FC<ToggleButtonProps> = ({\r\n    isDrawerOpen,\r\n    onToggle,\r\n    className = '',\r\n}) => {\r\n    return (\r\n        <div className={`${GRID_DRAWER_CLASSES.toggleContainer} ${className}`}>\r\n            <button\r\n                className={GRID_DRAWER_CLASSES.toggleBtn}\r\n                onClick={onToggle}\r\n                type=\"button\"\r\n                title={isDrawerOpen ? 'Colapsar panel' : 'Expandir panel'}\r\n            >\r\n                {isDrawerOpen ? '\u00AB' : '\u00BB'}\r\n            </button>\r\n        </div>\r\n    );\r\n};\r\n\r\nToggleButton.displayName = 'ToggleButton';\r\n\r\nexport { ToggleButton };\r\nexport default ToggleButton;\r\n"],
+  "mappings": ";AAkBY;AAdZ,SAAS,2BAA2B;AAOpC,MAAM,eAA4C,CAAC;AAAA,EAC/C;AAAA,EACA;AAAA,EACA,YAAY;AAChB,MAAM;AACF,SACI,oBAAC,SAAI,WAAW,GAAG,oBAAoB,eAAe,IAAI,SAAS,IAC/D;AAAA,IAAC;AAAA;AAAA,MACG,WAAW,oBAAoB;AAAA,MAC/B,SAAS;AAAA,MACT,MAAK;AAAA,MACL,OAAO,eAAe,mBAAmB;AAAA,MAExC,yBAAe,SAAM;AAAA;AAAA,EAC1B,GACJ;AAER;AAEA,aAAa,cAAc;AAG3B,IAAO,uBAAQ;",
+  "names": []
+}

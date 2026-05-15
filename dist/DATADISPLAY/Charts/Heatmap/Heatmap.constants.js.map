@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Heatmap/Heatmap.constants.ts"],
+  "sourcesContent": ["export const HEATMAP_ROOT_CLASS = 'w3f-chart-heatmap';\r\n\r\nexport const HEATMAP_DEFAULTS = {\r\n    showRowLabels: true,\r\n    showColLabels: true,\r\n    cellRadius: 2,\r\n    colors: ['#e0e7ff', '#6366f1'] as [string, string],\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAE3B,MAAM,mBAAmB;AAAA,EAC5B,eAAe;AAAA,EACf,eAAe;AAAA,EACf,YAAY;AAAA,EACZ,QAAQ,CAAC,WAAW,SAAS;AAAA,EAC7B,UAAU;AACd;",
+  "names": []
+}

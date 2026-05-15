@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Gauge/index.ts"],
+  "sourcesContent": ["export { Gauge } from './Gauge';\r\nexport { GaugeInner } from './GaugeInner';\r\nexport type { GaugeProps, GaugeInnerProps, GaugeThreshold } from './Gauge.types';\r\n"],
+  "mappings": "AAAA,SAAS,aAAa;AACtB,SAAS,kBAAkB;",
+  "names": []
+}

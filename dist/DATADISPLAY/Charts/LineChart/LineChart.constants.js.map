@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/LineChart/LineChart.constants.ts"],
+  "sourcesContent": ["export const LINE_CHART_CLASSES = {\n  root: 'w3f-chart w3f-line-chart',\n  unstyled: 'w3f-chart w3f-line-chart w3f-line-chart--unstyled',\n  container: 'w3f-chart__container',\n} as const;\n\nexport const LINE_CHART_DEFAULTS = {\n  width: 400,\n  height: 300,\n  color: '#6366f1',\n  curved: true,\n  showDots: true,\n  unstyled: false,\n} as const;\n\nexport const LINE_CHART_MARGIN = {\n  top: 20,\n  right: 20,\n  bottom: 40,\n  left: 50,\n} as const;\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAAA,EAChC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,sBAAsB;AAAA,EACjC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,UAAU;AACZ;AAEO,MAAM,oBAAoB;AAAA,EAC/B,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;",
+  "names": []
+}

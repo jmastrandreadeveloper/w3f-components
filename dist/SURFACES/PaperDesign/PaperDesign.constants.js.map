@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PaperDesign/PaperDesign.constants.ts"],
+  "sourcesContent": ["import type { PaperDesignGap } from './PaperDesign.types';\r\n\r\nexport const PAPER_DESIGN_DEFAULTS = {\r\n    columns: 1,\r\n    gap: 'md' as PaperDesignGap,\r\n    unstyled: false,\r\n} as const;\r\n\r\n/** Map de gap a variable CSS del espacio */\r\nexport const GAP_MAP: Record<PaperDesignGap, string> = {\r\n    none: '0',\r\n    xs: 'var(--w3f-space-1)',\r\n    sm: 'var(--w3f-space-2)',\r\n    md: 'var(--w3f-space-4)',\r\n    lg: 'var(--w3f-space-6)',\r\n    xl: 'var(--w3f-space-8)',\r\n};\r\n\r\nexport const PAPER_DESIGN_CLASSES = {\r\n    grid: 'w3f-paper-design-grid',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,wBAAwB;AAAA,EACjC,SAAS;AAAA,EACT,KAAK;AAAA,EACL,UAAU;AACd;AAGO,MAAM,UAA0C;AAAA,EACnD,MAAM;AAAA,EACN,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AACR;AAEO,MAAM,uBAAuB;AAAA,EAChC,MAAM;AACV;",
+  "names": []
+}

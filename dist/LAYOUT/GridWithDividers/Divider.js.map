@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWithDividers/Divider.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { DividerProps } from './GridWithDividers.types';\r\n\r\n/**\r\n * Divider Component - Divisor gen\u00E9rico redimensionable.\r\n */\r\nconst Divider: React.FC<DividerProps> = ({\r\n    onMouseDown,\r\n    isDragging,\r\n    orientation = 'vertical',\r\n    className,\r\n}) => {\r\n    return (\r\n        <div\r\n            className={className}\r\n            onMouseDown={onMouseDown}\r\n        />\r\n    );\r\n};\r\n\r\nDivider.displayName = 'Divider';\r\n\r\nexport { Divider };\r\nexport default Divider;\r\n"],
+  "mappings": ";AAeQ;AAPR,MAAM,UAAkC,CAAC;AAAA,EACrC;AAAA,EACA;AAAA,EACA,cAAc;AAAA,EACd;AACJ,MAAM;AACF,SACI;AAAA,IAAC;AAAA;AAAA,MACG;AAAA,MACA;AAAA;AAAA,EACJ;AAER;AAEA,QAAQ,cAAc;AAGtB,IAAO,kBAAQ;",
+  "names": []
+}

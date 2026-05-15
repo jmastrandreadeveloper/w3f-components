@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/AreaChart/AreaChart.hooks.ts"],
+  "sourcesContent": ["export { useChartDimensions } from '../BarChart/BarChart.hooks';\n"],
+  "mappings": "AAAA,SAAS,0BAA0B;",
+  "names": []
+}

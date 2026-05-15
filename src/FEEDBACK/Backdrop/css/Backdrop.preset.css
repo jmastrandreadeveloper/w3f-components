@@ -1,8 +1,0 @@
-/* Auto-generated from _backdrop.contract.css — DO NOT EDIT */
-
-/* ── Root ── */
-.w3f-backdrop:not(.w3f-backdrop--unstyled) {
-  background-color: var(--w3f-backdrop-bg);
-  transition: var(--w3f-backdrop-transition);
-}
-

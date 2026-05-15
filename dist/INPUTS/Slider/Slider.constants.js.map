@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/Slider/Slider.constants.ts"],
+  "sourcesContent": ["export const SLIDER_CLASSES = {\r\n    component: 'w3f-slider-component',\r\n    wrapper: 'w3f-slider-wrapper',\r\n    container: 'w3f-slider-container',\r\n    input: 'w3f-range-input',\r\n    label: 'w3f-text-primary w3f-text-xl w3f-margin-bottom-4 w3f-block',\r\n    valueWrapper: 'w3f-margin-top-4',\r\n    valueBadge: 'w3f-bg-primary w3f-text-on-primary w3f-padding-x-2 w3f-padding-y-1 w3f-radius-lg w3f-margin-left-2 w3f-shadow-sm',\r\n} as const;\r\n\r\nexport const SLIDER_VARIANT_CLASSES: Record<string, string> = {\r\n    solid: 'w3f-slider--solid',\r\n    outlined: 'w3f-slider--outlined',\r\n    ghost: 'w3f-slider--ghost',\r\n    soft: 'w3f-slider--soft',\r\n};\r\n\r\nexport const SLIDER_DEFAULTS = {\r\n    min: 0,\r\n    max: 100,\r\n    step: 1,\r\n    defaultValue: 50,\r\n    showValue: true,\r\n    disabled: false,\r\n    unstyled: false as const,\r\n};\r\n"],
+  "mappings": "AAAO,MAAM,iBAAiB;AAAA,EAC1B,WAAW;AAAA,EACX,SAAS;AAAA,EACT,WAAW;AAAA,EACX,OAAO;AAAA,EACP,OAAO;AAAA,EACP,cAAc;AAAA,EACd,YAAY;AAChB;AAEO,MAAM,yBAAiD;AAAA,EAC1D,OAAO;AAAA,EACP,UAAU;AAAA,EACV,OAAO;AAAA,EACP,MAAM;AACV;AAEO,MAAM,kBAAkB;AAAA,EAC3B,KAAK;AAAA,EACL,KAAK;AAAA,EACL,MAAM;AAAA,EACN,cAAc;AAAA,EACd,WAAW;AAAA,EACX,UAAU;AAAA,EACV,UAAU;AACd;",
+  "names": []
+}

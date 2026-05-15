@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Row/Row.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { RowProps } from './Row.types';\r\nimport { buildRowClasses } from './Row.utils';\r\n\r\nexport type { RowProps } from './Row.types';\r\n\r\n/**\r\n * Row Component - W3F Framework\r\n *\r\n * Contenedor flexible para columnas.\r\n *\r\n * @example\r\n * <Row>\r\n *   <Col col={6}>Mitad</Col>\r\n *   <Col col={6}>Mitad</Col>\r\n * </Row>\r\n */\r\nconst Row: React.FC<RowProps> = ({\r\n    children,\r\n    className,\r\n    style,\r\n    ...rest\r\n}) => {\r\n    const classes = buildRowClasses(className);\r\n\r\n    return (\r\n        <div className={classes} style={style} {...rest}>\r\n            {children}\r\n        </div>\r\n    );\r\n};\r\n\r\nRow.displayName = 'Row';\r\n\r\nexport { Row };\r\nexport default Row;\r\n"],
+  "mappings": ";AA4BQ;AAxBR,SAAS,uBAAuB;AAehC,MAAM,MAA0B,CAAC;AAAA,EAC7B;AAAA,EACA;AAAA,EACA;AAAA,EACA,GAAG;AACP,MAAM;AACF,QAAM,UAAU,gBAAgB,SAAS;AAEzC,SACI,oBAAC,SAAI,WAAW,SAAS,OAAe,GAAG,MACtC,UACL;AAER;AAEA,IAAI,cAAc;AAGlB,IAAO,cAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Chord/Chord.utils.ts"],
+  "sourcesContent": ["import { CHORD_ROOT_CLASS } from './Chord.constants';\r\nimport { buildChartRootClasses, resolveColorScheme } from '../_base/utils';\r\n\r\nexport function buildChordClasses(className: string | undefined, unstyled: boolean | undefined): string {\r\n    return buildChartRootClasses(CHORD_ROOT_CLASS, className, unstyled);\r\n}\r\n\r\nexport function buildChordColors(count: number, colorScheme: unknown): string[] {\r\n    const palette = resolveColorScheme(colorScheme as any);\r\n    return Array.from({ length: count }, (_, i) => palette[i % palette.length]);\r\n}\r\n\r\nexport function buildTooltipContent(source: string, target: string, value: number): string {\r\n    return `${source} \\u2192 ${target}: ${value.toLocaleString()}`;\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,wBAAwB;AACjC,SAAS,uBAAuB,0BAA0B;AAEnD,SAAS,kBAAkB,WAA+B,UAAuC;AACpG,SAAO,sBAAsB,kBAAkB,WAAW,QAAQ;AACtE;AAEO,SAAS,iBAAiB,OAAe,aAAgC;AAC5E,QAAM,UAAU,mBAAmB,WAAkB;AACrD,SAAO,MAAM,KAAK,EAAE,QAAQ,MAAM,GAAG,CAAC,GAAG,MAAM,QAAQ,IAAI,QAAQ,MAAM,CAAC;AAC9E;AAEO,SAAS,oBAAoB,QAAgB,QAAgB,OAAuB;AACvF,SAAO,GAAG,MAAM,WAAW,MAAM,KAAK,MAAM,eAAe,CAAC;AAChE;",
+  "names": []
+}

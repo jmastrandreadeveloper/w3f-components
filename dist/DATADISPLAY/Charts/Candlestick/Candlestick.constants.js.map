@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Candlestick/Candlestick.constants.ts"],
+  "sourcesContent": ["export const CANDLESTICK_ROOT_CLASS = 'w3f-chart-candlestick';\r\n\r\nexport const CANDLESTICK_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    bullishColor: '#22c55e',\r\n    bearishColor: '#ef4444',\r\n    candleWidthRatio: 0.6,\r\n    showVolume: false,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,yBAAyB;AAE/B,MAAM,uBAAuB;AAAA,EAChC,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,cAAc;AAAA,EACd,cAAc;AAAA,EACd,kBAAkB;AAAA,EAClB,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

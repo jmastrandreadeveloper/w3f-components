@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Waterfall/Waterfall.constants.ts"],
+  "sourcesContent": ["export const WATERFALL_ROOT_CLASS = 'w3f-chart-waterfall';\r\n\r\nexport const WATERFALL_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    showLabels: true,\r\n    showConnectors: true,\r\n    positiveColor: '#22c55e',\r\n    negativeColor: '#ef4444',\r\n    totalColor: '#6366f1',\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAE7B,MAAM,qBAAqB;AAAA,EAC9B,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,gBAAgB;AAAA,EAChB,eAAe;AAAA,EACf,eAAe;AAAA,EACf,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

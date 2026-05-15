@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/_base/ChartHeader.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport { BASE_CHART_CLASSES } from './constants';\r\n\r\ninterface ChartHeaderProps {\r\n    title?: string;\r\n    subtitle?: string;\r\n}\r\n\r\n/**\r\n * ChartHeader \u2014 renders title + subtitle above a chart.\r\n * Returns null if neither title nor subtitle is provided.\r\n */\r\nexport const ChartHeader: React.FC<ChartHeaderProps> = ({ title, subtitle }) => {\r\n    if (!title && !subtitle) return null;\r\n\r\n    return (\r\n        <div className={BASE_CHART_CLASSES.header}>\r\n            {title && <div className={BASE_CHART_CLASSES.title}>{title}</div>}\r\n            {subtitle && <div className={BASE_CHART_CLASSES.subtitle}>{subtitle}</div>}\r\n        </div>\r\n    );\r\n};\r\n\r\nChartHeader.displayName = 'ChartHeader';\r\n"],
+  "mappings": ";AAkBQ,SACc,KADd;AAfR,SAAS,0BAA0B;AAW5B,MAAM,cAA0C,CAAC,EAAE,OAAO,SAAS,MAAM;AAC5E,MAAI,CAAC,SAAS,CAAC,SAAU,QAAO;AAEhC,SACI,qBAAC,SAAI,WAAW,mBAAmB,QAC9B;AAAA,aAAS,oBAAC,SAAI,WAAW,mBAAmB,OAAQ,iBAAM;AAAA,IAC1D,YAAY,oBAAC,SAAI,WAAW,mBAAmB,UAAW,oBAAS;AAAA,KACxE;AAER;AAEA,YAAY,cAAc;",
+  "names": []
+}

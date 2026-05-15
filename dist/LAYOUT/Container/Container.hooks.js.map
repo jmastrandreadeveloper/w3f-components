@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Container/Container.hooks.ts"],
+  "sourcesContent": ["import { buildContainerClass } from './Container.utils';\r\n\r\n/**\r\n * Hook para procesar las propiedades del componente Container.\r\n */\r\nexport const useContainerProps = ({ className = '', ...restProps }: { className?: string;[key: string]: any }) => {\r\n    const finalClassName = buildContainerClass(className);\r\n\r\n    return {\r\n        className: finalClassName,\r\n        ...restProps,\r\n    };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,2BAA2B;AAK7B,MAAM,oBAAoB,CAAC,EAAE,YAAY,IAAI,GAAG,UAAU,MAAiD;AAC9G,QAAM,iBAAiB,oBAAoB,SAAS;AAEpD,SAAO;AAAA,IACH,WAAW;AAAA,IACX,GAAG;AAAA,EACP;AACJ;",
+  "names": []
+}

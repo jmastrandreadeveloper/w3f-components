@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Row/Row.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const ROW_CLASSES = {\r\n    base: 'w3f-row',\r\n} as const;\r\n\r\nexport const COL_CLASSES = {\r\n    base: 'w3f-col',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,cAAc;AAAA,EACvB,MAAM;AACV;AAEO,MAAM,cAAc;AAAA,EACvB,MAAM;AACV;",
+  "names": []
+}

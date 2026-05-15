@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Avatar/Avatar.constants.ts"],
+  "sourcesContent": ["import type { AvatarSize, AvatarColor } from './Avatar.types';\r\n\r\nexport const AVATAR_SIZE_CLASSES: Record<AvatarSize, string> = {\r\n  small: 'w3f-avatar-small',\r\n  medium: 'w3f-avatar-medium',\r\n  large: 'w3f-avatar-large',\r\n  xlarge: 'w3f-avatar-xlarge',\r\n};\r\n\r\nexport const AVATAR_DEFAULTS = {\r\n  size: 'medium' as AvatarSize,\r\n  color: 'gray' as AvatarColor,\r\n  alt: 'Avatar',\r\n  hoverable: false,\r\n  uploadable: false,\r\n  unstyled: false,\r\n  className: '',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,sBAAkD;AAAA,EAC7D,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,QAAQ;AACV;AAEO,MAAM,kBAAkB;AAAA,EAC7B,MAAM;AAAA,EACN,OAAO;AAAA,EACP,KAAK;AAAA,EACL,WAAW;AAAA,EACX,YAAY;AAAA,EACZ,UAAU;AAAA,EACV,WAAW;AACb;",
+  "names": []
+}

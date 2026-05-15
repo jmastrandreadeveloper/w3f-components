@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/NAVIGATION/Link/Link.hooks.ts"],
+  "sourcesContent": ["// Link tiene l\u00F3gica m\u00EDnima \u2014 este hook centraliza el handler de click\r\nimport type React from 'react';\r\n\r\n/**\r\n * Hook que retorna un handler de click seguro para Link.\r\n * Previene la navegaci\u00F3n si el link est\u00E1 deshabilitado.\r\n */\r\nexport function useLinkClick(\r\n    disabled: boolean,\r\n    onClick: ((e: React.MouseEvent) => void) | undefined,\r\n) {\r\n    return (e: React.MouseEvent) => {\r\n        if (disabled) {\r\n            e.preventDefault();\r\n            return;\r\n        }\r\n        if (onClick) onClick(e);\r\n    };\r\n}\r\n"],
+  "mappings": "AAOO,SAAS,aACZ,UACA,SACF;AACE,SAAO,CAAC,MAAwB;AAC5B,QAAI,UAAU;AACV,QAAE,eAAe;AACjB;AAAA,IACJ;AACA,QAAI,QAAS,SAAQ,CAAC;AAAA,EAC1B;AACJ;",
+  "names": []
+}

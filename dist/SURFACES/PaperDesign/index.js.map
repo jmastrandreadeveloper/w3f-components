@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PaperDesign/index.ts"],
+  "sourcesContent": ["export { PaperDesign, default } from './PaperDesign';\r\nexport type { PaperDesignProps, PaperDesignGap } from './PaperDesign.types';\r\n"],
+  "mappings": "AAAA,SAAS,aAAa,WAAAA,gBAAe;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Scatter/Scatter.constants.ts"],
+  "sourcesContent": ["export const SCATTER_ROOT_CLASS = 'w3f-chart-scatter';\r\n\r\nexport const SCATTER_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    pointRadius: 5,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAE3B,MAAM,mBAAmB;AAAA,EAC5B,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

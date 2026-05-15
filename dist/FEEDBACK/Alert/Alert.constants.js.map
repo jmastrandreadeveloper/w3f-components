@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Alert/Alert.constants.ts"],
+  "sourcesContent": ["import type { AlertType, AlertPosition } from './Alert.types';\r\n\r\nexport const ALERT_DEFAULTS = {\r\n  duration: 5000,\r\n  type: 'info' as AlertType,\r\n  dismissible: true,\r\n  position: 'top-right' as AlertPosition,\r\n  round: 'lg' as string | boolean,\r\n  shadow: 'md' as string | boolean,\r\n  border: false as string | string[] | boolean,\r\n  maxAlerts: 5,\r\n} as const;\r\n\r\nexport const ALERT_POSITIONS: Record<AlertPosition, string> = {\r\n  'top-right': 'w3f-alert-container--top-right',\r\n  'top-left': 'w3f-alert-container--top-left',\r\n  'bottom-right': 'w3f-alert-container--bottom-right',\r\n  'bottom-left': 'w3f-alert-container--bottom-left',\r\n  'top-center': 'w3f-alert-container--top-center',\r\n  'bottom-center': 'w3f-alert-container--bottom-center',\r\n};\r\n\r\nexport const SHOW_ALERT_EVENT = 'alert:show';\r\n"],
+  "mappings": "AAEO,MAAM,iBAAiB;AAAA,EAC5B,UAAU;AAAA,EACV,MAAM;AAAA,EACN,aAAa;AAAA,EACb,UAAU;AAAA,EACV,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,QAAQ;AAAA,EACR,WAAW;AACb;AAEO,MAAM,kBAAiD;AAAA,EAC5D,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,gBAAgB;AAAA,EAChB,eAAe;AAAA,EACf,cAAc;AAAA,EACd,iBAAiB;AACnB;AAEO,MAAM,mBAAmB;",
+  "names": []
+}

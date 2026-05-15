@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Backdrop/Backdrop.constants.ts"],
+  "sourcesContent": ["export const BACKDROP_DEFAULTS = {\r\n  transitionDuration: 300,\r\n  invisible: false,\r\n  showSpinner: true,\r\n  spinnerColor: 'primary' as const,\r\n  spinnerSize: 'lg' as const,\r\n} as const;\r\n\r\nexport const BACKDROP_Z_INDEX = 1200;\r\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAAA,EAC/B,oBAAoB;AAAA,EACpB,WAAW;AAAA,EACX,aAAa;AAAA,EACb,cAAc;AAAA,EACd,aAAa;AACf;AAEO,MAAM,mBAAmB;",
+  "names": []
+}

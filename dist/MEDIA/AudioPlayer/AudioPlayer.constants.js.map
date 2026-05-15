@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/MEDIA/AudioPlayer/AudioPlayer.constants.ts"],
+  "sourcesContent": ["import type { AudioVariant, AudioColor } from './AudioPlayer.types';\r\n\r\nexport const AUDIO_BASE_CLASS = 'w3f-audio-player';\r\n\r\nexport const AUDIO_VARIANTS: Record<AudioVariant, string> = {\r\n  default: '',\r\n  compact: 'w3f-audio-player--compact',\r\n  card: 'w3f-audio-player--card',\r\n  minimal: 'w3f-audio-player--minimal',\r\n};\r\n\r\nexport const AUDIO_COLORS: Record<AudioColor, string> = {\r\n  primary: 'w3f-audio-player--primary',\r\n  secondary: 'w3f-audio-player--secondary',\r\n  danger: 'w3f-audio-player--danger',\r\n  info: 'w3f-audio-player--info',\r\n};\r\n\r\nexport const AUDIO_DEFAULTS = {\r\n  autoPlay: false,\r\n  loop: false,\r\n  variant: 'default' as AudioVariant,\r\n  color: 'primary' as AudioColor,\r\n  showVolume: true,\r\n  showPlaybackSpeed: false,\r\n  showProgress: true,\r\n  playbackSpeeds: [0.5, 1, 1.5, 2],\r\n  className: '',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,mBAAmB;AAEzB,MAAM,iBAA+C;AAAA,EAC1D,SAAS;AAAA,EACT,SAAS;AAAA,EACT,MAAM;AAAA,EACN,SAAS;AACX;AAEO,MAAM,eAA2C;AAAA,EACtD,SAAS;AAAA,EACT,WAAW;AAAA,EACX,QAAQ;AAAA,EACR,MAAM;AACR;AAEO,MAAM,iBAAiB;AAAA,EAC5B,UAAU;AAAA,EACV,MAAM;AAAA,EACN,SAAS;AAAA,EACT,OAAO;AAAA,EACP,YAAY;AAAA,EACZ,mBAAmB;AAAA,EACnB,cAAc;AAAA,EACd,gBAAgB,CAAC,KAAK,GAAG,KAAK,CAAC;AAAA,EAC/B,WAAW;AACb;",
+  "names": []
+}

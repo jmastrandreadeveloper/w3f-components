@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/BottomSheetPanel/BottomSheetPanel.constants.ts"],
+  "sourcesContent": ["import type { BottomSheetSize } from './BottomSheetPanel.types';\r\n\r\nexport const SIZE_MAX_HEIGHTS: Record<BottomSheetSize, string> = {\r\n  small: '35vh',\r\n  medium: '60vh',\r\n  large: '85vh',\r\n  full: '95vh',\r\n  auto: 'calc(100vh - 64px)',\r\n};\r\n\r\nexport const BSP_DEFAULTS = {\r\n  size: 'auto' as BottomSheetSize,\r\n  showCloseButton: true,\r\n  closeOnBackdropClick: true,\r\n  closeOnEscape: true,\r\n  className: '',\r\n  unstyled: false as const,\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,mBAAoD;AAAA,EAC/D,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,MAAM;AAAA,EACN,MAAM;AACR;AAEO,MAAM,eAAe;AAAA,EAC1B,MAAM;AAAA,EACN,iBAAiB;AAAA,EACjB,sBAAsB;AAAA,EACtB,eAAe;AAAA,EACf,WAAW;AAAA,EACX,UAAU;AACZ;",
+  "names": []
+}

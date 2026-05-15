@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Dialog/Modal.constants.ts"],
+  "sourcesContent": ["export const MODAL_DEFAULTS = {\r\n  size: 'md' as const,\r\n  closeOnBackdrop: true as const,\r\n  showCloseButton: true as const,\r\n  headerVariant: 'primary' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n\r\nexport const MODAL_CONFIRM_DEFAULTS = {\r\n  title: '\u00BFEst\u00E1s seguro?' as const,\r\n  confirmText: 'Confirmar' as const,\r\n  cancelText: 'Cancelar' as const,\r\n  variant: 'danger' as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,iBAAiB;AAAA,EAC5B,MAAM;AAAA,EACN,iBAAiB;AAAA,EACjB,iBAAiB;AAAA,EACjB,eAAe;AAAA,EACf,UAAU;AACZ;AAEO,MAAM,yBAAyB;AAAA,EACpC,OAAO;AAAA,EACP,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,SAAS;AACX;",
+  "names": []
+}

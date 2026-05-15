@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/ContextMenu/ContextMenu.constants.ts"],
+  "sourcesContent": ["export const CONTEXT_MENU_CLASSES = {\r\n    wrapper: 'w3f-context-menu-wrapper',\r\n    dropdown: 'w3f-nested-menu-dropdown',\r\n    item: 'w3f-nested-menu-item',\r\n    button: 'w3f-nested-menu-button',\r\n    buttonParent: 'w3f-nested-menu-button-parent',\r\n    buttonLeaf: 'w3f-nested-menu-button-leaf',\r\n    label: 'w3f-nested-menu-label',\r\n    arrow: 'w3f-nested-menu-arrow',\r\n    submenu: 'w3f-nested-menu-submenu',\r\n    isActive: 'is-active',\r\n} as const;\r\n\r\nexport const CONTEXT_MENU_DEFAULTS = {\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const CONTEXT_MENU_ITEM_DEFAULTS = {\r\n    level: 0,\r\n    path: [] as number[],\r\n} as const;\r\n\r\nexport const SUBMENU_CLOSE_DELAY = 200;\r\nexport const MENU_WIDTH = 200;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAAA,EAChC,SAAS;AAAA,EACT,UAAU;AAAA,EACV,MAAM;AAAA,EACN,QAAQ;AAAA,EACR,cAAc;AAAA,EACd,YAAY;AAAA,EACZ,OAAO;AAAA,EACP,OAAO;AAAA,EACP,SAAS;AAAA,EACT,UAAU;AACd;AAEO,MAAM,wBAAwB;AAAA,EACjC,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,6BAA6B;AAAA,EACtC,OAAO;AAAA,EACP,MAAM,CAAC;AACX;AAEO,MAAM,sBAAsB;AAC5B,MAAM,aAAa;",
+  "names": []
+}

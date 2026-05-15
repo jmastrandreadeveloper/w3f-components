@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Tag/Tag.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React, { forwardRef } from 'react';\r\nimport type { TagProps } from './Tag.types';\r\nimport { TAG_DEFAULTS } from './Tag.constants';\r\nimport { buildTagClasses } from './Tag.utils';\r\nimport { useBridgeBind } from '@w3f/bridge';\r\n\r\n/**\r\n * Componente Tag - Etiqueta o Insignia (Badge).\r\n * Similar a la clase w3-tag de W3.CSS.\r\n */\r\nconst Tag = forwardRef<HTMLSpanElement, TagProps>(({\r\n    color,\r\n    light = TAG_DEFAULTS.light,\r\n    variant,\r\n    children,\r\n    className = TAG_DEFAULTS.className,\r\n    style = {},\r\n    unstyled = TAG_DEFAULTS.unstyled,\r\n    bindId,\r\n    ...rest\r\n}, ref) => {\r\n    useBridgeBind({ bindId });\r\n    const classes = buildTagClasses(color, light, className, unstyled, variant);\r\n\r\n    return (\r\n        <span ref={ref} className={classes} style={style} {...rest}>\r\n            {children}\r\n        </span>\r\n    );\r\n});\r\n\r\nTag.displayName = 'Tag';\r\n\r\nexport { Tag };\r\nexport default Tag;\r\n"],
+  "mappings": ";AA2BQ;AAzBR,SAAgB,kBAAkB;AAElC,SAAS,oBAAoB;AAC7B,SAAS,uBAAuB;AAChC,SAAS,qBAAqB;AAM9B,MAAM,MAAM,WAAsC,CAAC;AAAA,EAC/C;AAAA,EACA,QAAQ,aAAa;AAAA,EACrB;AAAA,EACA;AAAA,EACA,YAAY,aAAa;AAAA,EACzB,QAAQ,CAAC;AAAA,EACT,WAAW,aAAa;AAAA,EACxB;AAAA,EACA,GAAG;AACP,GAAG,QAAQ;AACP,gBAAc,EAAE,OAAO,CAAC;AACxB,QAAM,UAAU,gBAAgB,OAAO,OAAO,WAAW,UAAU,OAAO;AAE1E,SACI,oBAAC,UAAK,KAAU,WAAW,SAAS,OAAe,GAAG,MACjD,UACL;AAER,CAAC;AAED,IAAI,cAAc;AAGlB,IAAO,cAAQ;",
+  "names": []
+}

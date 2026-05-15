@@ -1,5 +1,3 @@
-/* @w3f/components — theme.css
-   Importa los presets visuales (colores, sombras, radius).
-   Opcional — omitir si usas tus propios tokens CSS. */
+/* @w3f/components — theme.css */
 @import './PRESETS/index.css';
 @import './THEMES/index.css';

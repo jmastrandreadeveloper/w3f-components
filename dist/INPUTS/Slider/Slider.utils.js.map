@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/Slider/Slider.utils.ts"],
+  "sourcesContent": ["export function calcPercentage(value: number, min: number, max: number): number {\r\n    return ((value - min) / (max - min)) * 100;\r\n}\r\n\r\nexport function buildSliderBackground(percentage: number): string {\r\n    return `linear-gradient(to right, var(--w3f-slider-fill-bg, var(--w3f-primary)) 0%, var(--w3f-slider-fill-bg, var(--w3f-primary)) ${percentage}%, var(--w3f-slider-track-bg, var(--w3f-gray-200)) ${percentage}%, var(--w3f-slider-track-bg, var(--w3f-gray-200)) 100%)`;\r\n}\r\n\r\nimport type { SliderVariant } from './Slider.types';\r\nimport { SLIDER_VARIANT_CLASSES } from './Slider.constants';\r\n\r\nexport function buildSliderClasses(className?: string, unstyled?: boolean, variant?: SliderVariant): string {\r\n    const base = 'w3f-slider-component';\r\n    if (unstyled) {\r\n        return [base, 'w3f-slider--unstyled', className].filter(Boolean).join(' ');\r\n    }\r\n    return [base, variant && SLIDER_VARIANT_CLASSES[variant], className].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AAAO,SAAS,eAAe,OAAe,KAAa,KAAqB;AAC5E,UAAS,QAAQ,QAAQ,MAAM,OAAQ;AAC3C;AAEO,SAAS,sBAAsB,YAA4B;AAC9D,SAAO,6HAA6H,UAAU,sDAAsD,UAAU;AAClN;AAGA,SAAS,8BAA8B;AAEhC,SAAS,mBAAmB,WAAoB,UAAoB,SAAiC;AACxG,QAAM,OAAO;AACb,MAAI,UAAU;AACV,WAAO,CAAC,MAAM,wBAAwB,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAAA,EAC7E;AACA,SAAO,CAAC,MAAM,WAAW,uBAAuB,OAAO,GAAG,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACjG;",
+  "names": []
+}

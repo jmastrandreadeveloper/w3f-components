@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/VerticalPadding/index.ts"],
+  "sourcesContent": ["export { VerticalPadding, default } from './VerticalPadding';\r\nexport { useVerticalPaddingState } from './VerticalPadding.hooks';\r\nexport type { VerticalPaddingProps, VerticalPaddingSize } from './VerticalPadding.types';\r\n"],
+  "mappings": "AAAA,SAAS,iBAAiB,WAAAA,gBAAe;AACzC,SAAS,+BAA+B;",
+  "names": ["default"]
+}

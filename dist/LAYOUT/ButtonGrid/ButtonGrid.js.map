@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/ButtonGrid/ButtonGrid.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { ButtonGridProps } from './ButtonGrid.types';\r\nimport { BUTTON_GRID_DEFAULTS } from './ButtonGrid.constants';\r\nimport { buildButtonGridClasses } from './ButtonGrid.utils';\r\n\r\nexport type { ButtonGridProps, ButtonGridAlign } from './ButtonGrid.types';\r\n\r\n/**\r\n * ButtonGrid Component - W3F Framework\r\n *\r\n * Contenedor flexible para organizar botones en una fila con wrap.\r\n *\r\n * @example\r\n * <ButtonGrid align=\"center\">\r\n *   <Button>Guardar</Button>\r\n *   <Button>Cancelar</Button>\r\n * </ButtonGrid>\r\n */\r\nconst ButtonGrid: React.FC<ButtonGridProps> = ({\r\n    children,\r\n    align = BUTTON_GRID_DEFAULTS.align,\r\n    as: Element = BUTTON_GRID_DEFAULTS.as,\r\n    className,\r\n    style,\r\n    ...rest\r\n}) => {\r\n    const classes = buildButtonGridClasses(align, className);\r\n\r\n    return (\r\n        <Element className={classes} style={style} {...rest}>\r\n            {children}\r\n        </Element>\r\n    );\r\n};\r\n\r\nButtonGrid.displayName = 'ButtonGrid';\r\n\r\nexport { ButtonGrid };\r\nexport default ButtonGrid;\r\n"],
+  "mappings": ";AA+BQ;AA3BR,SAAS,4BAA4B;AACrC,SAAS,8BAA8B;AAevC,MAAM,aAAwC,CAAC;AAAA,EAC3C;AAAA,EACA,QAAQ,qBAAqB;AAAA,EAC7B,IAAI,UAAU,qBAAqB;AAAA,EACnC;AAAA,EACA;AAAA,EACA,GAAG;AACP,MAAM;AACF,QAAM,UAAU,uBAAuB,OAAO,SAAS;AAEvD,SACI,oBAAC,WAAQ,WAAW,SAAS,OAAe,GAAG,MAC1C,UACL;AAER;AAEA,WAAW,cAAc;AAGzB,IAAO,qBAAQ;",
+  "names": []
+}

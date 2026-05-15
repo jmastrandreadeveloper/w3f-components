@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Tabs/index.ts"],
+  "sourcesContent": ["export { Tabs, default } from './Tabs';\r\nexport type { TabsProps, TabItem, TabsVariant, TabsColorScheme } from './Tabs.types';\r\n"],
+  "mappings": "AAAA,SAAS,MAAM,WAAAA,gBAAe;",
+  "names": ["default"]
+}

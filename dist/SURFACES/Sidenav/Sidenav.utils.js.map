@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Sidenav/Sidenav.utils.ts"],
+  "sourcesContent": ["import type { SidenavVariant } from './Sidenav.types';\r\nimport { SIDENAV_CLASSES } from './Sidenav.constants';\r\n\r\nexport function buildSidenavContainerClasses(\r\n    variant: SidenavVariant,\r\n    className: string,\r\n    unstyled?: boolean,\r\n): string {\r\n    const base = SIDENAV_CLASSES.container;\r\n    if (unstyled) return [base, `${base}--unstyled`, className].filter(Boolean).join(' ');\r\n    return [\r\n        base,\r\n        variant === 'compact' && SIDENAV_CLASSES.compact,\r\n        variant === 'expanded' && SIDENAV_CLASSES.expanded,\r\n        variant === 'light' && SIDENAV_CLASSES.light,\r\n        className,\r\n    ]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,uBAAuB;AAEzB,SAAS,6BACZ,SACA,WACA,UACM;AACN,QAAM,OAAO,gBAAgB;AAC7B,MAAI,SAAU,QAAO,CAAC,MAAM,GAAG,IAAI,cAAc,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACpF,SAAO;AAAA,IACH;AAAA,IACA,YAAY,aAAa,gBAAgB;AAAA,IACzC,YAAY,cAAc,gBAAgB;AAAA,IAC1C,YAAY,WAAW,gBAAgB;AAAA,IACvC;AAAA,EACJ,EACK,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;",
+  "names": []
+}

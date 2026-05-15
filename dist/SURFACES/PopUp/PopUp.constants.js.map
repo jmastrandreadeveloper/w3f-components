@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PopUp/PopUp.constants.ts"],
+  "sourcesContent": ["import type { PopUpSize, PopUpVariant } from './PopUp.types';\r\n\r\nexport const POPUP_DEFAULTS = {\r\n    confirmText: 'Aceptar',\r\n    cancelText: 'Cancelar',\r\n    showCancel: true,\r\n    variant: 'elevated' as PopUpVariant,\r\n    size: 'md' as PopUpSize,\r\n    closeOnOverlayClick: true,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const POPUP_CLASSES = {\r\n    overlay: 'w3f-popup-overlay',\r\n    overlayOpen: 'is-open',\r\n    container: 'w3f-popup-container',\r\n    card: 'w3f-popup-card',\r\n    closeBtn: 'w3f-popup-close-btn',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,iBAAiB;AAAA,EAC1B,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,YAAY;AAAA,EACZ,SAAS;AAAA,EACT,MAAM;AAAA,EACN,qBAAqB;AAAA,EACrB,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,gBAAgB;AAAA,EACzB,SAAS;AAAA,EACT,aAAa;AAAA,EACb,WAAW;AAAA,EACX,MAAM;AAAA,EACN,UAAU;AACd;",
+  "names": []
+}

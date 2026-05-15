@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Tag/Tag.constants.ts"],
+  "sourcesContent": ["export const TAG_DEFAULTS = {\r\n  light: false as const,\r\n  className: '' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n\r\nexport const TAG_VARIANT_CLASSES = {\r\n  solid: 'w3f-tag--solid',\r\n  outlined: 'w3f-tag--outlined',\r\n  ghost: 'w3f-tag--ghost',\r\n  soft: 'w3f-tag--soft',\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,eAAe;AAAA,EAC1B,OAAO;AAAA,EACP,WAAW;AAAA,EACX,UAAU;AACZ;AAEO,MAAM,sBAAsB;AAAA,EACjC,OAAO;AAAA,EACP,UAAU;AAAA,EACV,OAAO;AAAA,EACP,MAAM;AACR;",
+  "names": []
+}

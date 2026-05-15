@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Window/index.ts"],
+  "sourcesContent": ["export { Window, default } from './Window';\r\nexport type { WindowProps, WindowOsStyle, WindowSize, WindowPosition, WindowDimensions } from './Window.types';\r\n"],
+  "mappings": "AAAA,SAAS,QAAQ,WAAAA,gBAAe;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Sunburst/Sunburst.constants.ts"],
+  "sourcesContent": ["export const SUNBURST_ROOT_CLASS = 'w3f-chart-sunburst';\r\n\r\nexport const SUNBURST_DEFAULTS = {\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    padAngle: 0.01,\r\n    cornerRadius: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,sBAAsB;AAE5B,MAAM,oBAAoB;AAAA,EAC7B,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,UAAU;AAAA,EACV,cAAc;AAAA,EACd,UAAU;AACd;",
+  "names": []
+}

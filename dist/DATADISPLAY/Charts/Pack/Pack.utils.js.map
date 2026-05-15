@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Pack/Pack.utils.ts"],
+  "sourcesContent": ["import type { DatumHierarchy } from '../_base/types';\r\nimport { PACK_ROOT_CLASS } from './Pack.constants';\r\nimport { buildChartRootClasses, resolveColorScheme } from '../_base/utils';\r\n\r\nexport function buildPackClasses(className: string | undefined, unstyled: boolean | undefined): string {\r\n    return buildChartRootClasses(PACK_ROOT_CLASS, className, unstyled);\r\n}\r\n\r\nexport function buildPackColors(leafCount: number, colorScheme: unknown): string[] {\r\n    const palette = resolveColorScheme(colorScheme as any);\r\n    return Array.from({ length: leafCount }, (_, i) => palette[i % palette.length]);\r\n}\r\n\r\nexport function buildTooltipContent(node: DatumHierarchy): string {\r\n    return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ''}`;\r\n}\r\n"],
+  "mappings": "AACA,SAAS,uBAAuB;AAChC,SAAS,uBAAuB,0BAA0B;AAEnD,SAAS,iBAAiB,WAA+B,UAAuC;AACnG,SAAO,sBAAsB,iBAAiB,WAAW,QAAQ;AACrE;AAEO,SAAS,gBAAgB,WAAmB,aAAgC;AAC/E,QAAM,UAAU,mBAAmB,WAAkB;AACrD,SAAO,MAAM,KAAK,EAAE,QAAQ,UAAU,GAAG,CAAC,GAAG,MAAM,QAAQ,IAAI,QAAQ,MAAM,CAAC;AAClF;AAEO,SAAS,oBAAoB,MAA8B;AAC9D,SAAO,GAAG,KAAK,SAAS,KAAK,EAAE,KAAK,KAAK,OAAO,eAAe,KAAK,EAAE;AAC1E;",
+  "names": []
+}

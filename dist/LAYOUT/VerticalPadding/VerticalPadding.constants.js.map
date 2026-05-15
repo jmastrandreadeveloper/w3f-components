@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/VerticalPadding/VerticalPadding.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 VerticalPadding Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const VERTICAL_PADDING_DEFAULTS = {\r\n    size: 'md' as const,\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 Size to class map \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const SIZE_TO_PADDING_CLASS: Record<string, string> = {\r\n    '0': 'w3f-py-0',\r\n    none: 'w3f-py-0',\r\n    xs: 'w3f-py-1',\r\n    sm: 'w3f-py-2',\r\n    md: 'w3f-py-4',\r\n    lg: 'w3f-py-6',\r\n    xl: 'w3f-py-8',\r\n    '2xl': 'w3f-py-12',\r\n    '3xl': 'w3f-py-16',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,4BAA4B;AAAA,EACrC,MAAM;AACV;AAGO,MAAM,wBAAgD;AAAA,EACzD,KAAK;AAAA,EACL,MAAM;AAAA,EACN,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,IAAI;AAAA,EACJ,OAAO;AAAA,EACP,OAAO;AACX;",
+  "names": []
+}

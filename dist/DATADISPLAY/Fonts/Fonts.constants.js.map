@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Fonts/Fonts.constants.ts"],
+  "sourcesContent": ["import type { FontSize, FontFamily, FontWeight, FontWritingMode, FontTransform } from './Fonts.types';\r\n\r\nexport const FONTS_DEFAULTS = {\r\n  text: 'Texto de ejemplo',\r\n  customClasses: '',\r\n  size: 'base' as FontSize,\r\n  family: 'sans' as FontFamily,\r\n  weight: 'normal' as FontWeight,\r\n  italic: false,\r\n  underline: false,\r\n  writingMode: 'horizontal' as FontWritingMode,\r\n  transform: 'none' as FontTransform,\r\n  unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,iBAAiB;AAAA,EAC5B,MAAM;AAAA,EACN,eAAe;AAAA,EACf,MAAM;AAAA,EACN,QAAQ;AAAA,EACR,QAAQ;AAAA,EACR,QAAQ;AAAA,EACR,WAAW;AAAA,EACX,aAAa;AAAA,EACb,WAAW;AAAA,EACX,UAAU;AACZ;",
+  "names": []
+}

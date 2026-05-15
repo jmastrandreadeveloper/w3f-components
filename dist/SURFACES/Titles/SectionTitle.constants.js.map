@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Titles/SectionTitle.constants.ts"],
+  "sourcesContent": ["import type { SectionTitleAlign } from './SectionTitle.types';\r\n\r\nexport const SECTION_TITLE_DEFAULTS = {\r\n    align: 'left' as SectionTitleAlign,\r\n    borderColor: '',\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const SECTION_TITLE_CLASSES = {\r\n    container: 'w3f-section-title',\r\n    title: 'w3f-section-title__h',\r\n    subtitle: 'w3f-section-title__sub',\r\n    alignLeft: 'w3f-section-title--left',\r\n    alignCenter: 'w3f-section-title--center',\r\n    alignRight: 'w3f-section-title--right',\r\n    alignJustify: 'w3f-section-title--justify',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,yBAAyB;AAAA,EAClC,OAAO;AAAA,EACP,aAAa;AAAA,EACb,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,wBAAwB;AAAA,EACjC,WAAW;AAAA,EACX,OAAO;AAAA,EACP,UAAU;AAAA,EACV,WAAW;AAAA,EACX,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,cAAc;AAClB;",
+  "names": []
+}

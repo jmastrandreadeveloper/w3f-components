@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Section/Section.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 Section CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const SECTION_CLASSES = {\r\n    base: 'w3f-mb-16',\r\n    title: 'w3f-text-3xl w3f-mb-4 w3f-text-gray-800',\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 SubSection CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const SUBSECTION_CLASSES = {\r\n    base: 'w3f-mt-8',\r\n    title: 'w3f-text-xl w3f-mb-4 w3f-text-gray-700',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,kBAAkB;AAAA,EAC3B,MAAM;AAAA,EACN,OAAO;AACX;AAGO,MAAM,qBAAqB;AAAA,EAC9B,MAAM;AAAA,EACN,OAAO;AACX;",
+  "names": []
+}

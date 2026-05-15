@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PopUp/index.ts"],
+  "sourcesContent": ["export { PopUp, default } from './PopUp';\r\nexport type { PopUpProps, PopUpVariant, PopUpSize } from './PopUp.types';\r\n"],
+  "mappings": "AAAA,SAAS,OAAO,WAAAA,gBAAe;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Section/Section.constants.ts"],
+  "sourcesContent": ["export const SECTION_DEFAULTS = {\r\n    card: true,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const SECTION_CLASSES = {\r\n    header: 'w3f-panel-header',\r\n    title: 'w3f-panel-title',\r\n    body: 'w3f-panel-body',\r\n    description: 'w3f-text-gray-600 w3f-text-sm w3f-mb-6',\r\n    content: 'w3f-flex w3f-flex-col w3f-gap-4',\r\n    marginBottom: 'w3f-mb-8',\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAAA,EAC5B,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,kBAAkB;AAAA,EAC3B,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,MAAM;AAAA,EACN,aAAa;AAAA,EACb,SAAS;AAAA,EACT,cAAc;AAClB;",
+  "names": []
+}

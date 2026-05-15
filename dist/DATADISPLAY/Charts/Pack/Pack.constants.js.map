@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Pack/Pack.constants.ts"],
+  "sourcesContent": ["export const PACK_ROOT_CLASS = 'w3f-chart-pack';\r\n\r\nexport const PACK_DEFAULTS = {\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    circlePadding: 4,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,kBAAkB;AAExB,MAAM,gBAAgB;AAAA,EACzB,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,eAAe;AAAA,EACf,UAAU;AACd;",
+  "names": []
+}

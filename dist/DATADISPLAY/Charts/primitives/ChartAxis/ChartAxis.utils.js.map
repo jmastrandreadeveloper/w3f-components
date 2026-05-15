@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.utils.ts"],
+  "sourcesContent": ["import type { ChartAxisOrientation } from './ChartAxis.types';\r\nimport { CHART_AXIS_CLASSES } from './ChartAxis.constants';\r\n\r\nexport function buildAxisClasses(\r\n    orientation: ChartAxisOrientation,\r\n    className?: string,\r\n): string {\r\n    const orientationClass = CHART_AXIS_CLASSES[orientation];\r\n    return [CHART_AXIS_CLASSES.root, orientationClass, className]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,0BAA0B;AAE5B,SAAS,iBACZ,aACA,WACM;AACN,QAAM,mBAAmB,mBAAmB,WAAW;AACvD,SAAO,CAAC,mBAAmB,MAAM,kBAAkB,SAAS,EACvD,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Container/Container.utils.ts"],
+  "sourcesContent": ["import { CONTAINER_CLASSES } from './Container.constants';\r\n\r\n/**\r\n * Concatena y normaliza las clases de W3F para el componente Container.\r\n */\r\nexport const buildContainerClass = (additionalClasses: string = ''): string => {\r\n    return `${CONTAINER_CLASSES.base} ${additionalClasses}`.trim();\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,yBAAyB;AAK3B,MAAM,sBAAsB,CAAC,oBAA4B,OAAe;AAC3E,SAAO,GAAG,kBAAkB,IAAI,IAAI,iBAAiB,GAAG,KAAK;AACjE;",
+  "names": []
+}

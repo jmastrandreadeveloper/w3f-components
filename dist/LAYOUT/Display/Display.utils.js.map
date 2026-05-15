@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Display/Display.utils.ts"],
+  "sourcesContent": ["import { W3F_POSITION_CLASSES } from './Display.constants';\r\n\r\n/**\r\n * Construye las clases CSS del DisplayContainer.\r\n */\r\nexport function buildDisplayContainerClasses(className?: string): string {\r\n    return [W3F_POSITION_CLASSES.CONTAINER, className].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,4BAA4B;AAK9B,SAAS,6BAA6B,WAA4B;AACrE,SAAO,CAAC,qBAAqB,WAAW,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC/E;",
+  "names": []
+}

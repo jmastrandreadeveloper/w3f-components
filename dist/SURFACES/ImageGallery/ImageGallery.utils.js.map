@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/ImageGallery/ImageGallery.utils.ts"],
+  "sourcesContent": ["import { IMAGE_GALLERY_CLASSES } from './ImageGallery.constants';\r\nimport type { GalleryLayout } from './ImageGallery.types';\r\n\r\nexport function buildGalleryClasses(\r\n    layout: GalleryLayout,\r\n    className?: string,\r\n    unstyled?: boolean,\r\n): string {\r\n    const base = IMAGE_GALLERY_CLASSES.gallery;\r\n    if (unstyled) return [base, `${base}--unstyled`, className].filter(Boolean).join(' ');\r\n    const layoutClass = IMAGE_GALLERY_CLASSES[layout] || '';\r\n    return [base, layoutClass, className].filter(Boolean).join(' ');\r\n}\r\n\r\nexport function buildGridStyle(\r\n    layout: GalleryLayout,\r\n    columns: number,\r\n    gap: number,\r\n): React.CSSProperties {\r\n    if (layout !== 'grid') return {};\r\n    return {\r\n        gridTemplateColumns: `repeat(${columns}, 1fr)`,\r\n        gap: `var(--w3f-space-${gap})`,\r\n    };\r\n}\r\n\r\nimport type React from 'react';\r\n"],
+  "mappings": "AAAA,SAAS,6BAA6B;AAG/B,SAAS,oBACZ,QACA,WACA,UACM;AACN,QAAM,OAAO,sBAAsB;AACnC,MAAI,SAAU,QAAO,CAAC,MAAM,GAAG,IAAI,cAAc,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACpF,QAAM,cAAc,sBAAsB,MAAM,KAAK;AACrD,SAAO,CAAC,MAAM,aAAa,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAClE;AAEO,SAAS,eACZ,QACA,SACA,KACmB;AACnB,MAAI,WAAW,OAAQ,QAAO,CAAC;AAC/B,SAAO;AAAA,IACH,qBAAqB,UAAU,OAAO;AAAA,IACtC,KAAK,mBAAmB,GAAG;AAAA,EAC/B;AACJ;",
+  "names": []
+}

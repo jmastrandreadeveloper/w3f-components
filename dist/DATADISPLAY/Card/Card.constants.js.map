@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Card/Card.constants.ts"],
+  "sourcesContent": ["export const CARD_DEFAULTS = {\r\n  imageAlt: '' as const,\r\n  imagePosition: 'top' as const,\r\n  buttons: [] as const,\r\n  variant: 'default' as const,\r\n  hoverable: false as const,\r\n  clickable: false as const,\r\n  className: '' as const,\r\n  headerClassName: '' as const,\r\n  contentClassName: '' as const,\r\n  actionsClassName: '' as const,\r\n  fullWidth: false as const,\r\n  size: 'md' as const,\r\n  actionsAlign: 'start' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,gBAAgB;AAAA,EAC3B,UAAU;AAAA,EACV,eAAe;AAAA,EACf,SAAS,CAAC;AAAA,EACV,SAAS;AAAA,EACT,WAAW;AAAA,EACX,WAAW;AAAA,EACX,WAAW;AAAA,EACX,iBAAiB;AAAA,EACjB,kBAAkB;AAAA,EAClB,kBAAkB;AAAA,EAClB,WAAW;AAAA,EACX,MAAM;AAAA,EACN,cAAc;AAAA,EACd,UAAU;AACZ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Chip/Chip.utils.ts"],
+  "sourcesContent": ["import type { ChipVariant } from './Chip.types';\r\nimport { CHIP_VARIANT_CLASSES } from './Chip.constants';\r\n\r\n/**\r\n * Construye las clases CSS para el componente Chip.\r\n */\r\nexport const buildChipClasses = (\r\n    disabled: boolean,\r\n    isFocused: boolean,\r\n    className?: string,\r\n    unstyled?: boolean,\r\n    variant?: ChipVariant,\r\n): string => {\r\n    if (unstyled) {\r\n        return ['w3f-chip', 'w3f-chip--unstyled', className].filter(Boolean).join(' ');\r\n    }\r\n\r\n    const classes: string[] = ['w3f-chip'];\r\n\r\n    if (disabled) classes.push('w3f-chip--disabled');\r\n    if (isFocused) classes.push('w3f-chip--focused');\r\n    if (variant) classes.push(CHIP_VARIANT_CLASSES[variant]);\r\n\r\n    if (className) classes.push(className);\r\n\r\n    return classes.join(' ');\r\n};\r\n"],
+  "mappings": "AACA,SAAS,4BAA4B;AAK9B,MAAM,mBAAmB,CAC5B,UACA,WACA,WACA,UACA,YACS;AACT,MAAI,UAAU;AACV,WAAO,CAAC,YAAY,sBAAsB,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAAA,EACjF;AAEA,QAAM,UAAoB,CAAC,UAAU;AAErC,MAAI,SAAU,SAAQ,KAAK,oBAAoB;AAC/C,MAAI,UAAW,SAAQ,KAAK,mBAAmB;AAC/C,MAAI,QAAS,SAAQ,KAAK,qBAAqB,OAAO,CAAC;AAEvD,MAAI,UAAW,SAAQ,KAAK,SAAS;AAErC,SAAO,QAAQ,KAAK,GAAG;AAC3B;",
+  "names": []
+}

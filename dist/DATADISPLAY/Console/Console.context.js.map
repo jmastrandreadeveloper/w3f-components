@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Console/Console.context.ts"],
+  "sourcesContent": ["import { createContext } from 'react';\r\nimport type { ConsoleContextValue } from './Console.types';\r\n\r\n/**\r\n * Contexto de Console \u2014 provee logMessage, log, warn, error, success, debug y clear\r\n * a cualquier descendiente.\r\n *\r\n * Consumir con useConsole() en lugar de useContext directamente.\r\n */\r\nexport const ConsoleContext = createContext<ConsoleContextValue | null>(null);\r\n"],
+  "mappings": "AAAA,SAAS,qBAAqB;AASvB,MAAM,iBAAiB,cAA0C,IAAI;",
+  "names": []
+}

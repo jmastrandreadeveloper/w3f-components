@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/NAVIGATION/Stepper/Stepper.hooks.ts"],
+  "sourcesContent": ["import { useState, useEffect, useRef } from 'react';\r\n\r\n/**\r\n * Hook para la animaci\u00F3n de expand/collapse de StepContent (vertical).\r\n */\r\nexport function useStepContentAnimation(active: boolean) {\r\n    const contentRef = useRef<HTMLDivElement>(null);\r\n    const [maxHeight, setMaxHeight] = useState(active ? 'none' : '0');\r\n\r\n    useEffect(() => {\r\n        if (active) {\r\n            const el = contentRef.current;\r\n            if (el) setMaxHeight(`${el.scrollHeight + 50}px`);\r\n        } else {\r\n            setMaxHeight('0');\r\n        }\r\n    }, [active]);\r\n\r\n    return { contentRef, maxHeight };\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,UAAU,WAAW,cAAc;AAKrC,SAAS,wBAAwB,QAAiB;AACrD,QAAM,aAAa,OAAuB,IAAI;AAC9C,QAAM,CAAC,WAAW,YAAY,IAAI,SAAS,SAAS,SAAS,GAAG;AAEhE,YAAU,MAAM;AACZ,QAAI,QAAQ;AACR,YAAM,KAAK,WAAW;AACtB,UAAI,GAAI,cAAa,GAAG,GAAG,eAAe,EAAE,IAAI;AAAA,IACpD,OAAO;AACH,mBAAa,GAAG;AAAA,IACpB;AAAA,EACJ,GAAG,CAAC,MAAM,CAAC;AAEX,SAAO,EAAE,YAAY,UAAU;AACnC;",
+  "names": []
+}

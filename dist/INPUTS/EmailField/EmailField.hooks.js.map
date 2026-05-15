@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/EmailField/EmailField.hooks.ts"],
+  "sourcesContent": ["import { useContext, useState } from 'react';\r\nimport { FormContext, FormDispatchContext, FormMetaContext, FormFieldStoreContext } from '../Form/Form';\r\nimport type { FormContextValue } from '../Form/Form.types';\r\n\r\n/** @deprecated Use useFormDispatch + useFormFieldValue for better performance */\r\nexport const useEmailFieldFormContext = (): FormContextValue | null => {\r\n    return useContext(FormContext);\r\n};\r\n\r\nexport const useEmailFieldFormDispatch = () => useContext(FormDispatchContext);\r\nexport const useEmailFieldFormMeta = () => useContext(FormMetaContext);\r\nexport const useEmailFieldFieldStore = () => useContext(FormFieldStoreContext);\r\n\r\nexport const useEmailFieldFocus = () => {\r\n    const [isFocused, setIsFocused] = useState(false);\r\n    return {\r\n        isFocused,\r\n        onFocus: () => setIsFocused(true),\r\n        onBlur: () => setIsFocused(false),\r\n    };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,YAAY,gBAAgB;AACrC,SAAS,aAAa,qBAAqB,iBAAiB,6BAA6B;AAIlF,MAAM,2BAA2B,MAA+B;AACnE,SAAO,WAAW,WAAW;AACjC;AAEO,MAAM,4BAA4B,MAAM,WAAW,mBAAmB;AACtE,MAAM,wBAAwB,MAAM,WAAW,eAAe;AAC9D,MAAM,0BAA0B,MAAM,WAAW,qBAAqB;AAEtE,MAAM,qBAAqB,MAAM;AACpC,QAAM,CAAC,WAAW,YAAY,IAAI,SAAS,KAAK;AAChD,SAAO;AAAA,IACH;AAAA,IACA,SAAS,MAAM,aAAa,IAAI;AAAA,IAChC,QAAQ,MAAM,aAAa,KAAK;AAAA,EACpC;AACJ;",
+  "names": []
+}

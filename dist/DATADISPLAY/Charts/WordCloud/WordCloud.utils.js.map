@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/WordCloud/WordCloud.utils.ts"],
+  "sourcesContent": ["import type { WordCloudDatum } from './WordCloud.types';\r\nimport { WORDCLOUD_ROOT_CLASS } from './WordCloud.constants';\r\nimport { buildChartRootClasses, resolveColorScheme } from '../_base/utils';\r\n\r\nexport function buildWordCloudClasses(className: string | undefined, unstyled: boolean | undefined): string {\r\n    return buildChartRootClasses(WORDCLOUD_ROOT_CLASS, className, unstyled);\r\n}\r\n\r\nexport function buildWordCloudColors(count: number, colorScheme: unknown): string[] {\r\n    const palette = resolveColorScheme(colorScheme as any);\r\n    return Array.from({ length: count }, (_, i) => palette[i % palette.length]);\r\n}\r\n\r\nexport function buildTooltipContent(datum: WordCloudDatum): string {\r\n    return `${datum.text}: ${datum.value.toLocaleString()}`;\r\n}\r\n"],
+  "mappings": "AACA,SAAS,4BAA4B;AACrC,SAAS,uBAAuB,0BAA0B;AAEnD,SAAS,sBAAsB,WAA+B,UAAuC;AACxG,SAAO,sBAAsB,sBAAsB,WAAW,QAAQ;AAC1E;AAEO,SAAS,qBAAqB,OAAe,aAAgC;AAChF,QAAM,UAAU,mBAAmB,WAAkB;AACrD,SAAO,MAAM,KAAK,EAAE,QAAQ,MAAM,GAAG,CAAC,GAAG,MAAM,QAAQ,IAAI,QAAQ,MAAM,CAAC;AAC9E;AAEO,SAAS,oBAAoB,OAA+B;AAC/D,SAAO,GAAG,MAAM,IAAI,KAAK,MAAM,MAAM,eAAe,CAAC;AACzD;",
+  "names": []
+}

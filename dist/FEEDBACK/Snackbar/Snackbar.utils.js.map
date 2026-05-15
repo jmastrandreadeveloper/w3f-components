@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Snackbar/Snackbar.utils.ts"],
+  "sourcesContent": ["import type { SnackbarVariant, SnackbarAnchorOrigin } from './Snackbar.types';\r\nimport { SNACKBAR_VARIANTS } from './Snackbar.constants';\r\n\r\nexport function getSnackbarPositionKey(anchorOrigin: SnackbarAnchorOrigin): string {\r\n  return `${anchorOrigin.vertical}-${anchorOrigin.horizontal}`;\r\n}\r\n\r\nexport function buildAnchorClasses(anchorOrigin: SnackbarAnchorOrigin): string {\r\n  const posKey = getSnackbarPositionKey(anchorOrigin);\r\n  return `w3f-snackbar-anchor w3f-snackbar-anchor--${posKey}`;\r\n}\r\n\r\nexport function buildSnackbarClasses(\r\n  variant: SnackbarVariant,\r\n  isExiting: boolean,\r\n  className?: string\r\n): string {\r\n  return [\r\n    'w3f-snackbar',\r\n    SNACKBAR_VARIANTS[variant] || '',\r\n    isExiting && 'w3f-snackbar--exit',\r\n    className,\r\n  ].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,yBAAyB;AAE3B,SAAS,uBAAuB,cAA4C;AACjF,SAAO,GAAG,aAAa,QAAQ,IAAI,aAAa,UAAU;AAC5D;AAEO,SAAS,mBAAmB,cAA4C;AAC7E,QAAM,SAAS,uBAAuB,YAAY;AAClD,SAAO,4CAA4C,MAAM;AAC3D;AAEO,SAAS,qBACd,SACA,WACA,WACQ;AACR,SAAO;AAAA,IACL;AAAA,IACA,kBAAkB,OAAO,KAAK;AAAA,IAC9B,aAAa;AAAA,IACb;AAAA,EACF,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC5B;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.constants.ts"],
+  "sourcesContent": ["export const CHART_GRID_CLASSES = {\r\n    root: 'w3f-chart-grid',\r\n    rows: 'w3f-chart-grid--rows',\r\n    columns: 'w3f-chart-grid--columns',\r\n} as const;\r\n\r\nexport const CHART_GRID_DEFAULTS = {\r\n    axis: 'rows' as const,\r\n    numTicks: 5,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAAA,EAC9B,MAAM;AAAA,EACN,MAAM;AAAA,EACN,SAAS;AACb;AAEO,MAAM,sBAAsB;AAAA,EAC/B,MAAM;AAAA,EACN,UAAU;AACd;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.hooks.ts"],
+  "sourcesContent": ["import { useMemo } from 'react';\r\nimport type { ChartAxisProps } from './ChartAxis.types';\r\nimport { formatTick } from '../../_base/utils';\r\n\r\n/**\r\n * Resolve the final tick formatter: user-provided or default.\r\n */\r\nexport function useTickFormat(\r\n    tickFormat: ChartAxisProps['tickFormat'],\r\n): NonNullable<ChartAxisProps['tickFormat']> {\r\n    return useMemo(\r\n        () => tickFormat ?? ((value: unknown) => formatTick(value)),\r\n        [tickFormat],\r\n    );\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,eAAe;AAExB,SAAS,kBAAkB;AAKpB,SAAS,cACZ,YACyC;AACzC,SAAO;AAAA,IACH,MAAM,eAAe,CAAC,UAAmB,WAAW,KAAK;AAAA,IACzD,CAAC,UAAU;AAAA,EACf;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Grid/Grid.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const GRID_CLASSES = {\r\n    base: 'w3f-grid',\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 Valid column counts for class mapping \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const VALID_GRID_COLS = ['1', '2', '3', '4', '5', '6', '7', '12'] as const;\r\n\r\n// \u2500\u2500\u2500 Valid col-span values \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const VALID_COL_SPANS = ['full', '1', '2', '3', '4', '6'] as const;\r\n"],
+  "mappings": "AACO,MAAM,eAAe;AAAA,EACxB,MAAM;AACV;AAGO,MAAM,kBAAkB,CAAC,KAAK,KAAK,KAAK,KAAK,KAAK,KAAK,KAAK,IAAI;AAGhE,MAAM,kBAAkB,CAAC,QAAQ,KAAK,KAAK,KAAK,KAAK,GAAG;",
+  "names": []
+}

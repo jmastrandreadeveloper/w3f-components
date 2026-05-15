@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/BarChart/BarChart.constants.ts"],
+  "sourcesContent": ["export const BAR_CHART_CLASSES = {\n  root: 'w3f-chart w3f-bar-chart',\n  unstyled: 'w3f-chart w3f-bar-chart w3f-bar-chart--unstyled',\n  container: 'w3f-chart__container',\n} as const;\n\nexport const BAR_CHART_DEFAULTS = {\n  width: 400,\n  height: 300,\n  color: '#6366f1',\n  horizontal: false,\n  unstyled: false,\n} as const;\n\nexport const BAR_CHART_MARGIN = {\n  top: 20,\n  right: 20,\n  bottom: 40,\n  left: 50,\n} as const;\n\nexport const DEFAULT_COLOR_PALETTE = [\n  '#6366f1', '#f59e0b', '#10b981', '#ef4444',\n  '#8b5cf6', '#06b6d4', '#f97316', '#ec4899',\n] as const;\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAAA,EAC/B,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,qBAAqB;AAAA,EAChC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,YAAY;AAAA,EACZ,UAAU;AACZ;AAEO,MAAM,mBAAmB;AAAA,EAC9B,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;AAEO,MAAM,wBAAwB;AAAA,EACnC;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AAAA,EACjC;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AACnC;",
+  "names": []
+}

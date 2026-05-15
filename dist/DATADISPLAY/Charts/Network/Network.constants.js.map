@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Network/Network.constants.ts"],
+  "sourcesContent": ["export const NETWORK_ROOT_CLASS = 'w3f-chart-network';\r\n\r\nexport const NETWORK_DEFAULTS = {\r\n    nodeRadius: 8,\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    linkWidth: 1.5,\r\n    iterations: 300,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAE3B,MAAM,mBAAmB;AAAA,EAC5B,YAAY;AAAA,EACZ,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,WAAW;AAAA,EACX,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

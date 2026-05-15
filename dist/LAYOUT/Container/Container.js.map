@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Container/Container.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { ContainerProps } from './Container.types';\r\nimport { CONTAINER_DEFAULTS } from './Container.constants';\r\nimport { useContainerProps } from './Container.hooks';\r\n\r\nexport type { ContainerProps } from './Container.types';\r\n\r\n/**\r\n * Container Component - W3F Framework\r\n *\r\n * Contenedor basado en la filosof\u00EDa w3-container.\r\n * Aplica la clase base 'w3f-container' y permite polimorfismo con la prop `as`.\r\n *\r\n * @example\r\n * <Container as=\"section\" className=\"w3f-card\">\r\n *   <Form>...</Form>\r\n * </Container>\r\n */\r\nconst Container: React.FC<ContainerProps> = ({\r\n    children,\r\n    as: Element = CONTAINER_DEFAULTS.as,\r\n    ...props\r\n}) => {\r\n    const processedProps = useContainerProps(props);\r\n\r\n    return (\r\n        <Element {...processedProps}>\r\n            {children}\r\n        </Element>\r\n    );\r\n};\r\n\r\nContainer.displayName = 'Container';\r\n\r\nexport { Container };\r\nexport default Container;\r\n"],
+  "mappings": ";AA4BQ;AAxBR,SAAS,0BAA0B;AACnC,SAAS,yBAAyB;AAelC,MAAM,YAAsC,CAAC;AAAA,EACzC;AAAA,EACA,IAAI,UAAU,mBAAmB;AAAA,EACjC,GAAG;AACP,MAAM;AACF,QAAM,iBAAiB,kBAAkB,KAAK;AAE9C,SACI,oBAAC,WAAS,GAAG,gBACR,UACL;AAER;AAEA,UAAU,cAAc;AAGxB,IAAO,oBAAQ;",
+  "names": []
+}

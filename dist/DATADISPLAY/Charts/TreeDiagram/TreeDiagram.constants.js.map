@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.constants.ts"],
+  "sourcesContent": ["export const TREE_DIAGRAM_ROOT_CLASS = 'w3f-chart-tree-diagram';\r\n\r\nexport const TREE_DIAGRAM_DEFAULTS = {\r\n    layout: 'top-down' as const,\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    nodeRadius: 6,\r\n    linkStroke: 'var(--w3f-border, #ccc)',\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,0BAA0B;AAEhC,MAAM,wBAAwB;AAAA,EACjC,QAAQ;AAAA,EACR,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

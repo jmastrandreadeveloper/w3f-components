@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/FormField/FormField.constants.ts"],
+  "sourcesContent": ["import type { FormFieldLayout } from './FormField.types';\r\n\r\nexport const FORM_FIELD_DEFAULTS = {\r\n    layout: 'stacked' as const,\r\n    required: false as const,\r\n    disabled: false as const,\r\n    className: '' as const,\r\n    unstyled: false as const,\r\n} as const;\r\n\r\nexport const FORM_FIELD_CLASSES = {\r\n    base: 'w3f-form-field',\r\n    layouts: {\r\n        stacked: 'w3f-form-field--stacked',\r\n        inline: 'w3f-form-field--inline',\r\n    } as Record<FormFieldLayout, string>,\r\n    label: 'w3f-form-field__label',\r\n    required: 'w3f-input-required',\r\n    content: 'w3f-form-field__content',\r\n    message: 'w3f-input-message',\r\n    messageError: 'w3f-input-message--error',\r\n    messageHelper: 'w3f-input-message--helper',\r\n    hasError: 'has-error',\r\n    isDisabled: 'is-disabled',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,sBAAsB;AAAA,EAC/B,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,UAAU;AAAA,EACV,WAAW;AAAA,EACX,UAAU;AACd;AAEO,MAAM,qBAAqB;AAAA,EAC9B,MAAM;AAAA,EACN,SAAS;AAAA,IACL,SAAS;AAAA,IACT,QAAQ;AAAA,EACZ;AAAA,EACA,OAAO;AAAA,EACP,UAAU;AAAA,EACV,SAAS;AAAA,EACT,SAAS;AAAA,EACT,cAAc;AAAA,EACd,eAAe;AAAA,EACf,UAAU;AAAA,EACV,YAAY;AAChB;",
+  "names": []
+}

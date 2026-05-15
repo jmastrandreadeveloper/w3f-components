@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/Form/Form.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 Form Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const FORM_DEFAULTS = {\r\n    initialValues: {} as Record<string, any>,\r\n    noValidate: true,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const FORM_CLASSES = {\r\n    base: 'w3f-form',\r\n    inline: 'w3f-form--inline',\r\n    stacked: 'w3f-form--stacked',\r\n    submitting: 'w3f-form--submitting',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,gBAAgB;AAAA,EACzB,eAAe,CAAC;AAAA,EAChB,YAAY;AAAA,EACZ,UAAU;AAAA,EACV,WAAW;AACf;AAGO,MAAM,eAAe;AAAA,EACxB,MAAM;AAAA,EACN,QAAQ;AAAA,EACR,SAAS;AAAA,EACT,YAAY;AAChB;",
+  "names": []
+}

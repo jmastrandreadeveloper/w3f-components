@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/GaugeChart/GaugeChart.constants.ts"],
+  "sourcesContent": ["export const GAUGE_CHART_CLASSES = {\r\n  root: 'w3f-chart w3f-gauge-chart',\r\n  unstyled: 'w3f-chart w3f-gauge-chart w3f-gauge-chart--unstyled',\r\n  container: 'w3f-chart__container',\r\n} as const;\r\n\r\nexport const GAUGE_CHART_DEFAULTS = {\r\n  width: 300,\r\n  height: 200,\r\n  color: '#6366f1',\r\n  min: 0,\r\n  max: 100,\r\n  unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,sBAAsB;AAAA,EACjC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,uBAAuB;AAAA,EAClC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,KAAK;AAAA,EACL,KAAK;AAAA,EACL,UAAU;AACZ;",
+  "names": []
+}

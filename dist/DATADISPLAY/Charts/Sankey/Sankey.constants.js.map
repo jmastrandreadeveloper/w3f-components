@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Sankey/Sankey.constants.ts"],
+  "sourcesContent": ["export const SANKEY_ROOT_CLASS = 'w3f-chart-sankey';\r\n\r\nexport const SANKEY_DEFAULTS = {\r\n    nodeWidth: 20,\r\n    nodePadding: 12,\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAE1B,MAAM,kBAAkB;AAAA,EAC3B,WAAW;AAAA,EACX,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

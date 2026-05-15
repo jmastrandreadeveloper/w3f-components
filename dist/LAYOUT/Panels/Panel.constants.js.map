@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Panels/Panel.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 Panel Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const PANEL_DEFAULTS = {\r\n    padding: true,\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const PANEL_CLASSES = {\r\n    base: 'w3f-panel',\r\n    padding: 'w3f-p-6',\r\n    card: 'w3f-shadow-md',\r\n    round: 'w3f-round-2xl',\r\n    border: 'w3f-border',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,iBAAiB;AAAA,EAC1B,SAAS;AACb;AAGO,MAAM,gBAAgB;AAAA,EACzB,MAAM;AAAA,EACN,SAAS;AAAA,EACT,MAAM;AAAA,EACN,OAAO;AAAA,EACP,QAAQ;AACZ;",
+  "names": []
+}

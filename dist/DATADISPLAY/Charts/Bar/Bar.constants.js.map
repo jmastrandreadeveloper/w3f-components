@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Bar/Bar.constants.ts"],
+  "sourcesContent": ["/** BEM root class for the Bar chart. */\r\nexport const BAR_ROOT_CLASS = 'w3f-chart-bar';\r\n\r\n/** Default props that Bar uses when not explicitly overridden. */\r\nexport const BAR_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    showLegend: false,\r\n    padding: 0.2,\r\n    barRadius: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,iBAAiB;AAGvB,MAAM,eAAe;AAAA,EACxB,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,SAAS;AAAA,EACT,WAAW;AAAA,EACX,UAAU;AACd;",
+  "names": []
+}

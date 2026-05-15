@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/AppBar/AppBar.constants.ts"],
+  "sourcesContent": ["import type { AppBarColor, AppBarPosition, AppBarSize } from './AppBar.types';\r\n\r\nexport const APP_BAR_DEFAULTS = {\r\n    color: 'primary' as AppBarColor,\r\n    position: 'static' as AppBarPosition,\r\n    size: 'md' as AppBarSize,\r\n    elevated: true,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const APP_BAR_CLASSES = {\r\n    root: 'w3f-app-bar',\r\n    toolbar: 'w3f-app-bar__toolbar',\r\n    leading: 'w3f-app-bar__leading',\r\n    title: 'w3f-app-bar__title',\r\n    trailing: 'w3f-app-bar__trailing',\r\n    // colors\r\n    primary: 'w3f-app-bar--primary',\r\n    secondary: 'w3f-app-bar--secondary',\r\n    surface: 'w3f-app-bar--surface',\r\n    transparent: 'w3f-app-bar--transparent',\r\n    dark: 'w3f-app-bar--dark',\r\n    // positions\r\n    fixed: 'w3f-app-bar--fixed',\r\n    sticky: 'w3f-app-bar--sticky',\r\n    // sizes\r\n    sm: 'w3f-app-bar--sm',\r\n    lg: 'w3f-app-bar--lg',\r\n    // elevated\r\n    elevated: 'w3f-app-bar--elevated',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,mBAAmB;AAAA,EAC5B,OAAO;AAAA,EACP,UAAU;AAAA,EACV,MAAM;AAAA,EACN,UAAU;AAAA,EACV,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,kBAAkB;AAAA,EAC3B,MAAM;AAAA,EACN,SAAS;AAAA,EACT,SAAS;AAAA,EACT,OAAO;AAAA,EACP,UAAU;AAAA;AAAA,EAEV,SAAS;AAAA,EACT,WAAW;AAAA,EACX,SAAS;AAAA,EACT,aAAa;AAAA,EACb,MAAM;AAAA;AAAA,EAEN,OAAO;AAAA,EACP,QAAQ;AAAA;AAAA,EAER,IAAI;AAAA,EACJ,IAAI;AAAA;AAAA,EAEJ,UAAU;AACd;",
+  "names": []
+}

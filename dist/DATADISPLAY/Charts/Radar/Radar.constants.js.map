@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Radar/Radar.constants.ts"],
+  "sourcesContent": ["export const RADAR_ROOT_CLASS = 'w3f-chart-radar';\r\n\r\nexport const RADAR_DEFAULTS = {\r\n    gridLevels: 5,\r\n    showGrid: true,\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    showDots: true,\r\n    fillOpacity: 0.25,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAEzB,MAAM,iBAAiB;AAAA,EAC1B,YAAY;AAAA,EACZ,UAAU;AAAA,EACV,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,UAAU;AAAA,EACV,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

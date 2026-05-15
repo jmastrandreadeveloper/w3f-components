@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Paper/Paper.constants.ts"],
+  "sourcesContent": ["import type { PaperGridColor, PaperSize, PaperVariant } from './Paper.types';\r\n\r\nexport const PAPER_DEFAULTS = {\r\n    variant: 'default' as PaperVariant,\r\n    gridColor: 'default' as PaperGridColor,\r\n    size: 'md' as PaperSize,\r\n    fullWidth: false,\r\n    debug: false,\r\n    className: '',\r\n    unstyled: false,\r\n} as const;\r\n\r\nexport const PAPER_CLASSES = {\r\n    base: 'w3f-paper',\r\n    fullWidth: 'w3f-paper--full-width',\r\n    debug: 'w3f-paper--debug',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,iBAAiB;AAAA,EAC1B,SAAS;AAAA,EACT,WAAW;AAAA,EACX,MAAM;AAAA,EACN,WAAW;AAAA,EACX,OAAO;AAAA,EACP,WAAW;AAAA,EACX,UAAU;AACd;AAEO,MAAM,gBAAgB;AAAA,EACzB,MAAM;AAAA,EACN,WAAW;AAAA,EACX,OAAO;AACX;",
+  "names": []
+}

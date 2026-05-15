@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Tag/Tag.utils.ts"],
+  "sourcesContent": ["import type { TagColor, TagVariant } from './Tag.types';\r\nimport { TAG_VARIANT_CLASSES } from './Tag.constants';\r\n\r\n/**\r\n * Construye las clases CSS para el componente Tag.\r\n */\r\nexport const buildTagClasses = (\r\n    color: TagColor,\r\n    light: boolean,\r\n    className?: string,\r\n    unstyled?: boolean,\r\n    variant?: TagVariant,\r\n): string => {\r\n    if (unstyled) {\r\n        return ['w3f-tag-base', 'w3f-tag--unstyled', className].filter(Boolean).join(' ');\r\n    }\r\n\r\n    const classes: string[] = ['w3f-tag-base', `w3f-tag--${color}`];\r\n\r\n    if (light) classes.push('w3f-tag--light');\r\n    if (variant) classes.push(TAG_VARIANT_CLASSES[variant]);\r\n\r\n    if (className) classes.push(className);\r\n\r\n    return classes.filter(Boolean).join(' ');\r\n};\r\n"],
+  "mappings": "AACA,SAAS,2BAA2B;AAK7B,MAAM,kBAAkB,CAC3B,OACA,OACA,WACA,UACA,YACS;AACT,MAAI,UAAU;AACV,WAAO,CAAC,gBAAgB,qBAAqB,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAAA,EACpF;AAEA,QAAM,UAAoB,CAAC,gBAAgB,YAAY,KAAK,EAAE;AAE9D,MAAI,MAAO,SAAQ,KAAK,gBAAgB;AACxC,MAAI,QAAS,SAAQ,KAAK,oBAAoB,OAAO,CAAC;AAEtD,MAAI,UAAW,SAAQ,KAAK,SAAS;AAErC,SAAO,QAAQ,OAAO,OAAO,EAAE,KAAK,GAAG;AAC3C;",
+  "names": []
+}

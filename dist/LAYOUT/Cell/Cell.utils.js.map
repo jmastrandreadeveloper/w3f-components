@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Cell/Cell.utils.ts"],
+  "sourcesContent": ["import { CELL_CLASSES } from './Cell.constants';\r\n\r\n/**\r\n * Construye la cadena de clases CSS para el componente Cell.\r\n */\r\nexport const buildCellClassNames = ({\r\n    content,\r\n    center,\r\n    vCenter,\r\n    className,\r\n}: {\r\n    content?: boolean;\r\n    center?: boolean;\r\n    vCenter?: boolean;\r\n    className?: string;\r\n}): string => {\r\n    const classes: string[] = [CELL_CLASSES.base];\r\n\r\n    if (content) classes.push(CELL_CLASSES.content);\r\n    if (center) classes.push(CELL_CLASSES.center);\r\n    if (vCenter && !center) classes.push(CELL_CLASSES.vCenter);\r\n    if (className) classes.push(className);\r\n\r\n    return classes.filter(Boolean).join(' ');\r\n};\r\n\r\n/**\r\n * Construye la cadena de clases CSS para el componente CellRow.\r\n */\r\nexport const buildCellRowClassNames = ({ className }: { className?: string }): string => {\r\n    return className || '';\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,oBAAoB;AAKtB,MAAM,sBAAsB,CAAC;AAAA,EAChC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AACJ,MAKc;AACV,QAAM,UAAoB,CAAC,aAAa,IAAI;AAE5C,MAAI,QAAS,SAAQ,KAAK,aAAa,OAAO;AAC9C,MAAI,OAAQ,SAAQ,KAAK,aAAa,MAAM;AAC5C,MAAI,WAAW,CAAC,OAAQ,SAAQ,KAAK,aAAa,OAAO;AACzD,MAAI,UAAW,SAAQ,KAAK,SAAS;AAErC,SAAO,QAAQ,OAAO,OAAO,EAAE,KAAK,GAAG;AAC3C;AAKO,MAAM,yBAAyB,CAAC,EAAE,UAAU,MAAsC;AACrF,SAAO,aAAa;AACxB;",
+  "names": []
+}

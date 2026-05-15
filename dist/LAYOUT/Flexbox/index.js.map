@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Flexbox/index.ts"],
+  "sourcesContent": ["export { FlexContainer, FlexItem, FlexBoxItem, default } from './Flexbox';\r\nexport type {\r\n    FlexContainerProps,\r\n    FlexItemProps,\r\n    FlexBoxItemProps,\r\n    FlexDirection,\r\n    FlexWrap,\r\n    FlexJustify,\r\n    FlexAlign,\r\n    FlexAlignContent,\r\n    FlexAlignSelf,\r\n} from './Flexbox.types';\r\n"],
+  "mappings": "AAAA,SAAS,eAAe,UAAU,aAAa,WAAAA,gBAAe;",
+  "names": ["default"]
+}

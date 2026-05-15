@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/PieChart/PieChart.constants.ts"],
+  "sourcesContent": ["export const PIE_CHART_CLASSES = {\n  root: 'w3f-chart w3f-pie-chart',\n  unstyled: 'w3f-chart w3f-pie-chart w3f-pie-chart--unstyled',\n  container: 'w3f-chart__container',\n} as const;\n\nexport const PIE_CHART_DEFAULTS = {\n  width: 300,\n  height: 300,\n  donut: false,\n  unstyled: false,\n} as const;\n\nexport const PIE_COLOR_PALETTE = [\n  '#6366f1', '#f59e0b', '#10b981', '#ef4444',\n  '#8b5cf6', '#06b6d4', '#f97316', '#ec4899',\n] as const;\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAAA,EAC/B,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,qBAAqB;AAAA,EAChC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,UAAU;AACZ;AAEO,MAAM,oBAAoB;AAAA,EAC/B;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AAAA,EACjC;AAAA,EAAW;AAAA,EAAW;AAAA,EAAW;AACnC;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Marquee/Marquee.constants.ts"],
+  "sourcesContent": ["export const MARQUEE_DEFAULTS = {\r\n  direction: 'left' as const,\r\n  speed: 30,\r\n  pauseOnHover: true,\r\n  gap: 24,\r\n  repeat: 2,\r\n  fadeEdge: 40,\r\n  unstyled: false,\r\n  className: '' as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAAA,EAC9B,WAAW;AAAA,EACX,OAAO;AAAA,EACP,cAAc;AAAA,EACd,KAAK;AAAA,EACL,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,UAAU;AAAA,EACV,WAAW;AACb;",
+  "names": []
+}

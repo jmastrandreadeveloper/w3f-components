@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Container/index.ts"],
+  "sourcesContent": ["export { Container, default } from './Container';\r\nexport { useContainerProps } from './Container.hooks';\r\nexport type { ContainerProps } from './Container.types';\r\n"],
+  "mappings": "AAAA,SAAS,WAAW,WAAAA,gBAAe;AACnC,SAAS,yBAAyB;",
+  "names": ["default"]
+}

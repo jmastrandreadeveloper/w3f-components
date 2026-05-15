@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/AccordionHorizontal/AccordionHorizontal.hooks.ts"],
+  "sourcesContent": ["// La l\u00F3gica de estado es id\u00E9ntica al Accordion vertical.\r\n// Re-exportamos el hook para seguir el patr\u00F3n de 5 archivos.\r\nexport { useAccordionState } from '../Acordion/Accordion.hooks';\r\n"],
+  "mappings": "AAEA,SAAS,yBAAyB;",
+  "names": []
+}

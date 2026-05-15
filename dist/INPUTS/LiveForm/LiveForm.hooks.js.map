@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/LiveForm/LiveForm.hooks.ts"],
+  "sourcesContent": ["import { useFormContext, useFormField } from '../Form/Form.hooks';\r\n\r\n/**\r\n * Hook del contexto LiveForm.\r\n * Alias de useFormContext para backward compatibility.\r\n */\r\nexport const useLiveFormContext = useFormContext;\r\n\r\n/**\r\n * Hook para un campo individual dentro de un LiveForm.\r\n * Alias de useFormField para backward compatibility.\r\n */\r\nexport const useLiveFormField = useFormField;\r\n"],
+  "mappings": "AAAA,SAAS,gBAAgB,oBAAoB;AAMtC,MAAM,qBAAqB;AAM3B,MAAM,mBAAmB;",
+  "names": []
+}

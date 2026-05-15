@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.constants.ts"],
+  "sourcesContent": ["export const HEATMAP_CHART_CLASSES = {\r\n  root: 'w3f-chart w3f-heatmap-chart',\r\n  unstyled: 'w3f-chart w3f-heatmap-chart w3f-heatmap-chart--unstyled',\r\n  container: 'w3f-chart__container',\r\n} as const;\r\n\r\nexport const HEATMAP_CHART_DEFAULTS = {\r\n  width: 400,\r\n  height: 300,\r\n  colors: ['#e0e7ff', '#6366f1'] as [string, string],\r\n  unstyled: false,\r\n} as const;\r\n\r\nexport const HEATMAP_CHART_MARGIN = {\r\n  top: 20,\r\n  right: 20,\r\n  bottom: 40,\r\n  left: 60,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,wBAAwB;AAAA,EACnC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,yBAAyB;AAAA,EACpC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,QAAQ,CAAC,WAAW,SAAS;AAAA,EAC7B,UAAU;AACZ;AAEO,MAAM,uBAAuB;AAAA,EAClC,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;",
+  "names": []
+}

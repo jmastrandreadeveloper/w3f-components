@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Avatar/Avatar.utils.ts"],
+  "sourcesContent": ["import type { AvatarSize } from './Avatar.types';\r\nimport { AVATAR_SIZE_CLASSES } from './Avatar.constants';\r\n\r\nexport function buildAvatarClasses(\r\n  size: AvatarSize,\r\n  hoverable: boolean,\r\n  src: string | undefined,\r\n  color: string,\r\n  className: string,\r\n  unstyled?: boolean,\r\n): string {\r\n  if (unstyled) {\r\n    return [\r\n      'w3f-avatar',\r\n      'w3f-avatar--unstyled',\r\n      AVATAR_SIZE_CLASSES[size] || AVATAR_SIZE_CLASSES.medium,\r\n      className,\r\n    ].filter(Boolean).join(' ');\r\n  }\r\n\r\n  return [\r\n    'w3f-avatar',\r\n    'w3f-avatar-circle',\r\n    AVATAR_SIZE_CLASSES[size] || AVATAR_SIZE_CLASSES.medium,\r\n    hoverable && 'w3f-avatar-hoverable',\r\n    !src && `w3f-avatar-${color}`,\r\n    className\r\n  ].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,2BAA2B;AAE7B,SAAS,mBACd,MACA,WACA,KACA,OACA,WACA,UACQ;AACR,MAAI,UAAU;AACZ,WAAO;AAAA,MACL;AAAA,MACA;AAAA,MACA,oBAAoB,IAAI,KAAK,oBAAoB;AAAA,MACjD;AAAA,IACF,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAAA,EAC5B;AAEA,SAAO;AAAA,IACL;AAAA,IACA;AAAA,IACA,oBAAoB,IAAI,KAAK,oBAAoB;AAAA,IACjD,aAAa;AAAA,IACb,CAAC,OAAO,cAAc,KAAK;AAAA,IAC3B;AAAA,EACF,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC5B;",
+  "names": []
+}

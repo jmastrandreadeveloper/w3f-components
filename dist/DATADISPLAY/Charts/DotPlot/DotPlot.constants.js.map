@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/DotPlot/DotPlot.constants.ts"],
+  "sourcesContent": ["export const DOTPLOT_ROOT_CLASS = 'w3f-chart-dotplot';\r\n\r\nexport const DOTPLOT_DEFAULTS = {\r\n    showXAxis: true,\r\n    showCategoryLabels: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    pointRadius: 5,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAE3B,MAAM,mBAAmB;AAAA,EAC5B,WAAW;AAAA,EACX,oBAAoB;AAAA,EACpB,UAAU;AAAA,EACV,aAAa;AAAA,EACb,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

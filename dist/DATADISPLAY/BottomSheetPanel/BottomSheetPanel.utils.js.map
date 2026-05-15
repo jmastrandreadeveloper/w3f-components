@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/BottomSheetPanel/BottomSheetPanel.utils.ts"],
+  "sourcesContent": ["import type { BottomSheetSize } from './BottomSheetPanel.types';\r\nimport { SIZE_MAX_HEIGHTS } from './BottomSheetPanel.constants';\r\n\r\nexport function getMaxHeight(size: BottomSheetSize, maxHeight?: string): string {\r\n  if (maxHeight) return maxHeight;\r\n  return SIZE_MAX_HEIGHTS[size] ?? SIZE_MAX_HEIGHTS.auto;\r\n}\r\n"],
+  "mappings": "AACA,SAAS,wBAAwB;AAE1B,SAAS,aAAa,MAAuB,WAA4B;AAC9E,MAAI,UAAW,QAAO;AACtB,SAAO,iBAAiB,IAAI,KAAK,iBAAiB;AACpD;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Dialog/ModalSimple.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { ModalSimpleProps } from './Modal.types';\r\nimport Modal from './Modal';\r\n\r\nconst ModalSimple = ({ show, onClose, title, children, size = 'md' }: ModalSimpleProps) => {\r\n  return (\r\n    <Modal show={show} onClose={onClose} title={title} size={size}>\r\n      {children}\r\n    </Modal>\r\n  );\r\n};\r\n\r\nModalSimple.displayName = 'ModalSimple';\r\n\r\nexport { ModalSimple };\r\nexport default ModalSimple;\r\n"],
+  "mappings": ";AAQI;AAJJ,OAAO,WAAW;AAElB,MAAM,cAAc,CAAC,EAAE,MAAM,SAAS,OAAO,UAAU,OAAO,KAAK,MAAwB;AACzF,SACE,oBAAC,SAAM,MAAY,SAAkB,OAAc,MAChD,UACH;AAEJ;AAEA,YAAY,cAAc;AAG1B,IAAO,sBAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.constants.ts"],
+  "sourcesContent": ["export const CHART_AXIS_CLASSES = {\r\n    root: 'w3f-chart-axis',\r\n    top: 'w3f-chart-axis--top',\r\n    right: 'w3f-chart-axis--right',\r\n    bottom: 'w3f-chart-axis--bottom',\r\n    left: 'w3f-chart-axis--left',\r\n} as const;\r\n\r\nexport const CHART_AXIS_DEFAULTS = {\r\n    numTicks: 5,\r\n    labelOffset: 36,\r\n    hideAxisLine: false,\r\n    hideTicks: false,\r\n    hideTickLabels: false,\r\n} as const;\r\n\r\nexport const CHART_AXIS_TICK_LABEL_PROPS = {\r\n    fill: 'var(--w3f-chart-axis-tick-label-color)',\r\n    fontSize: 'var(--w3f-chart-axis-tick-label-size, 11px)' as unknown as number,\r\n    fontFamily: 'inherit',\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAAA,EAC9B,MAAM;AAAA,EACN,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACV;AAEO,MAAM,sBAAsB;AAAA,EAC/B,UAAU;AAAA,EACV,aAAa;AAAA,EACb,cAAc;AAAA,EACd,WAAW;AAAA,EACX,gBAAgB;AACpB;AAEO,MAAM,8BAA8B;AAAA,EACvC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,YAAY;AAChB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWiithDrawers/GridWithDrawer.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 GridWithDrawer Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const GRID_DRAWER_DEFAULTS = {\r\n    gap: '1px',\r\n    collapsedSize: 50,\r\n    drawerIndex: 0,\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const GRID_DRAWER_CLASSES = {\r\n    wrapper: 'w3f-grid-divider-wrapper',\r\n    drawerArea: 'w3f-drawer-area',\r\n    collapsed: 'is-collapsed',\r\n    toggleContainer: 'w3f-drawer-toggle-container',\r\n    toggleBtn: 'w3f-drawer-btn',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,uBAAuB;AAAA,EAChC,KAAK;AAAA,EACL,eAAe;AAAA,EACf,aAAa;AACjB;AAGO,MAAM,sBAAsB;AAAA,EAC/B,SAAS;AAAA,EACT,YAAY;AAAA,EACZ,WAAW;AAAA,EACX,iBAAiB;AAAA,EACjB,WAAW;AACf;",
+  "names": []
+}

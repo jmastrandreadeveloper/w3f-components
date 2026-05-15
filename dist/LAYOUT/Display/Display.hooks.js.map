@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Display/Display.hooks.ts"],
+  "sourcesContent": ["import { W3F_POSITION_CLASSES, VALID_DISPLAY_POSITIONS } from './Display.constants';\r\n\r\n/**\r\n * Hook para generar clases CSS para DisplayContainer y sus hijos.\r\n */\r\nexport function useDisplayStyles() {\r\n    const containerClass = W3F_POSITION_CLASSES.CONTAINER;\r\n\r\n    const itemClass = (pos?: string): string => {\r\n        if (pos && VALID_DISPLAY_POSITIONS.includes(pos)) {\r\n            return pos;\r\n        }\r\n\r\n        if (process.env.NODE_ENV !== 'production' && pos && pos !== '') {\r\n            console.warn(\r\n                `[DisplayContainer] Posici\u00F3n no v\u00E1lida: \"${pos}\". Las posiciones v\u00E1lidas son: ${VALID_DISPLAY_POSITIONS.join(', ')}`\r\n            );\r\n        }\r\n\r\n        return '';\r\n    };\r\n\r\n    return {\r\n        containerClass,\r\n        itemClass,\r\n    };\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,sBAAsB,+BAA+B;AAKvD,SAAS,mBAAmB;AAC/B,QAAM,iBAAiB,qBAAqB;AAE5C,QAAM,YAAY,CAAC,QAAyB;AACxC,QAAI,OAAO,wBAAwB,SAAS,GAAG,GAAG;AAC9C,aAAO;AAAA,IACX;AAEA,QAA6C,OAAO,QAAQ,IAAI;AAC5D,cAAQ;AAAA,QACJ,iDAA2C,GAAG,qCAAkC,wBAAwB,KAAK,IAAI,CAAC;AAAA,MACtH;AAAA,IACJ;AAEA,WAAO;AAAA,EACX;AAEA,SAAO;AAAA,IACH;AAAA,IACA;AAAA,EACJ;AACJ;",
+  "names": []
+}

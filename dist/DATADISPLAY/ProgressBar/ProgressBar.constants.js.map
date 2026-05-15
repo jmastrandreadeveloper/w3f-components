@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/ProgressBar/ProgressBar.constants.ts"],
+  "sourcesContent": ["export const PROGRESS_BAR_DEFAULTS = {\r\n  color: 'success' as const,\r\n  showLabel: true as const,\r\n  size: 'md' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n\r\nexport const PROGRESS_BAR_BUFFER_DEFAULTS = {\r\n  progressColor: 'success' as const,\r\n  bufferColor: 'primary' as const,\r\n  showLabel: true as const,\r\n  size: 'md' as const,\r\n} as const;\r\n\r\nexport const PROGRESS_BAR_INDETERMINATE_DEFAULTS = {\r\n  color: 'primary' as const,\r\n  ariaLabel: 'Cargando' as const,\r\n  size: 'md' as const,\r\n  variant: 'slide' as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,wBAAwB;AAAA,EACnC,OAAO;AAAA,EACP,WAAW;AAAA,EACX,MAAM;AAAA,EACN,UAAU;AACZ;AAEO,MAAM,+BAA+B;AAAA,EAC1C,eAAe;AAAA,EACf,aAAa;AAAA,EACb,WAAW;AAAA,EACX,MAAM;AACR;AAEO,MAAM,sCAAsC;AAAA,EACjD,OAAO;AAAA,EACP,WAAW;AAAA,EACX,MAAM;AAAA,EACN,SAAS;AACX;",
+  "names": []
+}

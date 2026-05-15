@@ -1,1 +1,0 @@
-agregar todas las posibilidades del select igual a Angular

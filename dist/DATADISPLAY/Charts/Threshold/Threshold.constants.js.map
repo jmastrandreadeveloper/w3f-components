@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Threshold/Threshold.constants.ts"],
+  "sourcesContent": ["export const THRESHOLD_ROOT_CLASS = 'w3f-chart-threshold';\r\n\r\nexport const THRESHOLD_DEFAULTS = {\r\n    curved: true,\r\n    fillOpacity: 0.4,\r\n    strokeWidth: 2,\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    showLegend: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAE7B,MAAM,qBAAqB;AAAA,EAC9B,QAAQ;AAAA,EACR,aAAa;AAAA,EACb,aAAa;AAAA,EACb,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

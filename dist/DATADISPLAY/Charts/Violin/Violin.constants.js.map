@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Violin/Violin.constants.ts"],
+  "sourcesContent": ["export const VIOLIN_ROOT_CLASS = 'w3f-chart-violin';\r\n\r\nexport const VIOLIN_DEFAULTS = {\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    resolution: 20,\r\n    bandwidth: 1,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAE1B,MAAM,kBAAkB;AAAA,EAC3B,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,WAAW;AAAA,EACX,UAAU;AACd;",
+  "names": []
+}

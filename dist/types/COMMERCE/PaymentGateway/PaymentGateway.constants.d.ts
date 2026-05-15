@@ -1,0 +1,55 @@
+import type { PaymentMethod } from './PaymentGateway.types';
+export declare const PAYMENT_DEFAULTS: {
+    readonly currency: "USD";
+    readonly currencySymbol: "$";
+    readonly methods: PaymentMethod[];
+    readonly defaultMethod: PaymentMethod;
+    readonly variant: "default";
+    readonly color: "primary";
+    readonly showOrderSummary: true;
+    readonly successMessage: "Payment successful!";
+};
+export declare const PAYMENT_CLASSES: {
+    readonly root: "w3f-payment";
+    readonly methods: "w3f-payment__methods";
+    readonly method: "w3f-payment__method";
+    readonly methodActive: "w3f-payment__method--active";
+    readonly methodIcon: "w3f-payment__method-icon";
+    readonly methodLabel: "w3f-payment__method-label";
+    readonly form: "w3f-payment__form";
+    readonly field: "w3f-payment__field";
+    readonly fieldLabel: "w3f-payment__field-label";
+    readonly fieldInput: "w3f-payment__field-input";
+    readonly fieldError: "w3f-payment__field-error";
+    readonly fieldRow: "w3f-payment__field-row";
+    readonly cardNumber: "w3f-payment__card-number";
+    readonly cardBrand: "w3f-payment__card-brand";
+    readonly summary: "w3f-payment__summary";
+    readonly summaryTitle: "w3f-payment__summary-title";
+    readonly summaryItem: "w3f-payment__summary-item";
+    readonly summaryTotal: "w3f-payment__summary-total";
+    readonly submit: "w3f-payment__submit";
+    readonly success: "w3f-payment__success";
+    readonly successIcon: "w3f-payment__success-icon";
+    readonly successMessage: "w3f-payment__success-message";
+    readonly error: "w3f-payment__error";
+    readonly loading: "w3f-payment__loading";
+    readonly spinner: "w3f-payment__spinner";
+    readonly altMethod: "w3f-payment__alt-method";
+    readonly altMethodInfo: "w3f-payment__alt-method-info";
+    readonly bankDetails: "w3f-payment__bank-details";
+    readonly stepIndicator: "w3f-payment__step-indicator";
+    readonly step: "w3f-payment__step";
+    readonly stepActive: "w3f-payment__step--active";
+    readonly stepCompleted: "w3f-payment__step--completed";
+    readonly stepNav: "w3f-payment__step-nav";
+    readonly body: "w3f-payment__body";
+};
+export declare const METHOD_LABELS: Record<PaymentMethod, string>;
+export declare const BANK_DETAILS: {
+    readonly bank: "W3F International Bank";
+    readonly account: "0000-1234-5678-9012";
+    readonly routing: "021000021";
+    readonly swift: "W3FBUS33";
+};
+//# sourceMappingURL=PaymentGateway.constants.d.ts.map

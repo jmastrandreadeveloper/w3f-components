@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/NAVIGATION/Breadcrumbs/Breadcrumbs.hooks.ts"],
+  "sourcesContent": ["import { useState } from 'react';\r\n\r\n/**\r\n * Hook que gestiona el estado expandido/colapsado de los breadcrumbs.\r\n */\r\nexport function useBreadcrumbsExpand() {\r\n    const [expanded, setExpanded] = useState(false);\r\n    const expand = () => setExpanded(true);\r\n    return { expanded, expand };\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,gBAAgB;AAKlB,SAAS,uBAAuB;AACnC,QAAM,CAAC,UAAU,WAAW,IAAI,SAAS,KAAK;AAC9C,QAAM,SAAS,MAAM,YAAY,IAAI;AACrC,SAAO,EAAE,UAAU,OAAO;AAC9B;",
+  "names": []
+}

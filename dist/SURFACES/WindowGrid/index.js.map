@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/WindowGrid/index.ts"],
+  "sourcesContent": ["export { WindowGrid, default } from './WindowGrid';\r\nexport type { WindowGridProps, WindowGridBreakpoints, WindowGridColumns } from './WindowGrid.types';\r\n"],
+  "mappings": "AAAA,SAAS,YAAY,WAAAA,gBAAe;",
+  "names": ["default"]
+}

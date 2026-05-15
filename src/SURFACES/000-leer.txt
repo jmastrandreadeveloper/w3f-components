@@ -1,1 +1,0 @@
-acá van los componentes dentro de una carpeta cada uno, separados con la lógica de siempre

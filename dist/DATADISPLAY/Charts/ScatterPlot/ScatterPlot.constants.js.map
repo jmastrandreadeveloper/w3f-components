@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.constants.ts"],
+  "sourcesContent": ["export const SCATTER_PLOT_CLASSES = {\n  root: 'w3f-chart w3f-scatter-plot',\n  unstyled: 'w3f-chart w3f-scatter-plot w3f-scatter-plot--unstyled',\n  container: 'w3f-chart__container',\n} as const;\n\nexport const SCATTER_PLOT_DEFAULTS = {\n  width: 400,\n  height: 300,\n  color: '#6366f1',\n  defaultPointSize: 5,\n  unstyled: false,\n} as const;\n\nexport const SCATTER_PLOT_MARGIN = {\n  top: 20,\n  right: 20,\n  bottom: 40,\n  left: 50,\n} as const;\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAAA,EAClC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,wBAAwB;AAAA,EACnC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,kBAAkB;AAAA,EAClB,UAAU;AACZ;AAEO,MAAM,sBAAsB;AAAA,EACjC,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;",
+  "names": []
+}

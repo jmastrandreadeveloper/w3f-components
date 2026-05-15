@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Geo/Geo.constants.ts"],
+  "sourcesContent": ["export const GEO_ROOT_CLASS = 'w3f-chart-geo';\r\n\r\nexport const GEO_DEFAULTS = {\r\n    showTooltip: true,\r\n    showGraticule: true,\r\n    fillDefault: 'var(--w3f-surface-variant, #e0e0e0)',\r\n    strokeColor: 'var(--w3f-border, #999)',\r\n    strokeWidth: 0.5,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,iBAAiB;AAEvB,MAAM,eAAe;AAAA,EACxB,aAAa;AAAA,EACb,eAAe;AAAA,EACf,aAAa;AAAA,EACb,aAAa;AAAA,EACb,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

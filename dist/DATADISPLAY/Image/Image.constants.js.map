@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Image/Image.constants.ts"],
+  "sourcesContent": ["export const IMAGE_DEFAULTS = {\r\n  circle: false as const,\r\n  border: false as const,\r\n  className: '' as const,\r\n  wrapperClassName: '' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,iBAAiB;AAAA,EAC5B,QAAQ;AAAA,EACR,QAAQ;AAAA,EACR,WAAW;AAAA,EACX,kBAAkB;AAAA,EAClB,UAAU;AACZ;",
+  "names": []
+}

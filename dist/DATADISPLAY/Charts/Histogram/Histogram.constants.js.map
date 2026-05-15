@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Histogram/Histogram.constants.ts"],
+  "sourcesContent": ["export const HISTOGRAM_ROOT_CLASS = 'w3f-chart-histogram';\r\n\r\nexport const HISTOGRAM_DEFAULTS = {\r\n    binCount: 20,\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    barRadius: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAE7B,MAAM,qBAAqB;AAAA,EAC9B,UAAU;AAAA,EACV,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,WAAW;AAAA,EACX,UAAU;AACd;",
+  "names": []
+}

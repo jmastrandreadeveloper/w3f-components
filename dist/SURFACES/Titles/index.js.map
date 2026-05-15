@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Titles/index.ts"],
+  "sourcesContent": ["export { SectionTitle, default } from './SectionTitle';\r\nexport type { SectionTitleProps, SectionTitleAlign } from './SectionTitle.types';\r\n"],
+  "mappings": "AAAA,SAAS,cAAc,WAAAA,gBAAe;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Reloj/RelojAnalogico.constants.ts"],
+  "sourcesContent": ["export const RELOJ_DEFAULTS = {\r\n  size: 300,\r\n  showTics: true,\r\n  showAllNumbers: false,\r\n  showSeconds: true,\r\n  className: '',\r\n  unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,iBAAiB;AAAA,EAC5B,MAAM;AAAA,EACN,UAAU;AAAA,EACV,gBAAgB;AAAA,EAChB,aAAa;AAAA,EACb,WAAW;AAAA,EACX,UAAU;AACZ;",
+  "names": []
+}

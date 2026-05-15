@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Badge/Badge.hooks.ts"],
+  "sourcesContent": ["import { useMemo } from 'react';\r\nimport type React from 'react';\r\nimport type { BadgeVariant } from './Badge.types';\r\nimport { processContent, getAriaLabel } from './Badge.utils';\r\n\r\n/**\r\n * Centraliza el procesamiento de contenido y aria-label del Badge.\r\n * Permite reutilizar la l\u00F3gica fuera del componente si fuera necesario.\r\n */\r\nexport function useBadgeContent(\r\n  children: React.ReactNode,\r\n  max: number,\r\n  variant: BadgeVariant,\r\n  ariaLabel: string,\r\n) {\r\n  const processed = useMemo(\r\n    () => processContent(children, max, variant),\r\n    [children, max, variant],\r\n  );\r\n\r\n  const effectiveAriaLabel = useMemo(\r\n    () => getAriaLabel(ariaLabel, variant, children, processed),\r\n    [ariaLabel, variant, children, processed],\r\n  );\r\n\r\n  return { processed, effectiveAriaLabel };\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,eAAe;AAGxB,SAAS,gBAAgB,oBAAoB;AAMtC,SAAS,gBACd,UACA,KACA,SACA,WACA;AACA,QAAM,YAAY;AAAA,IAChB,MAAM,eAAe,UAAU,KAAK,OAAO;AAAA,IAC3C,CAAC,UAAU,KAAK,OAAO;AAAA,EACzB;AAEA,QAAM,qBAAqB;AAAA,IACzB,MAAM,aAAa,WAAW,SAAS,UAAU,SAAS;AAAA,IAC1D,CAAC,WAAW,SAAS,UAAU,SAAS;AAAA,EAC1C;AAEA,SAAO,EAAE,WAAW,mBAAmB;AACzC;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartLegend/ChartLegend.constants.ts"],
+  "sourcesContent": ["export const CHART_LEGEND_CLASSES = {\r\n    root: 'w3f-chart-legend',\r\n    horizontal: 'w3f-chart-legend--horizontal',\r\n    vertical: 'w3f-chart-legend--vertical',\r\n    item: 'w3f-chart-legend__item',\r\n    itemDisabled: 'w3f-chart-legend__item--disabled',\r\n    itemClickable: 'w3f-chart-legend__item--clickable',\r\n    swatch: 'w3f-chart-legend__swatch',\r\n    label: 'w3f-chart-legend__label',\r\n} as const;\r\n\r\nexport const CHART_LEGEND_DEFAULTS = {\r\n    swatchShape: 'square' as const,\r\n    direction: 'horizontal' as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAAA,EAChC,MAAM;AAAA,EACN,YAAY;AAAA,EACZ,UAAU;AAAA,EACV,MAAM;AAAA,EACN,cAAc;AAAA,EACd,eAAe;AAAA,EACf,QAAQ;AAAA,EACR,OAAO;AACX;AAEO,MAAM,wBAAwB;AAAA,EACjC,aAAa;AAAA,EACb,WAAW;AACf;",
+  "names": []
+}

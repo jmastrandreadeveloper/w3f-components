@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/WindowGrid/WindowGrid.constants.ts"],
+  "sourcesContent": ["import type { WindowGridBreakpoints, WindowGridColumns } from './WindowGrid.types';\r\n\r\nexport const WINDOW_GRID_DEFAULTS = {\r\n    unstyled: false,\r\n    gap: 'var(--w3f-space-4)',\r\n    autoResponsive: true,\r\n    responsiveBreakpoints: {\r\n        sm: 400,\r\n        md: 600,\r\n        lg: 800,\r\n        xl: 1000,\r\n    } as WindowGridBreakpoints,\r\n    responsiveColumns: {\r\n        xs: 1,\r\n        sm: 2,\r\n        md: 3,\r\n        lg: 4,\r\n        xl: 6,\r\n    } as WindowGridColumns,\r\n} as const;\r\n\r\nexport const WINDOW_GRID_CLASSES = {\r\n    gridBase: 'w3f-window-grid',\r\n    gridBody: 'w3f-window-grid-body',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,uBAAuB;AAAA,EAChC,UAAU;AAAA,EACV,KAAK;AAAA,EACL,gBAAgB;AAAA,EAChB,uBAAuB;AAAA,IACnB,IAAI;AAAA,IACJ,IAAI;AAAA,IACJ,IAAI;AAAA,IACJ,IAAI;AAAA,EACR;AAAA,EACA,mBAAmB;AAAA,IACf,IAAI;AAAA,IACJ,IAAI;AAAA,IACJ,IAAI;AAAA,IACJ,IAAI;AAAA,IACJ,IAAI;AAAA,EACR;AACJ;AAEO,MAAM,sBAAsB;AAAA,EAC/B,UAAU;AAAA,EACV,UAAU;AACd;",
+  "names": []
+}

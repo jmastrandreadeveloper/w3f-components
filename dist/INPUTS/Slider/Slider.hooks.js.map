@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/Slider/Slider.hooks.ts"],
+  "sourcesContent": ["import { useContext } from 'react';\r\nimport { FormContext, FormDispatchContext, FormMetaContext, FormFieldStoreContext } from '../Form/Form';\r\nimport type { FormContextValue } from '../Form/Form.types';\r\n\r\n/** @deprecated Use useFormDispatch + useFormFieldValue for better performance */\r\nexport const useSliderFormContext = (): FormContextValue | null => {\r\n    return useContext(FormContext);\r\n};\r\n\r\nexport const useSliderFormDispatch = () => useContext(FormDispatchContext);\r\nexport const useSliderFormMeta = () => useContext(FormMetaContext);\r\nexport const useSliderFieldStore = () => useContext(FormFieldStoreContext);\r\n"],
+  "mappings": "AAAA,SAAS,kBAAkB;AAC3B,SAAS,aAAa,qBAAqB,iBAAiB,6BAA6B;AAIlF,MAAM,uBAAuB,MAA+B;AAC/D,SAAO,WAAW,WAAW;AACjC;AAEO,MAAM,wBAAwB,MAAM,WAAW,mBAAmB;AAClE,MAAM,oBAAoB,MAAM,WAAW,eAAe;AAC1D,MAAM,sBAAsB,MAAM,WAAW,qBAAqB;",
+  "names": []
+}

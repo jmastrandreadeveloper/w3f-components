@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Row/Row.utils.ts"],
+  "sourcesContent": ["import { ROW_CLASSES, COL_CLASSES } from './Row.constants';\r\n\r\n/**\r\n * Construye las clases CSS del Row.\r\n */\r\nexport function buildRowClasses(className?: string): string {\r\n    return [ROW_CLASSES.base, className].filter(Boolean).join(' ');\r\n}\r\n\r\n/**\r\n * Construye las clases CSS del Col.\r\n */\r\nexport function buildColClasses({\r\n    col,\r\n    sm,\r\n    md,\r\n    lg,\r\n    className,\r\n}: {\r\n    col?: number;\r\n    sm?: number;\r\n    md?: number;\r\n    lg?: number;\r\n    className?: string;\r\n}): string {\r\n    const classes: string[] = [COL_CLASSES.base];\r\n\r\n    if (col) classes.push(`w3f-col-${col}`);\r\n    if (sm) classes.push(`w3f-sm:col-${sm}`);\r\n    if (md) classes.push(`w3f-md:col-${md}`);\r\n    if (lg) classes.push(`w3f-lg:col-${lg}`);\r\n    if (className) classes.push(className);\r\n\r\n    return classes.join(' ');\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,aAAa,mBAAmB;AAKlC,SAAS,gBAAgB,WAA4B;AACxD,SAAO,CAAC,YAAY,MAAM,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACjE;AAKO,SAAS,gBAAgB;AAAA,EAC5B;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AACJ,GAMW;AACP,QAAM,UAAoB,CAAC,YAAY,IAAI;AAE3C,MAAI,IAAK,SAAQ,KAAK,WAAW,GAAG,EAAE;AACtC,MAAI,GAAI,SAAQ,KAAK,cAAc,EAAE,EAAE;AACvC,MAAI,GAAI,SAAQ,KAAK,cAAc,EAAE,EAAE;AACvC,MAAI,GAAI,SAAQ,KAAK,cAAc,EAAE,EAAE;AACvC,MAAI,UAAW,SAAQ,KAAK,SAAS;AAErC,SAAO,QAAQ,KAAK,GAAG;AAC3B;",
+  "names": []
+}

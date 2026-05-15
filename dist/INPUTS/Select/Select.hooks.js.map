@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/Select/Select.hooks.ts"],
+  "sourcesContent": ["import { useContext, useState } from 'react';\r\nimport { FormContext, FormDispatchContext, FormMetaContext, FormFieldStoreContext } from '../Form/Form';\r\nimport type { FormContextValue } from '../Form/Form.types';\r\n\r\n/** @deprecated Use useFormDispatch + useFormFieldValue for better performance */\r\nexport const useSelectFormContext = (): FormContextValue | null => {\r\n    return useContext(FormContext);\r\n};\r\n\r\nexport const useSelectFormDispatch = () => useContext(FormDispatchContext);\r\nexport const useSelectFormMeta = () => useContext(FormMetaContext);\r\nexport const useSelectFieldStore = () => useContext(FormFieldStoreContext);\r\n\r\nexport const useSelectFocus = () => {\r\n    const [isFocused, setIsFocused] = useState(false);\r\n    const onFocus = () => setIsFocused(true);\r\n    const onBlur = () => setIsFocused(false);\r\n    return { isFocused, onFocus, onBlur };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,YAAY,gBAAgB;AACrC,SAAS,aAAa,qBAAqB,iBAAiB,6BAA6B;AAIlF,MAAM,uBAAuB,MAA+B;AAC/D,SAAO,WAAW,WAAW;AACjC;AAEO,MAAM,wBAAwB,MAAM,WAAW,mBAAmB;AAClE,MAAM,oBAAoB,MAAM,WAAW,eAAe;AAC1D,MAAM,sBAAsB,MAAM,WAAW,qBAAqB;AAElE,MAAM,iBAAiB,MAAM;AAChC,QAAM,CAAC,WAAW,YAAY,IAAI,SAAS,KAAK;AAChD,QAAM,UAAU,MAAM,aAAa,IAAI;AACvC,QAAM,SAAS,MAAM,aAAa,KAAK;AACvC,SAAO,EAAE,WAAW,SAAS,OAAO;AACxC;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/ImageList/ImageList.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 ImageList Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const IMAGE_LIST_DEFAULTS = {\r\n    variant: 'standard' as const,\r\n    gap: '16px',\r\n    rowHeight: 'auto' as string | number,\r\n    quiltedCols: 4,\r\n    standardMinWidth: '250px',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,sBAAsB;AAAA,EAC/B,SAAS;AAAA,EACT,KAAK;AAAA,EACL,WAAW;AAAA,EACX,aAAa;AAAA,EACb,kBAAkB;AACtB;",
+  "names": []
+}

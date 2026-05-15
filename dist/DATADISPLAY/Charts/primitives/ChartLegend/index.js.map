@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartLegend/index.ts"],
+  "sourcesContent": ["export { ChartLegend, default } from './ChartLegend';\r\nexport type { ChartLegendProps, ChartLegendItem, ChartLegendSwatchShape } from './ChartLegend.types';\r\n"],
+  "mappings": "AAAA,SAAS,aAAa,WAAAA,gBAAe;",
+  "names": ["default"]
+}

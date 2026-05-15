@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/WordCloud/WordCloud.constants.ts"],
+  "sourcesContent": ["export const WORDCLOUD_ROOT_CLASS = 'w3f-chart-wordcloud';\r\n\r\nexport const WORDCLOUD_DEFAULTS = {\r\n    showTooltip: true,\r\n    fontFamily: 'inherit',\r\n    fontMinSize: 12,\r\n    fontMaxSize: 64,\r\n    spiral: 'archimedean' as const,\r\n    padding: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,uBAAuB;AAE7B,MAAM,qBAAqB;AAAA,EAC9B,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,aAAa;AAAA,EACb,QAAQ;AAAA,EACR,SAAS;AAAA,EACT,UAAU;AACd;",
+  "names": []
+}

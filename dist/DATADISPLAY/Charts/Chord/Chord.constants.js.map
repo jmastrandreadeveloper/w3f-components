@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Chord/Chord.constants.ts"],
+  "sourcesContent": ["export const CHORD_ROOT_CLASS = 'w3f-chart-chord';\r\n\r\nexport const CHORD_DEFAULTS = {\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    padAngle: 0.05,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAEzB,MAAM,iBAAiB;AAAA,EAC1B,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,UAAU;AAAA,EACV,UAAU;AACd;",
+  "names": []
+}

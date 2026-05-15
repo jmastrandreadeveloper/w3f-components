@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/UTILS/sanitizeUrl.ts"],
+  "sourcesContent": ["/**\r\n * sanitizeUrl \u2014 blocks dangerous URL protocols (javascript:, data:, vbscript:)\r\n * to prevent XSS via href/src attributes.\r\n *\r\n * @security Phase 2 hardening\r\n */\r\nconst BLOCKED_PROTOCOLS = /^(javascript|data|vbscript):/i;\r\n\r\nexport function sanitizeUrl(url: string | undefined): string | undefined {\r\n  if (!url) return url;\r\n  const trimmed = url.trim();\r\n  if (BLOCKED_PROTOCOLS.test(trimmed)) return undefined;\r\n  return trimmed;\r\n}\r\n"],
+  "mappings": "AAMA,MAAM,oBAAoB;AAEnB,SAAS,YAAY,KAA6C;AACvE,MAAI,CAAC,IAAK,QAAO;AACjB,QAAM,UAAU,IAAI,KAAK;AACzB,MAAI,kBAAkB,KAAK,OAAO,EAAG,QAAO;AAC5C,SAAO;AACT;",
+  "names": []
+}

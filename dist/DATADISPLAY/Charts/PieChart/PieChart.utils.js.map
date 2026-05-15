@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/PieChart/PieChart.utils.ts"],
+  "sourcesContent": ["import type { PieChartDataPoint } from './PieChart.types';\nimport { PIE_CHART_CLASSES, PIE_COLOR_PALETTE } from './PieChart.constants';\n\nexport function buildPieChartClasses(\n  className: string | undefined,\n  unstyled: boolean | undefined,\n): string {\n  const base = unstyled ? PIE_CHART_CLASSES.unstyled : PIE_CHART_CLASSES.root;\n  return className ? `${base} ${className}` : base;\n}\n\nexport function getSliceColor(datum: PieChartDataPoint, index: number): string {\n  return datum.color ?? PIE_COLOR_PALETTE[index % PIE_COLOR_PALETTE.length];\n}\n\nexport function getSliceValue(d: PieChartDataPoint): number {\n  return d.value;\n}\n"],
+  "mappings": "AACA,SAAS,mBAAmB,yBAAyB;AAE9C,SAAS,qBACd,WACA,UACQ;AACR,QAAM,OAAO,WAAW,kBAAkB,WAAW,kBAAkB;AACvE,SAAO,YAAY,GAAG,IAAI,IAAI,SAAS,KAAK;AAC9C;AAEO,SAAS,cAAc,OAA0B,OAAuB;AAC7E,SAAO,MAAM,SAAS,kBAAkB,QAAQ,kBAAkB,MAAM;AAC1E;AAEO,SAAS,cAAc,GAA8B;AAC1D,SAAO,EAAE;AACX;",
+  "names": []
+}

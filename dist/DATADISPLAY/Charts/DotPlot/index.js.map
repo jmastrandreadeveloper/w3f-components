@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/DotPlot/index.ts"],
+  "sourcesContent": ["export { DotPlot } from './DotPlot';\r\nexport { DotPlotInner } from './DotPlotInner';\r\nexport type { DotPlotProps, DotPlotInnerProps, DotPlotDatum, DotPlotData } from './DotPlot.types';\r\n"],
+  "mappings": "AAAA,SAAS,eAAe;AACxB,SAAS,oBAAoB;",
+  "names": []
+}

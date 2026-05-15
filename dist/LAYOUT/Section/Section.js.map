@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Section/Section.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { SectionProps } from './Section.types';\r\nimport { SECTION_CLASSES } from './Section.constants';\r\nimport { buildSectionClasses } from './Section.utils';\r\n\r\nexport type { SectionProps } from './Section.types';\r\n\r\n/**\r\n * Section Component - W3F Framework\r\n *\r\n * Contenedor sem\u00E1ntico de secci\u00F3n con t\u00EDtulo opcional.\r\n *\r\n * @example\r\n * <Section title=\"Configuraci\u00F3n\">\r\n *   <Form>...</Form>\r\n * </Section>\r\n */\r\nconst Section: React.FC<SectionProps> = ({\r\n    children,\r\n    title,\r\n    as: Element = 'section',\r\n    className,\r\n    style,\r\n    ...rest\r\n}) => {\r\n    const classes = buildSectionClasses(className);\r\n\r\n    return (\r\n        <Element className={classes} style={style} {...rest}>\r\n            {title && <h2 className={SECTION_CLASSES.title}>{title}</h2>}\r\n            {children}\r\n        </Element>\r\n    );\r\n};\r\n\r\nSection.displayName = 'Section';\r\n\r\nexport { Section };\r\nexport default Section;\r\n"],
+  "mappings": ";AA8BQ,SACc,KADd;AA1BR,SAAS,uBAAuB;AAChC,SAAS,2BAA2B;AAcpC,MAAM,UAAkC,CAAC;AAAA,EACrC;AAAA,EACA;AAAA,EACA,IAAI,UAAU;AAAA,EACd;AAAA,EACA;AAAA,EACA,GAAG;AACP,MAAM;AACF,QAAM,UAAU,oBAAoB,SAAS;AAE7C,SACI,qBAAC,WAAQ,WAAW,SAAS,OAAe,GAAG,MAC1C;AAAA,aAAS,oBAAC,QAAG,WAAW,gBAAgB,OAAQ,iBAAM;AAAA,IACtD;AAAA,KACL;AAER;AAEA,QAAQ,cAAc;AAGtB,IAAO,kBAAQ;",
+  "names": []
+}

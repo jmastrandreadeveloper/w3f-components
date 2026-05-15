@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../src/DATADISPLAY/Charts/primitives/ChartAxis/index.ts"],
+  "sourcesContent": ["export { ChartAxis, default } from './ChartAxis';\r\nexport type { ChartAxisProps, ChartAxisOrientation } from './ChartAxis.types';\r\n"],
+  "mappings": "AAAA,SAAS,WAAW,WAAAA,gBAAe;",
+  "names": ["default"]
+}

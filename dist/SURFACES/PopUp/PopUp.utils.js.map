@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PopUp/PopUp.utils.ts"],
+  "sourcesContent": ["import type { PopUpSize } from './PopUp.types';\r\nimport { POPUP_CLASSES } from './PopUp.constants';\r\n\r\nexport function buildPopUpOverlayClasses(isOpen: boolean): string {\r\n    return [POPUP_CLASSES.overlay, isOpen && POPUP_CLASSES.overlayOpen]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n\r\nexport function buildPopUpContainerClasses(className: string, size: PopUpSize, unstyled?: boolean): string {\r\n    const base = POPUP_CLASSES.container;\r\n    const sizeClass = `${base}--${size}`;\r\n    if (unstyled) return [base, sizeClass, `${base}--unstyled`, className].filter(Boolean).join(' ');\r\n    return [base, sizeClass, className].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,qBAAqB;AAEvB,SAAS,yBAAyB,QAAyB;AAC9D,SAAO,CAAC,cAAc,SAAS,UAAU,cAAc,WAAW,EAC7D,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;AAEO,SAAS,2BAA2B,WAAmB,MAAiB,UAA4B;AACvG,QAAM,OAAO,cAAc;AAC3B,QAAM,YAAY,GAAG,IAAI,KAAK,IAAI;AAClC,MAAI,SAAU,QAAO,CAAC,MAAM,WAAW,GAAG,IAAI,cAAc,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC/F,SAAO,CAAC,MAAM,WAAW,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAChE;",
+  "names": []
+}

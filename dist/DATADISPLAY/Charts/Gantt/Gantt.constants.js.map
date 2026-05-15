@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Gantt/Gantt.constants.ts"],
+  "sourcesContent": ["export const GANTT_ROOT_CLASS = 'w3f-chart-gantt';\r\n\r\nexport const GANTT_DEFAULTS = {\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    showXAxis: true,\r\n    showGrid: true,\r\n    barHeight: 24,\r\n    barGap: 8,\r\n    barRadius: 4,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,mBAAmB;AAEzB,MAAM,iBAAiB;AAAA,EAC1B,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,WAAW;AAAA,EACX,UAAU;AAAA,EACV,WAAW;AAAA,EACX,QAAQ;AAAA,EACR,WAAW;AAAA,EACX,UAAU;AACd;",
+  "names": []
+}

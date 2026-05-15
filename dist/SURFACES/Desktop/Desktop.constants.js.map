@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Desktop/Desktop.constants.ts"],
+  "sourcesContent": ["export const DESKTOP_CLASSES = {\r\n    root: 'w3f-desktop',\r\n} as const;\r\n\r\nexport const DESKTOP_DEFAULTS = {\r\n    unstyled: false,\r\n    className: '',\r\n    background: '#f0f2f5',\r\n} as const;\r\n\r\nexport const BASE_Z_INDEX = 100;\r\n"],
+  "mappings": "AAAO,MAAM,kBAAkB;AAAA,EAC3B,MAAM;AACV;AAEO,MAAM,mBAAmB;AAAA,EAC5B,UAAU;AAAA,EACV,WAAW;AAAA,EACX,YAAY;AAChB;AAEO,MAAM,eAAe;",
+  "names": []
+}

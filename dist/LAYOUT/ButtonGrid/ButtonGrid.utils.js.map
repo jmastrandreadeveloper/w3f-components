@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/ButtonGrid/ButtonGrid.utils.ts"],
+  "sourcesContent": ["import type { ButtonGridAlign } from './ButtonGrid.types';\r\nimport { BUTTON_GRID_CLASSES, BUTTON_GRID_ALIGN_MAP } from './ButtonGrid.constants';\r\n\r\n/**\r\n * Construye las clases CSS del ButtonGrid.\r\n */\r\nexport function buildButtonGridClasses(\r\n    align: ButtonGridAlign = 'start',\r\n    className?: string,\r\n): string {\r\n    return [\r\n        BUTTON_GRID_CLASSES.base,\r\n        BUTTON_GRID_CLASSES.gap,\r\n        BUTTON_GRID_CLASSES.wrap,\r\n        BUTTON_GRID_CLASSES.mt,\r\n        BUTTON_GRID_ALIGN_MAP[align],\r\n        className,\r\n    ]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n"],
+  "mappings": "AACA,SAAS,qBAAqB,6BAA6B;AAKpD,SAAS,uBACZ,QAAyB,SACzB,WACM;AACN,SAAO;AAAA,IACH,oBAAoB;AAAA,IACpB,oBAAoB;AAAA,IACpB,oBAAoB;AAAA,IACpB,oBAAoB;AAAA,IACpB,sBAAsB,KAAK;AAAA,IAC3B;AAAA,EACJ,EACK,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;",
+  "names": []
+}

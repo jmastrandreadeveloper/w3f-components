@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Backdrop/Backdrop.utils.ts"],
+  "sourcesContent": ["export function buildBackdropClasses(\r\n  open: boolean,\r\n  invisible: boolean,\r\n  className?: string\r\n): string {\r\n  return [\r\n    'w3f-backdrop',\r\n    open ? 'w3f-backdrop--open' : 'w3f-backdrop--closed',\r\n    invisible && 'w3f-backdrop--invisible',\r\n    className,\r\n  ].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AAAO,SAAS,qBACd,MACA,WACA,WACQ;AACR,SAAO;AAAA,IACL;AAAA,IACA,OAAO,uBAAuB;AAAA,IAC9B,aAAa;AAAA,IACb;AAAA,EACF,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC5B;",
+  "names": []
+}

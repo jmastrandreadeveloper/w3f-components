@@ -1,0 +1,80 @@
+const DP_WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mi\xE9", "Jue", "Vie", "S\xE1b"];
+const DP_WEEKDAYS_LONG = ["Domingo", "Lunes", "Martes", "Mi\xE9rcoles", "Jueves", "Viernes", "S\xE1bado"];
+const DP_MONTHS_SHORT = [
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic"
+];
+const DP_MONTHS_LONG = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre"
+];
+const DP_CLASSES = {
+  root: "w3f-datepicker",
+  inputWrapper: "w3f-datepicker-input-wrapper",
+  input: "w3f-datepicker-input",
+  inputIcon: "w3f-datepicker-input-icon",
+  dropdown: "w3f-datepicker-dropdown",
+  calendar: "w3f-datepicker-calendar",
+  header: "w3f-datepicker-header",
+  navBtn: "w3f-datepicker-nav-btn",
+  title: "w3f-datepicker-title",
+  weekdays: "w3f-datepicker-weekdays",
+  weekday: "w3f-datepicker-weekday",
+  weekdaySun: "w3f-datepicker-weekday--sun",
+  days: "w3f-datepicker-days",
+  day: "w3f-datepicker-day",
+  dayToday: "w3f-datepicker-day--today",
+  daySelected: "w3f-datepicker-day--selected",
+  daySunday: "w3f-datepicker-day--sunday",
+  dayOtherMonth: "w3f-datepicker-day--other-month",
+  dayDisabled: "w3f-datepicker-day--disabled",
+  dayInRange: "w3f-datepicker-day--in-range",
+  dayRangeStart: "w3f-datepicker-day--range-start",
+  dayRangeEnd: "w3f-datepicker-day--range-end",
+  dayRangeSingle: "w3f-datepicker-day--range-single",
+  dual: "w3f-datepicker-dual",
+  dualDivider: "w3f-datepicker-dual-divider",
+  multiple: "w3f-datepicker-multiple",
+  multipleList: "w3f-datepicker-multiple-list",
+  multipleItem: "w3f-datepicker-multiple-item",
+  multipleItemLabel: "w3f-datepicker-multiple-item-label",
+  multipleItemRemove: "w3f-datepicker-multiple-item-remove",
+  actions: "w3f-datepicker-actions",
+  output: "w3f-datepicker-output",
+  titleCaret: "w3f-datepicker-title-caret",
+  ymPicker: "w3f-datepicker-ym-picker",
+  yearList: "w3f-datepicker-year-list",
+  yearItem: "w3f-datepicker-year-item",
+  yearItemSelected: "w3f-datepicker-year-item--selected",
+  monthGrid: "w3f-datepicker-month-grid",
+  monthItem: "w3f-datepicker-month-item",
+  monthItemSelected: "w3f-datepicker-month-item--selected"
+};
+export {
+  DP_CLASSES,
+  DP_MONTHS_LONG,
+  DP_MONTHS_SHORT,
+  DP_WEEKDAYS_LONG,
+  DP_WEEKDAYS_SHORT
+};
+//# sourceMappingURL=DatePicker.constants.js.map

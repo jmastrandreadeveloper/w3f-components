@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Stack/index.ts"],
+  "sourcesContent": ["export { Stack, default } from './Stack';\r\nexport type { StackProps, StackSize } from './Stack.types';\r\n"],
+  "mappings": "AAAA,SAAS,OAAO,WAAAA,gBAAe;",
+  "names": ["default"]
+}

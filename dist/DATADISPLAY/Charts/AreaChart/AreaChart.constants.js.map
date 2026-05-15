@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/AreaChart/AreaChart.constants.ts"],
+  "sourcesContent": ["export const AREA_CHART_CLASSES = {\n  root: 'w3f-chart w3f-area-chart',\n  unstyled: 'w3f-chart w3f-area-chart w3f-area-chart--unstyled',\n  container: 'w3f-chart__container',\n} as const;\n\nexport const AREA_CHART_DEFAULTS = {\n  width: 400,\n  height: 300,\n  color: '#6366f1',\n  gradient: true,\n  unstyled: false,\n} as const;\n\nexport const AREA_CHART_MARGIN = {\n  top: 20,\n  right: 20,\n  bottom: 40,\n  left: 50,\n} as const;\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAAA,EAChC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,sBAAsB;AAAA,EACjC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,UAAU;AAAA,EACV,UAAU;AACZ;AAEO,MAAM,oBAAoB;AAAA,EAC/B,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Text/Text.constants.ts"],
+  "sourcesContent": ["export const TEXT_DEFAULTS = {\r\n  customClasses: '',\r\n  unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,gBAAgB;AAAA,EAC3B,eAAe;AAAA,EACf,UAAU;AACZ;",
+  "names": []
+}

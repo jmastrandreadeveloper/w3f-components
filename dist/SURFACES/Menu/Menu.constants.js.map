@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Menu/Menu.constants.ts"],
+  "sourcesContent": ["import type { MenuPosition } from './Menu.types';\r\n\r\nexport const MENU_BAR_CATEGORY_DEFAULTS = {\r\n    position: 'left' as MenuPosition,\r\n    unstyled: false,\r\n} as const;\r\n\r\nexport const MENU_CLASSES = {\r\n    container: 'w3f-nested-menu-container',\r\n    trigger: 'w3f-nested-menu-trigger',\r\n    dropdown: 'w3f-nested-menu-dropdown',\r\n    dropdownRight: 'w3f-nested-menu-dropdown-right',\r\n    dropdownCenter: 'w3f-nested-menu-dropdown-center',\r\n    dropdownTop: 'w3f-nested-menu-dropdown-top',\r\n    item: 'w3f-nested-menu-item',\r\n    button: 'w3f-nested-menu-button',\r\n    buttonParent: 'w3f-nested-menu-button-parent',\r\n    buttonLeaf: 'w3f-nested-menu-button-leaf',\r\n    label: 'w3f-nested-menu-label',\r\n    arrow: 'w3f-nested-menu-arrow',\r\n    submenu: 'w3f-nested-menu-submenu',\r\n    isActive: 'is-active',\r\n} as const;\r\n\r\nexport const SUBMENU_CLOSE_DELAY = 200;\r\n"],
+  "mappings": "AAEO,MAAM,6BAA6B;AAAA,EACtC,UAAU;AAAA,EACV,UAAU;AACd;AAEO,MAAM,eAAe;AAAA,EACxB,WAAW;AAAA,EACX,SAAS;AAAA,EACT,UAAU;AAAA,EACV,eAAe;AAAA,EACf,gBAAgB;AAAA,EAChB,aAAa;AAAA,EACb,MAAM;AAAA,EACN,QAAQ;AAAA,EACR,cAAc;AAAA,EACd,YAAY;AAAA,EACZ,OAAO;AAAA,EACP,OAAO;AAAA,EACP,SAAS;AAAA,EACT,UAAU;AACd;AAEO,MAAM,sBAAsB;",
+  "names": []
+}

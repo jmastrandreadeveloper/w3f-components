@@ -1,4 +1,7 @@
 node_modules/
-dist/
 *.local
 .DS_Store
+
+# src/ is a build-time artifact — never committed
+# The sync script copies it temporarily, compiles to dist/, then deletes it
+src/

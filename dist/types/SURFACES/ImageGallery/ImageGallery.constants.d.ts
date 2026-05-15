@@ -1,0 +1,40 @@
+import type { GalleryLayout } from './ImageGallery.types';
+export declare const IMAGE_GALLERY_DEFAULTS: {
+    readonly images: readonly [];
+    readonly layout: GalleryLayout;
+    readonly columns: 3;
+    readonly gap: 4;
+    readonly showCaptions: false;
+    readonly lightbox: true;
+    readonly imageRounded: "md";
+    readonly imageShadow: "sm";
+    readonly imageHoverEffect: "zoom";
+    readonly thumbnails: true;
+    readonly emptyMessage: "No hay imágenes para mostrar";
+    readonly unstyled: false;
+    readonly className: "";
+};
+export declare const IMAGE_GALLERY_CLASSES: {
+    readonly container: "w3f-gallery-container";
+    readonly title: "w3f-gallery-title";
+    readonly gallery: "w3f-gallery";
+    readonly grid: "w3f-gallery-grid";
+    readonly masonry: "w3f-gallery-masonry";
+    readonly carousel: "w3f-gallery-carousel";
+    readonly item: "w3f-gallery-item";
+    readonly image: "w3f-gallery-image";
+    readonly caption: "w3f-gallery-caption";
+    readonly empty: "w3f-gallery-empty";
+    readonly emptyIcon: "w3f-gallery-empty-icon";
+    readonly emptyText: "w3f-gallery-empty-text";
+    readonly lightboxOverlay: "w3f-lightbox-overlay";
+    readonly lightboxClose: "w3f-lightbox-close";
+    readonly lightboxNav: "w3f-lightbox-nav";
+    readonly lightboxPrev: "w3f-lightbox-prev";
+    readonly lightboxNext: "w3f-lightbox-next";
+    readonly lightboxContent: "w3f-lightbox-content";
+    readonly lightboxImage: "w3f-lightbox-image";
+    readonly lightboxCaption: "w3f-lightbox-caption";
+    readonly lightboxCounter: "w3f-lightbox-counter";
+};
+//# sourceMappingURL=ImageGallery.constants.d.ts.map

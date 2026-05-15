@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/LiveForm/LiveForm.utils.ts"],
+  "sourcesContent": ["import { LIVE_FORM_CLASSES } from './LiveForm.constants';\r\n\r\n/**\r\n * Construye las clases CSS del contenedor LiveForm.\r\n */\r\nexport function buildLiveFormClasses(\r\n    className?: string,\r\n    hasValues?: boolean,\r\n    unstyled?: boolean,\r\n): string {\r\n    const base = LIVE_FORM_CLASSES.base;\r\n    if (unstyled) return [base, `${base}--unstyled`, className].filter(Boolean).join(' ');\r\n    return [\r\n        base,\r\n        hasValues && LIVE_FORM_CLASSES.active,\r\n        className,\r\n    ]\r\n        .filter(Boolean)\r\n        .join(' ');\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,yBAAyB;AAK3B,SAAS,qBACZ,WACA,WACA,UACM;AACN,QAAM,OAAO,kBAAkB;AAC/B,MAAI,SAAU,QAAO,CAAC,MAAM,GAAG,IAAI,cAAc,SAAS,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AACpF,SAAO;AAAA,IACH;AAAA,IACA,aAAa,kBAAkB;AAAA,IAC/B;AAAA,EACJ,EACK,OAAO,OAAO,EACd,KAAK,GAAG;AACjB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Note/Note.hooks.ts"],
+  "sourcesContent": ["import { useState, useCallback } from 'react';\r\n\r\n/**\r\n * Hook para manejar la l\u00F3gica de dismiss/cierre de una nota.\r\n */\r\nexport const useNoteDismiss = (onDismiss?: () => void) => {\r\n    const [isVisible, setIsVisible] = useState(true);\r\n\r\n    const handleDismiss = useCallback(() => {\r\n        setIsVisible(false);\r\n        if (onDismiss) {\r\n            onDismiss();\r\n        }\r\n    }, [onDismiss]);\r\n\r\n    return { isVisible, handleDismiss };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,UAAU,mBAAmB;AAK/B,MAAM,iBAAiB,CAAC,cAA2B;AACtD,QAAM,CAAC,WAAW,YAAY,IAAI,SAAS,IAAI;AAE/C,QAAM,gBAAgB,YAAY,MAAM;AACpC,iBAAa,KAAK;AAClB,QAAI,WAAW;AACX,gBAAU;AAAA,IACd;AAAA,EACJ,GAAG,CAAC,SAAS,CAAC;AAEd,SAAO,EAAE,WAAW,cAAc;AACtC;",
+  "names": []
+}

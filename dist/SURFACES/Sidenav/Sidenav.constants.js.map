@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Sidenav/Sidenav.constants.ts"],
+  "sourcesContent": ["import type { SidenavVariant } from './Sidenav.types';\r\n\r\nexport const SIDENAV_DEFAULTS = {\r\n    loading: false,\r\n    error: null,\r\n    variant: 'default' as SidenavVariant,\r\n    unstyled: false,\r\n    className: '',\r\n} as const;\r\n\r\nexport const SIDENAV_CLASSES = {\r\n    container: 'w3f-sidenav-container',\r\n    compact: 'w3f-sidenav-compact',\r\n    expanded: 'w3f-sidenav-expanded',\r\n    light: 'w3f-sidenav-light',\r\n    alert: 'w3f-sidenav-alert',\r\n    alertLoading: 'w3f-sidenav-alert-loading',\r\n    alertError: 'w3f-sidenav-alert-error',\r\n    alertIcon: 'w3f-sidenav-alert-icon',\r\n} as const;\r\n"],
+  "mappings": "AAEO,MAAM,mBAAmB;AAAA,EAC5B,SAAS;AAAA,EACT,OAAO;AAAA,EACP,SAAS;AAAA,EACT,UAAU;AAAA,EACV,WAAW;AACf;AAEO,MAAM,kBAAkB;AAAA,EAC3B,WAAW;AAAA,EACX,SAAS;AAAA,EACT,UAAU;AAAA,EACV,OAAO;AAAA,EACP,OAAO;AAAA,EACP,cAAc;AAAA,EACd,YAAY;AAAA,EACZ,WAAW;AACf;",
+  "names": []
+}

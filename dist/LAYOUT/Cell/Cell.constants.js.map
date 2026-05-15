@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Cell/Cell.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const CELL_CLASSES = {\r\n    base: 'w3f-cell',\r\n    content: 'w3f-cell-content',\r\n    center: 'w3f-cell-center',\r\n    vCenter: 'w3f-cell-vcenter',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,eAAe;AAAA,EACxB,MAAM;AAAA,EACN,SAAS;AAAA,EACT,QAAQ;AAAA,EACR,SAAS;AACb;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Section/index.ts"],
+  "sourcesContent": ["export { Section, default } from './Section';\r\nexport { SubSection } from './SubSection';\r\nexport type { SectionProps, SubSectionProps } from './Section.types';\r\n"],
+  "mappings": "AAAA,SAAS,SAAS,WAAAA,gBAAe;AACjC,SAAS,kBAAkB;",
+  "names": ["default"]
+}

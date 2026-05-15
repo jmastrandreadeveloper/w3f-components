@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/PopUp/PopUp.hooks.ts"],
+  "sourcesContent": ["import { useEffect, useCallback } from 'react';\r\n\r\n/**\r\n * Maneja el cierre del PopUp con tecla Escape y bloqueo del scroll del body.\r\n */\r\nexport function usePopUpKeyboard(isOpen: boolean, onClose: () => void): void {\r\n    const handleKeyDown = useCallback(\r\n        (e: KeyboardEvent) => {\r\n            if (e.key === 'Escape') onClose();\r\n        },\r\n        [onClose],\r\n    );\r\n\r\n    useEffect(() => {\r\n        if (isOpen) {\r\n            document.body.style.overflow = 'hidden';\r\n            window.addEventListener('keydown', handleKeyDown);\r\n        } else {\r\n            document.body.style.overflow = 'unset';\r\n        }\r\n        return () => {\r\n            document.body.style.overflow = 'unset';\r\n            window.removeEventListener('keydown', handleKeyDown);\r\n        };\r\n    }, [isOpen, handleKeyDown]);\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,WAAW,mBAAmB;AAKhC,SAAS,iBAAiB,QAAiB,SAA2B;AACzE,QAAM,gBAAgB;AAAA,IAClB,CAAC,MAAqB;AAClB,UAAI,EAAE,QAAQ,SAAU,SAAQ;AAAA,IACpC;AAAA,IACA,CAAC,OAAO;AAAA,EACZ;AAEA,YAAU,MAAM;AACZ,QAAI,QAAQ;AACR,eAAS,KAAK,MAAM,WAAW;AAC/B,aAAO,iBAAiB,WAAW,aAAa;AAAA,IACpD,OAAO;AACH,eAAS,KAAK,MAAM,WAAW;AAAA,IACnC;AACA,WAAO,MAAM;AACT,eAAS,KAAK,MAAM,WAAW;AAC/B,aAAO,oBAAoB,WAAW,aAAa;AAAA,IACvD;AAAA,EACJ,GAAG,CAAC,QAAQ,aAAa,CAAC;AAC9B;",
+  "names": []
+}

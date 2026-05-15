@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Histogram/index.ts"],
+  "sourcesContent": ["export { Histogram } from './Histogram';\r\nexport { HistogramInner } from './HistogramInner';\r\nexport type { HistogramProps, HistogramInnerProps, HistogramBin } from './Histogram.types';\r\n"],
+  "mappings": "AAAA,SAAS,iBAAiB;AAC1B,SAAS,sBAAsB;",
+  "names": []
+}

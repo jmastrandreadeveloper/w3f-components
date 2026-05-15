@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Row/Col.tsx"],
+  "sourcesContent": ["'use client'\n\nimport React from 'react';\r\nimport type { ColProps } from './Row.types';\r\nimport { buildColClasses } from './Row.utils';\r\n\r\nexport type { ColProps } from './Row.types';\r\n\r\n/**\r\n * Col Component - W3F Framework\r\n *\r\n * Columna responsive dentro de un Row.\r\n *\r\n * @example\r\n * <Col col={4} md={6} sm={12}>Contenido</Col>\r\n */\r\nconst Col: React.FC<ColProps> = ({\r\n    children,\r\n    className,\r\n    col,\r\n    sm,\r\n    md,\r\n    lg,\r\n    style,\r\n    ...rest\r\n}) => {\r\n    const classes = buildColClasses({ col, sm, md, lg, className });\r\n\r\n    return (\r\n        <div className={classes} style={style} {...rest}>\r\n            {children}\r\n        </div>\r\n    );\r\n};\r\n\r\nCol.displayName = 'Col';\r\n\r\nexport { Col };\r\nexport default Col;\r\n"],
+  "mappings": ";AA6BQ;AAzBR,SAAS,uBAAuB;AAYhC,MAAM,MAA0B,CAAC;AAAA,EAC7B;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA,GAAG;AACP,MAAM;AACF,QAAM,UAAU,gBAAgB,EAAE,KAAK,IAAI,IAAI,IAAI,UAAU,CAAC;AAE9D,SACI,oBAAC,SAAI,WAAW,SAAS,OAAe,GAAG,MACtC,UACL;AAER;AAEA,IAAI,cAAc;AAGlB,IAAO,cAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Note/Note.constants.ts"],
+  "sourcesContent": ["export const NOTE_DEFAULTS = {\r\n  type: 'info' as const,\r\n  round: true as const,\r\n  shadow: false as const,\r\n  border: 'left' as const,\r\n  fullBorder: false as const,\r\n  unstyled: false as const,\r\n} as const;\r\n\r\nexport const NOTE_VARIANT_CLASSES: Record<string, string> = {\r\n  solid: 'w3f-note--solid',\r\n  outlined: 'w3f-note--outlined',\r\n  ghost: 'w3f-note--ghost',\r\n  soft: 'w3f-note--soft',\r\n};\r\n"],
+  "mappings": "AAAO,MAAM,gBAAgB;AAAA,EAC3B,MAAM;AAAA,EACN,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,QAAQ;AAAA,EACR,YAAY;AAAA,EACZ,UAAU;AACZ;AAEO,MAAM,uBAA+C;AAAA,EAC1D,OAAO;AAAA,EACP,UAAU;AAAA,EACV,OAAO;AAAA,EACP,MAAM;AACR;",
+  "names": []
+}

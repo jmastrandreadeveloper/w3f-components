@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/LineMulti/LineMulti.constants.ts"],
+  "sourcesContent": ["export const LINE_MULTI_ROOT_CLASS = 'w3f-chart-line-multi';\r\n\r\nexport const LINE_MULTI_DEFAULTS = {\r\n    curved: true,\r\n    showDots: false,\r\n    strokeWidth: 2,\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    showLegend: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,wBAAwB;AAE9B,MAAM,sBAAsB;AAAA,EAC/B,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,aAAa;AAAA,EACb,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

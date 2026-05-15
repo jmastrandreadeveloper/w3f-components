@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Ripples/Ripple.constants.ts"],
+  "sourcesContent": ["export const RIPPLE_DEFAULTS = {\r\n  duration: 600,\r\n  enterDuration: 450,\r\n  exitDuration: 400,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,kBAAkB;AAAA,EAC7B,UAAU;AAAA,EACV,eAAe;AAAA,EACf,cAAc;AAChB;",
+  "names": []
+}

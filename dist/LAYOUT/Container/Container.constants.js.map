@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/Container/Container.constants.ts"],
+  "sourcesContent": ["// \u2500\u2500\u2500 Container Defaults \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const CONTAINER_DEFAULTS = {\r\n    as: 'div' as const,\r\n} as const;\r\n\r\n// \u2500\u2500\u2500 CSS Class tokens \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\r\nexport const CONTAINER_CLASSES = {\r\n    base: 'w3f-container',\r\n} as const;\r\n"],
+  "mappings": "AACO,MAAM,qBAAqB;AAAA,EAC9B,IAAI;AACR;AAGO,MAAM,oBAAoB;AAAA,EAC7B,MAAM;AACV;",
+  "names": []
+}

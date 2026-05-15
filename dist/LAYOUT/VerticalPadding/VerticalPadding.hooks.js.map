@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/VerticalPadding/VerticalPadding.hooks.ts"],
+  "sourcesContent": ["import { useState } from 'react';\r\n\r\n/**\r\n * Hook para mantener la coherencia estructural con otros componentes.\r\n */\r\nexport const useVerticalPaddingState = () => {\r\n    const [isReady] = useState(true);\r\n\r\n    return {\r\n        isReady,\r\n    };\r\n};\r\n"],
+  "mappings": "AAAA,SAAS,gBAAgB;AAKlB,MAAM,0BAA0B,MAAM;AACzC,QAAM,CAAC,OAAO,IAAI,SAAS,IAAI;AAE/B,SAAO;AAAA,IACH;AAAA,EACJ;AACJ;",
+  "names": []
+}

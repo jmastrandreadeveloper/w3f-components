@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Line/Line.constants.ts"],
+  "sourcesContent": ["export const LINE_ROOT_CLASS = 'w3f-chart-line';\r\n\r\nexport const LINE_DEFAULTS = {\r\n    curved: true,\r\n    showDots: false,\r\n    strokeWidth: 2,\r\n    showXAxis: true,\r\n    showYAxis: true,\r\n    showGrid: true,\r\n    showTooltip: true,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,kBAAkB;AAExB,MAAM,gBAAgB;AAAA,EACzB,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,aAAa;AAAA,EACb,WAAW;AAAA,EACX,WAAW;AAAA,EACX,UAAU;AAAA,EACV,aAAa;AAAA,EACb,UAAU;AACd;",
+  "names": []
+}

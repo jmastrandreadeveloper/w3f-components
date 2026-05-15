@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/BoxPlot/index.ts"],
+  "sourcesContent": ["export { BoxPlot } from './BoxPlot';\r\nexport { BoxPlotInner } from './BoxPlotInner';\r\nexport type { BoxPlotProps, BoxPlotInnerProps, BoxPlotGroup, BoxPlotData, BoxPlotStats } from './BoxPlot.types';\r\n"],
+  "mappings": "AAAA,SAAS,eAAe;AACxB,SAAS,oBAAoB;",
+  "names": []
+}

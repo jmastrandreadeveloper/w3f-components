@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/FEEDBACK/Alert/Alert.utils.ts"],
+  "sourcesContent": ["import type { AlertPosition } from './Alert.types';\r\nimport { ALERT_POSITIONS } from './Alert.constants';\r\n\r\nexport function buildAlertContainerClasses(position: AlertPosition, className?: string): string {\r\n  return [\r\n    'w3f-alert-container',\r\n    ALERT_POSITIONS[position] || ALERT_POSITIONS['top-right'],\r\n    className,\r\n  ].filter(Boolean).join(' ');\r\n}\r\n\r\nexport function generateAlertId(): number {\r\n  return Date.now() + Math.random();\r\n}\r\n"],
+  "mappings": "AACA,SAAS,uBAAuB;AAEzB,SAAS,2BAA2B,UAAyB,WAA4B;AAC9F,SAAO;AAAA,IACL;AAAA,IACA,gBAAgB,QAAQ,KAAK,gBAAgB,WAAW;AAAA,IACxD;AAAA,EACF,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC5B;AAEO,SAAS,kBAA0B;AACxC,SAAO,KAAK,IAAI,IAAI,KAAK,OAAO;AAClC;",
+  "names": []
+}

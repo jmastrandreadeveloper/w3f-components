@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/RadarChart/RadarChart.constants.ts"],
+  "sourcesContent": ["export const RADAR_CHART_CLASSES = {\r\n  root: 'w3f-chart w3f-radar-chart',\r\n  unstyled: 'w3f-chart w3f-radar-chart w3f-radar-chart--unstyled',\r\n  container: 'w3f-chart__container',\r\n} as const;\r\n\r\nexport const RADAR_CHART_DEFAULTS = {\r\n  width: 400,\r\n  height: 400,\r\n  color: '#6366f1',\r\n  unstyled: false,\r\n} as const;\r\n\r\nexport const RADAR_CHART_MARGIN = {\r\n  top: 40,\r\n  right: 40,\r\n  bottom: 40,\r\n  left: 40,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,sBAAsB;AAAA,EACjC,MAAM;AAAA,EACN,UAAU;AAAA,EACV,WAAW;AACb;AAEO,MAAM,uBAAuB;AAAA,EAClC,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,UAAU;AACZ;AAEO,MAAM,qBAAqB;AAAA,EAChC,KAAK;AAAA,EACL,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,MAAM;AACR;",
+  "names": []
+}

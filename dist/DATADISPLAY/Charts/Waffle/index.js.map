@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Waffle/index.ts"],
+  "sourcesContent": ["export { Waffle } from './Waffle';\r\nexport { WaffleInner } from './WaffleInner';\r\nexport type { WaffleProps, WaffleInnerProps, WaffleDatum, WaffleData } from './Waffle.types';\r\n"],
+  "mappings": "AAAA,SAAS,cAAc;AACvB,SAAS,mBAAmB;",
+  "names": []
+}

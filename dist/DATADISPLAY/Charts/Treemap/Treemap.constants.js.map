@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/DATADISPLAY/Charts/Treemap/Treemap.constants.ts"],
+  "sourcesContent": ["export const TREEMAP_ROOT_CLASS = 'w3f-chart-treemap';\r\n\r\nexport const TREEMAP_DEFAULTS = {\r\n    showLabels: true,\r\n    showTooltip: true,\r\n    tilePadding: 2,\r\n    tileRadius: 2,\r\n    unstyled: false,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,qBAAqB;AAE3B,MAAM,mBAAmB;AAAA,EAC5B,YAAY;AAAA,EACZ,aAAa;AAAA,EACb,aAAa;AAAA,EACb,YAAY;AAAA,EACZ,UAAU;AACd;",
+  "names": []
+}

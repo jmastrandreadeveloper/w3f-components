@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/SURFACES/Section/index.ts"],
+  "sourcesContent": ["export { Section, default } from './Section';\r\nexport type { SectionProps } from './Section.types';\r\n"],
+  "mappings": "AAAA,SAAS,SAAS,WAAAA,gBAAe;",
+  "names": ["default"]
+}

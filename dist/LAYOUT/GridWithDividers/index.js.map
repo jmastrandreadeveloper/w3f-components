@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWithDividers/index.ts"],
+  "sourcesContent": ["export { GridWithDividers, default } from './GridWithDividers';\r\nexport { Divider } from './Divider';\r\nexport { SliderControl } from './SliderControl';\r\nexport { useGridDividers } from './GridWithDividers.hooks';\r\n/** @deprecated use useGridDividers */\r\nexport { useGridDividers as useGridDivider } from './GridWithDividers.hooks';\r\nexport { default as gridDividerUtils } from './GridWithDividers.utils';\r\nexport { default as gridDividerStyles } from './GridWithDividers.styles';\r\nexport type {\r\n    GridWithDividersProps,\r\n    DividerConfig,\r\n    DividerProps,\r\n    SliderControlProps,\r\n    DividerOrientation,\r\n    DividerPosition,\r\n    GridDividerState,\r\n} from './GridWithDividers.types';\r\n"],
+  "mappings": "AAAA,SAAS,kBAAkB,WAAAA,gBAAe;AAC1C,SAAS,eAAe;AACxB,SAAS,qBAAqB;AAC9B,SAAS,uBAAuB;AAEhC,SAA4B,mBAAnBC,wBAAyC;AAClD,SAAoB,WAAXD,gBAAmC;AAC5C,SAAoB,WAAXA,gBAAoC;",
+  "names": ["default", "useGridDividers"]
+}

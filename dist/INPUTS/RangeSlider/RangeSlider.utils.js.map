@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/INPUTS/RangeSlider/RangeSlider.utils.ts"],
+  "sourcesContent": ["export function snapToStep(value: number, step: number): number {\r\n    return Math.round(value / step) * step;\r\n}\r\n\r\nexport function getPercent(value: number, min: number, max: number): number {\r\n    return Math.round(((value - min) / (max - min)) * 100);\r\n}\r\n\r\nexport function defaultFormatLabel(value: number): string | number {\r\n    return value;\r\n}\r\n"],
+  "mappings": "AAAO,SAAS,WAAW,OAAe,MAAsB;AAC5D,SAAO,KAAK,MAAM,QAAQ,IAAI,IAAI;AACtC;AAEO,SAAS,WAAW,OAAe,KAAa,KAAqB;AACxE,SAAO,KAAK,OAAQ,QAAQ,QAAQ,MAAM,OAAQ,GAAG;AACzD;AAEO,SAAS,mBAAmB,OAAgC;AAC/D,SAAO;AACX;",
+  "names": []
+}

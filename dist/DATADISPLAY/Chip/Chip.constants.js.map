@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Chip/Chip.constants.ts"],
+  "sourcesContent": ["export const CHIP_DEFAULTS = {\r\n  disabled: false as const,\r\n  isFocused: false as const,\r\n  unstyled: false as const,\r\n} as const;\r\n\r\nexport const CHIP_VARIANT_CLASSES = {\r\n  solid: 'w3f-chip--solid',\r\n  outlined: 'w3f-chip--outlined',\r\n  ghost: 'w3f-chip--ghost',\r\n  soft: 'w3f-chip--soft',\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,gBAAgB;AAAA,EAC3B,UAAU;AAAA,EACV,WAAW;AAAA,EACX,UAAU;AACZ;AAEO,MAAM,uBAAuB;AAAA,EAClC,OAAO;AAAA,EACP,UAAU;AAAA,EACV,OAAO;AAAA,EACP,MAAM;AACR;",
+  "names": []
+}

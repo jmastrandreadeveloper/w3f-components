@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/COMMERCE/ShoppingCart/index.ts"],
+  "sourcesContent": ["export { ShoppingCart, default } from './ShoppingCart';\r\nexport type { ShoppingCartProps, CartItem, CartSummary } from './ShoppingCart.types';\r\n"],
+  "mappings": "AAAA,SAAS,cAAc,WAAAA,gBAAe;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/DATADISPLAY/Dividers/Dividers.constants.ts"],
+  "sourcesContent": ["export const DIVIDERS_DEFAULTS = {\r\n  type: 'horizontal' as const,\r\n  className: '' as const,\r\n  spacing: '16px' as const,\r\n  thickness: '1px' as const,\r\n  height: '50px' as const,\r\n  color: null as const,\r\n  variant: 'solid' as const,\r\n  gradient: null as const,\r\n  animated: false as const,\r\n  children: null as const,\r\n  contentPosition: 'center' as const,\r\n  unstyled: false as const,\r\n} as const;\r\n"],
+  "mappings": "AAAO,MAAM,oBAAoB;AAAA,EAC/B,MAAM;AAAA,EACN,WAAW;AAAA,EACX,SAAS;AAAA,EACT,WAAW;AAAA,EACX,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,SAAS;AAAA,EACT,UAAU;AAAA,EACV,UAAU;AAAA,EACV,UAAU;AAAA,EACV,iBAAiB;AAAA,EACjB,UAAU;AACZ;",
+  "names": []
+}

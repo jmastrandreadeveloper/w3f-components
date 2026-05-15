@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/LAYOUT/GridWiithDrawers/GridWithDrawer.utils.ts"],
+  "sourcesContent": ["import { GRID_DRAWER_CLASSES } from './GridWithDrawer.constants';\r\n\r\n/**\r\n * Construye las clases del wrapper del drawer.\r\n */\r\nexport function buildDrawerWrapperClasses(\r\n    isDrawerArea: boolean,\r\n    isDrawerOpen: boolean,\r\n): string {\r\n    return [\r\n        GRID_DRAWER_CLASSES.wrapper,\r\n        isDrawerArea ? GRID_DRAWER_CLASSES.drawerArea : '',\r\n        isDrawerArea && !isDrawerOpen ? GRID_DRAWER_CLASSES.collapsed : '',\r\n    ].filter(Boolean).join(' ');\r\n}\r\n"],
+  "mappings": "AAAA,SAAS,2BAA2B;AAK7B,SAAS,0BACZ,cACA,cACM;AACN,SAAO;AAAA,IACH,oBAAoB;AAAA,IACpB,eAAe,oBAAoB,aAAa;AAAA,IAChD,gBAAgB,CAAC,eAAe,oBAAoB,YAAY;AAAA,EACpE,EAAE,OAAO,OAAO,EAAE,KAAK,GAAG;AAC9B;",
+  "names": []
+}
