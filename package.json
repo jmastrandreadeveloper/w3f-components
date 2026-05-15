@@ -3,34 +3,44 @@
   "version": "1.0.0",
   "description": "W3F Component Library — 121 React components + 43 charts with CSS custom properties",
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*",
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/types/*.d.ts",
+      "import": "./dist/*.js"
+    },
     "./css/base": "./css/base.css",
     "./css/theme": "./css/theme.css",
-    "./css/tokens": "./css/tokens.css"
+    "./css/tokens": "./css/tokens.css",
+    "./dist/w3f.css": "./dist/w3f.css"
   },
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
-    "src/",
+    "dist/",
     "css/",
-    "scripts/",
-    "dist/w3f.css"
+    "scripts/"
   ],
   "bin": {
     "w3f-init": "scripts/init-nextjs.mjs"
   },
   "scripts": {
     "build": "node esbuild.config.js",
-    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "build:types": "node_modules/.bin/tsc --emitDeclarationOnly --outDir dist/types",
+    "build:all": "node esbuild.config.js && node_modules/.bin/tsc --emitDeclarationOnly --outDir dist/types",
     "update": "node scripts/update.mjs",
     "update:commit": "node scripts/update.mjs --commit",
     "update:push": "node scripts/update.mjs --push",
     "update:manual": "node scripts/update.mjs --manual-only",
     "update:manual:commit": "node scripts/update.mjs --manual-only --commit",
     "update:manual:push": "node scripts/update.mjs --manual-only --push",
-    "prepublishOnly": "node esbuild.config.js"
+    "prepublishOnly": "npm run build:all"
   },
   "peerDependencies": {
     "react": ">=19.0.0",
@@ -66,8 +76,15 @@
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.9.3"
   },
-  "keywords": ["react", "components", "ui", "charts", "css-variables", "design-system"],
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "charts",
+    "css-variables",
+    "design-system"
+  ],
   "license": "MIT"
 }

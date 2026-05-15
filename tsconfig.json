@@ -10,12 +10,22 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
+    "noEmitOnError": false,
     "outDir": "./dist/types",
     "baseUrl": ".",
     "paths": {
-      "@w3f/components/*": ["./src/*"]
+      "@w3f/components/*": ["./src/*"],
+      "@w3f/bridge": ["./src/types/bridge.d.ts"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.spec.ts",
+    "src/**/test/**"
+  ]
 }
