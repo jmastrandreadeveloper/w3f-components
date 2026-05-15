@@ -57,33 +57,9 @@ bash packages/components/scripts/publish-sync.sh --commit --push
 
 ---
 
-## Resultado en el repo w3f-components
+## Cómo usa el equipo la librería
 
-Después de cada sync, el repo tiene:
-
-```
-dist/
-  index.js          ← todos los componentes compilados (ESM)
-  index.js.map      ← sourcemaps
-  INPUTS/           ← archivos individuales por componente
-  DATADISPLAY/
-  ...
-  types/            ← declaraciones TypeScript (.d.ts)
-    index.d.ts
-    INPUTS/Button/Button.d.ts
-    ...
-  w3f.css           ← CSS completo bundleado (844 KB)
-
-css/                ← CSS fuente para customización
-  _variables.css    ← tokens CSS custom properties
-  TRAITS/           ← clases utilitarias
-  THEMES/           ← temas de ejemplo
-  ...
-```
-
----
-
-## Cómo instala el equipo
+### Instalar
 
 ```bash
 # Via git URL (recomendado para repo privado)
@@ -93,13 +69,34 @@ npm install git+https://github.com/tu-org/w3f-components.git
 npm install file:../w3f-components
 ```
 
-En el proyecto:
+### Importar componentes
+
+Todos los componentes se importan desde el índice principal:
+
 ```ts
-import { Button, Input, Select } from '@w3f/components'
+import { Button, Input, Select, Stack, Badge, Note } from '@w3f/components'
+```
+
+> **Importante:** NO usar path imports individuales — solo funcionan named imports del índice:
+> ```ts
+> // CORRECTO
+> import { Button } from '@w3f/components'
+>
+> // NO — no funciona con el bundle compilado
+> import Button from '@w3f/components/INPUTS/Button/Button'
+> ```
+
+### Importar CSS
+
+```ts
+// En el entry point del proyecto (main.tsx, layout.tsx, _app.tsx, etc.)
 import '@w3f/components/dist/w3f.css'
 ```
 
-Para customizar estilos (sobrescribir tokens):
+### Customizar estilos
+
+Sobreescribir los tokens CSS después de importar `w3f.css`:
+
 ```css
 :root {
   --w3f-primary: #tu-color;
@@ -108,11 +105,37 @@ Para customizar estilos (sobrescribir tokens):
 }
 ```
 
+O editar directamente los archivos en `css/` del repo (disponibles como fuente).
+
+---
+
+## Resultado en el repo w3f-components
+
+Después de cada sync, el repo tiene:
+
+```
+dist/
+  index.js       ← todos los componentes en un bundle ESM (676 KB)
+  index.js.map   ← sourcemaps
+  types/         ← declaraciones TypeScript (.d.ts) para autocomplete
+    index.d.ts
+    INPUTS/Button/Button.d.ts
+    ...
+  w3f.css        ← CSS completo bundleado (844 KB)
+
+css/             ← CSS fuente para customización
+  _variables.css ← tokens CSS custom properties
+  TRAITS/        ← clases utilitarias
+  THEMES/        ← temas de ejemplo
+  ...
+```
+
 ---
 
 ## Notas
 
 - El build tarda ~30-60 segundos (JS rápido, tsc más lento)
-- Los warnings de CSS (`Unexpected "-list__panel"`) son falsos positivos de esbuild — el CSS generado es correcto
-- Los 147 type warnings de tsc son no bloqueantes — los `.d.ts` se generan igual
+- Los warnings de CSS (`Unexpected "-list__panel"`) son falsos positivos de esbuild — el CSS compilado es correcto
+- Los type warnings de tsc son no bloqueantes — los `.d.ts` se generan igual
 - `src/` nunca aparece en el repo del equipo (está en `.gitignore`)
+- Probado en Next.js 15 con App Router — build OK, 193 kB primera carga
