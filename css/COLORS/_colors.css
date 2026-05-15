@@ -104,7 +104,7 @@
 .w3f-text-secondary-800 { color: var(--w3f-secondary-800) !important; }
 .w3f-text-secondary-900 { color: var(--w3f-secondary-900) !important; }
 
-* 🟡 Colores Secundarios */
+/* 🟡 Colores Secundarios */
 .w3f-bg-secondary-50 { background-color: var(--w3f-secondary-50) !important; }
 .w3f-bg-secondary-100 { background-color: var(--w3f-secondary-100) !important; }
 .w3f-bg-secondary-200 { background-color: var(--w3f-secondary-200) !important; } /* <-- Regla a añadir/confirmar */

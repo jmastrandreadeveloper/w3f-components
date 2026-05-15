@@ -433,8 +433,15 @@ function useAutocomplete({
   };
 }
 
+// scripts/bridge-shim.js
+function useBridgeBind({ bindId } = {}) {
+  return {
+    dispatch: () => {
+    }
+  };
+}
+
 // src/INPUTS/Autocomplete/Autocomplete.tsx
-import { useBridgeBind } from "@w3f/bridge";
 import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
 function HighlightedText({
   text,
@@ -710,7 +717,6 @@ function useButtonFormContext() {
 }
 
 // src/INPUTS/Button/Button.tsx
-import { useBridgeBind as useBridgeBind2 } from "@w3f/bridge";
 import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 var Button = forwardRef2(
   ({
@@ -732,7 +738,7 @@ var Button = forwardRef2(
   }, ref) => {
     const formContext = useButtonFormContext();
     const isFormControlled = !!formContext;
-    const { dispatch } = useBridgeBind2({ bindId });
+    const { dispatch } = useBridgeBind({ bindId });
     const handleClick = (e) => {
       dispatch("click");
       if (onClick) onClick(e);
@@ -1073,7 +1079,6 @@ function useCheckbox({ name, checked: initialChecked }) {
 }
 
 // src/INPUTS/Checkbox/Checkbox.tsx
-import { useBridgeBind as useBridgeBind3 } from "@w3f/bridge";
 import { jsx as jsx6, jsxs as jsxs3 } from "react/jsx-runtime";
 var Checkbox = forwardRef3(({
   label,
@@ -1093,7 +1098,7 @@ var Checkbox = forwardRef3(({
   ...props
 }, ref) => {
   const { formContext, isFormControlled, checkboxValue, setIsChecked, uniqueId } = useCheckbox({ name, checked });
-  const { dispatch } = useBridgeBind3({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const handleChange = (e) => {
     if (disabled) return;
     const newChecked = e.target.checked;
@@ -1601,7 +1606,6 @@ var useFormFieldContext = () => {
 };
 
 // src/INPUTS/FormField/FormField.tsx
-import { useBridgeBind as useBridgeBind4 } from "@w3f/bridge";
 import { jsx as jsx9, jsxs as jsxs6 } from "react/jsx-runtime";
 var FormField = forwardRef5(({
   label,
@@ -1618,7 +1622,7 @@ var FormField = forwardRef5(({
 }, ref) => {
   const formContext = useFormFieldContext();
   const labelId = useId4();
-  useBridgeBind4({ bindId });
+  useBridgeBind({ bindId });
   const isFormControlled = !!(formContext && name);
   const fieldError = isFormControlled ? formContext.errors[name] : propError;
   const hasError = Boolean(fieldError);
@@ -2305,10 +2309,9 @@ var useIcon = ({
 var Icon_hooks_default = useIcon;
 
 // src/DATADISPLAY/Icon/Icon.tsx
-import { useBridgeBind as useBridgeBind5 } from "@w3f/bridge";
 import { jsx as jsx10 } from "react/jsx-runtime";
 var Icon = forwardRef6(({ name, size, color, className, unstyled = IconDefaults.unstyled, bindId }, ref) => {
-  useBridgeBind5({ bindId });
+  useBridgeBind({ bindId });
   const { LucideIcon, size: finalSize, color: finalColor, className: finalClassName, name: resolvedName } = Icon_hooks_default({ name, size, color, className });
   if (!LucideIcon) {
     console.warn(`Icono no encontrado: ${resolvedName || name}`);
@@ -2584,7 +2587,6 @@ var usePatternValidation = (patternProp) => {
 };
 
 // src/INPUTS/Input/Input.tsx
-import { useBridgeBind as useBridgeBind6 } from "@w3f/bridge";
 import { jsx as jsx11, jsxs as jsxs7 } from "react/jsx-runtime";
 var renderIconContent = (iconProp) => {
   if (!iconProp) return null;
@@ -2621,7 +2623,7 @@ var Input = forwardRef7(
   }, ref) => {
     const formContext = useInputFormContext();
     const inputId = useId5();
-    const { dispatch } = useBridgeBind6({ bindId });
+    const { dispatch } = useBridgeBind({ bindId });
     const isFormControlled = !!(formContext && name);
     const isControlled = isFormControlled || value !== void 0;
     const rawInputValue = isFormControlled ? formContext.values[name] ?? "" : value;
@@ -3072,7 +3074,6 @@ var useNumberField = ({
 };
 
 // src/INPUTS/NumberField/NumberField.tsx
-import { useBridgeBind as useBridgeBind7 } from "@w3f/bridge";
 import { jsx as jsx13, jsxs as jsxs8 } from "react/jsx-runtime";
 var NumberField = forwardRef8(
   ({
@@ -3103,7 +3104,7 @@ var NumberField = forwardRef8(
   }, ref) => {
     const [isFocused, setIsFocused] = useState10(false);
     const inputId = useId6();
-    const { dispatch } = useBridgeBind7({ bindId });
+    const { dispatch } = useBridgeBind({ bindId });
     const bridgeOnChange = (v) => {
       if (v !== "") dispatch("change", { value: v });
       if (onChange) onChange(v);
@@ -3567,7 +3568,6 @@ var useRadioFormContext = () => {
 };
 
 // src/INPUTS/RadioButton/RadioButton.tsx
-import { useBridgeBind as useBridgeBind8 } from "@w3f/bridge";
 import { jsx as jsx15, jsxs as jsxs10 } from "react/jsx-runtime";
 var RadioButton = forwardRef10(({
   label,
@@ -3628,7 +3628,7 @@ var RadioGroup = forwardRef10(({
   const groupId = useId8();
   const [internalValue, setInternalValue] = useState13(defaultValue);
   const formContext = useRadioFormContext();
-  const { dispatch } = useBridgeBind8({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const isFormControlled = !!(formContext && name);
   const selectedValue = isFormControlled ? formContext.values[name] ?? defaultValue : controlledValue !== void 0 ? controlledValue : internalValue;
   const fieldError = isFormControlled ? formContext.errors[name] : error;
@@ -3758,7 +3758,6 @@ var useRangeSliderFormContext = () => {
 };
 
 // src/INPUTS/RangeSlider/RangeSlider.tsx
-import { useBridgeBind as useBridgeBind9 } from "@w3f/bridge";
 import { jsx as jsx16, jsxs as jsxs11 } from "react/jsx-runtime";
 var RangeSlider = forwardRef11(({
   name,
@@ -3781,7 +3780,7 @@ var RangeSlider = forwardRef11(({
 }, ref) => {
   const formContext = useRangeSliderFormContext();
   const isFormControlled = !!(formContext && name);
-  const { dispatch } = useBridgeBind9({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const [minVal, setMinVal] = useState14(() => {
     const initial = defaultMinValue !== void 0 ? defaultMinValue : min;
     return snapToStep(Math.max(min, Math.min(initial, max - step)), step);
@@ -4182,7 +4181,6 @@ var useRatingHover = () => {
 };
 
 // src/INPUTS/Rating/Rating.tsx
-import { useBridgeBind as useBridgeBind10 } from "@w3f/bridge";
 import { jsx as jsx17, jsxs as jsxs12 } from "react/jsx-runtime";
 function renderRatingIcon(index, ratingVal, iconType, size, precision, disabled, hasError) {
   const iconSize = RATING_ICON_SIZES[size];
@@ -4251,7 +4249,7 @@ var Rating = forwardRef12(({
 }, ref) => {
   const formContext = useRatingFormContext();
   const isFormControlled = !!(formContext && name);
-  const { dispatch } = useBridgeBind10({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const ratingValue = isFormControlled ? formContext.values[name] ?? 0 : controlledValue !== void 0 ? controlledValue : null;
   const ratingError = isFormControlled ? formContext.errors[name] : error;
   const isControlled = controlledValue !== void 0 || isFormControlled;
@@ -4493,7 +4491,6 @@ var useSelectFocus = () => {
 };
 
 // src/INPUTS/Select/Select.tsx
-import { useBridgeBind as useBridgeBind11 } from "@w3f/bridge";
 import { jsx as jsx18, jsxs as jsxs13 } from "react/jsx-runtime";
 function renderOptions(items) {
   return items.map((item, index) => {
@@ -4559,7 +4556,7 @@ var Select = forwardRef13(
   }, ref) => {
     const formContext = useSelectFormContext();
     const isFormControlled = !!(formContext && name);
-    const { dispatch } = useBridgeBind11({ bindId });
+    const { dispatch } = useBridgeBind({ bindId });
     const [internalValue, setInternalValue] = useState18(
       multiple ? [] : ""
     );
@@ -4707,7 +4704,6 @@ var useSliderFormContext = () => {
 };
 
 // src/INPUTS/Slider/Slider.tsx
-import { useBridgeBind as useBridgeBind12 } from "@w3f/bridge";
 import { jsx as jsx19, jsxs as jsxs14 } from "react/jsx-runtime";
 var Slider = forwardRef14(({
   name,
@@ -4730,7 +4726,7 @@ var Slider = forwardRef14(({
   const [internalValue, setInternalValue] = useState19(value ?? defaultValue);
   const formContext = useSliderFormContext();
   const sliderId = useId10();
-  const { dispatch } = useBridgeBind12({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const isFormControlled = !!(formContext && name);
   const sliderValue = isFormControlled ? formContext.values[name] ?? defaultValue : value ?? internalValue;
   useEffect7(() => {
@@ -4873,7 +4869,6 @@ var useSlideToggleFormContext = () => {
 };
 
 // src/INPUTS/SlideToggle/SlideToggle.tsx
-import { useBridgeBind as useBridgeBind13 } from "@w3f/bridge";
 import { jsx as jsx20, jsxs as jsxs15 } from "react/jsx-runtime";
 var SlideToggle = forwardRef15(({
   name,
@@ -4894,7 +4889,7 @@ var SlideToggle = forwardRef15(({
 }, ref) => {
   const formContext = useSlideToggleFormContext();
   const isFormControlled = !!(formContext && name);
-  const { dispatch } = useBridgeBind13({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const toggleValue = isFormControlled ? Boolean(formContext.values[name]) : checked;
   const toggleError = isFormControlled ? formContext.errors[name] : error;
   const { maxPosition } = getSizeConfig(size);
@@ -5816,7 +5811,6 @@ var useTransferList = (initialSource, initialTarget, notify, disabled) => {
 };
 
 // src/INPUTS/TransferList/TransferList.tsx
-import { useBridgeBind as useBridgeBind14 } from "@w3f/bridge";
 import { jsx as jsx23, jsxs as jsxs18 } from "react/jsx-runtime";
 var TransferList = forwardRef18(({
   sourceItems = [],
@@ -5836,7 +5830,7 @@ var TransferList = forwardRef18(({
   const dropIndicatorRef = useRef8(null);
   const sourcePanelRef = useRef8(null);
   const targetPanelRef = useRef8(null);
-  const { dispatch } = useBridgeBind14({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const notify = useCallback8(
     (src, tgt) => {
       dispatch("change", { value: tgt.map((i) => i.label) });
@@ -8946,7 +8940,6 @@ var buildImageClasses = (circle, rounded, border, shadow, filter, hoverEffect, u
 };
 
 // src/DATADISPLAY/Image/Image.tsx
-import { useBridgeBind as useBridgeBind15 } from "@w3f/bridge";
 import { jsx as jsx37 } from "react/jsx-runtime";
 var Image2 = forwardRef31(({
   src,
@@ -8965,7 +8958,7 @@ var Image2 = forwardRef31(({
   bindId,
   ...rest
 }, ref) => {
-  useBridgeBind15({ bindId });
+  useBridgeBind({ bindId });
   const imageClasses = buildImageClasses(circle, rounded, border, shadow, filter, hoverEffect, unstyled, className);
   return /* @__PURE__ */ jsx37("div", { ref, className: `w3f-image-wrapper ${wrapperClassName}`, children: /* @__PURE__ */ jsx37(
     "img",
@@ -10071,7 +10064,6 @@ function useBadgeContent(children, max, variant, ariaLabel) {
 }
 
 // src/DATADISPLAY/Badge/Badge.tsx
-import { useBridgeBind as useBridgeBind16 } from "@w3f/bridge";
 import { jsx as jsx45 } from "react/jsx-runtime";
 var Badge = React39.forwardRef(
   ({
@@ -10090,7 +10082,7 @@ var Badge = React39.forwardRef(
     bindId,
     ...rest
   }, ref) => {
-    useBridgeBind16({ bindId });
+    useBridgeBind({ bindId });
     if (invisible) return null;
     const { processed, effectiveAriaLabel } = useBadgeContent(children, max, variant, ariaLabel);
     const badgeClasses = React39.useMemo(
@@ -10114,7 +10106,6 @@ Badge.displayName = "Badge";
 var Badge_default = Badge;
 
 // src/DATADISPLAY/Card/Card.tsx
-import { useBridgeBind as useBridgeBind17 } from "@w3f/bridge";
 import { jsx as jsx46, jsxs as jsxs32 } from "react/jsx-runtime";
 var Card = forwardRef36(({
   imageSrc,
@@ -10145,7 +10136,7 @@ var Card = forwardRef36(({
   unstyled = CARD_DEFAULTS.unstyled,
   bindId
 }, ref) => {
-  const { dispatch } = useBridgeBind17({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const layoutMode = !!layoutStyle;
   const cardClasses = buildCardClasses(variant, size, imagePosition, hoverable, clickable, !!onClick, fullWidth, layoutMode, className, unstyled);
   const mergedStyle = layoutStyle ? { ...layoutStyle, ...style } : style;
@@ -11911,7 +11902,6 @@ function useAvatarForm(name) {
 }
 
 // src/DATADISPLAY/Avatar/Avatar.tsx
-import { useBridgeBind as useBridgeBind18 } from "@w3f/bridge";
 import { jsx as jsx59, jsxs as jsxs43 } from "react/jsx-runtime";
 var Avatar = forwardRef43(({
   src,
@@ -11934,7 +11924,7 @@ var Avatar = forwardRef43(({
 }, ref) => {
   const fileInputRef = useRef19(null);
   const { isFormControlled, formValue, setFormValue } = useAvatarForm(name);
-  const { dispatch } = useBridgeBind18({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const effectiveSrc = src ?? (isFormControlled ? formValue : void 0);
   const safeSrc = sanitizeUrl(effectiveSrc);
   const avatarClasses = buildAvatarClasses(
@@ -12466,7 +12456,6 @@ var buildChipClasses = (disabled, isFocused, className, unstyled, variant) => {
 };
 
 // src/DATADISPLAY/Chip/Chip.tsx
-import { useBridgeBind as useBridgeBind19 } from "@w3f/bridge";
 import { jsx as jsx63, jsxs as jsxs47 } from "react/jsx-runtime";
 var Chip = React53.forwardRef(({
   label,
@@ -12483,7 +12472,7 @@ var Chip = React53.forwardRef(({
   unstyled = CHIP_DEFAULTS.unstyled,
   bindId
 }, ref) => {
-  const { dispatch } = useBridgeBind19({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const chipClasses = buildChipClasses(disabled, isFocused, className, unstyled, variant);
   const handleKeyDown = (e) => {
     if ((e.key === "Enter" || e.key === "Delete" || e.key === "Backspace") && onClose && !disabled) {
@@ -13719,7 +13708,6 @@ var useNoteDismiss = (onDismiss) => {
 };
 
 // src/DATADISPLAY/Note/Note.tsx
-import { useBridgeBind as useBridgeBind20 } from "@w3f/bridge";
 import { jsx as jsx73, jsxs as jsxs54 } from "react/jsx-runtime";
 var Note = forwardRef48(({
   children,
@@ -13737,7 +13725,7 @@ var Note = forwardRef48(({
   bindId,
   ...rest
 }, ref) => {
-  const { dispatch } = useBridgeBind20({ bindId });
+  const { dispatch } = useBridgeBind({ bindId });
   const { isVisible, handleDismiss } = useNoteDismiss(onDismiss);
   const classNames = useMemo11(
     () => buildNoteClasses(type, round, shadow, border, fullBorder, className, unstyled, variant),
@@ -13813,7 +13801,6 @@ var buildProgressBarClasses = (size, unstyled) => {
 };
 
 // src/DATADISPLAY/ProgressBar/ProgressBar.tsx
-import { useBridgeBind as useBridgeBind21 } from "@w3f/bridge";
 import { jsx as jsx74 } from "react/jsx-runtime";
 var ProgressBar = forwardRef49(({
   progress,
@@ -13825,7 +13812,7 @@ var ProgressBar = forwardRef49(({
   unstyled = PROGRESS_BAR_DEFAULTS.unstyled,
   bindId
 }, ref) => {
-  useBridgeBind21({ bindId, value: progress });
+  useBridgeBind({ bindId, value: progress });
   const validatedProgress = clampProgress(progress);
   const progressBgClass = getProgressBgClass(color);
   const displayText = label || `${validatedProgress}%`;
@@ -14175,7 +14162,6 @@ var buildTextDirectionStyle = (direction, writingMode, existingStyle) => {
 };
 
 // src/DATADISPLAY/Text/Text.tsx
-import { useBridgeBind as useBridgeBind22 } from "@w3f/bridge";
 import { jsx as jsx79 } from "react/jsx-runtime";
 var Text = forwardRef51(({
   content,
@@ -14191,7 +14177,7 @@ var Text = forwardRef51(({
   bindId,
   ...props
 }, ref) => {
-  useBridgeBind22({ bindId });
+  useBridgeBind({ bindId });
   const hasContentProp = content !== void 0 && content !== null;
   const contentToRender = hasContentProp ? Array.isArray(content) ? content : [content] : children;
   const finalClasses = buildTextClasses(customClasses, align, leading, unstyled);
@@ -14872,7 +14858,6 @@ var buildTagClasses = (color, light, className, unstyled, variant) => {
 };
 
 // src/DATADISPLAY/Tag/Tag.tsx
-import { useBridgeBind as useBridgeBind23 } from "@w3f/bridge";
 import { jsx as jsx82 } from "react/jsx-runtime";
 var Tag2 = forwardRef52(({
   color,
@@ -14885,7 +14870,7 @@ var Tag2 = forwardRef52(({
   bindId,
   ...rest
 }, ref) => {
-  useBridgeBind23({ bindId });
+  useBridgeBind({ bindId });
   const classes = buildTagClasses(color, light, className, unstyled, variant);
   return /* @__PURE__ */ jsx82("span", { ref, className: classes, style, ...rest, children });
 });
@@ -15097,7 +15082,6 @@ function useHoveredIndex() {
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-import { useBridgeBind as useBridgeBind24 } from "@w3f/bridge";
 import { jsx as jsx84, jsxs as jsxs61 } from "react/jsx-runtime";
 var BarChart = React67.forwardRef(
   ({
@@ -15111,7 +15095,7 @@ var BarChart = React67.forwardRef(
     className,
     ...rest
   }, ref) => {
-    useBridgeBind24({ bindId });
+    useBridgeBind({ bindId });
     const containerRef = useRef29(null);
     const { width, height } = useChartDimensions(
       containerRef,
@@ -15261,7 +15245,6 @@ function formatTick2(value) {
 }
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-import { useBridgeBind as useBridgeBind25 } from "@w3f/bridge";
 import { jsx as jsx85, jsxs as jsxs62 } from "react/jsx-runtime";
 var LineChart = React68.forwardRef(
   ({
@@ -15276,7 +15259,7 @@ var LineChart = React68.forwardRef(
     className,
     ...rest
   }, ref) => {
-    useBridgeBind25({ bindId });
+    useBridgeBind({ bindId });
     const containerRef = useRef30(null);
     const { width, height } = useChartDimensions(
       containerRef,
@@ -15389,7 +15372,6 @@ function getSliceValue(d) {
 }
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-import { useBridgeBind as useBridgeBind26 } from "@w3f/bridge";
 import { jsx as jsx86, jsxs as jsxs63 } from "react/jsx-runtime";
 var PieChart = React69.forwardRef(
   ({
@@ -15402,7 +15384,7 @@ var PieChart = React69.forwardRef(
     className,
     ...rest
   }, ref) => {
-    useBridgeBind26({ bindId });
+    useBridgeBind({ bindId });
     const containerRef = useRef31(null);
     const { width, height } = useChartDimensions(
       containerRef,
@@ -15521,7 +15503,6 @@ function formatTick3(value) {
 }
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-import { useBridgeBind as useBridgeBind27 } from "@w3f/bridge";
 import { jsx as jsx87, jsxs as jsxs64 } from "react/jsx-runtime";
 var AreaChart = React70.forwardRef(
   ({
@@ -15535,7 +15516,7 @@ var AreaChart = React70.forwardRef(
     className,
     ...rest
   }, ref) => {
-    useBridgeBind27({ bindId });
+    useBridgeBind({ bindId });
     const containerRef = useRef32(null);
     const gradientId = useId12();
     const { width, height } = useChartDimensions(
@@ -15676,7 +15657,6 @@ function formatTick4(value) {
 }
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-import { useBridgeBind as useBridgeBind28 } from "@w3f/bridge";
 import { jsx as jsx88, jsxs as jsxs65 } from "react/jsx-runtime";
 var ScatterPlot = React71.forwardRef(
   ({
@@ -15689,7 +15669,7 @@ var ScatterPlot = React71.forwardRef(
     className,
     ...rest
   }, ref) => {
-    useBridgeBind28({ bindId });
+    useBridgeBind({ bindId });
     const containerRef = useRef33(null);
     const { width, height } = useChartDimensions(
       containerRef,

@@ -11,8 +11,13 @@ const external = [
   '@visx/*',
   'd3-*',
   'topojson-client',
-  '@w3f/bridge',
 ];
+
+// @w3f/bridge is a platform-only package — shim it with no-ops so the
+// library works standalone without the bridge runtime installed.
+const alias = {
+  '@w3f/bridge': new URL('./scripts/bridge-shim.js', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'),
+};
 
 mkdirSync('./dist', { recursive: true });
 
@@ -27,6 +32,7 @@ await esbuild.build({
   platform: 'browser',
   jsx: 'automatic',
   external,
+  alias,
   sourcemap: true,
   treeShaking: true,
 });
@@ -59,7 +65,19 @@ try {
     entryPoints: [tempFile],
     bundle: true,
     outfile: './dist/w3f.css',
+    legalComments: 'none',   // remove all comments — avoids emoji/unicode issues in parsers
   });
+
+  // Post-process: remove invalid CSS rules with `:not(X)-suffix` selectors (malformed BEM)
+  // e.g. `.w3f-input:not(.w3f-input--unstyled)-container { ... }` — missing combinator
+  // These are source bugs that esbuild keeps but Turbopack's strict parser rejects.
+  let css = readFileSync('./dist/w3f.css', 'utf8');
+  css = css
+    .split(/(?<=\})/)
+    .filter(rule => !/:not\([^)]+\)-/.test(rule))
+    .join('');
+  writeFileSync('./dist/w3f.css', css, 'utf8');
+
   console.log('CSS: Built dist/w3f.css');
 } finally {
   unlinkSync(tempFile);
