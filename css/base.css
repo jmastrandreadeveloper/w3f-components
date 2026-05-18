@@ -1,4 +1,6 @@
-/* @w3f/components — base.css */
+/* @w3f/components — base.css
+   Importa el CSS estructural y de layout.
+   Obligatorio para que los componentes funcionen. */
 @import './main_W3_V2.css';
 @import './_base.css';
 @import './_utilities.css';

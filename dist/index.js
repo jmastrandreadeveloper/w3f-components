@@ -4879,7 +4879,7 @@ var SlideToggle = forwardRef15(({
   variant = SLIDE_TOGGLE_DEFAULTS.variant,
   loading = SLIDE_TOGGLE_DEFAULTS.loading,
   label,
-  labelPosition = SLIDE_TOGGLE_DEFAULTS.labelPosition,
+  labelPosition: labelPosition3 = SLIDE_TOGGLE_DEFAULTS.labelPosition,
   showIcon = SLIDE_TOGGLE_DEFAULTS.showIcon,
   error,
   helperText,
@@ -5010,7 +5010,7 @@ var SlideToggle = forwardRef15(({
     if (!label) return null;
     const labelClasses = [
       SLIDE_TOGGLE_CLASSES.label,
-      labelPosition === "right" ? SLIDE_TOGGLE_CLASSES.labelRight : SLIDE_TOGGLE_CLASSES.labelLeft,
+      labelPosition3 === "right" ? SLIDE_TOGGLE_CLASSES.labelRight : SLIDE_TOGGLE_CLASSES.labelLeft,
       disabled || loading ? SLIDE_TOGGLE_CLASSES.labelDisabled : ""
     ].filter(Boolean).join(" ");
     return /* @__PURE__ */ jsxs15(
@@ -5059,7 +5059,7 @@ var SlideToggle = forwardRef15(({
     /* @__PURE__ */ jsxs15(
       "div",
       {
-        className: `${SLIDE_TOGGLE_CLASSES.container}${labelPosition === "left" ? ` ${SLIDE_TOGGLE_CLASSES.containerLabelLeft}` : ""}`,
+        className: `${SLIDE_TOGGLE_CLASSES.container}${labelPosition3 === "left" ? ` ${SLIDE_TOGGLE_CLASSES.containerLabelLeft}` : ""}`,
         children: [
           renderToggle(),
           renderLabel()
@@ -14976,11 +14976,9082 @@ var Tooltip = forwardRef53(({ children, config = {}, unstyled = TOOLTIP_DEFAULTS
 });
 Tooltip.displayName = "Tooltip";
 
-// src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-import React67, { useRef as useRef29, useMemo as useMemo16 } from "react";
+// src/DATADISPLAY/Charts/Bar/Bar.tsx
+import React68, { useRef as useRef29 } from "react";
+
+// src/DATADISPLAY/Charts/Bar/BarInner.tsx
+import { useMemo as useMemo19 } from "react";
 import { Group as Group2 } from "@visx/group";
-import { Bar } from "@visx/shape";
-import { AxisBottom, AxisLeft } from "@visx/axis";
+import { Bar as VisxBar } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/Bar/Bar.constants.ts
+var BAR_ROOT_CLASS = "w3f-chart-bar";
+var BAR_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: false,
+  padding: 0.2,
+  barRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/_base/utils.ts
+import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
+
+// src/DATADISPLAY/Charts/_base/constants.ts
+var DEFAULT_CHART_WIDTH = 600;
+var DEFAULT_CHART_HEIGHT = 300;
+var DEFAULT_CHART_MARGIN = {
+  top: 20,
+  right: 20,
+  bottom: 40,
+  left: 50
+};
+var BASE_CHART_CLASSES = {
+  root: "w3f-chart",
+  rootUnstyled: "w3f-chart w3f-chart--unstyled",
+  svg: "w3f-chart__svg",
+  container: "w3f-chart__container",
+  tooltipLayer: "w3f-chart__tooltip-layer",
+  legendLayer: "w3f-chart__legend-layer",
+  title: "w3f-chart__title",
+  subtitle: "w3f-chart__subtitle",
+  header: "w3f-chart__header"
+};
+var DEFAULT_BAND_PADDING = 0.2;
+var DOMAIN_PADDING_RATIO = 0.1;
+
+// src/DATADISPLAY/Charts/_theme/colorSchemes.ts
+var COLOR_SCHEMES = {
+  "categorical-10": [
+    "#6366f1",
+    // indigo
+    "#f59e0b",
+    // amber
+    "#10b981",
+    // emerald
+    "#ef4444",
+    // red
+    "#8b5cf6",
+    // violet
+    "#06b6d4",
+    // cyan
+    "#f97316",
+    // orange
+    "#ec4899",
+    // pink
+    "#14b8a6",
+    // teal
+    "#a855f7"
+    // purple
+  ],
+  "sequential-blue": [
+    "#eff6ff",
+    "#dbeafe",
+    "#bfdbfe",
+    "#93c5fd",
+    "#60a5fa",
+    "#3b82f6",
+    "#2563eb",
+    "#1d4ed8",
+    "#1e40af",
+    "#1e3a8a"
+  ],
+  "sequential-green": [
+    "#f0fdf4",
+    "#dcfce7",
+    "#bbf7d0",
+    "#86efac",
+    "#4ade80",
+    "#22c55e",
+    "#16a34a",
+    "#15803d",
+    "#166534",
+    "#14532d"
+  ],
+  "diverging-rdbu": [
+    "#b2182b",
+    "#d6604d",
+    "#f4a582",
+    "#fddbc7",
+    "#f7f7f7",
+    "#d1e5f0",
+    "#92c5de",
+    "#4393c3",
+    "#2166ac"
+  ],
+  "mono-primary": [
+    "rgba(99, 102, 241, 1.00)",
+    "rgba(99, 102, 241, 0.85)",
+    "rgba(99, 102, 241, 0.70)",
+    "rgba(99, 102, 241, 0.55)",
+    "rgba(99, 102, 241, 0.40)",
+    "rgba(99, 102, 241, 0.25)"
+  ],
+  "w3f-brand": [
+    "#6366f1",
+    "#10b981",
+    "#f59e0b",
+    "#ec4899",
+    "#06b6d4",
+    "#8b5cf6"
+  ]
+};
+function getColorScheme(name) {
+  return COLOR_SCHEMES[name] ?? COLOR_SCHEMES["categorical-10"];
+}
+
+// src/DATADISPLAY/Charts/_base/utils.ts
+function buildChartRootClasses(chartRoot, className, unstyled) {
+  const parts = [BASE_CHART_CLASSES.root, chartRoot];
+  if (unstyled) {
+    parts.push(`${BASE_CHART_CLASSES.root}--unstyled`);
+    parts.push(`${chartRoot}--unstyled`);
+  }
+  if (className) parts.push(className);
+  return parts.join(" ");
+}
+function computeInnerDims(width, height, margin = DEFAULT_CHART_MARGIN) {
+  const innerWidth = Math.max(width - margin.left - margin.right, 0);
+  const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
+  return { width, height, innerWidth, innerHeight, margin };
+}
+function resolveColorScheme(scheme) {
+  if (!scheme) return getColorScheme("categorical-10");
+  if (Array.isArray(scheme)) return scheme;
+  return getColorScheme(scheme);
+}
+function buildBandScale(domain, range2, padding = DEFAULT_BAND_PADDING) {
+  return scaleBand({
+    domain: [...domain],
+    range: range2,
+    padding
+  });
+}
+function buildLinearScale(domainMin, domainMax, range2, opts = {}) {
+  const { nice = true, padding = DOMAIN_PADDING_RATIO } = opts;
+  const span = domainMax - domainMin;
+  const paddedMax = domainMax + span * padding;
+  const paddedMin = domainMin < 0 ? domainMin - span * padding : domainMin;
+  return scaleLinear({
+    domain: [paddedMin, paddedMax],
+    range: range2,
+    nice
+  });
+}
+function buildColorScale(domain, palette) {
+  return scaleOrdinal({
+    domain: [...domain],
+    range: [...palette]
+  });
+}
+function formatTick(value) {
+  if (value instanceof Date) {
+    return value.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+  }
+  if (typeof value === "number") {
+    if (value > 1e11) {
+      return new Date(value).toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+    }
+    const abs = Math.abs(value);
+    if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+    if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}k`;
+    return Number.isInteger(value) ? String(value) : value.toFixed(2);
+  }
+  return String(value ?? "");
+}
+function safeExtent(values) {
+  if (values.length === 0) return [0, 1];
+  let min = values[0];
+  let max = values[0];
+  for (let i = 1; i < values.length; i++) {
+    const v = values[i];
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  if (min === max) {
+    if (min === 0) return [0, 1];
+    return [Math.min(0, min), max * 1.1];
+  }
+  return [Math.min(0, min), max];
+}
+
+// src/DATADISPLAY/Charts/Bar/Bar.utils.ts
+function buildBarClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_ROOT_CLASS, className, unstyled);
+}
+function buildBarScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, yDomain) {
+  const labels = data.map((d) => String(getLabel(d)));
+  const values = data.map(getValue2);
+  const [minVal, maxVal] = yDomain ?? safeExtent(values);
+  const xScale = buildBandScale(labels, [0, innerWidth], padding);
+  const yScale = buildLinearScale(minVal, maxVal, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+var defaultGetLabel = (d) => d.label;
+var defaultGetValue = (d) => d.value;
+function buildTooltipContent(datum, getLabel, getValue2) {
+  return `${getLabel(datum)}: ${getValue2(datum).toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Bar/Bar.hooks.ts
+import { useMemo as useMemo17, useCallback as useCallback39 } from "react";
+
+// src/DATADISPLAY/Charts/_base/hooks.ts
+import { useCallback as useCallback38, useEffect as useEffect32, useMemo as useMemo16, useRef as useRef28, useState as useState47 } from "react";
+function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = DEFAULT_CHART_WIDTH, defaultHeight = DEFAULT_CHART_HEIGHT) {
+  const [dims, setDims] = useState47(() => ({
+    width: propWidth ?? defaultWidth,
+    height: propHeight ?? defaultHeight
+  }));
+  const recompute = useCallback38(() => {
+    if (propWidth && propHeight) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDims({
+      width: propWidth ?? Math.max(rect.width, 100),
+      height: propHeight ?? defaultHeight
+    });
+  }, [propWidth, propHeight, defaultHeight, containerRef]);
+  useEffect32(() => {
+    if (propWidth && propHeight) {
+      setDims({ width: propWidth, height: propHeight });
+      return;
+    }
+    recompute();
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(recompute);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [propWidth, propHeight, recompute, containerRef]);
+  return dims;
+}
+function useInnerDims(width, height, margin) {
+  return useMemo16(
+    () => computeInnerDims(width, height, margin ?? DEFAULT_CHART_MARGIN),
+    [width, height, margin]
+  );
+}
+function useColorScale(keys, scheme) {
+  return useMemo16(() => {
+    const palette = resolveColorScheme(scheme);
+    return buildColorScale(keys, palette);
+  }, [keys, scheme]);
+}
+function useHoveredIndex() {
+  const [hoveredIndex, setHoveredIndex] = useState47(null);
+  const enter = useCallback38((i) => setHoveredIndex(i), []);
+  const leave = useCallback38(() => setHoveredIndex(null), []);
+  return { hoveredIndex, enter, leave };
+}
+
+// src/DATADISPLAY/Charts/Bar/Bar.hooks.ts
+function useBarAccessors(getLabel, getValue2) {
+  return useMemo17(
+    () => ({
+      getLabel: getLabel ?? defaultGetLabel,
+      getValue: getValue2 ?? defaultGetValue
+    }),
+    [getLabel, getValue2]
+  );
+}
+function useBarScales(data, innerWidth, innerHeight, getLabel, getValue2, padding = BAR_DEFAULTS.padding, yDomain) {
+  return useMemo17(
+    () => buildBarScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, yDomain),
+    [data, innerWidth, innerHeight, getLabel, getValue2, padding, yDomain]
+  );
+}
+function useBarColors(data, getLabel, colorScheme) {
+  return useMemo17(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useBarInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback39(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback39(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback39(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.tsx
+import { AxisBottom, AxisLeft, AxisRight, AxisTop } from "@visx/axis";
+
+// src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.constants.ts
+var CHART_AXIS_CLASSES = {
+  root: "w3f-chart-axis",
+  top: "w3f-chart-axis--top",
+  right: "w3f-chart-axis--right",
+  bottom: "w3f-chart-axis--bottom",
+  left: "w3f-chart-axis--left"
+};
+var CHART_AXIS_DEFAULTS = {
+  numTicks: 5,
+  labelOffset: 36,
+  hideAxisLine: false,
+  hideTicks: false,
+  hideTickLabels: false
+};
+
+// src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.utils.ts
+function buildAxisClasses(orientation, className) {
+  const orientationClass = CHART_AXIS_CLASSES[orientation];
+  return [CHART_AXIS_CLASSES.root, orientationClass, className].filter(Boolean).join(" ");
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.hooks.ts
+import { useMemo as useMemo18 } from "react";
+function useTickFormat(tickFormat) {
+  return useMemo18(
+    () => tickFormat ?? ((value) => formatTick(value)),
+    [tickFormat]
+  );
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.tsx
+import { jsx as jsx84 } from "react/jsx-runtime";
+var ChartAxis = (props) => {
+  const {
+    scale,
+    orientation,
+    top,
+    left,
+    numTicks = CHART_AXIS_DEFAULTS.numTicks,
+    tickFormat,
+    label,
+    labelOffset = CHART_AXIS_DEFAULTS.labelOffset,
+    hideAxisLine = CHART_AXIS_DEFAULTS.hideAxisLine,
+    hideTicks = CHART_AXIS_DEFAULTS.hideTicks,
+    hideTickLabels = CHART_AXIS_DEFAULTS.hideTickLabels,
+    tickRotate = 0,
+    className
+  } = props;
+  const format = useTickFormat(tickFormat);
+  const rootClass = buildAxisClasses(orientation, className);
+  const commonProps = {
+    scale,
+    top,
+    left,
+    numTicks,
+    tickFormat: format,
+    label,
+    labelOffset,
+    hideAxisLine,
+    hideTicks,
+    hideZero: false,
+    stroke: "var(--w3f-chart-axis-stroke)",
+    tickStroke: "var(--w3f-chart-axis-tick-stroke)",
+    tickLabelProps: () => ({
+      fill: "var(--w3f-chart-axis-tick-label-color)",
+      fontSize: 11,
+      fontFamily: "inherit",
+      textAnchor: tickRotate !== 0 && (orientation === "bottom" || orientation === "top") ? "end" : orientation === "left" ? "end" : orientation === "right" ? "start" : "middle",
+      dy: orientation === "top" ? "-0.25em" : "0.25em",
+      angle: tickRotate
+    }),
+    labelProps: {
+      fill: "var(--w3f-chart-axis-label-color)",
+      fontSize: 12,
+      fontWeight: 500,
+      textAnchor: "middle"
+    }
+  };
+  const AxisComponent = orientation === "top" ? AxisTop : orientation === "right" ? AxisRight : orientation === "bottom" ? AxisBottom : AxisLeft;
+  const finalTickFormat = hideTickLabels ? () => "" : format;
+  return /* @__PURE__ */ jsx84("g", { className: rootClass, children: /* @__PURE__ */ jsx84(AxisComponent, { ...commonProps, tickFormat: finalTickFormat }) });
+};
+ChartAxis.displayName = "ChartAxis";
+
+// src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.tsx
+import { GridRows, GridColumns } from "@visx/grid";
+
+// src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.constants.ts
+var CHART_GRID_CLASSES = {
+  root: "w3f-chart-grid",
+  rows: "w3f-chart-grid--rows",
+  columns: "w3f-chart-grid--columns"
+};
+var CHART_GRID_DEFAULTS = {
+  axis: "rows",
+  numTicks: 5
+};
+
+// src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.utils.ts
+function buildGridClasses(axis, className) {
+  const parts = [CHART_GRID_CLASSES.root];
+  if (axis === "rows" || axis === "both") parts.push(CHART_GRID_CLASSES.rows);
+  if (axis === "columns" || axis === "both") parts.push(CHART_GRID_CLASSES.columns);
+  if (className) parts.push(className);
+  return parts.join(" ");
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.tsx
+import { jsx as jsx85, jsxs as jsxs61 } from "react/jsx-runtime";
+var ChartGrid = (props) => {
+  const {
+    xScale,
+    yScale,
+    width,
+    height,
+    top = 0,
+    left = 0,
+    axis = CHART_GRID_DEFAULTS.axis,
+    numTicks = CHART_GRID_DEFAULTS.numTicks,
+    className
+  } = props;
+  const rootClass = buildGridClasses(axis, className);
+  const commonProps = {
+    stroke: "var(--w3f-chart-grid-stroke)",
+    strokeDasharray: "var(--w3f-chart-grid-stroke-dasharray)",
+    strokeOpacity: 1,
+    numTicks
+  };
+  const drawRows = (axis === "rows" || axis === "both") && yScale;
+  const drawCols = (axis === "columns" || axis === "both") && xScale;
+  return /* @__PURE__ */ jsxs61("g", { className: rootClass, transform: `translate(${left}, ${top})`, children: [
+    drawRows && /* @__PURE__ */ jsx85(
+      GridRows,
+      {
+        scale: yScale,
+        width,
+        height,
+        ...commonProps
+      }
+    ),
+    drawCols && /* @__PURE__ */ jsx85(
+      GridColumns,
+      {
+        scale: xScale,
+        width,
+        height,
+        ...commonProps
+      }
+    )
+  ] });
+};
+ChartGrid.displayName = "ChartGrid";
+
+// src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.constants.ts
+var CHART_TOOLTIP_CLASSES = {
+  root: "w3f-chart-tooltip",
+  hidden: "w3f-chart-tooltip--hidden",
+  content: "w3f-chart-tooltip__content"
+};
+var CHART_TOOLTIP_DEFAULTS = {
+  offsetX: 12,
+  offsetY: 12
+};
+
+// src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.utils.ts
+function buildTooltipClasses2(visible, className) {
+  const parts = [CHART_TOOLTIP_CLASSES.root];
+  if (!visible) parts.push(CHART_TOOLTIP_CLASSES.hidden);
+  if (className) parts.push(className);
+  return parts.join(" ");
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.tsx
+import { jsx as jsx86 } from "react/jsx-runtime";
+var ChartTooltip = (props) => {
+  const {
+    left,
+    top,
+    visible,
+    children,
+    className,
+    offsetX = CHART_TOOLTIP_DEFAULTS.offsetX,
+    offsetY = CHART_TOOLTIP_DEFAULTS.offsetY
+  } = props;
+  const rootClass = buildTooltipClasses2(visible, className);
+  return /* @__PURE__ */ jsx86(
+    "div",
+    {
+      className: rootClass,
+      style: {
+        position: "absolute",
+        left: left + offsetX,
+        top: top + offsetY,
+        pointerEvents: "none",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(-4px)",
+        transition: "opacity 120ms ease-out, transform 120ms ease-out"
+      },
+      role: "tooltip",
+      children
+    }
+  );
+};
+ChartTooltip.displayName = "ChartTooltip";
+
+// src/DATADISPLAY/Charts/primitives/ChartLegend/ChartLegend.constants.ts
+var CHART_LEGEND_CLASSES = {
+  root: "w3f-chart-legend",
+  horizontal: "w3f-chart-legend--horizontal",
+  vertical: "w3f-chart-legend--vertical",
+  item: "w3f-chart-legend__item",
+  itemDisabled: "w3f-chart-legend__item--disabled",
+  itemClickable: "w3f-chart-legend__item--clickable",
+  swatch: "w3f-chart-legend__swatch",
+  label: "w3f-chart-legend__label"
+};
+var CHART_LEGEND_DEFAULTS = {
+  swatchShape: "square",
+  direction: "horizontal"
+};
+
+// src/DATADISPLAY/Charts/primitives/ChartLegend/ChartLegend.utils.ts
+function buildLegendClasses(direction, className) {
+  const dir = direction ?? CHART_LEGEND_DEFAULTS.direction;
+  const parts = [
+    CHART_LEGEND_CLASSES.root,
+    dir === "vertical" ? CHART_LEGEND_CLASSES.vertical : CHART_LEGEND_CLASSES.horizontal
+  ];
+  if (className) parts.push(className);
+  return parts.join(" ");
+}
+function buildItemClasses2(disabled, clickable) {
+  const parts = [CHART_LEGEND_CLASSES.item];
+  if (disabled) parts.push(CHART_LEGEND_CLASSES.itemDisabled);
+  if (clickable) parts.push(CHART_LEGEND_CLASSES.itemClickable);
+  return parts.join(" ");
+}
+function getSwatchStyle(color, shape, disabled) {
+  return {
+    display: "inline-block",
+    width: "var(--w3f-chart-legend-swatch-size, 12px)",
+    height: shape === "line" ? "2px" : "var(--w3f-chart-legend-swatch-size, 12px)",
+    borderRadius: shape === "circle" ? "50%" : shape === "line" ? "0" : "var(--w3f-chart-legend-swatch-radius, 2px)",
+    backgroundColor: disabled ? "#94a3b8" : color,
+    flexShrink: 0
+  };
+}
+
+// src/DATADISPLAY/Charts/primitives/ChartLegend/ChartLegend.tsx
+import { jsx as jsx87, jsxs as jsxs62 } from "react/jsx-runtime";
+var ChartLegend = (props) => {
+  const {
+    items,
+    swatchShape = CHART_LEGEND_DEFAULTS.swatchShape,
+    direction = CHART_LEGEND_DEFAULTS.direction,
+    onToggle,
+    className
+  } = props;
+  const rootClass = buildLegendClasses(direction, className);
+  const clickable = !!onToggle;
+  if (items.length === 0) return null;
+  return /* @__PURE__ */ jsx87("div", { className: rootClass, role: "list", "aria-label": "Chart legend", children: items.map((item, i) => /* @__PURE__ */ jsxs62(
+    "button",
+    {
+      type: "button",
+      className: buildItemClasses2(item.disabled, clickable),
+      onClick: clickable ? () => onToggle(item, i) : void 0,
+      disabled: !clickable,
+      role: "listitem",
+      "aria-label": `${item.label}${item.disabled ? " (hidden)" : ""}`,
+      children: [
+        /* @__PURE__ */ jsx87(
+          "span",
+          {
+            className: CHART_LEGEND_CLASSES.swatch,
+            style: getSwatchStyle(item.color, swatchShape, item.disabled),
+            "aria-hidden": true
+          }
+        ),
+        /* @__PURE__ */ jsx87("span", { className: CHART_LEGEND_CLASSES.label, children: item.label })
+      ]
+    },
+    item.id
+  )) });
+};
+ChartLegend.displayName = "ChartLegend";
+
+// src/DATADISPLAY/Charts/_base/ChartHeader.tsx
+import { jsx as jsx88, jsxs as jsxs63 } from "react/jsx-runtime";
+var ChartHeader = ({ title, subtitle }) => {
+  if (!title && !subtitle) return null;
+  return /* @__PURE__ */ jsxs63("div", { className: BASE_CHART_CLASSES.header, children: [
+    title && /* @__PURE__ */ jsx88("div", { className: BASE_CHART_CLASSES.title, children: title }),
+    subtitle && /* @__PURE__ */ jsx88("div", { className: BASE_CHART_CLASSES.subtitle, children: subtitle })
+  ] });
+};
+ChartHeader.displayName = "ChartHeader";
+
+// src/DATADISPLAY/Charts/Bar/BarInner.tsx
+import { jsx as jsx89, jsxs as jsxs64 } from "react/jsx-runtime";
+var BarInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = BAR_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: getLabelProp,
+    getValue: getValueProp,
+    showXAxis = BAR_DEFAULTS.showXAxis,
+    showYAxis = BAR_DEFAULTS.showYAxis,
+    showGrid = BAR_DEFAULTS.showGrid,
+    showTooltip = BAR_DEFAULTS.showTooltip,
+    showLegend = BAR_DEFAULTS.showLegend,
+    padding = BAR_DEFAULTS.padding,
+    barRadius = BAR_DEFAULTS.barRadius,
+    yDomain,
+    formatY,
+    highlightIndex = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel, getValue: getValue2 } = useBarAccessors(getLabelProp, getValueProp);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useBarScales(
+    data,
+    dims.innerWidth,
+    dims.innerHeight,
+    getLabel,
+    getValue2,
+    padding,
+    yDomain
+  );
+  const colors = useBarColors(data, getLabel, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBarInteraction(
+    onHover,
+    onSelect
+  );
+  const classes = useMemo19(() => buildBarClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const legendItems = useMemo19(
+    () => showLegend ? data.map((d, i) => ({ id: String(getLabel(d)), label: String(getLabel(d)), color: colors[i] })) : [],
+    [showLegend, data, getLabel, colors]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx89("div", { className: classes, children: /* @__PURE__ */ jsx89(
+      "svg",
+      {
+        width,
+        height,
+        className: BASE_CHART_CLASSES.svg,
+        role: "img",
+        "aria-label": ariaLabel ?? "Empty bar chart"
+      }
+    ) });
+  }
+  return /* @__PURE__ */ jsxs64("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx89(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs64("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs64(
+        "svg",
+        {
+          width,
+          height,
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Bar chart",
+          children: [
+            description && /* @__PURE__ */ jsx89("desc", { children: description }),
+            /* @__PURE__ */ jsxs64(Group2, { top: dims.margin.top, left: dims.margin.left, children: [
+              showGrid && /* @__PURE__ */ jsx89(
+                ChartGrid,
+                {
+                  yScale,
+                  width: dims.innerWidth,
+                  height: dims.innerHeight,
+                  axis: "rows"
+                }
+              ),
+              data.map((d, i) => {
+                const label = String(getLabel(d));
+                const value = getValue2(d);
+                const bw = xScale.bandwidth();
+                const barX = xScale(label) ?? 0;
+                const barY = yScale(value) ?? 0;
+                const barHeight = dims.innerHeight - barY;
+                return /* @__PURE__ */ jsx89(
+                  VisxBar,
+                  {
+                    x: barX,
+                    y: barY,
+                    width: bw,
+                    height: Math.max(barHeight, 0),
+                    fill: colors[i],
+                    opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.5 : 1,
+                    stroke: highlightIndex === i ? "#fff" : void 0,
+                    strokeWidth: highlightIndex === i ? 2 : void 0,
+                    rx: barRadius,
+                    onMouseEnter: () => handleEnter(d, i),
+                    onMouseLeave: handleLeave,
+                    onClick: onSelect ? () => handleClick(d, i) : void 0,
+                    style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+                  },
+                  label
+                );
+              }),
+              showXAxis && /* @__PURE__ */ jsx89(
+                ChartAxis,
+                {
+                  scale: xScale,
+                  orientation: "bottom",
+                  top: dims.innerHeight
+                }
+              ),
+              showYAxis && /* @__PURE__ */ jsx89(
+                ChartAxis,
+                {
+                  scale: yScale,
+                  orientation: "left",
+                  tickFormat: yTickFormat
+                }
+              )
+            ] })
+          ]
+        }
+      ),
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx89(
+        ChartTooltip,
+        {
+          left: (xScale(String(getLabel(data[hoveredIndex]))) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left,
+          top: (yScale(getValue2(data[hoveredIndex])) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -8,
+          children: buildTooltipContent(data[hoveredIndex], getLabel, getValue2)
+        }
+      )
+    ] }),
+    showLegend && legendItems.length > 0 && /* @__PURE__ */ jsx89(ChartLegend, { items: legendItems, direction: "horizontal" })
+  ] });
+};
+BarInner.displayName = "BarInner";
+
+// src/DATADISPLAY/Charts/Bar/Bar.tsx
+import { jsx as jsx90 } from "react/jsx-runtime";
+var Bar = React68.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef29(null);
+    const { width, height } = useChartDimensions(
+      containerRef,
+      propWidth,
+      propHeight,
+      DEFAULT_CHART_WIDTH,
+      DEFAULT_CHART_HEIGHT
+    );
+    return /* @__PURE__ */ jsx90("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx90("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx90(BarInner, { ...rest, width, height }) }) });
+  }
+);
+Bar.displayName = "Bar";
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.tsx
+import React70, { useRef as useRef30 } from "react";
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontalInner.tsx
+import { useMemo as useMemo21 } from "react";
+import { Group as Group3 } from "@visx/group";
+import { Bar as VisxBar2 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.constants.ts
+var BAR_H_ROOT_CLASS = "w3f-chart-bar-horizontal";
+var BAR_H_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  padding: 0.2,
+  barRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.utils.ts
+function buildBarHClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_H_ROOT_CLASS, className, unstyled);
+}
+function buildBarHScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, xDomain) {
+  const labels = data.map((d) => String(getLabel(d)));
+  const values = data.map(getValue2);
+  const [minVal, maxVal] = xDomain ?? safeExtent(values);
+  const yScale = buildBandScale(labels, [0, innerHeight], padding);
+  const xScale = buildLinearScale(minVal, maxVal, [0, innerWidth]);
+  return { xScale, yScale };
+}
+var defaultGetLabel2 = (d) => d.label;
+var defaultGetValue2 = (d) => d.value;
+function buildTooltipContent2(datum, getLabel, getValue2) {
+  return `${getLabel(datum)}: ${getValue2(datum).toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.hooks.ts
+import { useMemo as useMemo20, useCallback as useCallback40 } from "react";
+function useBarHAccessors(getLabel, getValue2) {
+  return useMemo20(() => ({
+    getLabel: getLabel ?? defaultGetLabel2,
+    getValue: getValue2 ?? defaultGetValue2
+  }), [getLabel, getValue2]);
+}
+function useBarHScales(data, innerWidth, innerHeight, getLabel, getValue2, padding = BAR_H_DEFAULTS.padding, xDomain) {
+  return useMemo20(
+    () => buildBarHScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, xDomain),
+    [data, innerWidth, innerHeight, getLabel, getValue2, padding, xDomain]
+  );
+}
+function useBarHColors(data, colorScheme) {
+  return useMemo20(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useBarHInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback40((datum, index) => {
+    enter(index);
+    onHover?.(datum, index);
+  }, [enter, onHover]);
+  const handleLeave = useCallback40(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback40((datum, index) => {
+    onSelect?.(datum, index);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontalInner.tsx
+import { jsx as jsx91, jsxs as jsxs65 } from "react/jsx-runtime";
+var BarHorizontalInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = BAR_H_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: gL,
+    getValue: gV,
+    showXAxis = BAR_H_DEFAULTS.showXAxis,
+    showYAxis = BAR_H_DEFAULTS.showYAxis,
+    showGrid = BAR_H_DEFAULTS.showGrid,
+    showTooltip = BAR_H_DEFAULTS.showTooltip,
+    padding = BAR_H_DEFAULTS.padding,
+    barRadius = BAR_H_DEFAULTS.barRadius,
+    xDomain,
+    formatX,
+    highlightIndex = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel, getValue: getValue2 } = useBarHAccessors(gL, gV);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useBarHScales(data, dims.innerWidth, dims.innerHeight, getLabel, getValue2, padding, xDomain);
+  const colors = useBarHColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBarHInteraction(onHover, onSelect);
+  const classes = useMemo21(() => buildBarHClasses(className, unstyled), [className, unstyled]);
+  const xTickFormat = formatX ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx91("div", { className: classes, children: /* @__PURE__ */ jsx91("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty horizontal bar chart" }) });
+  }
+  return /* @__PURE__ */ jsxs65("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx91(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs65("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs65("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Horizontal bar chart", children: [
+        description && /* @__PURE__ */ jsx91("desc", { children: description }),
+        /* @__PURE__ */ jsxs65(Group3, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx91(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+          data.map((d, i) => {
+            const label = String(getLabel(d));
+            const value = getValue2(d);
+            const bh = yScale.bandwidth();
+            const barY = yScale(label) ?? 0;
+            const barWidth = xScale(value) ?? 0;
+            return /* @__PURE__ */ jsx91(
+              VisxBar2,
+              {
+                x: 0,
+                y: barY,
+                width: Math.max(barWidth, 0),
+                height: bh,
+                fill: colors[i],
+                opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.5 : 1,
+                stroke: highlightIndex === i ? "#fff" : void 0,
+                strokeWidth: highlightIndex === i ? 2 : void 0,
+                rx: barRadius,
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+              },
+              label
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx91(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ jsx91(ChartAxis, { scale: yScale, orientation: "left" })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx91(
+        ChartTooltip,
+        {
+          left: (xScale(getValue2(data[hoveredIndex])) ?? 0) + dims.margin.left,
+          top: (yScale(String(getLabel(data[hoveredIndex]))) ?? 0) + yScale.bandwidth() / 2 + dims.margin.top,
+          visible: true,
+          offsetX: 8,
+          children: buildTooltipContent2(data[hoveredIndex], getLabel, getValue2)
+        }
+      )
+    ] })
+  ] });
+};
+BarHorizontalInner.displayName = "BarHorizontalInner";
+
+// src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.tsx
+import { jsx as jsx92 } from "react/jsx-runtime";
+var BarHorizontal = React70.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef30(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx92("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx92("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx92(BarHorizontalInner, { ...rest, width, height }) }) });
+  }
+);
+BarHorizontal.displayName = "BarHorizontal";
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGrouped.tsx
+import React72, { useRef as useRef31 } from "react";
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGroupedInner.tsx
+import { useMemo as useMemo23 } from "react";
+import { Group as Group4 } from "@visx/group";
+import { Bar as VisxBar3 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGrouped.constants.ts
+var BAR_GROUPED_ROOT_CLASS = "w3f-chart-bar-grouped";
+var BAR_GROUPED_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  padding: 0.2,
+  barRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGrouped.utils.ts
+import { scaleBand as scaleBand2 } from "@visx/scale";
+function buildBarGroupedClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_GROUPED_ROOT_CLASS, className, unstyled);
+}
+var defaultGetLabel3 = (d) => d.label;
+function buildGroupedScales(data, keys, innerWidth, innerHeight, getLabel, padding, yDomain) {
+  const labels = data.map((d) => String(getLabel(d)));
+  let max = 0;
+  for (const d of data) {
+    for (const k of keys) {
+      const v = Number(d[k]) || 0;
+      if (v > max) max = v;
+    }
+  }
+  const [minVal, maxVal] = yDomain ?? [0, max];
+  const x0Scale = buildBandScale(labels, [0, innerWidth], padding);
+  const x1Scale = scaleBand2({
+    domain: [...keys],
+    range: [0, x0Scale.bandwidth()],
+    padding: 0.05
+  });
+  const yScale = buildLinearScale(minVal, maxVal, [innerHeight, 0]);
+  return { x0Scale, x1Scale, yScale };
+}
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGrouped.hooks.ts
+import { useMemo as useMemo22, useCallback as useCallback41, useState as useState48 } from "react";
+function useBarGroupedAccessors(getLabel) {
+  return useMemo22(() => ({ getLabel: getLabel ?? defaultGetLabel3 }), [getLabel]);
+}
+function useBarGroupedScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_GROUPED_DEFAULTS.padding, yDomain) {
+  return useMemo22(
+    () => buildGroupedScales(data, keys, innerWidth, innerHeight, getLabel, padding, yDomain),
+    [data, keys, innerWidth, innerHeight, getLabel, padding, yDomain]
+  );
+}
+function useBarGroupedColors(keys, colorScheme) {
+  return useMemo22(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    keys.forEach((k, i) => {
+      map[k] = palette[i % palette.length];
+    });
+    return map;
+  }, [keys, colorScheme]);
+}
+function useBarGroupedInteraction(onHover, onSelect) {
+  const [hovered, setHovered] = useState48(null);
+  const handleEnter = useCallback41((datum, groupIdx, keyIdx) => {
+    setHovered({ groupIdx, keyIdx });
+    onHover?.(datum, groupIdx);
+  }, [onHover]);
+  const handleLeave = useCallback41(() => {
+    setHovered(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback41((datum, groupIdx) => {
+    onSelect?.(datum, groupIdx);
+  }, [onSelect]);
+  return { hovered, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGroupedInner.tsx
+import { jsx as jsx93, jsxs as jsxs66 } from "react/jsx-runtime";
+var BarGroupedInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = BAR_GROUPED_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: gL,
+    showXAxis = BAR_GROUPED_DEFAULTS.showXAxis,
+    showYAxis = BAR_GROUPED_DEFAULTS.showYAxis,
+    showGrid = BAR_GROUPED_DEFAULTS.showGrid,
+    showTooltip = BAR_GROUPED_DEFAULTS.showTooltip,
+    showLegend = BAR_GROUPED_DEFAULTS.showLegend,
+    padding = BAR_GROUPED_DEFAULTS.padding,
+    barRadius = BAR_GROUPED_DEFAULTS.barRadius,
+    yDomain,
+    formatY,
+    highlightIndex = null,
+    highlightKey = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel } = useBarGroupedAccessors(gL);
+  const dims = useInnerDims(width, height, margin);
+  const { x0Scale, x1Scale, yScale } = useBarGroupedScales(data, keys, dims.innerWidth, dims.innerHeight, getLabel, padding, yDomain);
+  const colorMap = useBarGroupedColors(keys, colorScheme);
+  const { hovered, handleEnter, handleLeave, handleClick } = useBarGroupedInteraction(onHover, onSelect);
+  const classes = useMemo23(() => buildBarGroupedClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const legendItems = useMemo23(
+    () => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })),
+    [keys, colorMap]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx93("div", { className: classes, children: /* @__PURE__ */ jsx93("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped bar chart" }) });
+  }
+  return /* @__PURE__ */ jsxs66("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx93(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx93(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs66("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs66("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped bar chart", children: [
+        description && /* @__PURE__ */ jsx93("desc", { children: description }),
+        /* @__PURE__ */ jsxs66(Group4, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx93(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          data.map((d, gi) => {
+            const label = String(getLabel(d));
+            const groupX = x0Scale(label) ?? 0;
+            return /* @__PURE__ */ jsx93(Group4, { left: groupX, children: keys.map((key, ki) => {
+              const value = Number(d[key]) || 0;
+              const barX = x1Scale(key) ?? 0;
+              const barY = yScale(value) ?? 0;
+              const barH = dims.innerHeight - barY;
+              const isHovered = hovered?.groupIdx === gi && hovered?.keyIdx === ki;
+              const isHighlightedGroup = highlightIndex === gi;
+              const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === key);
+              const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
+              return /* @__PURE__ */ jsx93(
+                VisxBar3,
+                {
+                  x: barX,
+                  y: barY,
+                  width: x1Scale.bandwidth(),
+                  height: Math.max(barH, 0),
+                  fill: colorMap[key],
+                  opacity: isDimmed ? 0.3 : 1,
+                  stroke: isHighlightedBar ? "#fff" : void 0,
+                  strokeWidth: isHighlightedBar ? 2 : void 0,
+                  rx: barRadius,
+                  onMouseEnter: () => handleEnter(d, gi, ki),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(d, gi) : void 0,
+                  style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+                },
+                key
+              );
+            }) }, label);
+          }),
+          showXAxis && /* @__PURE__ */ jsx93(ChartAxis, { scale: x0Scale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx93(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hovered != null && (() => {
+        const d = data[hovered.groupIdx];
+        const key = keys[hovered.keyIdx];
+        const label = String(getLabel(d));
+        const value = Number(d[key]) || 0;
+        const groupX = x0Scale(label) ?? 0;
+        const barX = x1Scale(key) ?? 0;
+        return /* @__PURE__ */ jsx93(
+          ChartTooltip,
+          {
+            left: groupX + barX + x1Scale.bandwidth() / 2 + dims.margin.left,
+            top: (yScale(value) ?? 0) + dims.margin.top,
+            visible: true,
+            offsetY: -8,
+            children: `${key}: ${value.toLocaleString()}`
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+BarGroupedInner.displayName = "BarGroupedInner";
+
+// src/DATADISPLAY/Charts/BarGrouped/BarGrouped.tsx
+import { jsx as jsx94 } from "react/jsx-runtime";
+var BarGrouped = React72.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef31(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx94("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx94("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx94(BarGroupedInner, { ...rest, width, height }) }) });
+  }
+);
+BarGrouped.displayName = "BarGrouped";
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.tsx
+import React74, { useRef as useRef32 } from "react";
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontalInner.tsx
+import { useMemo as useMemo25 } from "react";
+import { Group as Group5 } from "@visx/group";
+import { Bar as VisxBar4 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.constants.ts
+var BAR_GH_ROOT_CLASS = "w3f-chart-bar-grouped-h";
+var BAR_GH_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  padding: 0.2,
+  barRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.utils.ts
+import { scaleBand as scaleBand3 } from "@visx/scale";
+function buildBarGHClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_GH_ROOT_CLASS, className, unstyled);
+}
+var defaultGetLabel4 = (d) => d.label;
+function buildGroupedHScales(data, keys, innerWidth, innerHeight, getLabel, padding, xDomain) {
+  const labels = data.map((d) => String(getLabel(d)));
+  let max = 0;
+  for (const d of data) {
+    for (const k of keys) {
+      const v = Number(d[k]) || 0;
+      if (v > max) max = v;
+    }
+  }
+  const [minVal, maxVal] = xDomain ?? [0, max];
+  const y0Scale = buildBandScale(labels, [0, innerHeight], padding);
+  const y1Scale = scaleBand3({
+    domain: [...keys],
+    range: [0, y0Scale.bandwidth()],
+    padding: 0.05
+  });
+  const xScale = buildLinearScale(minVal, maxVal, [0, innerWidth]);
+  return { y0Scale, y1Scale, xScale };
+}
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.hooks.ts
+import { useMemo as useMemo24, useCallback as useCallback42, useState as useState49 } from "react";
+function useBarGHAccessors(getLabel) {
+  return useMemo24(() => ({ getLabel: getLabel ?? defaultGetLabel4 }), [getLabel]);
+}
+function useBarGHScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_GH_DEFAULTS.padding, xDomain) {
+  return useMemo24(
+    () => buildGroupedHScales(data, keys, innerWidth, innerHeight, getLabel, padding, xDomain),
+    [data, keys, innerWidth, innerHeight, getLabel, padding, xDomain]
+  );
+}
+function useBarGHColors(keys, colorScheme) {
+  return useMemo24(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    keys.forEach((k, i) => {
+      map[k] = palette[i % palette.length];
+    });
+    return map;
+  }, [keys, colorScheme]);
+}
+function useBarGHInteraction(onHover, onSelect) {
+  const [hovered, setHovered] = useState49(null);
+  const handleEnter = useCallback42((datum, groupIdx, keyIdx) => {
+    setHovered({ groupIdx, keyIdx });
+    onHover?.(datum, groupIdx);
+  }, [onHover]);
+  const handleLeave = useCallback42(() => {
+    setHovered(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback42((datum, groupIdx) => {
+    onSelect?.(datum, groupIdx);
+  }, [onSelect]);
+  return { hovered, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontalInner.tsx
+import { jsx as jsx95, jsxs as jsxs67 } from "react/jsx-runtime";
+var BarGroupedHorizontalInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = BAR_GH_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: gL,
+    showXAxis = BAR_GH_DEFAULTS.showXAxis,
+    showYAxis = BAR_GH_DEFAULTS.showYAxis,
+    showGrid = BAR_GH_DEFAULTS.showGrid,
+    showTooltip = BAR_GH_DEFAULTS.showTooltip,
+    showLegend = BAR_GH_DEFAULTS.showLegend,
+    padding = BAR_GH_DEFAULTS.padding,
+    barRadius = BAR_GH_DEFAULTS.barRadius,
+    xDomain,
+    formatX,
+    highlightIndex = null,
+    highlightKey = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel } = useBarGHAccessors(gL);
+  const dims = useInnerDims(width, height, margin);
+  const { y0Scale, y1Scale, xScale } = useBarGHScales(data, keys, dims.innerWidth, dims.innerHeight, getLabel, padding, xDomain);
+  const colorMap = useBarGHColors(keys, colorScheme);
+  const { hovered, handleEnter, handleLeave, handleClick } = useBarGHInteraction(onHover, onSelect);
+  const classes = useMemo25(() => buildBarGHClasses(className, unstyled), [className, unstyled]);
+  const xTickFormat = formatX ?? formatTick;
+  const legendItems = useMemo25(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx95("div", { className: classes, children: /* @__PURE__ */ jsx95("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped horizontal bar chart" }) });
+  }
+  return /* @__PURE__ */ jsxs67("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx95(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx95(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs67("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs67("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped horizontal bar chart", children: [
+        description && /* @__PURE__ */ jsx95("desc", { children: description }),
+        /* @__PURE__ */ jsxs67(Group5, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx95(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+          data.map((d, gi) => {
+            const label = String(getLabel(d));
+            const groupY = y0Scale(label) ?? 0;
+            return /* @__PURE__ */ jsx95(Group5, { top: groupY, children: keys.map((key, ki) => {
+              const value = Number(d[key]) || 0;
+              const barY = y1Scale(key) ?? 0;
+              const barW = xScale(value) ?? 0;
+              const isHovered = hovered?.groupIdx === gi && hovered?.keyIdx === ki;
+              const isHighlightedGroup = highlightIndex === gi;
+              const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === key);
+              const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
+              return /* @__PURE__ */ jsx95(
+                VisxBar4,
+                {
+                  x: 0,
+                  y: barY,
+                  width: Math.max(barW, 0),
+                  height: y1Scale.bandwidth(),
+                  fill: colorMap[key],
+                  opacity: isDimmed ? 0.3 : 1,
+                  stroke: isHighlightedBar ? "#fff" : void 0,
+                  strokeWidth: isHighlightedBar ? 2 : void 0,
+                  rx: barRadius,
+                  onMouseEnter: () => handleEnter(d, gi, ki),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(d, gi) : void 0,
+                  style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+                },
+                key
+              );
+            }) }, label);
+          }),
+          showXAxis && /* @__PURE__ */ jsx95(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ jsx95(ChartAxis, { scale: y0Scale, orientation: "left" })
+        ] })
+      ] }),
+      showTooltip && hovered != null && (() => {
+        const d = data[hovered.groupIdx];
+        const key = keys[hovered.keyIdx];
+        const label = String(getLabel(d));
+        const value = Number(d[key]) || 0;
+        const groupY = y0Scale(label) ?? 0;
+        const barY = y1Scale(key) ?? 0;
+        return /* @__PURE__ */ jsx95(ChartTooltip, { left: (xScale(value) ?? 0) + dims.margin.left, top: groupY + barY + y1Scale.bandwidth() / 2 + dims.margin.top, visible: true, offsetX: 8, children: `${key}: ${value.toLocaleString()}` });
+      })()
+    ] })
+  ] });
+};
+BarGroupedHorizontalInner.displayName = "BarGroupedHorizontalInner";
+
+// src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.tsx
+import { jsx as jsx96 } from "react/jsx-runtime";
+var BarGroupedHorizontal = React74.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef32(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx96("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx96("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx96(BarGroupedHorizontalInner, { ...rest, width, height }) }) });
+  }
+);
+BarGroupedHorizontal.displayName = "BarGroupedHorizontal";
+
+// src/DATADISPLAY/Charts/BarStacked/BarStacked.tsx
+import React76, { useRef as useRef33 } from "react";
+
+// src/DATADISPLAY/Charts/BarStacked/BarStackedInner.tsx
+import { useMemo as useMemo27 } from "react";
+import { Group as Group6 } from "@visx/group";
+import { Bar as VisxBar5 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/BarStacked/BarStacked.constants.ts
+var BAR_STACKED_ROOT_CLASS = "w3f-chart-bar-stacked";
+var BAR_STACKED_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  padding: 0.2,
+  barRadius: 0,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BarStacked/BarStacked.utils.ts
+function buildBarStackedClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_STACKED_ROOT_CLASS, className, unstyled);
+}
+var defaultGetLabel5 = (d) => d.label;
+function buildStackedScales(data, keys, innerWidth, innerHeight, getLabel, padding) {
+  const labels = data.map((d) => String(getLabel(d)));
+  let maxTotal = 0;
+  for (const d of data) {
+    let total = 0;
+    for (const k of keys) total += Number(d[k]) || 0;
+    if (total > maxTotal) maxTotal = total;
+  }
+  const xScale = buildBandScale(labels, [0, innerWidth], padding);
+  const yScale = buildLinearScale(0, maxTotal, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+function computeStack(data, keys, getLabel) {
+  return data.map((d) => {
+    let cumulative = 0;
+    const segments = keys.map((key) => {
+      const value = Number(d[key]) || 0;
+      const y0 = cumulative;
+      cumulative += value;
+      return { key, y0, y1: cumulative, value };
+    });
+    return { label: String(getLabel(d)), segments };
+  });
+}
+
+// src/DATADISPLAY/Charts/BarStacked/BarStacked.hooks.ts
+import { useMemo as useMemo26, useCallback as useCallback43, useState as useState50 } from "react";
+function useBarStackedAccessors(getLabel) {
+  return useMemo26(() => ({ getLabel: getLabel ?? defaultGetLabel5 }), [getLabel]);
+}
+function useBarStackedScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_STACKED_DEFAULTS.padding) {
+  return useMemo26(
+    () => buildStackedScales(data, keys, innerWidth, innerHeight, getLabel, padding),
+    [data, keys, innerWidth, innerHeight, getLabel, padding]
+  );
+}
+function useStackData(data, keys, getLabel) {
+  return useMemo26(() => computeStack(data, keys, getLabel), [data, keys, getLabel]);
+}
+function useBarStackedColors(keys, colorScheme) {
+  return useMemo26(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    keys.forEach((k, i) => {
+      map[k] = palette[i % palette.length];
+    });
+    return map;
+  }, [keys, colorScheme]);
+}
+function useBarStackedInteraction(onHover, onSelect) {
+  const [hovered, setHovered] = useState50(null);
+  const handleEnter = useCallback43((datum, groupIdx, keyIdx) => {
+    setHovered({ groupIdx, keyIdx });
+    onHover?.(datum, groupIdx);
+  }, [onHover]);
+  const handleLeave = useCallback43(() => {
+    setHovered(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback43((datum, groupIdx) => {
+    onSelect?.(datum, groupIdx);
+  }, [onSelect]);
+  return { hovered, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BarStacked/BarStackedInner.tsx
+import { jsx as jsx97, jsxs as jsxs68 } from "react/jsx-runtime";
+var BarStackedInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = BAR_STACKED_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: gL,
+    showXAxis = BAR_STACKED_DEFAULTS.showXAxis,
+    showYAxis = BAR_STACKED_DEFAULTS.showYAxis,
+    showGrid = BAR_STACKED_DEFAULTS.showGrid,
+    showTooltip = BAR_STACKED_DEFAULTS.showTooltip,
+    showLegend = BAR_STACKED_DEFAULTS.showLegend,
+    padding = BAR_STACKED_DEFAULTS.padding,
+    barRadius = BAR_STACKED_DEFAULTS.barRadius,
+    formatY,
+    highlightIndex = null,
+    highlightKey = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel } = useBarStackedAccessors(gL);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useBarStackedScales(data, keys, dims.innerWidth, dims.innerHeight, getLabel, padding);
+  const stackRows = useStackData(data, keys, getLabel);
+  const colorMap = useBarStackedColors(keys, colorScheme);
+  const { hovered, handleEnter, handleLeave, handleClick } = useBarStackedInteraction(onHover, onSelect);
+  const classes = useMemo27(() => buildBarStackedClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const legendItems = useMemo27(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx97("div", { className: classes, children: /* @__PURE__ */ jsx97("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked bar chart" }) });
+  }
+  return /* @__PURE__ */ jsxs68("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx97(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx97(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs68("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs68("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked bar chart", children: [
+        description && /* @__PURE__ */ jsx97("desc", { children: description }),
+        /* @__PURE__ */ jsxs68(Group6, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx97(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          stackRows.map((row, gi) => {
+            const barX = xScale(row.label) ?? 0;
+            const bw = xScale.bandwidth();
+            return /* @__PURE__ */ jsx97(Group6, { children: row.segments.map((seg, ki) => {
+              const y0 = yScale(seg.y0) ?? 0;
+              const y1 = yScale(seg.y1) ?? 0;
+              const barY = y1;
+              const barH = y0 - y1;
+              const isHovered = hovered?.groupIdx === gi && hovered?.keyIdx === ki;
+              const isHighlightedGroup = highlightIndex === gi;
+              const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
+              const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
+              return /* @__PURE__ */ jsx97(
+                VisxBar5,
+                {
+                  x: barX,
+                  y: barY,
+                  width: bw,
+                  height: Math.max(barH, 0),
+                  fill: colorMap[seg.key],
+                  opacity: isDimmed ? 0.3 : 1,
+                  stroke: isHighlightedBar ? "#fff" : void 0,
+                  strokeWidth: isHighlightedBar ? 2 : void 0,
+                  rx: barRadius,
+                  onMouseEnter: () => handleEnter(data[gi], gi, ki),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(data[gi], gi) : void 0,
+                  style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+                },
+                seg.key
+              );
+            }) }, row.label);
+          }),
+          showXAxis && /* @__PURE__ */ jsx97(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx97(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hovered != null && (() => {
+        const row = stackRows[hovered.groupIdx];
+        const seg = row.segments[hovered.keyIdx];
+        return /* @__PURE__ */ jsx97(
+          ChartTooltip,
+          {
+            left: (xScale(row.label) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left,
+            top: (yScale(seg.y1) ?? 0) + dims.margin.top,
+            visible: true,
+            offsetY: -8,
+            children: `${seg.key}: ${seg.value.toLocaleString()}`
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+BarStackedInner.displayName = "BarStackedInner";
+
+// src/DATADISPLAY/Charts/BarStacked/BarStacked.tsx
+import { jsx as jsx98 } from "react/jsx-runtime";
+var BarStacked = React76.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef33(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx98("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx98("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx98(BarStackedInner, { ...rest, width, height }) }) });
+  }
+);
+BarStacked.displayName = "BarStacked";
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.tsx
+import React78, { useRef as useRef34 } from "react";
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontalInner.tsx
+import { useMemo as useMemo29 } from "react";
+import { Group as Group7 } from "@visx/group";
+import { Bar as VisxBar6 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.constants.ts
+var BAR_SH_ROOT_CLASS = "w3f-chart-bar-stacked-h";
+var BAR_SH_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  padding: 0.2,
+  barRadius: 0,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.utils.ts
+function buildBarSHClasses(className, unstyled) {
+  return buildChartRootClasses(BAR_SH_ROOT_CLASS, className, unstyled);
+}
+var defaultGetLabel6 = (d) => d.label;
+function buildStackedHScales(data, keys, innerWidth, innerHeight, getLabel, padding) {
+  const labels = data.map((d) => String(getLabel(d)));
+  let maxTotal = 0;
+  for (const d of data) {
+    let total = 0;
+    for (const k of keys) total += Number(d[k]) || 0;
+    if (total > maxTotal) maxTotal = total;
+  }
+  const yScale = buildBandScale(labels, [0, innerHeight], padding);
+  const xScale = buildLinearScale(0, maxTotal, [0, innerWidth]);
+  return { xScale, yScale };
+}
+function computeStackH(data, keys, getLabel) {
+  return data.map((d) => {
+    let cumulative = 0;
+    const segments = keys.map((key) => {
+      const value = Number(d[key]) || 0;
+      const x0 = cumulative;
+      cumulative += value;
+      return { key, x0, x1: cumulative, value };
+    });
+    return { label: String(getLabel(d)), segments };
+  });
+}
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.hooks.ts
+import { useMemo as useMemo28, useCallback as useCallback44, useState as useState51 } from "react";
+function useBarSHAccessors(getLabel) {
+  return useMemo28(() => ({ getLabel: getLabel ?? defaultGetLabel6 }), [getLabel]);
+}
+function useBarSHScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_SH_DEFAULTS.padding) {
+  return useMemo28(
+    () => buildStackedHScales(data, keys, innerWidth, innerHeight, getLabel, padding),
+    [data, keys, innerWidth, innerHeight, getLabel, padding]
+  );
+}
+function useStackHData(data, keys, getLabel) {
+  return useMemo28(() => computeStackH(data, keys, getLabel), [data, keys, getLabel]);
+}
+function useBarSHColors(keys, colorScheme) {
+  return useMemo28(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    keys.forEach((k, i) => {
+      map[k] = palette[i % palette.length];
+    });
+    return map;
+  }, [keys, colorScheme]);
+}
+function useBarSHInteraction(onHover, onSelect) {
+  const [hovered, setHovered] = useState51(null);
+  const handleEnter = useCallback44((datum, groupIdx, keyIdx) => {
+    setHovered({ groupIdx, keyIdx });
+    onHover?.(datum, groupIdx);
+  }, [onHover]);
+  const handleLeave = useCallback44(() => {
+    setHovered(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback44((datum, groupIdx) => {
+    onSelect?.(datum, groupIdx);
+  }, [onSelect]);
+  return { hovered, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontalInner.tsx
+import { jsx as jsx99, jsxs as jsxs69 } from "react/jsx-runtime";
+var BarStackedHorizontalInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = BAR_SH_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: gL,
+    showXAxis = BAR_SH_DEFAULTS.showXAxis,
+    showYAxis = BAR_SH_DEFAULTS.showYAxis,
+    showGrid = BAR_SH_DEFAULTS.showGrid,
+    showTooltip = BAR_SH_DEFAULTS.showTooltip,
+    showLegend = BAR_SH_DEFAULTS.showLegend,
+    padding = BAR_SH_DEFAULTS.padding,
+    barRadius = BAR_SH_DEFAULTS.barRadius,
+    formatX,
+    highlightIndex = null,
+    highlightKey = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel } = useBarSHAccessors(gL);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useBarSHScales(data, keys, dims.innerWidth, dims.innerHeight, getLabel, padding);
+  const stackRows = useStackHData(data, keys, getLabel);
+  const colorMap = useBarSHColors(keys, colorScheme);
+  const { hovered, handleEnter, handleLeave, handleClick } = useBarSHInteraction(onHover, onSelect);
+  const classes = useMemo29(() => buildBarSHClasses(className, unstyled), [className, unstyled]);
+  const xTickFormat = formatX ?? formatTick;
+  const legendItems = useMemo29(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx99("div", { className: classes, children: /* @__PURE__ */ jsx99("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked horizontal bar chart" }) });
+  }
+  return /* @__PURE__ */ jsxs69("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx99(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx99(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs69("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs69("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked horizontal bar chart", children: [
+        description && /* @__PURE__ */ jsx99("desc", { children: description }),
+        /* @__PURE__ */ jsxs69(Group7, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx99(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+          stackRows.map((row, gi) => {
+            const barY = yScale(row.label) ?? 0;
+            const bh = yScale.bandwidth();
+            return /* @__PURE__ */ jsx99(Group7, { children: row.segments.map((seg, ki) => {
+              const x0 = xScale(seg.x0) ?? 0;
+              const x1 = xScale(seg.x1) ?? 0;
+              const barX = x0;
+              const barW = x1 - x0;
+              const isHovered = hovered?.groupIdx === gi && hovered?.keyIdx === ki;
+              const isHighlightedGroup = highlightIndex === gi;
+              const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
+              const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
+              return /* @__PURE__ */ jsx99(
+                VisxBar6,
+                {
+                  x: barX,
+                  y: barY,
+                  width: Math.max(barW, 0),
+                  height: bh,
+                  fill: colorMap[seg.key],
+                  opacity: isDimmed ? 0.3 : 1,
+                  stroke: isHighlightedBar ? "#fff" : void 0,
+                  strokeWidth: isHighlightedBar ? 2 : void 0,
+                  rx: barRadius,
+                  onMouseEnter: () => handleEnter(data[gi], gi, ki),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(data[gi], gi) : void 0,
+                  style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+                },
+                seg.key
+              );
+            }) }, row.label);
+          }),
+          showXAxis && /* @__PURE__ */ jsx99(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ jsx99(ChartAxis, { scale: yScale, orientation: "left" })
+        ] })
+      ] }),
+      showTooltip && hovered != null && (() => {
+        const row = stackRows[hovered.groupIdx];
+        const seg = row.segments[hovered.keyIdx];
+        return /* @__PURE__ */ jsx99(
+          ChartTooltip,
+          {
+            left: (xScale(seg.x1) ?? 0) + dims.margin.left,
+            top: (yScale(row.label) ?? 0) + yScale.bandwidth() / 2 + dims.margin.top,
+            visible: true,
+            offsetX: 8,
+            children: `${seg.key}: ${seg.value.toLocaleString()}`
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+BarStackedHorizontalInner.displayName = "BarStackedHorizontalInner";
+
+// src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.tsx
+import { jsx as jsx100 } from "react/jsx-runtime";
+var BarStackedHorizontal = React78.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef34(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx100("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx100("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx100(BarStackedHorizontalInner, { ...rest, width, height }) }) });
+  }
+);
+BarStackedHorizontal.displayName = "BarStackedHorizontal";
+
+// src/DATADISPLAY/Charts/Line/Line.tsx
+import React80, { useRef as useRef35 } from "react";
+
+// src/DATADISPLAY/Charts/Line/LineInner.tsx
+import { useMemo as useMemo31 } from "react";
+import { Group as Group8 } from "@visx/group";
+import { LinePath } from "@visx/shape";
+import { curveMonotoneX, curveLinear } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/Line/Line.constants.ts
+var LINE_ROOT_CLASS = "w3f-chart-line";
+var LINE_DEFAULTS = {
+  curved: true,
+  showDots: false,
+  strokeWidth: 2,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Line/Line.utils.ts
+import { scaleTime, scaleLinear as scaleLinear2 } from "@visx/scale";
+function buildLineClasses(className, unstyled) {
+  return buildChartRootClasses(LINE_ROOT_CLASS, className, unstyled);
+}
+var defaultGetDate = (d) => d.date;
+var defaultGetValue3 = (d) => d.value;
+function toDate(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function buildTimeScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
+  const dates = data.map((d) => toDate(getDate(d)));
+  const values = data.map(getValue2);
+  const [minVal, maxVal] = yDomain ?? safeExtent(values);
+  const xScale = scaleTime({
+    domain: [Math.min(...dates.map(Number)), Math.max(...dates.map(Number))],
+    range: [0, innerWidth]
+  });
+  const yScale = scaleLinear2({
+    domain: [minVal, maxVal * 1.1],
+    range: [innerHeight, 0],
+    nice: true
+  });
+  return { xScale, yScale };
+}
+
+// src/DATADISPLAY/Charts/Line/Line.hooks.ts
+import { useMemo as useMemo30, useCallback as useCallback45 } from "react";
+function useLineAccessors(getDate, getValue2) {
+  return useMemo30(() => ({
+    getDate: getDate ?? defaultGetDate,
+    getValue: getValue2 ?? defaultGetValue3
+  }), [getDate, getValue2]);
+}
+function useLineScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
+  return useMemo30(
+    () => buildTimeScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain),
+    [data, innerWidth, innerHeight, getDate, getValue2, yDomain]
+  );
+}
+function useLineColor(colorScheme) {
+  return useMemo30(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
+}
+function useLineInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback45((datum, index) => {
+    enter(index);
+    onHover?.(datum, index);
+  }, [enter, onHover]);
+  const handleLeave = useCallback45(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback45((datum, index) => {
+    onSelect?.(datum, index);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Line/LineInner.tsx
+import { jsx as jsx101, jsxs as jsxs70 } from "react/jsx-runtime";
+var LineInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = LINE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getDate: gD,
+    getValue: gV,
+    curved = LINE_DEFAULTS.curved,
+    showDots = LINE_DEFAULTS.showDots,
+    strokeWidth = LINE_DEFAULTS.strokeWidth,
+    showXAxis = LINE_DEFAULTS.showXAxis,
+    showYAxis = LINE_DEFAULTS.showYAxis,
+    showGrid = LINE_DEFAULTS.showGrid,
+    showTooltip = LINE_DEFAULTS.showTooltip,
+    yDomain,
+    formatY,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const { getDate, getValue: getValue2 } = useLineAccessors(gD, gV);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useLineScales(data, dims.innerWidth, dims.innerHeight, getDate, getValue2, yDomain);
+  const color = useLineColor(colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useLineInteraction(onHover, onSelect);
+  const classes = useMemo31(() => buildLineClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const curve = curved ? curveMonotoneX : curveLinear;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx101("div", { className: classes, children: /* @__PURE__ */ jsx101("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty line chart" }) });
+  }
+  return /* @__PURE__ */ jsxs70("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx101(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs70("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs70("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Line chart", children: [
+        description && /* @__PURE__ */ jsx101("desc", { children: description }),
+        /* @__PURE__ */ jsxs70(Group8, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx101(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ jsx101(
+            LinePath,
+            {
+              data: [...data],
+              x: (d) => xScale(toDate(getDate(d))) ?? 0,
+              y: (d) => yScale(getValue2(d)) ?? 0,
+              stroke: color,
+              strokeWidth,
+              curve
+            }
+          ),
+          showDots && data.map((d, i) => {
+            const cx = xScale(toDate(getDate(d))) ?? 0;
+            const cy = yScale(getValue2(d)) ?? 0;
+            return /* @__PURE__ */ jsx101(
+              "circle",
+              {
+                cx,
+                cy,
+                r: hoveredIndex === i ? 5 : 3,
+                fill: color,
+                stroke: "#fff",
+                strokeWidth: 1.5,
+                opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: onSelect ? "pointer" : void 0, transition: "r 120ms, opacity 120ms" }
+              },
+              i
+            );
+          }),
+          !showDots && data.map((d, i) => {
+            const cx = xScale(toDate(getDate(d))) ?? 0;
+            const cy = yScale(getValue2(d)) ?? 0;
+            return /* @__PURE__ */ jsx101(
+              "circle",
+              {
+                cx,
+                cy,
+                r: 8,
+                fill: "transparent",
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: onSelect ? "pointer" : void 0 }
+              },
+              i
+            );
+          }),
+          hoveredIndex != null && /* @__PURE__ */ jsx101(
+            "circle",
+            {
+              cx: xScale(toDate(getDate(data[hoveredIndex]))) ?? 0,
+              cy: yScale(getValue2(data[hoveredIndex])) ?? 0,
+              r: 5,
+              fill: color,
+              stroke: "#fff",
+              strokeWidth: 2,
+              pointerEvents: "none"
+            }
+          ),
+          highlightIndex != null && highlightIndex < data.length && (() => {
+            const d = data[highlightIndex];
+            const cx = xScale(toDate(getDate(d))) ?? 0;
+            const cy = yScale(getValue2(d)) ?? 0;
+            return /* @__PURE__ */ jsxs70("g", { pointerEvents: "none", children: [
+              /* @__PURE__ */ jsx101("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
+              /* @__PURE__ */ jsx101("circle", { cx, cy, r: 12, fill: color, opacity: 0.2 }),
+              /* @__PURE__ */ jsx101("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5 })
+            ] });
+          })(),
+          showXAxis && /* @__PURE__ */ jsx101(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx101(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        const date = toDate(getDate(d));
+        return /* @__PURE__ */ jsx101(
+          ChartTooltip,
+          {
+            left: (xScale(date) ?? 0) + dims.margin.left,
+            top: (yScale(getValue2(d)) ?? 0) + dims.margin.top,
+            visible: true,
+            offsetY: -12,
+            children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}`
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+LineInner.displayName = "LineInner";
+
+// src/DATADISPLAY/Charts/Line/Line.tsx
+import { jsx as jsx102 } from "react/jsx-runtime";
+var Line = React80.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef35(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx102("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx102("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx102(LineInner, { ...rest, width, height }) }) });
+  }
+);
+Line.displayName = "Line";
+
+// src/DATADISPLAY/Charts/LineMulti/LineMulti.tsx
+import React82, { useRef as useRef36 } from "react";
+
+// src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
+import { useMemo as useMemo33 } from "react";
+import { Group as Group9 } from "@visx/group";
+import { LinePath as LinePath2 } from "@visx/shape";
+import { curveMonotoneX as curveMonotoneX2, curveLinear as curveLinear2 } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/LineMulti/LineMulti.constants.ts
+var LINE_MULTI_ROOT_CLASS = "w3f-chart-line-multi";
+var LINE_MULTI_DEFAULTS = {
+  curved: true,
+  showDots: false,
+  strokeWidth: 2,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/LineMulti/LineMulti.utils.ts
+import { scaleTime as scaleTime2, scaleLinear as scaleLinear3 } from "@visx/scale";
+function buildLineMultiClasses(className, unstyled) {
+  return buildChartRootClasses(LINE_MULTI_ROOT_CLASS, className, unstyled);
+}
+function toDate2(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function buildMultiTimeScales(data, innerWidth, innerHeight) {
+  let minDate = Infinity;
+  let maxDate = -Infinity;
+  let maxVal = 0;
+  for (const series of data) {
+    for (const pt of series.data) {
+      const t = Number(toDate2(pt.date));
+      if (t < minDate) minDate = t;
+      if (t > maxDate) maxDate = t;
+      if (pt.value > maxVal) maxVal = pt.value;
+    }
+  }
+  const xScale = scaleTime2({ domain: [minDate, maxDate], range: [0, innerWidth] });
+  const yScale = scaleLinear3({ domain: [0, maxVal * 1.1], range: [innerHeight, 0], nice: true });
+  return { xScale, yScale };
+}
+
+// src/DATADISPLAY/Charts/LineMulti/LineMulti.hooks.ts
+import { useMemo as useMemo32, useCallback as useCallback46, useState as useState52 } from "react";
+function useLineMultiScales(data, innerWidth, innerHeight) {
+  return useMemo32(() => buildMultiTimeScales(data, innerWidth, innerHeight), [data, innerWidth, innerHeight]);
+}
+function useLineMultiColors(seriesIds, colorScheme) {
+  return useMemo32(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    seriesIds.forEach((id, i) => {
+      map[id] = palette[i % palette.length];
+    });
+    return map;
+  }, [seriesIds, colorScheme]);
+}
+function useLineMultiHover(onHover) {
+  const [hovered, setHovered] = useState52(null);
+  const enter = useCallback46((seriesId) => {
+    setHovered(seriesId);
+    onHover?.(seriesId, null);
+  }, [onHover]);
+  const leave = useCallback46(() => {
+    setHovered(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  return { hovered, enter, leave };
+}
+
+// src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
+import { jsx as jsx103, jsxs as jsxs71 } from "react/jsx-runtime";
+var LineMultiInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = LINE_MULTI_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    curved = LINE_MULTI_DEFAULTS.curved,
+    showDots = LINE_MULTI_DEFAULTS.showDots,
+    strokeWidth = LINE_MULTI_DEFAULTS.strokeWidth,
+    showXAxis = LINE_MULTI_DEFAULTS.showXAxis,
+    showYAxis = LINE_MULTI_DEFAULTS.showYAxis,
+    showGrid = LINE_MULTI_DEFAULTS.showGrid,
+    showLegend = LINE_MULTI_DEFAULTS.showLegend,
+    highlightSeriesId = null,
+    formatY,
+    onHover
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const seriesIds = useMemo33(() => data.map((s) => s.id), [data]);
+  const { xScale, yScale } = useLineMultiScales(data, dims.innerWidth, dims.innerHeight);
+  const colorMap = useLineMultiColors(seriesIds, colorScheme);
+  const { hovered, enter, leave } = useLineMultiHover(onHover);
+  const classes = useMemo33(() => buildLineMultiClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const curve = curved ? curveMonotoneX2 : curveLinear2;
+  const legendItems = useMemo33(
+    () => data.map((s) => ({ id: s.id, label: s.label ?? s.id, color: colorMap[s.id] })),
+    [data, colorMap]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx103("div", { className: classes, children: /* @__PURE__ */ jsx103("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty multi-line chart" }) });
+  }
+  return /* @__PURE__ */ jsxs71("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx103(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx103(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsx103("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs71("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Multi-line chart", children: [
+      description && /* @__PURE__ */ jsx103("desc", { children: description }),
+      /* @__PURE__ */ jsxs71(Group9, { top: dims.margin.top, left: dims.margin.left, children: [
+        showGrid && /* @__PURE__ */ jsx103(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+        data.map((series) => {
+          const active = highlightSeriesId ?? hovered;
+          const isDimmed = active != null && active !== series.id;
+          return /* @__PURE__ */ jsxs71(
+            "g",
+            {
+              onMouseEnter: () => enter(series.id),
+              onMouseLeave: leave,
+              style: { cursor: "pointer" },
+              children: [
+                /* @__PURE__ */ jsx103(
+                  LinePath2,
+                  {
+                    data: [...series.data],
+                    x: (d) => xScale(toDate2(d.date)) ?? 0,
+                    y: (d) => yScale(d.value) ?? 0,
+                    stroke: colorMap[series.id],
+                    strokeWidth: hovered === series.id ? strokeWidth + 1 : strokeWidth,
+                    strokeOpacity: isDimmed ? 0.2 : 1,
+                    curve
+                  }
+                ),
+                /* @__PURE__ */ jsx103(
+                  LinePath2,
+                  {
+                    data: [...series.data],
+                    x: (d) => xScale(toDate2(d.date)) ?? 0,
+                    y: (d) => yScale(d.value) ?? 0,
+                    stroke: "transparent",
+                    strokeWidth: 12,
+                    curve
+                  }
+                ),
+                showDots && series.data.map((pt, pi) => /* @__PURE__ */ jsx103(
+                  "circle",
+                  {
+                    cx: xScale(toDate2(pt.date)) ?? 0,
+                    cy: yScale(pt.value) ?? 0,
+                    r: 3,
+                    fill: colorMap[series.id],
+                    opacity: isDimmed ? 0.2 : 1
+                  },
+                  pi
+                ))
+              ]
+            },
+            series.id
+          );
+        }),
+        showXAxis && /* @__PURE__ */ jsx103(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+        showYAxis && /* @__PURE__ */ jsx103(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+      ] })
+    ] }) })
+  ] });
+};
+LineMultiInner.displayName = "LineMultiInner";
+
+// src/DATADISPLAY/Charts/LineMulti/LineMulti.tsx
+import { jsx as jsx104 } from "react/jsx-runtime";
+var LineMulti = React82.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef36(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx104("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx104("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx104(LineMultiInner, { ...rest, width, height }) }) });
+  }
+);
+LineMulti.displayName = "LineMulti";
+
+// src/DATADISPLAY/Charts/Area/Area.tsx
+import React84, { useRef as useRef37 } from "react";
+
+// src/DATADISPLAY/Charts/Area/AreaInner.tsx
+import { useMemo as useMemo35 } from "react";
+import { Group as Group10 } from "@visx/group";
+import { AreaClosed, LinePath as LinePath3 } from "@visx/shape";
+import { curveMonotoneX as curveMonotoneX3, curveLinear as curveLinear3 } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/Area/Area.constants.ts
+var AREA_ROOT_CLASS = "w3f-chart-area";
+var AREA_DEFAULTS = {
+  curved: true,
+  fillOpacity: 0.3,
+  showLine: true,
+  strokeWidth: 2,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Area/Area.utils.ts
+import { scaleTime as scaleTime3, scaleLinear as scaleLinear4 } from "@visx/scale";
+function buildAreaClasses(className, unstyled) {
+  return buildChartRootClasses(AREA_ROOT_CLASS, className, unstyled);
+}
+var defaultGetDate2 = (d) => d.date;
+var defaultGetValue4 = (d) => d.value;
+function toDate3(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function buildAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
+  const dates = data.map((d) => toDate3(getDate(d)));
+  const values = data.map(getValue2);
+  const [minVal, maxVal] = yDomain ?? safeExtent(values);
+  const xScale = scaleTime3({ domain: [Math.min(...dates.map(Number)), Math.max(...dates.map(Number))], range: [0, innerWidth] });
+  const yScale = scaleLinear4({ domain: [Math.min(0, minVal), maxVal * 1.1], range: [innerHeight, 0], nice: true });
+  return { xScale, yScale };
+}
+
+// src/DATADISPLAY/Charts/Area/Area.hooks.ts
+import { useMemo as useMemo34, useCallback as useCallback47 } from "react";
+function useAreaAccessors(getDate, getValue2) {
+  return useMemo34(() => ({
+    getDate: getDate ?? defaultGetDate2,
+    getValue: getValue2 ?? defaultGetValue4
+  }), [getDate, getValue2]);
+}
+function useAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
+  return useMemo34(
+    () => buildAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain),
+    [data, innerWidth, innerHeight, getDate, getValue2, yDomain]
+  );
+}
+function useAreaColor(colorScheme) {
+  return useMemo34(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
+}
+function useAreaInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback47((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback47(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback47((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Area/AreaInner.tsx
+import { jsx as jsx105, jsxs as jsxs72 } from "react/jsx-runtime";
+var AreaInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = AREA_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getDate: gD,
+    getValue: gV,
+    curved = AREA_DEFAULTS.curved,
+    fillOpacity = AREA_DEFAULTS.fillOpacity,
+    showLine = AREA_DEFAULTS.showLine,
+    strokeWidth = AREA_DEFAULTS.strokeWidth,
+    showXAxis = AREA_DEFAULTS.showXAxis,
+    showYAxis = AREA_DEFAULTS.showYAxis,
+    showGrid = AREA_DEFAULTS.showGrid,
+    showTooltip = AREA_DEFAULTS.showTooltip,
+    yDomain,
+    formatY,
+    tickRotateX = 0,
+    highlightIndex = null,
+    onHover,
+    onSelect
+  } = props;
+  const { getDate, getValue: getValue2 } = useAreaAccessors(gD, gV);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useAreaScales(data, dims.innerWidth, dims.innerHeight, getDate, getValue2, yDomain);
+  const color = useAreaColor(colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useAreaInteraction(onHover, onSelect);
+  const classes = useMemo35(() => buildAreaClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const curve = curved ? curveMonotoneX3 : curveLinear3;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx105("div", { className: classes, children: /* @__PURE__ */ jsx105("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty area chart" }) });
+  }
+  return /* @__PURE__ */ jsxs72("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx105(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs72("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs72("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Area chart", children: [
+        description && /* @__PURE__ */ jsx105("desc", { children: description }),
+        /* @__PURE__ */ jsxs72(Group10, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx105(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ jsx105(
+            AreaClosed,
+            {
+              data: [...data],
+              x: (d) => xScale(toDate3(getDate(d))) ?? 0,
+              y: (d) => yScale(getValue2(d)) ?? 0,
+              yScale,
+              fill: color,
+              fillOpacity,
+              curve
+            }
+          ),
+          showLine && /* @__PURE__ */ jsx105(
+            LinePath3,
+            {
+              data: [...data],
+              x: (d) => xScale(toDate3(getDate(d))) ?? 0,
+              y: (d) => yScale(getValue2(d)) ?? 0,
+              stroke: color,
+              strokeWidth,
+              curve
+            }
+          ),
+          data.map((d, i) => /* @__PURE__ */ jsx105(
+            "circle",
+            {
+              cx: xScale(toDate3(getDate(d))) ?? 0,
+              cy: yScale(getValue2(d)) ?? 0,
+              r: 8,
+              fill: "transparent",
+              onMouseEnter: () => handleEnter(d, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(d, i) : void 0,
+              style: { cursor: onSelect ? "pointer" : void 0 }
+            },
+            i
+          )),
+          hoveredIndex != null && /* @__PURE__ */ jsx105(
+            "circle",
+            {
+              cx: xScale(toDate3(getDate(data[hoveredIndex]))) ?? 0,
+              cy: yScale(getValue2(data[hoveredIndex])) ?? 0,
+              r: 5,
+              fill: color,
+              stroke: "#fff",
+              strokeWidth: 2,
+              pointerEvents: "none"
+            }
+          ),
+          showXAxis && /* @__PURE__ */ jsx105(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
+          showYAxis && /* @__PURE__ */ jsx105(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat }),
+          highlightIndex != null && data[highlightIndex] != null && (() => {
+            const d = data[highlightIndex];
+            const cx = xScale(toDate3(getDate(d))) ?? 0;
+            const cy = yScale(getValue2(d)) ?? 0;
+            return /* @__PURE__ */ jsxs72("g", { children: [
+              /* @__PURE__ */ jsx105("circle", { cx, cy, r: 12, fill: color, opacity: 0.2, pointerEvents: "none" }),
+              /* @__PURE__ */ jsx105("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5, pointerEvents: "none" }),
+              /* @__PURE__ */ jsx105("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6, pointerEvents: "none" })
+            ] });
+          })()
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        const date = toDate3(getDate(d));
+        return /* @__PURE__ */ jsx105(ChartTooltip, { left: (xScale(date) ?? 0) + dims.margin.left, top: (yScale(getValue2(d)) ?? 0) + dims.margin.top, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}` });
+      })()
+    ] })
+  ] });
+};
+AreaInner.displayName = "AreaInner";
+
+// src/DATADISPLAY/Charts/Area/Area.tsx
+import { jsx as jsx106 } from "react/jsx-runtime";
+var Area = React84.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef37(null);
+    const { width, height } = useChartDimensions(
+      containerRef,
+      propWidth,
+      propHeight,
+      DEFAULT_CHART_WIDTH,
+      DEFAULT_CHART_HEIGHT
+    );
+    return /* @__PURE__ */ jsx106("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx106("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx106(AreaInner, { ...rest, width, height }) }) });
+  }
+);
+Area.displayName = "Area";
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStacked.tsx
+import React86, { useRef as useRef38 } from "react";
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStackedInner.tsx
+import { useMemo as useMemo37 } from "react";
+import { Group as Group11 } from "@visx/group";
+import { Area as Area2 } from "@visx/shape";
+import { curveMonotoneX as curveMonotoneX4, curveLinear as curveLinear4 } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStacked.constants.ts
+var AREA_STACKED_ROOT_CLASS = "w3f-chart-area-stacked";
+var AREA_STACKED_DEFAULTS = {
+  curved: true,
+  fillOpacity: 0.7,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: false,
+  showLegend: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStacked.utils.ts
+function buildAreaStackedClasses(className, unstyled) {
+  return buildChartRootClasses(AREA_STACKED_ROOT_CLASS, className, unstyled);
+}
+function toDate4(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function computeAreaStack(data, keys) {
+  const seriesMap = /* @__PURE__ */ new Map();
+  for (const series of data) {
+    seriesMap.set(series.id, series.data);
+  }
+  const refSeries = seriesMap.get(keys[0]);
+  if (!refSeries || refSeries.length === 0) {
+    return { dates: [], layers: keys.map((key) => ({ key, points: [] })) };
+  }
+  const dates = refSeries.map((pt) => toDate4(pt.date));
+  const numPoints = dates.length;
+  const layers = [];
+  for (const key of keys) {
+    const seriesData = seriesMap.get(key);
+    const points = [];
+    for (let i = 0; i < numPoints; i++) {
+      const value = seriesData ? seriesData[i]?.value ?? 0 : 0;
+      let baseline = 0;
+      for (const prevLayer of layers) {
+        baseline += prevLayer.points[i]?.value ?? 0;
+      }
+      points.push({
+        date: dates[i],
+        y0: baseline,
+        y1: baseline + value,
+        value
+      });
+    }
+    layers.push({ key, points });
+  }
+  return { dates, layers };
+}
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStacked.hooks.ts
+import { useMemo as useMemo36, useCallback as useCallback48, useState as useState53 } from "react";
+import { scaleTime as scaleTime4, scaleLinear as scaleLinear5 } from "@visx/scale";
+function useAreaStackedScales(layers, dates, innerWidth, innerHeight, yDomain) {
+  return useMemo36(() => {
+    if (dates.length === 0) {
+      const xScale2 = scaleTime4({ domain: [0, 1], range: [0, innerWidth] });
+      const yScale2 = scaleLinear5({ domain: [0, 1], range: [innerHeight, 0] });
+      return { xScale: xScale2, yScale: yScale2 };
+    }
+    const minDate = Math.min(...dates.map(Number));
+    const maxDate = Math.max(...dates.map(Number));
+    let maxY1 = 0;
+    for (const layer of layers) {
+      for (const pt of layer.points) {
+        if (pt.y1 > maxY1) maxY1 = pt.y1;
+      }
+    }
+    const [domainMin, domainMax] = yDomain ?? [0, maxY1 * 1.1];
+    const xScale = scaleTime4({ domain: [minDate, maxDate], range: [0, innerWidth] });
+    const yScale = scaleLinear5({ domain: [domainMin, domainMax], range: [innerHeight, 0], nice: true });
+    return { xScale, yScale };
+  }, [layers, dates, innerWidth, innerHeight, yDomain]);
+}
+function useAreaStackedColors(keys, colorScheme) {
+  return useMemo36(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const map = {};
+    keys.forEach((k, i) => {
+      map[k] = palette[i % palette.length];
+    });
+    return map;
+  }, [keys, colorScheme]);
+}
+function useAreaStackedHover(onHover) {
+  const [hovered, setHovered] = useState53(null);
+  const enter = useCallback48((seriesId) => {
+    setHovered(seriesId);
+    onHover?.(seriesId);
+  }, [onHover]);
+  const leave = useCallback48(() => {
+    setHovered(null);
+    onHover?.(null);
+  }, [onHover]);
+  return { hovered, enter, leave };
+}
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStackedInner.tsx
+import { jsx as jsx107, jsxs as jsxs73 } from "react/jsx-runtime";
+var AreaStackedInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = AREA_STACKED_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    curved = AREA_STACKED_DEFAULTS.curved,
+    fillOpacity = AREA_STACKED_DEFAULTS.fillOpacity,
+    showXAxis = AREA_STACKED_DEFAULTS.showXAxis,
+    showYAxis = AREA_STACKED_DEFAULTS.showYAxis,
+    showGrid = AREA_STACKED_DEFAULTS.showGrid,
+    showTooltip = AREA_STACKED_DEFAULTS.showTooltip,
+    showLegend = AREA_STACKED_DEFAULTS.showLegend,
+    yDomain,
+    formatY,
+    tickRotateX = 0,
+    highlightSeriesId,
+    onHover
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const { dates, layers } = useMemo37(() => computeAreaStack(data, keys), [data, keys]);
+  const { xScale, yScale } = useAreaStackedScales(layers, dates, dims.innerWidth, dims.innerHeight, yDomain);
+  const colorMap = useAreaStackedColors(keys, colorScheme);
+  const { hovered, enter, leave } = useAreaStackedHover(onHover);
+  const classes = useMemo37(() => buildAreaStackedClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const curve = curved ? curveMonotoneX4 : curveLinear4;
+  const legendItems = useMemo37(
+    () => keys.map((k) => {
+      const series = data.find((s) => s.id === k);
+      return { id: k, label: series?.label ?? k, color: colorMap[k] };
+    }),
+    [keys, data, colorMap]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx107("div", { className: classes, children: /* @__PURE__ */ jsx107("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked area chart" }) });
+  }
+  return /* @__PURE__ */ jsxs73("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx107(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx107(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsx107("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs73("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked area chart", children: [
+      description && /* @__PURE__ */ jsx107("desc", { children: description }),
+      /* @__PURE__ */ jsxs73(Group11, { top: dims.margin.top, left: dims.margin.left, children: [
+        showGrid && /* @__PURE__ */ jsx107(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+        layers.map((layer) => {
+          const activeHover = highlightSeriesId !== void 0 ? highlightSeriesId : hovered;
+          const isDimmed = activeHover != null && activeHover !== layer.key;
+          return /* @__PURE__ */ jsxs73(
+            "g",
+            {
+              onMouseEnter: () => enter(layer.key),
+              onMouseLeave: leave,
+              style: { cursor: "pointer" },
+              children: [
+                /* @__PURE__ */ jsx107(
+                  Area2,
+                  {
+                    data: layer.points,
+                    x: (d) => xScale(toDate4(d.date)) ?? 0,
+                    y0: (d) => yScale(d.y0) ?? 0,
+                    y1: (d) => yScale(d.y1) ?? 0,
+                    fill: colorMap[layer.key],
+                    fillOpacity: isDimmed ? 0.2 : fillOpacity,
+                    curve,
+                    style: { transition: "fill-opacity 120ms ease-out" }
+                  }
+                ),
+                /* @__PURE__ */ jsx107(
+                  Area2,
+                  {
+                    data: layer.points,
+                    x: (d) => xScale(toDate4(d.date)) ?? 0,
+                    y0: (d) => yScale(d.y1 - (d.y1 - d.y0) * 0.2) ?? 0,
+                    y1: (d) => yScale(d.y1) ?? 0,
+                    fill: "transparent",
+                    strokeWidth: 0
+                  }
+                )
+              ]
+            },
+            layer.key
+          );
+        }),
+        showXAxis && /* @__PURE__ */ jsx107(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
+        showYAxis && /* @__PURE__ */ jsx107(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+      ] })
+    ] }) })
+  ] });
+};
+AreaStackedInner.displayName = "AreaStackedInner";
+
+// src/DATADISPLAY/Charts/AreaStacked/AreaStacked.tsx
+import { jsx as jsx108 } from "react/jsx-runtime";
+var AreaStacked = React86.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef38(null);
+    const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx108("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx108("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx108(AreaStackedInner, { ...rest, width, height }) }) });
+  }
+);
+AreaStacked.displayName = "AreaStacked";
+
+// src/DATADISPLAY/Charts/Threshold/Threshold.tsx
+import React88, { useRef as useRef39 } from "react";
+
+// src/DATADISPLAY/Charts/Threshold/ThresholdInner.tsx
+import { useMemo as useMemo39 } from "react";
+import { Group as Group12 } from "@visx/group";
+import { LinePath as LinePath4 } from "@visx/shape";
+import VisxThreshold from "@visx/threshold/lib/Threshold";
+import { curveMonotoneX as curveMonotoneX5, curveLinear as curveLinear5 } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/Threshold/Threshold.constants.ts
+var THRESHOLD_ROOT_CLASS = "w3f-chart-threshold";
+var THRESHOLD_DEFAULTS = {
+  curved: true,
+  fillOpacity: 0.4,
+  strokeWidth: 2,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLegend: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Threshold/Threshold.utils.ts
+import { scaleTime as scaleTime5, scaleLinear as scaleLinear6 } from "@visx/scale";
+function buildThresholdClasses(className, unstyled) {
+  return buildChartRootClasses(THRESHOLD_ROOT_CLASS, className, unstyled);
+}
+var defaultGetDate3 = (d) => d.date;
+var defaultGetValue0 = (d) => d.value0;
+var defaultGetValue1 = (d) => d.value1;
+function toDate5(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function buildThresholdScales(data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain) {
+  const dates = data.map((d) => toDate5(getDate(d)));
+  const allValues = [...data.map(getValue0), ...data.map(getValue1)];
+  const [minVal, maxVal] = yDomain ?? safeExtent(allValues);
+  const xScale = scaleTime5({
+    domain: [Math.min(...dates.map(Number)), Math.max(...dates.map(Number))],
+    range: [0, innerWidth]
+  });
+  const yScale = scaleLinear6({
+    domain: [minVal, maxVal * 1.1],
+    range: [innerHeight, 0],
+    nice: true
+  });
+  return { xScale, yScale };
+}
+
+// src/DATADISPLAY/Charts/Threshold/Threshold.hooks.ts
+import { useMemo as useMemo38, useCallback as useCallback49 } from "react";
+function useThresholdAccessors(getDate, getValue0, getValue1) {
+  return useMemo38(() => ({
+    getDate: getDate ?? defaultGetDate3,
+    getValue0: getValue0 ?? defaultGetValue0,
+    getValue1: getValue1 ?? defaultGetValue1
+  }), [getDate, getValue0, getValue1]);
+}
+function useThresholdScales(data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain) {
+  return useMemo38(
+    () => buildThresholdScales(data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain),
+    [data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain]
+  );
+}
+function useThresholdColors(aboveColor, belowColor, colorScheme) {
+  return useMemo38(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return {
+      above: aboveColor ?? palette[0],
+      below: belowColor ?? palette[1],
+      line0: aboveColor ?? palette[0],
+      line1: belowColor ?? palette[1]
+    };
+  }, [aboveColor, belowColor, colorScheme]);
+}
+function useThresholdInteraction(onHover) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback49((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback49(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  return { hoveredIndex, handleEnter, handleLeave };
+}
+
+// src/DATADISPLAY/Charts/Threshold/ThresholdInner.tsx
+import { Fragment as Fragment14, jsx as jsx109, jsxs as jsxs74 } from "react/jsx-runtime";
+var ThresholdInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = THRESHOLD_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getDate: gD,
+    getValue0: gV0,
+    getValue1: gV1,
+    label0 = "Series A",
+    label1 = "Series B",
+    aboveColor,
+    belowColor,
+    fillOpacity = THRESHOLD_DEFAULTS.fillOpacity,
+    curved = THRESHOLD_DEFAULTS.curved,
+    strokeWidth = THRESHOLD_DEFAULTS.strokeWidth,
+    showXAxis = THRESHOLD_DEFAULTS.showXAxis,
+    showYAxis = THRESHOLD_DEFAULTS.showYAxis,
+    showGrid = THRESHOLD_DEFAULTS.showGrid,
+    showTooltip = THRESHOLD_DEFAULTS.showTooltip,
+    showLegend = THRESHOLD_DEFAULTS.showLegend,
+    yDomain,
+    formatY,
+    onHover,
+    highlightIndex = null
+  } = props;
+  const { getDate, getValue0, getValue1 } = useThresholdAccessors(gD, gV0, gV1);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useThresholdScales(data, dims.innerWidth, dims.innerHeight, getDate, getValue0, getValue1, yDomain);
+  const colors = useThresholdColors(aboveColor, belowColor, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave } = useThresholdInteraction(onHover);
+  const classes = useMemo39(() => buildThresholdClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const curve = curved ? curveMonotoneX5 : curveLinear5;
+  const legendItems = useMemo39(() => [
+    { id: "above", label: `${label0} > ${label1}`, color: colors.above },
+    { id: "below", label: `${label1} > ${label0}`, color: colors.below }
+  ], [label0, label1, colors]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx109("div", { className: classes, children: /* @__PURE__ */ jsx109("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty threshold chart" }) });
+  }
+  const mutableData = [...data];
+  const thresholdId = `threshold-${bindId ?? "default"}-${width}`;
+  return /* @__PURE__ */ jsxs74("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx109(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx109(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs74("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs74("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Threshold chart", children: [
+        description && /* @__PURE__ */ jsx109("desc", { children: description }),
+        /* @__PURE__ */ jsxs74(Group12, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx109(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ jsx109(
+            VisxThreshold,
+            {
+              id: thresholdId,
+              data: mutableData,
+              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+              y0: (d) => yScale(getValue0(d)) ?? 0,
+              y1: (d) => yScale(getValue1(d)) ?? 0,
+              clipAboveTo: 0,
+              clipBelowTo: dims.innerHeight,
+              curve,
+              aboveAreaProps: { fill: colors.above, fillOpacity },
+              belowAreaProps: { fill: colors.below, fillOpacity }
+            }
+          ),
+          /* @__PURE__ */ jsx109(
+            LinePath4,
+            {
+              data: mutableData,
+              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+              y: (d) => yScale(getValue0(d)) ?? 0,
+              stroke: colors.line0,
+              strokeWidth,
+              curve
+            }
+          ),
+          /* @__PURE__ */ jsx109(
+            LinePath4,
+            {
+              data: mutableData,
+              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+              y: (d) => yScale(getValue1(d)) ?? 0,
+              stroke: colors.line1,
+              strokeWidth,
+              strokeDasharray: "4,2",
+              curve
+            }
+          ),
+          data.map((d, i) => {
+            const cx = xScale(toDate5(getDate(d))) ?? 0;
+            const midY = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
+            return /* @__PURE__ */ jsx109(
+              "circle",
+              {
+                cx,
+                cy: midY,
+                r: 8,
+                fill: "transparent",
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                style: { cursor: "default" }
+              },
+              i
+            );
+          }),
+          hoveredIndex != null && (() => {
+            const d = data[hoveredIndex];
+            const cx = xScale(toDate5(getDate(d))) ?? 0;
+            return /* @__PURE__ */ jsxs74(Fragment14, { children: [
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue0(d)), r: 4, fill: colors.line0, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" }),
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue1(d)), r: 4, fill: colors.line1, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" })
+            ] });
+          })(),
+          highlightIndex != null && highlightIndex < data.length && (() => {
+            const d = data[highlightIndex];
+            const cx = xScale(toDate5(getDate(d))) ?? 0;
+            const cy = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
+            const hlColor = colors.above ?? "var(--w3f-primary)";
+            return /* @__PURE__ */ jsxs74("g", { pointerEvents: "none", children: [
+              /* @__PURE__ */ jsx109("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: hlColor, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue0(d)), r: 12, fill: colors.line0, opacity: 0.2 }),
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue0(d)), r: 6, fill: colors.line0, stroke: "#fff", strokeWidth: 2.5 }),
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue1(d)), r: 12, fill: colors.line1, opacity: 0.2 }),
+              /* @__PURE__ */ jsx109("circle", { cx, cy: yScale(getValue1(d)), r: 6, fill: colors.line1, stroke: "#fff", strokeWidth: 2.5 })
+            ] });
+          })(),
+          showXAxis && /* @__PURE__ */ jsx109(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx109(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        const date = toDate5(getDate(d));
+        const v0 = getValue0(d);
+        const v1 = getValue1(d);
+        const cx = (xScale(date) ?? 0) + dims.margin.left;
+        const cy = (yScale(v0) + yScale(v1)) / 2 + dims.margin.top;
+        return /* @__PURE__ */ jsx109(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}
+${label0}: ${v0.toLocaleString()}
+${label1}: ${v1.toLocaleString()}` });
+      })()
+    ] })
+  ] });
+};
+ThresholdInner.displayName = "ThresholdInner";
+
+// src/DATADISPLAY/Charts/Threshold/Threshold.tsx
+import { jsx as jsx110 } from "react/jsx-runtime";
+var Threshold = React88.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef39(null);
+    const { width, height } = useChartDimensions(
+      containerRef,
+      pw,
+      ph,
+      DEFAULT_CHART_WIDTH,
+      DEFAULT_CHART_HEIGHT
+    );
+    return /* @__PURE__ */ jsx110("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx110("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx110(ThresholdInner, { ...rest, width, height }) }) });
+  }
+);
+Threshold.displayName = "Threshold";
+
+// src/DATADISPLAY/Charts/Streamgraph/Streamgraph.tsx
+import React90, { useRef as useRef40 } from "react";
+
+// src/DATADISPLAY/Charts/Streamgraph/StreamgraphInner.tsx
+import { useMemo as useMemo41 } from "react";
+import { Group as Group13 } from "@visx/group";
+import { Area as Area3 } from "@visx/shape";
+import { curveLinear as curveLinear6, curveBasis } from "@visx/curve";
+
+// src/DATADISPLAY/Charts/Streamgraph/Streamgraph.constants.ts
+var STREAMGRAPH_ROOT_CLASS = "w3f-chart-streamgraph";
+var STREAMGRAPH_DEFAULTS = {
+  curved: true,
+  fillOpacity: 0.8,
+  showXAxis: true,
+  showLegend: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Streamgraph/Streamgraph.utils.ts
+function buildStreamgraphClasses(className, unstyled) {
+  return buildChartRootClasses(STREAMGRAPH_ROOT_CLASS, className, unstyled);
+}
+function toDate6(v) {
+  return v instanceof Date ? v : new Date(v);
+}
+function computeStreamLayers(data, keys) {
+  if (data.length === 0 || keys.length === 0) return { dates: [], layers: [] };
+  const seriesMap = /* @__PURE__ */ new Map();
+  for (const s of data) seriesMap.set(s.id, s.data);
+  const firstSeries = seriesMap.get(keys[0]);
+  if (!firstSeries || firstSeries.length === 0) return { dates: [], layers: [] };
+  const dates = firstSeries.map((pt) => toDate6(pt.date));
+  const numDates = dates.length;
+  const matrix = keys.map((key) => {
+    const series = seriesMap.get(key);
+    if (!series) return new Array(numDates).fill(0);
+    return series.map((pt) => pt.value);
+  });
+  const layers = keys.map((key) => ({
+    key,
+    points: []
+  }));
+  for (let di = 0; di < numDates; di++) {
+    let total = 0;
+    for (let ki = 0; ki < keys.length; ki++) total += matrix[ki][di];
+    let y0 = -total / 2;
+    for (let ki = 0; ki < keys.length; ki++) {
+      const value = matrix[ki][di];
+      const y1 = y0 + value;
+      layers[ki].points.push({ date: dates[di], y0, y1, value });
+      y0 = y1;
+    }
+  }
+  return { dates, layers };
+}
+
+// src/DATADISPLAY/Charts/Streamgraph/Streamgraph.hooks.ts
+import { useMemo as useMemo40, useCallback as useCallback50, useState as useState54 } from "react";
+import { scaleTime as scaleTime6, scaleLinear as scaleLinear7 } from "@visx/scale";
+function useStreamScales(layers, dates, innerWidth, innerHeight) {
+  return useMemo40(() => {
+    if (dates.length === 0 || layers.length === 0) {
+      return {
+        xScale: scaleTime6({ domain: [/* @__PURE__ */ new Date(), /* @__PURE__ */ new Date()], range: [0, innerWidth] }),
+        yScale: scaleLinear7({ domain: [0, 1], range: [innerHeight, 0] })
+      };
+    }
+    let yMin = 0;
+    let yMax = 0;
+    for (const layer of layers) {
+      for (const pt of layer.points) {
+        if (pt.y0 < yMin) yMin = pt.y0;
+        if (pt.y1 > yMax) yMax = pt.y1;
+      }
+    }
+    const xScale = scaleTime6({
+      domain: [dates[0], dates[dates.length - 1]],
+      range: [0, innerWidth]
+    });
+    const yScale = scaleLinear7({
+      domain: [yMin, yMax],
+      range: [innerHeight, 0]
+    });
+    return { xScale, yScale };
+  }, [layers, dates, innerWidth, innerHeight]);
+}
+function useStreamColors(keys, colorScheme) {
+  return useColorScale(keys, colorScheme);
+}
+function useStreamHover(onHover) {
+  const [hovered, setHovered] = useState54(null);
+  const enter = useCallback50((id) => {
+    setHovered(id);
+    onHover?.(id);
+  }, [onHover]);
+  const leave = useCallback50(() => {
+    setHovered(null);
+    onHover?.(null);
+  }, [onHover]);
+  return { hovered, enter, leave };
+}
+
+// src/DATADISPLAY/Charts/Streamgraph/StreamgraphInner.tsx
+import { jsx as jsx111, jsxs as jsxs75 } from "react/jsx-runtime";
+var StreamgraphInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    keys,
+    unstyled = STREAMGRAPH_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    curved = STREAMGRAPH_DEFAULTS.curved,
+    fillOpacity = STREAMGRAPH_DEFAULTS.fillOpacity,
+    showXAxis = STREAMGRAPH_DEFAULTS.showXAxis,
+    showLegend = STREAMGRAPH_DEFAULTS.showLegend,
+    highlightSeriesId = null,
+    onHover
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const { dates, layers } = useMemo41(() => computeStreamLayers(data, keys), [data, keys]);
+  const { xScale, yScale } = useStreamScales(layers, dates, dims.innerWidth, dims.innerHeight);
+  const colorMap = useStreamColors(keys, colorScheme);
+  const { hovered, enter, leave } = useStreamHover(onHover);
+  const classes = useMemo41(() => buildStreamgraphClasses(className, unstyled), [className, unstyled]);
+  const curve = curved ? curveBasis : curveLinear6;
+  const legendItems = useMemo41(
+    () => keys.map((k) => ({ id: k, label: data.find((s) => s.id === k)?.label ?? k, color: colorMap(k) })),
+    [keys, data, colorMap]
+  );
+  if (layers.length === 0) {
+    return /* @__PURE__ */ jsx111("div", { className: classes, children: /* @__PURE__ */ jsx111("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty streamgraph" }) });
+  }
+  return /* @__PURE__ */ jsxs75("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx111(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx111(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsx111("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs75("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Streamgraph", children: [
+      description && /* @__PURE__ */ jsx111("desc", { children: description }),
+      /* @__PURE__ */ jsxs75(Group13, { top: dims.margin.top, left: dims.margin.left, children: [
+        layers.map((layer) => {
+          const active = highlightSeriesId ?? hovered;
+          const isDimmed = active != null && active !== layer.key;
+          return /* @__PURE__ */ jsx111(
+            Area3,
+            {
+              data: layer.points,
+              x: (d) => xScale(d.date) ?? 0,
+              y0: (d) => yScale(d.y0) ?? 0,
+              y1: (d) => yScale(d.y1) ?? 0,
+              curve,
+              children: ({ path }) => /* @__PURE__ */ jsx111(
+                "path",
+                {
+                  d: path([...layer.points]) ?? "",
+                  fill: colorMap(layer.key),
+                  fillOpacity: isDimmed ? 0.15 : fillOpacity,
+                  stroke: colorMap(layer.key),
+                  strokeWidth: 0.5,
+                  onMouseEnter: () => enter(layer.key),
+                  onMouseLeave: leave,
+                  style: { cursor: "pointer", transition: "fill-opacity 120ms" }
+                }
+              )
+            },
+            layer.key
+          );
+        }),
+        showXAxis && /* @__PURE__ */ jsx111(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
+      ] })
+    ] }) })
+  ] });
+};
+StreamgraphInner.displayName = "StreamgraphInner";
+
+// src/DATADISPLAY/Charts/Streamgraph/Streamgraph.tsx
+import { jsx as jsx112 } from "react/jsx-runtime";
+var Streamgraph = React90.forwardRef(
+  ({ width: pw, height: ph, ...rest }, ref) => {
+    const containerRef = useRef40(null);
+    const { width, height } = useChartDimensions(
+      containerRef,
+      pw,
+      ph,
+      DEFAULT_CHART_WIDTH,
+      DEFAULT_CHART_HEIGHT
+    );
+    return /* @__PURE__ */ jsx112("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx112("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx112(StreamgraphInner, { ...rest, width, height }) }) });
+  }
+);
+Streamgraph.displayName = "Streamgraph";
+
+// src/DATADISPLAY/Charts/Scatter/Scatter.tsx
+import React92, { useRef as useRef41 } from "react";
+
+// src/DATADISPLAY/Charts/Scatter/ScatterInner.tsx
+import { useMemo as useMemo43 } from "react";
+import { Group as Group14 } from "@visx/group";
+import { Circle as Circle2 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/Scatter/Scatter.constants.ts
+var SCATTER_ROOT_CLASS = "w3f-chart-scatter";
+var SCATTER_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  pointRadius: 5,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Scatter/Scatter.utils.ts
+function buildScatterClasses(className, unstyled) {
+  return buildChartRootClasses(SCATTER_ROOT_CLASS, className, unstyled);
+}
+function buildScatterScales(data, innerWidth, innerHeight, getX, getY, xDomain, yDomain) {
+  const xs = data.map(getX);
+  const ys = data.map(getY);
+  const [xMin, xMax] = xDomain ?? safeExtent(xs);
+  const [yMin, yMax] = yDomain ?? safeExtent(ys);
+  const xScale = buildLinearScale(xMin, xMax, [0, innerWidth]);
+  const yScale = buildLinearScale(yMin, yMax, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+var defaultGetX = (d) => d.x;
+var defaultGetY = (d) => d.y;
+var defaultGetR = (d) => d.r ?? 5;
+var defaultGetLabel7 = (d) => d.label ?? "";
+function buildTooltipContent3(datum, getX, getY) {
+  const label = datum.label ? `${datum.label}: ` : "";
+  return `${label}(${getX(datum).toLocaleString()}, ${getY(datum).toLocaleString()})`;
+}
+
+// src/DATADISPLAY/Charts/Scatter/Scatter.hooks.ts
+import { useMemo as useMemo42, useCallback as useCallback51 } from "react";
+function useScatterAccessors(getX, getY, getR, getLabel) {
+  return useMemo42(() => ({
+    getX: getX ?? defaultGetX,
+    getY: getY ?? defaultGetY,
+    getR: getR ?? defaultGetR,
+    getLabel: getLabel ?? defaultGetLabel7
+  }), [getX, getY, getR, getLabel]);
+}
+function useScatterScales(data, innerWidth, innerHeight, getX, getY, xDomain, yDomain) {
+  return useMemo42(
+    () => buildScatterScales(data, innerWidth, innerHeight, getX, getY, xDomain, yDomain),
+    [data, innerWidth, innerHeight, getX, getY, xDomain, yDomain]
+  );
+}
+function useScatterColors(data, colorScheme) {
+  return useMemo42(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useScatterInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback51(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback51(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback51(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Scatter/ScatterInner.tsx
+import { jsx as jsx113, jsxs as jsxs76 } from "react/jsx-runtime";
+var ScatterInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = SCATTER_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getX: getXProp,
+    getY: getYProp,
+    getR: getRProp,
+    getLabel: getLabelProp,
+    showXAxis = SCATTER_DEFAULTS.showXAxis,
+    showYAxis = SCATTER_DEFAULTS.showYAxis,
+    showGrid = SCATTER_DEFAULTS.showGrid,
+    showTooltip = SCATTER_DEFAULTS.showTooltip,
+    pointRadius = SCATTER_DEFAULTS.pointRadius,
+    xDomain,
+    yDomain,
+    formatX,
+    formatY,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const { getX, getY, getR, getLabel } = useScatterAccessors(getXProp, getYProp, getRProp, getLabelProp);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useScatterScales(data, dims.innerWidth, dims.innerHeight, getX, getY, xDomain, yDomain);
+  const colors = useScatterColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useScatterInteraction(onHover, onSelect);
+  const classes = useMemo43(() => buildScatterClasses(className, unstyled), [className, unstyled]);
+  const xTickFormat = formatX ?? formatTick;
+  const yTickFormat = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx113("div", { className: classes, children: /* @__PURE__ */ jsx113("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty scatter chart" }) });
+  }
+  return /* @__PURE__ */ jsxs76("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx113(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs76("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs76("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Scatter chart", children: [
+        description && /* @__PURE__ */ jsx113("desc", { children: description }),
+        /* @__PURE__ */ jsxs76(Group14, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx113(
+            ChartGrid,
+            {
+              xScale,
+              yScale,
+              width: dims.innerWidth,
+              height: dims.innerHeight,
+              axis: "both"
+            }
+          ),
+          data.map((d, i) => {
+            const cx = xScale(getX(d)) ?? 0;
+            const cy = yScale(getY(d)) ?? 0;
+            const r = getR(d) ?? pointRadius;
+            return /* @__PURE__ */ jsx113(
+              Circle2,
+              {
+                cx,
+                cy,
+                r,
+                fill: colors[i],
+                opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.4 : 0.8,
+                stroke: highlightIndex === i ? "#fff" : void 0,
+                strokeWidth: highlightIndex === i ? 2 : void 0,
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+              },
+              i
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx113(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ jsx113(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx113(
+        ChartTooltip,
+        {
+          left: (xScale(getX(data[hoveredIndex])) ?? 0) + dims.margin.left,
+          top: (yScale(getY(data[hoveredIndex])) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -12,
+          children: buildTooltipContent3(data[hoveredIndex], getX, getY)
+        }
+      )
+    ] })
+  ] });
+};
+ScatterInner.displayName = "ScatterInner";
+
+// src/DATADISPLAY/Charts/Scatter/Scatter.tsx
+import { jsx as jsx114 } from "react/jsx-runtime";
+var Scatter = React92.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef41(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx114("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx114("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx114(ScatterInner, { ...rest, width, height }) }) });
+  }
+);
+Scatter.displayName = "Scatter";
+
+// src/DATADISPLAY/Charts/Bubble/Bubble.tsx
+import React94, { useRef as useRef42 } from "react";
+
+// src/DATADISPLAY/Charts/Bubble/BubbleInner.tsx
+import { useMemo as useMemo45 } from "react";
+import { Group as Group15 } from "@visx/group";
+import { Circle as Circle3 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/Bubble/Bubble.constants.ts
+var BUBBLE_ROOT_CLASS = "w3f-chart-bubble";
+var BUBBLE_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  minRadius: 4,
+  maxRadius: 30,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Bubble/Bubble.utils.ts
+import { scaleLinear as scaleLinear8 } from "@visx/scale";
+function buildBubbleClasses(className, unstyled) {
+  return buildChartRootClasses(BUBBLE_ROOT_CLASS, className, unstyled);
+}
+function buildBubbleScales(data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain) {
+  const xs = data.map(getX);
+  const ys = data.map(getY);
+  const rs = data.map(getR);
+  const [xMin, xMax] = xDomain ?? safeExtent(xs);
+  const [yMin, yMax] = yDomain ?? safeExtent(ys);
+  const [rMin, rMax] = safeExtent(rs);
+  const xScale = buildLinearScale(xMin, xMax, [0, innerWidth]);
+  const yScale = buildLinearScale(yMin, yMax, [innerHeight, 0]);
+  const rScale = scaleLinear8({ domain: [rMin, rMax], range: [minRadius, maxRadius] });
+  return { xScale, yScale, rScale };
+}
+var defaultGetX2 = (d) => d.x;
+var defaultGetY2 = (d) => d.y;
+var defaultGetR2 = (d) => d.r ?? 10;
+var defaultGetLabel8 = (d) => d.label ?? "";
+function buildTooltipContent4(datum, getX, getY, getR) {
+  const label = datum.label ? `${datum.label}: ` : "";
+  return `${label}(${getX(datum)}, ${getY(datum)}) r=${getR(datum)}`;
+}
+
+// src/DATADISPLAY/Charts/Bubble/Bubble.hooks.ts
+import { useMemo as useMemo44, useCallback as useCallback52 } from "react";
+function useBubbleAccessors(getX, getY, getR, getLabel) {
+  return useMemo44(() => ({
+    getX: getX ?? defaultGetX2,
+    getY: getY ?? defaultGetY2,
+    getR: getR ?? defaultGetR2,
+    getLabel: getLabel ?? defaultGetLabel8
+  }), [getX, getY, getR, getLabel]);
+}
+function useBubbleScales(data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain) {
+  return useMemo44(
+    () => buildBubbleScales(data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain),
+    [data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain]
+  );
+}
+function useBubbleColors(data, colorScheme) {
+  return useMemo44(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useBubbleInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback52((datum, index) => {
+    enter(index);
+    onHover?.(datum, index);
+  }, [enter, onHover]);
+  const handleLeave = useCallback52(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback52((datum, index) => {
+    onSelect?.(datum, index);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Bubble/BubbleInner.tsx
+import { jsx as jsx115, jsxs as jsxs77 } from "react/jsx-runtime";
+var BubbleInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = BUBBLE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getX: gxp,
+    getY: gyp,
+    getR: grp,
+    getLabel: glp,
+    showXAxis = BUBBLE_DEFAULTS.showXAxis,
+    showYAxis = BUBBLE_DEFAULTS.showYAxis,
+    showGrid = BUBBLE_DEFAULTS.showGrid,
+    showTooltip = BUBBLE_DEFAULTS.showTooltip,
+    minRadius = BUBBLE_DEFAULTS.minRadius,
+    maxRadius = BUBBLE_DEFAULTS.maxRadius,
+    xDomain,
+    yDomain,
+    formatX,
+    formatY,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const { getX, getY, getR, getLabel } = useBubbleAccessors(gxp, gyp, grp, glp);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale, rScale } = useBubbleScales(data, dims.innerWidth, dims.innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain);
+  const colors = useBubbleColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBubbleInteraction(onHover, onSelect);
+  const classes = useMemo45(() => buildBubbleClasses(className, unstyled), [className, unstyled]);
+  const xf = formatX ?? formatTick;
+  const yf = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx115("div", { className: classes, children: /* @__PURE__ */ jsx115("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bubble chart" }) });
+  }
+  return /* @__PURE__ */ jsxs77("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx115(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs77("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs77("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Bubble chart", children: [
+        description && /* @__PURE__ */ jsx115("desc", { children: description }),
+        /* @__PURE__ */ jsxs77(Group15, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx115(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "both" }),
+          data.map((d, i) => /* @__PURE__ */ jsx115(
+            Circle3,
+            {
+              cx: xScale(getX(d)) ?? 0,
+              cy: yScale(getY(d)) ?? 0,
+              r: rScale(getR(d)),
+              fill: colors[i],
+              fillOpacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.3 : 0.6,
+              stroke: highlightIndex === i ? "#fff" : colors[i],
+              strokeWidth: highlightIndex === i ? 2 : 1.5,
+              onMouseEnter: () => handleEnter(d, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(d, i) : void 0,
+              style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : void 0, transition: "fill-opacity 120ms ease-out" }
+            },
+            i
+          )),
+          showXAxis && /* @__PURE__ */ jsx115(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showYAxis && /* @__PURE__ */ jsx115(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx115(
+        ChartTooltip,
+        {
+          left: (xScale(getX(data[hoveredIndex])) ?? 0) + dims.margin.left,
+          top: (yScale(getY(data[hoveredIndex])) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -12,
+          children: buildTooltipContent4(data[hoveredIndex], getX, getY, getR)
+        }
+      )
+    ] })
+  ] });
+};
+BubbleInner.displayName = "BubbleInner";
+
+// src/DATADISPLAY/Charts/Bubble/Bubble.tsx
+import { jsx as jsx116 } from "react/jsx-runtime";
+var Bubble = React94.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef42(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx116("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx116("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx116(BubbleInner, { ...rest, width, height }) }) });
+  }
+);
+Bubble.displayName = "Bubble";
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlot.tsx
+import React96, { useRef as useRef43 } from "react";
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlotInner.tsx
+import { useMemo as useMemo47 } from "react";
+import { Group as Group16 } from "@visx/group";
+import { Circle as Circle4 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlot.constants.ts
+var DOTPLOT_ROOT_CLASS = "w3f-chart-dotplot";
+var DOTPLOT_DEFAULTS = {
+  showXAxis: true,
+  showCategoryLabels: true,
+  showGrid: true,
+  showTooltip: true,
+  pointRadius: 5,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlot.utils.ts
+function buildDotPlotClasses(className, unstyled) {
+  return buildChartRootClasses(DOTPLOT_ROOT_CLASS, className, unstyled);
+}
+function buildDotPlotScales(data, categories, innerWidth, innerHeight, getX, xDomain) {
+  const xs = data.map(getX);
+  const [xMin, xMax] = xDomain ?? safeExtent(xs);
+  const xScale = buildLinearScale(xMin, xMax, [0, innerWidth], { padding: 0.05 });
+  const yScale = buildBandScale(categories, [0, innerHeight], 0.3);
+  return { xScale, yScale };
+}
+var defaultGetX3 = (d) => d.x;
+var defaultGetCategory = (d) => d.y;
+function buildTooltipContent5(datum, getX, category) {
+  return `${category}: ${getX(datum).toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlot.hooks.ts
+import { useMemo as useMemo46, useCallback as useCallback53 } from "react";
+function useDotPlotAccessors(getX, getCategory) {
+  return useMemo46(() => ({
+    getX: getX ?? defaultGetX3,
+    getCategory: getCategory ?? defaultGetCategory
+  }), [getX, getCategory]);
+}
+function useDotPlotScales(data, categories, innerWidth, innerHeight, getX, xDomain) {
+  return useMemo46(
+    () => buildDotPlotScales(data, categories, innerWidth, innerHeight, getX, xDomain),
+    [data, categories, innerWidth, innerHeight, getX, xDomain]
+  );
+}
+function useDotPlotColors(categories, colorScheme) {
+  return useMemo46(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return categories.map((_, i) => palette[i % palette.length]);
+  }, [categories, colorScheme]);
+}
+function useDotPlotInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback53((datum, index) => {
+    enter(index);
+    onHover?.(datum, index);
+  }, [enter, onHover]);
+  const handleLeave = useCallback53(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback53((datum, index) => {
+    onSelect?.(datum, index);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlotInner.tsx
+import { jsx as jsx117, jsxs as jsxs78 } from "react/jsx-runtime";
+var DotPlotInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    categories,
+    unstyled = DOTPLOT_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getX: gxp,
+    getCategory: gcp,
+    showXAxis = DOTPLOT_DEFAULTS.showXAxis,
+    showCategoryLabels = DOTPLOT_DEFAULTS.showCategoryLabels,
+    showGrid = DOTPLOT_DEFAULTS.showGrid,
+    showTooltip = DOTPLOT_DEFAULTS.showTooltip,
+    pointRadius = DOTPLOT_DEFAULTS.pointRadius,
+    xDomain,
+    formatX,
+    onHover,
+    onSelect
+  } = props;
+  const { getX, getCategory } = useDotPlotAccessors(gxp, gcp);
+  const dims = useInnerDims(width, height, margin ?? { top: 20, right: 20, bottom: 40, left: 80 });
+  const { xScale, yScale } = useDotPlotScales(data, categories, dims.innerWidth, dims.innerHeight, getX, xDomain);
+  const categoryColors = useDotPlotColors(categories, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useDotPlotInteraction(onHover, onSelect);
+  const classes = useMemo47(() => buildDotPlotClasses(className, unstyled), [className, unstyled]);
+  const xf = formatX ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx117("div", { className: classes, children: /* @__PURE__ */ jsx117("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty dot plot" }) });
+  }
+  return /* @__PURE__ */ jsxs78("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx117(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs78("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs78("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Dot plot", children: [
+        description && /* @__PURE__ */ jsx117("desc", { children: description }),
+        /* @__PURE__ */ jsxs78(Group16, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx117(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+          data.map((d, i) => {
+            const catIdx = getCategory(d);
+            const catName = categories[catIdx] ?? "";
+            const cx = xScale(getX(d)) ?? 0;
+            const cy = (yScale(catName) ?? 0) + yScale.bandwidth() / 2;
+            return /* @__PURE__ */ jsx117(
+              Circle4,
+              {
+                cx,
+                cy,
+                r: pointRadius,
+                fill: categoryColors[catIdx % categoryColors.length],
+                opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 0.8,
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+              },
+              i
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx117(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showCategoryLabels && categories.map((cat) => /* @__PURE__ */ jsx117(
+            "text",
+            {
+              x: -8,
+              y: (yScale(cat) ?? 0) + yScale.bandwidth() / 2,
+              textAnchor: "end",
+              dominantBaseline: "central",
+              fontSize: 11,
+              fill: "var(--w3f-chart-axis-tick-label-color, #64748b)",
+              children: cat
+            },
+            cat
+          ))
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        const catIdx = getCategory(d);
+        const catName = categories[catIdx] ?? "";
+        return /* @__PURE__ */ jsx117(
+          ChartTooltip,
+          {
+            left: (xScale(getX(d)) ?? 0) + dims.margin.left,
+            top: (yScale(catName) ?? 0) + yScale.bandwidth() / 2 + dims.margin.top,
+            visible: true,
+            offsetY: -12,
+            children: buildTooltipContent5(d, getX, catName)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+DotPlotInner.displayName = "DotPlotInner";
+
+// src/DATADISPLAY/Charts/DotPlot/DotPlot.tsx
+import { jsx as jsx118 } from "react/jsx-runtime";
+var DotPlot = React96.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef43(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx118("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx118("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx118(DotPlotInner, { ...rest, width, height }) }) });
+  }
+);
+DotPlot.displayName = "DotPlot";
+
+// src/DATADISPLAY/Charts/Heatmap/Heatmap.tsx
+import React98, { useRef as useRef44 } from "react";
+
+// src/DATADISPLAY/Charts/Heatmap/HeatmapInner.tsx
+import { useMemo as useMemo49 } from "react";
+import { Group as Group17 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/Heatmap/Heatmap.constants.ts
+var HEATMAP_ROOT_CLASS = "w3f-chart-heatmap";
+var HEATMAP_DEFAULTS = {
+  showRowLabels: true,
+  showColLabels: true,
+  cellRadius: 2,
+  colors: ["#e0e7ff", "#6366f1"],
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Heatmap/Heatmap.utils.ts
+import { scaleBand as scaleBand4, scaleLinear as scaleLinear9 } from "@visx/scale";
+function buildHeatmapClasses(className, unstyled) {
+  return buildChartRootClasses(HEATMAP_ROOT_CLASS, className, unstyled);
+}
+function extractAxes(data, getRow, getCol) {
+  const rowSet = /* @__PURE__ */ new Set();
+  const colSet = /* @__PURE__ */ new Set();
+  for (const d of data) {
+    rowSet.add(String(getRow(d)));
+    colSet.add(String(getCol(d)));
+  }
+  return { rows: [...rowSet], cols: [...colSet] };
+}
+function buildHeatmapScales(rows, cols, data, getValue2, innerWidth, innerHeight, colorRange) {
+  const xScale = scaleBand4({ domain: [...cols], range: [0, innerWidth], padding: 0.05 });
+  const yScale = scaleBand4({ domain: [...rows], range: [0, innerHeight], padding: 0.05 });
+  const values = data.map(getValue2);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const colorScale = scaleLinear9({
+    domain: [min, max],
+    range: colorRange
+  });
+  return { xScale, yScale, colorScale };
+}
+function lookupValue(data, row, col, getRow, getCol, getValue2) {
+  const d = data.find((item) => String(getRow(item)) === row && String(getCol(item)) === col);
+  return d ? getValue2(d) : void 0;
+}
+var defaultGetRow = (d) => d.row;
+var defaultGetCol = (d) => d.col;
+var defaultGetValue5 = (d) => d.value;
+function buildTooltipContent6(row, col, value) {
+  return `${row} \xD7 ${col}: ${value.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Heatmap/Heatmap.hooks.ts
+import { useMemo as useMemo48, useCallback as useCallback54 } from "react";
+function useHeatmapAccessors(getRow, getCol, getValue2) {
+  return useMemo48(() => ({
+    getRow: getRow ?? defaultGetRow,
+    getCol: getCol ?? defaultGetCol,
+    getValue: getValue2 ?? defaultGetValue5
+  }), [getRow, getCol, getValue2]);
+}
+function useHeatmapAxes(data, getRow, getCol) {
+  return useMemo48(() => extractAxes(data, getRow, getCol), [data, getRow, getCol]);
+}
+function useHeatmapScales(rows, cols, data, getValue2, innerWidth, innerHeight, colorRange) {
+  return useMemo48(
+    () => buildHeatmapScales(rows, cols, data, getValue2, innerWidth, innerHeight, colorRange),
+    [rows, cols, data, getValue2, innerWidth, innerHeight, colorRange]
+  );
+}
+function useHeatmapInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback54(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback54(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback54(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Heatmap/HeatmapInner.tsx
+import { jsx as jsx119, jsxs as jsxs79 } from "react/jsx-runtime";
+var HeatmapInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = HEATMAP_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    getRow: getRowProp,
+    getCol: getColProp,
+    getValue: getValueProp,
+    showRowLabels = HEATMAP_DEFAULTS.showRowLabels,
+    showColLabels = HEATMAP_DEFAULTS.showColLabels,
+    cellRadius = HEATMAP_DEFAULTS.cellRadius,
+    colors = HEATMAP_DEFAULTS.colors,
+    onHover,
+    onSelect
+  } = props;
+  const { getRow, getCol, getValue: getValue2 } = useHeatmapAccessors(getRowProp, getColProp, getValueProp);
+  const dims = useInnerDims(width, height, margin ?? { top: 10, right: 10, bottom: 40, left: 60 });
+  const { rows, cols } = useHeatmapAxes(data, getRow, getCol);
+  const { xScale, yScale, colorScale } = useHeatmapScales(rows, cols, data, getValue2, dims.innerWidth, dims.innerHeight, colors);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useHeatmapInteraction(onHover, onSelect);
+  const classes = useMemo49(() => buildHeatmapClasses(className, unstyled), [className, unstyled]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx119("div", { className: classes, children: /* @__PURE__ */ jsx119("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty heatmap" }) });
+  }
+  const cellWidth = xScale.bandwidth();
+  const cellHeight = yScale.bandwidth();
+  const cells = useMemo49(() => {
+    const result = [];
+    for (const row of rows) {
+      for (const col of cols) {
+        const val = lookupValue(data, row, col, getRow, getCol, getValue2);
+        if (val != null) {
+          const datum = data.find((d) => String(getRow(d)) === row && String(getCol(d)) === col);
+          result.push({ row, col, datum, value: val });
+        }
+      }
+    }
+    return result;
+  }, [data, rows, cols, getRow, getCol, getValue2]);
+  return /* @__PURE__ */ jsxs79("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx119(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs79("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs79("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Heatmap", children: [
+        description && /* @__PURE__ */ jsx119("desc", { children: description }),
+        /* @__PURE__ */ jsxs79(Group17, { top: dims.margin.top, left: dims.margin.left, children: [
+          cells.map((cell, i) => /* @__PURE__ */ jsx119(
+            "rect",
+            {
+              x: xScale(cell.col) ?? 0,
+              y: yScale(cell.row) ?? 0,
+              width: cellWidth,
+              height: cellHeight,
+              rx: cellRadius,
+              fill: String(colorScale(cell.value)),
+              opacity: hoveredIndex != null && hoveredIndex !== i ? 0.6 : 1,
+              onMouseEnter: () => handleEnter(cell.datum, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(cell.datum, i) : void 0,
+              style: { cursor: onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+            },
+            `${cell.row}-${cell.col}`
+          )),
+          showRowLabels && rows.map((row) => /* @__PURE__ */ jsx119(
+            "text",
+            {
+              x: -6,
+              y: (yScale(row) ?? 0) + cellHeight / 2,
+              textAnchor: "end",
+              dominantBaseline: "central",
+              fontSize: 11,
+              fill: "var(--w3f-chart-axis-tick-label-color, #64748b)",
+              children: row
+            },
+            `row-${row}`
+          )),
+          showColLabels && cols.map((col) => /* @__PURE__ */ jsx119(
+            "text",
+            {
+              x: (xScale(col) ?? 0) + cellWidth / 2,
+              y: dims.innerHeight + 16,
+              textAnchor: "middle",
+              fontSize: 11,
+              fill: "var(--w3f-chart-axis-tick-label-color, #64748b)",
+              children: col
+            },
+            `col-${col}`
+          ))
+        ] })
+      ] }),
+      showColLabels && hoveredIndex != null && /* @__PURE__ */ jsx119(
+        ChartTooltip,
+        {
+          left: (xScale(cells[hoveredIndex].col) ?? 0) + cellWidth / 2 + dims.margin.left,
+          top: (yScale(cells[hoveredIndex].row) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -8,
+          children: buildTooltipContent6(cells[hoveredIndex].row, cells[hoveredIndex].col, cells[hoveredIndex].value)
+        }
+      )
+    ] })
+  ] });
+};
+HeatmapInner.displayName = "HeatmapInner";
+
+// src/DATADISPLAY/Charts/Heatmap/Heatmap.tsx
+import { jsx as jsx120 } from "react/jsx-runtime";
+var Heatmap = React98.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef44(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx120("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx120("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx120(HeatmapInner, { ...rest, width, height }) }) });
+  }
+);
+Heatmap.displayName = "Heatmap";
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlot.tsx
+import React100, { useRef as useRef45 } from "react";
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlotInner.tsx
+import { useMemo as useMemo51 } from "react";
+import { Group as Group18 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlot.constants.ts
+var BOXPLOT_ROOT_CLASS = "w3f-chart-boxplot";
+var BOXPLOT_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showOutliers: true,
+  boxWidth: 40,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlot.utils.ts
+function buildBoxPlotClasses(className, unstyled) {
+  return buildChartRootClasses(BOXPLOT_ROOT_CLASS, className, unstyled);
+}
+function quantile(sorted, q) {
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  return sorted[base + 1] !== void 0 ? sorted[base] + rest * (sorted[base + 1] - sorted[base]) : sorted[base];
+}
+function computeStats(group) {
+  const sorted = [...group.values].sort((a, b) => a - b);
+  const q1 = quantile(sorted, 0.25);
+  const median = quantile(sorted, 0.5);
+  const q3 = quantile(sorted, 0.75);
+  const iqr = q3 - q1;
+  const lowerFence = q1 - 1.5 * iqr;
+  const upperFence = q3 + 1.5 * iqr;
+  const outliers = sorted.filter((v) => v < lowerFence || v > upperFence);
+  const whiskerMin = Math.min(...sorted.filter((v) => v >= lowerFence));
+  const whiskerMax = Math.max(...sorted.filter((v) => v <= upperFence));
+  return {
+    group: group.group,
+    min: whiskerMin,
+    firstQuartile: q1,
+    median,
+    thirdQuartile: q3,
+    max: whiskerMax,
+    outliers
+  };
+}
+function buildBoxPlotScales(stats, innerWidth, innerHeight, yDomain) {
+  const groups = stats.map((s) => s.group);
+  const allValues = stats.flatMap((s) => [s.min, s.max, ...s.outliers]);
+  const [yMin, yMax] = yDomain ?? safeExtent(allValues);
+  const xScale = buildBandScale(groups, [0, innerWidth], 0.3);
+  const yScale = buildLinearScale(yMin, yMax, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+function buildTooltipContent7(stats) {
+  return `${stats.group}: med=${stats.median.toFixed(1)}, Q1=${stats.firstQuartile.toFixed(1)}, Q3=${stats.thirdQuartile.toFixed(1)}`;
+}
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlot.hooks.ts
+import { useMemo as useMemo50, useCallback as useCallback55 } from "react";
+function useBoxPlotStats(data) {
+  return useMemo50(() => data.map(computeStats), [data]);
+}
+function useBoxPlotScales(stats, innerWidth, innerHeight, yDomain) {
+  return useMemo50(
+    () => buildBoxPlotScales(stats, innerWidth, innerHeight, yDomain),
+    [stats, innerWidth, innerHeight, yDomain]
+  );
+}
+function useBoxPlotColors(stats, colorScheme) {
+  return useMemo50(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return stats.map((_, i) => palette[i % palette.length]);
+  }, [stats, colorScheme]);
+}
+function useBoxPlotInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback55((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback55(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback55((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlotInner.tsx
+import { jsx as jsx121, jsxs as jsxs80 } from "react/jsx-runtime";
+var BoxPlotInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = BOXPLOT_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showXAxis = BOXPLOT_DEFAULTS.showXAxis,
+    showYAxis = BOXPLOT_DEFAULTS.showYAxis,
+    showGrid = BOXPLOT_DEFAULTS.showGrid,
+    showTooltip = BOXPLOT_DEFAULTS.showTooltip,
+    showOutliers = BOXPLOT_DEFAULTS.showOutliers,
+    boxWidth = BOXPLOT_DEFAULTS.boxWidth,
+    yDomain,
+    formatY,
+    onHover,
+    onSelect
+  } = props;
+  const stats = useBoxPlotStats(data);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useBoxPlotScales(stats, dims.innerWidth, dims.innerHeight, yDomain);
+  const colors = useBoxPlotColors(stats, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBoxPlotInteraction(onHover, onSelect);
+  const classes = useMemo51(() => buildBoxPlotClasses(className, unstyled), [className, unstyled]);
+  const yf = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx121("div", { className: classes, children: /* @__PURE__ */ jsx121("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty box plot" }) });
+  }
+  const halfBox = Math.min(boxWidth, xScale.bandwidth()) / 2;
+  return /* @__PURE__ */ jsxs80("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx121(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs80("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs80("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Box plot", children: [
+        description && /* @__PURE__ */ jsx121("desc", { children: description }),
+        /* @__PURE__ */ jsxs80(Group18, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx121(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          stats.map((s, i) => {
+            const cx = (xScale(s.group) ?? 0) + xScale.bandwidth() / 2;
+            const isHovered = hoveredIndex === i;
+            const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
+            const fill = colors[i];
+            return /* @__PURE__ */ jsxs80(
+              "g",
+              {
+                opacity,
+                style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                onMouseEnter: () => handleEnter(s, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(s, i) : void 0,
+                children: [
+                  /* @__PURE__ */ jsx121(
+                    "line",
+                    {
+                      x1: cx,
+                      x2: cx,
+                      y1: yScale(s.max),
+                      y2: yScale(s.min),
+                      stroke: fill,
+                      strokeWidth: 1.5
+                    }
+                  ),
+                  /* @__PURE__ */ jsx121("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.max), y2: yScale(s.max), stroke: fill, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ jsx121("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.min), y2: yScale(s.min), stroke: fill, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ jsx121(
+                    "rect",
+                    {
+                      x: cx - halfBox,
+                      y: yScale(s.thirdQuartile),
+                      width: halfBox * 2,
+                      height: yScale(s.firstQuartile) - yScale(s.thirdQuartile),
+                      fill,
+                      fillOpacity: 0.3,
+                      stroke: fill,
+                      strokeWidth: 1.5,
+                      rx: 2
+                    }
+                  ),
+                  /* @__PURE__ */ jsx121(
+                    "line",
+                    {
+                      x1: cx - halfBox,
+                      x2: cx + halfBox,
+                      y1: yScale(s.median),
+                      y2: yScale(s.median),
+                      stroke: fill,
+                      strokeWidth: 2.5
+                    }
+                  ),
+                  showOutliers && s.outliers.map((v, oi) => /* @__PURE__ */ jsx121(
+                    "circle",
+                    {
+                      cx,
+                      cy: yScale(v),
+                      r: 3,
+                      fill: "none",
+                      stroke: fill,
+                      strokeWidth: 1.5
+                    },
+                    oi
+                  ))
+                ]
+              },
+              s.group
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx121(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx121(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const s = stats[hoveredIndex];
+        const cx = (xScale(s.group) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left;
+        const cy = yScale(s.median) + dims.margin.top;
+        return /* @__PURE__ */ jsx121(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent7(s) });
+      })()
+    ] })
+  ] });
+};
+BoxPlotInner.displayName = "BoxPlotInner";
+
+// src/DATADISPLAY/Charts/BoxPlot/BoxPlot.tsx
+import { jsx as jsx122 } from "react/jsx-runtime";
+var BoxPlot = React100.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef45(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx122("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx122("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx122(BoxPlotInner, { ...rest, width, height }) }) });
+  }
+);
+BoxPlot.displayName = "BoxPlot";
+
+// src/DATADISPLAY/Charts/Violin/Violin.tsx
+import React102, { useRef as useRef46 } from "react";
+
+// src/DATADISPLAY/Charts/Violin/ViolinInner.tsx
+import { useMemo as useMemo53 } from "react";
+import { Group as Group19 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/Violin/Violin.constants.ts
+var VIOLIN_ROOT_CLASS = "w3f-chart-violin";
+var VIOLIN_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  resolution: 20,
+  bandwidth: 1,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Violin/Violin.utils.ts
+function buildViolinClasses(className, unstyled) {
+  return buildChartRootClasses(VIOLIN_ROOT_CLASS, className, unstyled);
+}
+function kde(values, min, max, resolution, bandwidthMul) {
+  if (values.length === 0) return [];
+  const sorted = [...values].sort((a, b) => a - b);
+  const n = sorted.length;
+  const std = Math.sqrt(sorted.reduce((s, v) => s + (v - sorted[n >> 1]) ** 2, 0) / n) || 1;
+  const h = 1.06 * std * Math.pow(n, -0.2) * bandwidthMul;
+  const step = (max - min) / resolution;
+  const points = [];
+  for (let i = 0; i <= resolution; i++) {
+    const x = min + i * step;
+    let sum = 0;
+    for (const v of sorted) {
+      const z = (x - v) / h;
+      sum += Math.exp(-0.5 * z * z);
+    }
+    points.push({ value: x, density: sum / (n * h * Math.sqrt(2 * Math.PI)) });
+  }
+  return points;
+}
+function buildViolinScales(data, innerWidth, innerHeight, yDomain) {
+  const groups = data.map((d) => d.group);
+  const allValues = data.flatMap((d) => d.values);
+  const [yMin, yMax] = yDomain ?? safeExtent(allValues);
+  const xScale = buildBandScale(groups, [0, innerWidth], 0.2);
+  const yScale = buildLinearScale(yMin, yMax, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+function buildTooltipContent8(group) {
+  const n = group.values.length;
+  const mean = group.values.reduce((s, v) => s + v, 0) / n;
+  return `${group.group}: n=${n}, mean=${mean.toFixed(1)}`;
+}
+
+// src/DATADISPLAY/Charts/Violin/Violin.hooks.ts
+import { useMemo as useMemo52, useCallback as useCallback56 } from "react";
+function useViolinScales(data, innerWidth, innerHeight, yDomain) {
+  return useMemo52(
+    () => buildViolinScales(data, innerWidth, innerHeight, yDomain),
+    [data, innerWidth, innerHeight, yDomain]
+  );
+}
+function useViolinKDE(data, yMin, yMax, resolution, bandwidth) {
+  return useMemo52(
+    () => data.map((g) => kde(g.values, yMin, yMax, resolution, bandwidth)),
+    [data, yMin, yMax, resolution, bandwidth]
+  );
+}
+function useViolinColors(data, colorScheme) {
+  return useMemo52(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useViolinInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback56((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback56(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback56((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Violin/ViolinInner.tsx
+import { jsx as jsx123, jsxs as jsxs81 } from "react/jsx-runtime";
+var ViolinInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = VIOLIN_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showXAxis = VIOLIN_DEFAULTS.showXAxis,
+    showYAxis = VIOLIN_DEFAULTS.showYAxis,
+    showGrid = VIOLIN_DEFAULTS.showGrid,
+    showTooltip = VIOLIN_DEFAULTS.showTooltip,
+    resolution = VIOLIN_DEFAULTS.resolution,
+    bandwidth = VIOLIN_DEFAULTS.bandwidth,
+    yDomain,
+    formatY,
+    onHover,
+    onSelect
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useViolinScales(data, dims.innerWidth, dims.innerHeight, yDomain);
+  const allValues = useMemo53(() => data.flatMap((d) => d.values), [data]);
+  const [yMin, yMax] = useMemo53(() => yDomain ?? safeExtent(allValues), [yDomain, allValues]);
+  const kdeResults = useViolinKDE(data, yMin, yMax, resolution, bandwidth);
+  const colors = useViolinColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useViolinInteraction(onHover, onSelect);
+  const classes = useMemo53(() => buildViolinClasses(className, unstyled), [className, unstyled]);
+  const yf = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx123("div", { className: classes, children: /* @__PURE__ */ jsx123("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty violin plot" }) });
+  }
+  const maxDensity = useMemo53(() => {
+    let m = 0;
+    for (const pts of kdeResults) for (const p of pts) if (p.density > m) m = p.density;
+    return m || 1;
+  }, [kdeResults]);
+  return /* @__PURE__ */ jsxs81("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx123(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs81("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs81("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Violin plot", children: [
+        description && /* @__PURE__ */ jsx123("desc", { children: description }),
+        /* @__PURE__ */ jsxs81(Group19, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx123(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          data.map((g, i) => {
+            const cx = (xScale(g.group) ?? 0) + xScale.bandwidth() / 2;
+            const halfW = xScale.bandwidth() / 2 * 0.9;
+            const pts = kdeResults[i];
+            const isHovered = hoveredIndex === i;
+            const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
+            const fill = colors[i];
+            const rightSide = pts.map((p) => {
+              const y = yScale(p.value);
+              const dx = p.density / maxDensity * halfW;
+              return `${cx + dx},${y}`;
+            });
+            const leftSide = [...pts].reverse().map((p) => {
+              const y = yScale(p.value);
+              const dx = p.density / maxDensity * halfW;
+              return `${cx - dx},${y}`;
+            });
+            const pathD = `M${rightSide.join(" L")} L${leftSide.join(" L")} Z`;
+            return /* @__PURE__ */ jsx123(
+              "path",
+              {
+                d: pathD,
+                fill,
+                fillOpacity: 0.3,
+                stroke: fill,
+                strokeWidth: 1.5,
+                opacity,
+                style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                onMouseEnter: () => handleEnter(g, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(g, i) : void 0
+              },
+              g.group
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx123(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx123(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const g = data[hoveredIndex];
+        const cx = (xScale(g.group) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left;
+        const sorted = [...g.values].sort((a, b) => a - b);
+        const medianVal = sorted[Math.floor(sorted.length / 2)];
+        const cy = yScale(medianVal) + dims.margin.top;
+        return /* @__PURE__ */ jsx123(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent8(g) });
+      })()
+    ] })
+  ] });
+};
+ViolinInner.displayName = "ViolinInner";
+
+// src/DATADISPLAY/Charts/Violin/Violin.tsx
+import { jsx as jsx124 } from "react/jsx-runtime";
+var Violin = React102.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef46(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx124("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx124("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx124(ViolinInner, { ...rest, width, height }) }) });
+  }
+);
+Violin.displayName = "Violin";
+
+// src/DATADISPLAY/Charts/Histogram/Histogram.tsx
+import React104, { useRef as useRef47 } from "react";
+
+// src/DATADISPLAY/Charts/Histogram/HistogramInner.tsx
+import { useMemo as useMemo55 } from "react";
+import { Group as Group20 } from "@visx/group";
+import { Bar as VisxBar7 } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/Histogram/Histogram.constants.ts
+var HISTOGRAM_ROOT_CLASS = "w3f-chart-histogram";
+var HISTOGRAM_DEFAULTS = {
+  binCount: 20,
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  barRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Histogram/Histogram.utils.ts
+function buildHistogramClasses(className, unstyled) {
+  return buildChartRootClasses(HISTOGRAM_ROOT_CLASS, className, unstyled);
+}
+function computeBins(values, binCount, xDomain) {
+  if (values.length === 0) return [];
+  const [min, max] = xDomain ?? safeExtent(values);
+  const step = (max - min) / binCount;
+  const bins = Array.from({ length: binCount }, (_, i) => ({
+    x0: min + i * step,
+    x1: min + (i + 1) * step,
+    count: 0
+  }));
+  for (const v of values) {
+    let idx = Math.floor((v - min) / step);
+    if (idx >= binCount) idx = binCount - 1;
+    if (idx < 0) idx = 0;
+    bins[idx].count++;
+  }
+  return bins;
+}
+function buildHistogramScales(bins, innerWidth, innerHeight) {
+  const xMin = bins.length > 0 ? bins[0].x0 : 0;
+  const xMax = bins.length > 0 ? bins[bins.length - 1].x1 : 1;
+  const yMax = Math.max(...bins.map((b) => b.count), 1);
+  const xScale = buildLinearScale(xMin, xMax, [0, innerWidth]);
+  const yScale = buildLinearScale(0, yMax, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+function buildTooltipContent9(bin) {
+  return `${bin.x0.toFixed(1)}\u2013${bin.x1.toFixed(1)}: ${bin.count}`;
+}
+
+// src/DATADISPLAY/Charts/Histogram/Histogram.hooks.ts
+import { useMemo as useMemo54, useCallback as useCallback57 } from "react";
+function useHistogramBins(data, binCount, xDomain) {
+  return useMemo54(() => computeBins(data, binCount, xDomain), [data, binCount, xDomain]);
+}
+function useHistogramScales(bins, innerWidth, innerHeight) {
+  return useMemo54(
+    () => buildHistogramScales(bins, innerWidth, innerHeight),
+    [bins, innerWidth, innerHeight]
+  );
+}
+function useHistogramColor(colorScheme) {
+  return useMemo54(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return palette[0];
+  }, [colorScheme]);
+}
+function useHistogramInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback57((b, i) => {
+    enter(i);
+    onHover?.(b, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback57(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback57((b, i) => {
+    onSelect?.(b, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Histogram/HistogramInner.tsx
+import { jsx as jsx125, jsxs as jsxs82 } from "react/jsx-runtime";
+var HistogramInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = HISTOGRAM_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    binCount = HISTOGRAM_DEFAULTS.binCount,
+    showXAxis = HISTOGRAM_DEFAULTS.showXAxis,
+    showYAxis = HISTOGRAM_DEFAULTS.showYAxis,
+    showGrid = HISTOGRAM_DEFAULTS.showGrid,
+    showTooltip = HISTOGRAM_DEFAULTS.showTooltip,
+    barRadius = HISTOGRAM_DEFAULTS.barRadius,
+    xDomain,
+    formatX,
+    formatY,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const bins = useHistogramBins(data, binCount, xDomain);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useHistogramScales(bins, dims.innerWidth, dims.innerHeight);
+  const fillColor = useHistogramColor(colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useHistogramInteraction(onHover, onSelect);
+  const classes = useMemo55(() => buildHistogramClasses(className, unstyled), [className, unstyled]);
+  const xf = formatX ?? formatTick;
+  const yf = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx125("div", { className: classes, children: /* @__PURE__ */ jsx125("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty histogram" }) });
+  }
+  return /* @__PURE__ */ jsxs82("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx125(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs82("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs82("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Histogram", children: [
+        description && /* @__PURE__ */ jsx125("desc", { children: description }),
+        /* @__PURE__ */ jsxs82(Group20, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx125(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          bins.map((bin, i) => {
+            const barX = xScale(bin.x0) ?? 0;
+            const barW = Math.max(0, (xScale(bin.x1) ?? 0) - barX - 1);
+            const barY = yScale(bin.count) ?? 0;
+            const barH = dims.innerHeight - barY;
+            const isHovered = hoveredIndex === i;
+            return /* @__PURE__ */ jsx125(
+              VisxBar7,
+              {
+                x: barX,
+                y: barY,
+                width: barW,
+                height: barH,
+                fill: fillColor,
+                opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && !isHovered ? 0.4 : 0.8,
+                stroke: highlightIndex === i ? "#fff" : void 0,
+                strokeWidth: highlightIndex === i ? 2 : void 0,
+                rx: barRadius,
+                onMouseEnter: () => handleEnter(bin, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(bin, i) : void 0,
+                style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : void 0, transition: "opacity 120ms ease-out" }
+              },
+              i
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx125(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showYAxis && /* @__PURE__ */ jsx125(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const bin = bins[hoveredIndex];
+        const cx = ((xScale(bin.x0) ?? 0) + (xScale(bin.x1) ?? 0)) / 2 + dims.margin.left;
+        const cy = (yScale(bin.count) ?? 0) + dims.margin.top;
+        return /* @__PURE__ */ jsx125(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent9(bin) });
+      })()
+    ] })
+  ] });
+};
+HistogramInner.displayName = "HistogramInner";
+
+// src/DATADISPLAY/Charts/Histogram/Histogram.tsx
+import { jsx as jsx126 } from "react/jsx-runtime";
+var Histogram = React104.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef47(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx126("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx126("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx126(HistogramInner, { ...rest, width, height }) }) });
+  }
+);
+Histogram.displayName = "Histogram";
+
+// src/DATADISPLAY/Charts/Pie/Pie.tsx
+import React106, { useRef as useRef48 } from "react";
+
+// src/DATADISPLAY/Charts/Pie/PieInner.tsx
+import { useMemo as useMemo57 } from "react";
+import { Group as Group21 } from "@visx/group";
+import { Pie as VisxPie } from "@visx/shape";
+
+// src/DATADISPLAY/Charts/Pie/Pie.constants.ts
+var PIE_ROOT_CLASS = "w3f-chart-pie";
+var PIE_DEFAULTS = {
+  innerRadius: 0,
+  padAngle: 0.02,
+  cornerRadius: 0,
+  showLabels: true,
+  showTooltip: true,
+  showLegend: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Pie/Pie.utils.ts
+function buildPieClasses(className, unstyled) {
+  return buildChartRootClasses(PIE_ROOT_CLASS, className, unstyled);
+}
+var defaultGetValue6 = (d) => d.value;
+var defaultGetLabel9 = (d) => d.label;
+function buildPieColors(data, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return data.map((d, i) => d.color ?? palette[i % palette.length]);
+}
+function buildTooltipContent10(d, getValue2) {
+  return `${d.label}: ${getValue2(d).toLocaleString()}`;
+}
+function labelFits(startAngle, endAngle, minAngle = 0.35) {
+  return endAngle - startAngle > minAngle;
+}
+
+// src/DATADISPLAY/Charts/Pie/Pie.hooks.ts
+import { useMemo as useMemo56, useCallback as useCallback58 } from "react";
+function usePieAccessors(getValue2, getLabel) {
+  return useMemo56(() => ({
+    getValue: getValue2 ?? defaultGetValue6,
+    getLabel: getLabel ?? defaultGetLabel9
+  }), [getValue2, getLabel]);
+}
+function usePieColors(data, colorScheme) {
+  return useMemo56(() => buildPieColors(data, colorScheme), [data, colorScheme]);
+}
+function usePieInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback58((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback58(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback58((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Pie/PieInner.tsx
+import { jsx as jsx127, jsxs as jsxs83 } from "react/jsx-runtime";
+var PieInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = PIE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getValue: gvp,
+    getLabel: glp,
+    innerRadius: innerRadioProp = PIE_DEFAULTS.innerRadius,
+    padAngle = PIE_DEFAULTS.padAngle,
+    cornerRadius = PIE_DEFAULTS.cornerRadius,
+    showLabels = PIE_DEFAULTS.showLabels,
+    showTooltip = PIE_DEFAULTS.showTooltip,
+    showLegend = PIE_DEFAULTS.showLegend,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const { getValue: getValue2, getLabel } = usePieAccessors(gvp, glp);
+  const colors = usePieColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePieInteraction(onHover, onSelect);
+  const classes = useMemo57(() => buildPieClasses(className, unstyled), [className, unstyled]);
+  const legendHeight = showLegend ? 36 : 0;
+  const svgHeight = height - legendHeight;
+  const radius = Math.min(width, svgHeight) / 2 * 0.85;
+  const innerR = radius * innerRadioProp;
+  const cx = width / 2;
+  const cy = svgHeight / 2;
+  const legendItems = useMemo57(
+    () => data.map((d, i) => ({ id: d.id, label: d.label, color: colors[i] })),
+    [data, colors]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx127("div", { className: classes, children: /* @__PURE__ */ jsx127("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pie chart" }) });
+  }
+  return /* @__PURE__ */ jsxs83("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx127(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs83("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs83("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Pie chart", children: [
+        description && /* @__PURE__ */ jsx127("desc", { children: description }),
+        /* @__PURE__ */ jsx127(Group21, { top: cy, left: cx, children: /* @__PURE__ */ jsx127(
+          VisxPie,
+          {
+            data: [...data],
+            pieValue: getValue2,
+            outerRadius: radius,
+            innerRadius: innerR,
+            padAngle,
+            cornerRadius,
+            children: (pie) => pie.arcs.map((arc, i) => {
+              const d = arc.data;
+              const isHighlighted = highlightIndex != null && highlightIndex === i;
+              const opacity = highlightIndex != null ? isHighlighted ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.5 : 1;
+              const path = pie.path(arc) ?? "";
+              const [lx, ly] = pie.path.centroid(arc);
+              return /* @__PURE__ */ jsxs83(
+                "g",
+                {
+                  opacity,
+                  style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                  onMouseEnter: () => handleEnter(d, i),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(d, i) : void 0,
+                  children: [
+                    /* @__PURE__ */ jsx127(
+                      "path",
+                      {
+                        d: path,
+                        fill: colors[i],
+                        stroke: isHighlighted ? "#fff" : void 0,
+                        strokeWidth: isHighlighted ? 2 : void 0
+                      }
+                    ),
+                    showLabels && labelFits(arc.startAngle, arc.endAngle) && /* @__PURE__ */ jsx127(
+                      "text",
+                      {
+                        x: lx,
+                        y: ly,
+                        fill: "#fff",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textAnchor: "middle",
+                        dominantBaseline: "central",
+                        pointerEvents: "none",
+                        children: getLabel(d)
+                      }
+                    )
+                  ]
+                },
+                d.id
+              );
+            })
+          }
+        ) })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        return /* @__PURE__ */ jsx127(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent10(d, getValue2) });
+      })()
+    ] }),
+    showLegend && /* @__PURE__ */ jsx127(ChartLegend, { items: legendItems, direction: "horizontal" })
+  ] });
+};
+PieInner.displayName = "PieInner";
+
+// src/DATADISPLAY/Charts/Pie/Pie.tsx
+import { jsx as jsx128 } from "react/jsx-runtime";
+var Pie = React106.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef48(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx128("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx128("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx128(PieInner, { ...rest, width, height }) }) });
+  }
+);
+Pie.displayName = "Pie";
+
+// src/DATADISPLAY/Charts/Donut/Donut.tsx
+import React107 from "react";
+import { jsx as jsx129 } from "react/jsx-runtime";
+var Donut = React107.forwardRef(
+  (props, ref) => /* @__PURE__ */ jsx129(Pie, { ref, innerRadius: 0.55, ...props })
+);
+Donut.displayName = "Donut";
+
+// src/DATADISPLAY/Charts/Radar/Radar.tsx
+import React109, { useRef as useRef49 } from "react";
+
+// src/DATADISPLAY/Charts/Radar/RadarInner.tsx
+import { useMemo as useMemo59 } from "react";
+import { Group as Group22 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/Radar/Radar.constants.ts
+var RADAR_ROOT_CLASS = "w3f-chart-radar";
+var RADAR_DEFAULTS = {
+  gridLevels: 5,
+  showGrid: true,
+  showLabels: true,
+  showTooltip: true,
+  showDots: true,
+  fillOpacity: 0.25,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Radar/Radar.utils.ts
+import { scaleLinear as scaleLinear10 } from "@visx/scale";
+function buildRadarClasses(className, unstyled) {
+  return buildChartRootClasses(RADAR_ROOT_CLASS, className, unstyled);
+}
+var defaultGetLabel10 = (d) => String(d.label);
+var defaultGetValue7 = (d) => d.value;
+function axisAngle(i, n) {
+  return Math.PI * 2 * i / n - Math.PI / 2;
+}
+function buildPolygon(data, getValue2, rScale) {
+  return data.map((d, i) => {
+    const angle = axisAngle(i, data.length);
+    const r = rScale(getValue2(d));
+    return `${Math.cos(angle) * r},${Math.sin(angle) * r}`;
+  }).join(" ");
+}
+function buildGridPolygon(n, radius) {
+  return Array.from({ length: n }, (_, i) => {
+    const angle = axisAngle(i, n);
+    return `${Math.cos(angle) * radius},${Math.sin(angle) * radius}`;
+  }).join(" ");
+}
+function labelPosition(i, n, radius, offset = 14) {
+  const angle = axisAngle(i, n);
+  const r = radius + offset;
+  const x = Math.cos(angle) * r;
+  const y = Math.sin(angle) * r;
+  const anchor = Math.abs(x) < 1 ? "middle" : x > 0 ? "start" : "end";
+  return { x, y, anchor };
+}
+function buildRadarScale(maxValue, radius) {
+  return scaleLinear10({ domain: [0, maxValue], range: [0, radius], clamp: true });
+}
+function buildTooltipContent11(d, getLabel, getValue2) {
+  return `${getLabel(d)}: ${getValue2(d).toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Radar/Radar.hooks.ts
+import { useMemo as useMemo58, useCallback as useCallback59 } from "react";
+function useRadarAccessors(getLabel, getValue2) {
+  return useMemo58(() => ({
+    getLabel: getLabel ?? defaultGetLabel10,
+    getValue: getValue2 ?? defaultGetValue7
+  }), [getLabel, getValue2]);
+}
+function useRadarScale(data, getValue2, radius, maxValue) {
+  return useMemo58(() => {
+    const max = maxValue ?? Math.max(...data.map(getValue2), 1);
+    return buildRadarScale(max, radius);
+  }, [data, getValue2, radius, maxValue]);
+}
+function useRadarColor(colorScheme) {
+  return useMemo58(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return palette[0];
+  }, [colorScheme]);
+}
+function useRadarInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback59((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback59(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback59((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Radar/RadarInner.tsx
+import { jsx as jsx130, jsxs as jsxs84 } from "react/jsx-runtime";
+var RadarInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = RADAR_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    getLabel: glp,
+    getValue: gvp,
+    gridLevels = RADAR_DEFAULTS.gridLevels,
+    showGrid = RADAR_DEFAULTS.showGrid,
+    showLabels = RADAR_DEFAULTS.showLabels,
+    showTooltip = RADAR_DEFAULTS.showTooltip,
+    showDots = RADAR_DEFAULTS.showDots,
+    fillOpacity = RADAR_DEFAULTS.fillOpacity,
+    maxValue,
+    onHover,
+    onSelect
+  } = props;
+  const { getLabel, getValue: getValue2 } = useRadarAccessors(glp, gvp);
+  const margin = 40;
+  const radius = Math.min(width, height) / 2 - margin;
+  const rScale = useRadarScale(data, getValue2, radius, maxValue);
+  const color = useRadarColor(colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useRadarInteraction(onHover, onSelect);
+  const classes = useMemo59(() => buildRadarClasses(className, unstyled), [className, unstyled]);
+  const cx = width / 2;
+  const cy = height / 2;
+  const n = data.length;
+  if (n === 0) {
+    return /* @__PURE__ */ jsx130("div", { className: classes, children: /* @__PURE__ */ jsx130("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty radar chart" }) });
+  }
+  const polygon = buildPolygon(data, getValue2, rScale);
+  return /* @__PURE__ */ jsxs84("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx130(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs84("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs84("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Radar chart", children: [
+        description && /* @__PURE__ */ jsx130("desc", { children: description }),
+        /* @__PURE__ */ jsxs84(Group22, { top: cy, left: cx, children: [
+          showGrid && Array.from({ length: gridLevels }, (_, level) => {
+            const r = radius * (level + 1) / gridLevels;
+            return /* @__PURE__ */ jsx130(
+              "polygon",
+              {
+                points: buildGridPolygon(n, r),
+                fill: "none",
+                stroke: "var(--w3f-chart-grid-stroke, #e2e8f0)",
+                strokeWidth: 0.5,
+                strokeDasharray: "2 4"
+              },
+              level
+            );
+          }),
+          showGrid && data.map((_, i) => {
+            const angle = axisAngle(i, n);
+            return /* @__PURE__ */ jsx130(
+              "line",
+              {
+                x1: 0,
+                y1: 0,
+                x2: Math.cos(angle) * radius,
+                y2: Math.sin(angle) * radius,
+                stroke: "var(--w3f-chart-grid-stroke, #e2e8f0)",
+                strokeWidth: 0.5
+              },
+              i
+            );
+          }),
+          /* @__PURE__ */ jsx130(
+            "polygon",
+            {
+              points: polygon,
+              fill: color,
+              fillOpacity,
+              stroke: color,
+              strokeWidth: 2
+            }
+          ),
+          showDots && data.map((d, i) => {
+            const angle = axisAngle(i, n);
+            const r = rScale(getValue2(d));
+            const px = Math.cos(angle) * r;
+            const py = Math.sin(angle) * r;
+            const isHovered = hoveredIndex === i;
+            return /* @__PURE__ */ jsx130(
+              "circle",
+              {
+                cx: px,
+                cy: py,
+                r: isHovered ? 5 : 3.5,
+                fill: color,
+                stroke: "#fff",
+                strokeWidth: 2,
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                style: { cursor: onSelect ? "pointer" : void 0, transition: "r 120ms ease-out" }
+              },
+              i
+            );
+          }),
+          showLabels && data.map((d, i) => {
+            const pos = labelPosition(i, n, radius);
+            return /* @__PURE__ */ jsx130(
+              "text",
+              {
+                x: pos.x,
+                y: pos.y,
+                textAnchor: pos.anchor,
+                dominantBaseline: "central",
+                fontSize: 11,
+                fill: "var(--w3f-chart-axis-tick-label-color, #64748b)",
+                children: getLabel(d)
+              },
+              i
+            );
+          })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        const angle = axisAngle(hoveredIndex, n);
+        const r = rScale(getValue2(d));
+        return /* @__PURE__ */ jsx130(
+          ChartTooltip,
+          {
+            left: cx + Math.cos(angle) * r,
+            top: cy + Math.sin(angle) * r,
+            visible: true,
+            offsetY: -12,
+            children: buildTooltipContent11(d, getLabel, getValue2)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+RadarInner.displayName = "RadarInner";
+
+// src/DATADISPLAY/Charts/Radar/Radar.tsx
+import { jsx as jsx131 } from "react/jsx-runtime";
+var Radar = React109.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef49(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 400, 400);
+    return /* @__PURE__ */ jsx131("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx131("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx131(RadarInner, { ...rest, width, height }) }) });
+  }
+);
+Radar.displayName = "Radar";
+
+// src/DATADISPLAY/Charts/Gauge/Gauge.tsx
+import React111, { useRef as useRef50 } from "react";
+
+// src/DATADISPLAY/Charts/Gauge/GaugeInner.tsx
+import { useMemo as useMemo61 } from "react";
+
+// src/DATADISPLAY/Charts/Gauge/Gauge.constants.ts
+var GAUGE_ROOT_CLASS = "w3f-chart-gauge";
+var GAUGE_DEFAULTS = {
+  min: 0,
+  max: 100,
+  color: "#6366f1",
+  showValue: true,
+  showMinMax: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Gauge/Gauge.utils.ts
+import { scaleLinear as scaleLinear11 } from "@visx/scale";
+function buildGaugeClasses(className, unstyled) {
+  return buildChartRootClasses(GAUGE_ROOT_CLASS, className, unstyled);
+}
+function buildGaugeScale(min, max) {
+  return scaleLinear11({ domain: [min, max], range: [-Math.PI / 2, Math.PI / 2], clamp: true });
+}
+function getGaugeColor(value, color, thresholds) {
+  if (!thresholds || thresholds.length === 0) return color;
+  const sorted = [...thresholds].sort((a, b) => a.value - b.value);
+  let result = color;
+  for (const t of sorted) {
+    if (value >= t.value) result = t.color;
+  }
+  return result;
+}
+function arcPath(cx, cy, outerR, innerR, startAngle, endAngle) {
+  const toX = (r, a) => cx + r * Math.cos(a);
+  const toY = (r, a) => cy + r * Math.sin(a);
+  const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+  const ox1 = toX(outerR, startAngle);
+  const oy1 = toY(outerR, startAngle);
+  const ox2 = toX(outerR, endAngle);
+  const oy2 = toY(outerR, endAngle);
+  const ix1 = toX(innerR, endAngle);
+  const iy1 = toY(innerR, endAngle);
+  const ix2 = toX(innerR, startAngle);
+  const iy2 = toY(innerR, startAngle);
+  return [
+    `M ${ox1} ${oy1}`,
+    `A ${outerR} ${outerR} 0 ${largeArc} 1 ${ox2} ${oy2}`,
+    `L ${ix1} ${iy1}`,
+    `A ${innerR} ${innerR} 0 ${largeArc} 0 ${ix2} ${iy2}`,
+    "Z"
+  ].join(" ");
+}
+function needlePath(cx, cy, length, angle) {
+  const tipX = cx + Math.cos(angle) * length;
+  const tipY = cy + Math.sin(angle) * length;
+  const baseHalf = 4;
+  const perpAngle = angle + Math.PI / 2;
+  const bx1 = cx + Math.cos(perpAngle) * baseHalf;
+  const by1 = cy + Math.sin(perpAngle) * baseHalf;
+  const bx2 = cx - Math.cos(perpAngle) * baseHalf;
+  const by2 = cy - Math.sin(perpAngle) * baseHalf;
+  return `M ${tipX} ${tipY} L ${bx1} ${by1} L ${bx2} ${by2} Z`;
+}
+
+// src/DATADISPLAY/Charts/Gauge/Gauge.hooks.ts
+import { useMemo as useMemo60 } from "react";
+function useGaugeScale(min, max) {
+  return useMemo60(() => buildGaugeScale(min, max), [min, max]);
+}
+function useGaugeColor(value, color, thresholds) {
+  return useMemo60(() => getGaugeColor(value, color, thresholds), [value, color, thresholds]);
+}
+
+// src/DATADISPLAY/Charts/Gauge/GaugeInner.tsx
+import { Fragment as Fragment15, jsx as jsx132, jsxs as jsxs85 } from "react/jsx-runtime";
+var GaugeInner = (props) => {
+  const {
+    value,
+    width,
+    height,
+    className,
+    unstyled = GAUGE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    min = GAUGE_DEFAULTS.min,
+    max = GAUGE_DEFAULTS.max,
+    color = GAUGE_DEFAULTS.color,
+    thresholds,
+    showValue = GAUGE_DEFAULTS.showValue,
+    showMinMax = GAUGE_DEFAULTS.showMinMax,
+    highlightIndex,
+    formatValue: formatValue2
+  } = props;
+  const scale = useGaugeScale(min, max);
+  const fillColor = useGaugeColor(value, color, thresholds);
+  const classes = useMemo61(() => buildGaugeClasses(className, unstyled), [className, unstyled]);
+  const cx = width / 2;
+  const cy = height * 0.72;
+  const outerR = Math.min(width / 2, height * 0.65) * 0.9;
+  const innerR = outerR * 0.7;
+  const needleLen = outerR * 0.85;
+  const startAngle = -Math.PI / 2;
+  const endAngle = Math.PI / 2;
+  const valueAngle = scale(value);
+  const needle = needlePath(cx, cy, needleLen, valueAngle);
+  const fmt = formatValue2 ?? ((v) => v.toFixed(0));
+  const segments = useMemo61(() => {
+    if (!thresholds || thresholds.length === 0) return null;
+    const sorted = [...thresholds].sort((a, b) => a.value - b.value);
+    return sorted.map((t, i) => {
+      const from = i === 0 ? min : sorted[i - 1].value;
+      const to = t.value;
+      return { color: t.color, fromAngle: scale(from), toAngle: scale(to) };
+    });
+  }, [thresholds, min, scale]);
+  return /* @__PURE__ */ jsxs85("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx132(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsx132("div", { className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsxs85("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? `Gauge: ${value}`, children: [
+      description && /* @__PURE__ */ jsx132("desc", { children: description }),
+      segments ? (
+        /* Threshold arcs — each segment colored, highlightIndex dims others */
+        segments.map((seg, i) => /* @__PURE__ */ jsx132(
+          "path",
+          {
+            d: arcPath(cx, cy, outerR, innerR, seg.fromAngle, seg.toAngle),
+            fill: seg.color,
+            opacity: highlightIndex != null && highlightIndex !== i ? 0.25 : 1,
+            style: { transition: "opacity 150ms ease-out" }
+          },
+          i
+        ))
+      ) : /* @__PURE__ */ jsxs85(Fragment15, { children: [
+        /* @__PURE__ */ jsx132("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, endAngle), fill: "var(--w3f-chart-grid-stroke, #e2e8f0)", opacity: 0.4 }),
+        /* @__PURE__ */ jsx132("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, valueAngle), fill: fillColor })
+      ] }),
+      segments && /* @__PURE__ */ jsx132(
+        "path",
+        {
+          d: arcPath(cx, cy, outerR * 0.96, innerR * 1.04, startAngle, valueAngle),
+          fill: "rgba(0,0,0,0.18)"
+        }
+      ),
+      /* @__PURE__ */ jsx132("path", { d: needle, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+      /* @__PURE__ */ jsx132("circle", { cx, cy, r: 6, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+      /* @__PURE__ */ jsx132("circle", { cx, cy, r: 3, fill: "#fff" }),
+      showValue && /* @__PURE__ */ jsx132(
+        "text",
+        {
+          x: cx,
+          y: cy + outerR * 0.35,
+          textAnchor: "middle",
+          fontSize: Math.max(16, outerR * 0.22),
+          fontWeight: 700,
+          fill: "var(--w3f-chart-text-color, #1e293b)",
+          children: fmt(value)
+        }
+      ),
+      showMinMax && /* @__PURE__ */ jsxs85(Fragment15, { children: [
+        /* @__PURE__ */ jsx132(
+          "text",
+          {
+            x: cx - outerR - 4,
+            y: cy + 4,
+            textAnchor: "end",
+            fontSize: 10,
+            fill: "var(--w3f-chart-secondary-text-color, #94a3b8)",
+            children: min
+          }
+        ),
+        /* @__PURE__ */ jsx132(
+          "text",
+          {
+            x: cx + outerR + 4,
+            y: cy + 4,
+            textAnchor: "start",
+            fontSize: 10,
+            fill: "var(--w3f-chart-secondary-text-color, #94a3b8)",
+            children: max
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+};
+GaugeInner.displayName = "GaugeInner";
+
+// src/DATADISPLAY/Charts/Gauge/Gauge.tsx
+import { jsx as jsx133 } from "react/jsx-runtime";
+var Gauge = React111.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef50(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 300, 200);
+    return /* @__PURE__ */ jsx133("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx133("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx133(GaugeInner, { ...rest, width, height }) }) });
+  }
+);
+Gauge.displayName = "Gauge";
+
+// src/DATADISPLAY/Charts/Treemap/Treemap.tsx
+import React113, { useRef as useRef51 } from "react";
+
+// src/DATADISPLAY/Charts/Treemap/TreemapInner.tsx
+import { useMemo as useMemo63 } from "react";
+import { Group as Group23 } from "@visx/group";
+import { Treemap as VisxTreemap, hierarchy, treemapSquarify } from "@visx/hierarchy";
+
+// src/DATADISPLAY/Charts/Treemap/Treemap.constants.ts
+var TREEMAP_ROOT_CLASS = "w3f-chart-treemap";
+var TREEMAP_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  tilePadding: 2,
+  tileRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Treemap/Treemap.utils.ts
+function buildTreemapClasses(className, unstyled) {
+  return buildChartRootClasses(TREEMAP_ROOT_CLASS, className, unstyled);
+}
+function buildTreemapColors(leafCount, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: leafCount }, (_, i) => palette[i % palette.length]);
+}
+function textFits(w, h, minW = 30, minH = 16) {
+  return w > minW && h > minH;
+}
+function truncateLabel(label, maxWidth, fontSize = 11) {
+  const charW = fontSize * 0.6;
+  const maxChars = Math.floor(maxWidth / charW);
+  if (label.length <= maxChars) return label;
+  return maxChars > 2 ? label.slice(0, maxChars - 1) + "\u2026" : "";
+}
+function buildTooltipContent12(node) {
+  return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ""}`;
+}
+
+// src/DATADISPLAY/Charts/Treemap/Treemap.hooks.ts
+import { useMemo as useMemo62, useCallback as useCallback60 } from "react";
+function useTreemapColors(leafCount, colorScheme) {
+  return useMemo62(() => buildTreemapColors(leafCount, colorScheme), [leafCount, colorScheme]);
+}
+function useTreemapInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback60((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback60(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback60((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Treemap/TreemapInner.tsx
+import { jsx as jsx134, jsxs as jsxs86 } from "react/jsx-runtime";
+var TreemapInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = TREEMAP_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = TREEMAP_DEFAULTS.showLabels,
+    showTooltip = TREEMAP_DEFAULTS.showTooltip,
+    tilePadding = TREEMAP_DEFAULTS.tilePadding,
+    tileRadius = TREEMAP_DEFAULTS.tileRadius,
+    onHover,
+    onSelect
+  } = props;
+  const root = useMemo63(
+    () => hierarchy(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
+    [data]
+  );
+  const leaves = useMemo63(() => root.leaves(), [root]);
+  const colors = useTreemapColors(leaves.length, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useTreemapInteraction(onHover, onSelect);
+  const classes = useMemo63(() => buildTreemapClasses(className, unstyled), [className, unstyled]);
+  if (leaves.length === 0) {
+    return /* @__PURE__ */ jsx134("div", { className: classes, children: /* @__PURE__ */ jsx134("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty treemap" }) });
+  }
+  return /* @__PURE__ */ jsxs86("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx134(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs86("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs86("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Treemap", children: [
+        description && /* @__PURE__ */ jsx134("desc", { children: description }),
+        /* @__PURE__ */ jsx134(
+          VisxTreemap,
+          {
+            root,
+            size: [width, height],
+            tile: treemapSquarify,
+            padding: tilePadding,
+            children: (treemap) => /* @__PURE__ */ jsx134(Group23, { children: treemap.descendants().filter((n) => !n.children).map((node, i) => {
+              const w = node.x1 - node.x0;
+              const h = node.y1 - node.y0;
+              const d = node.data;
+              const isHovered = hoveredIndex === i;
+              const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+              const label = d.label ?? d.id;
+              return /* @__PURE__ */ jsxs86(
+                "g",
+                {
+                  opacity,
+                  style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                  onMouseEnter: () => handleEnter(d, i),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(d, i) : void 0,
+                  children: [
+                    /* @__PURE__ */ jsx134(
+                      "rect",
+                      {
+                        x: node.x0,
+                        y: node.y0,
+                        width: w,
+                        height: h,
+                        fill: colors[i],
+                        rx: tileRadius
+                      }
+                    ),
+                    showLabels && textFits(w, h) && /* @__PURE__ */ jsx134(
+                      "text",
+                      {
+                        x: node.x0 + 4,
+                        y: node.y0 + 14,
+                        fontSize: 11,
+                        fill: "#fff",
+                        fontWeight: 500,
+                        pointerEvents: "none",
+                        children: truncateLabel(label, w - 8)
+                      }
+                    )
+                  ]
+                },
+                d.id + "-" + i
+              );
+            }) })
+          }
+        )
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const leafNodes = root.leaves();
+        const node = leafNodes[hoveredIndex];
+        if (!node) return null;
+        return /* @__PURE__ */ jsx134(
+          ChartTooltip,
+          {
+            left: (node.x0 + node.x1) / 2,
+            top: node.y0,
+            visible: true,
+            offsetY: -12,
+            children: buildTooltipContent12(node.data)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+TreemapInner.displayName = "TreemapInner";
+
+// src/DATADISPLAY/Charts/Treemap/Treemap.tsx
+import { jsx as jsx135 } from "react/jsx-runtime";
+var Treemap = React113.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef51(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx135("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx135("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx135(TreemapInner, { ...rest, width, height }) }) });
+  }
+);
+Treemap.displayName = "Treemap";
+
+// src/DATADISPLAY/Charts/Pack/Pack.tsx
+import React115, { useRef as useRef52 } from "react";
+
+// src/DATADISPLAY/Charts/Pack/PackInner.tsx
+import { useMemo as useMemo65 } from "react";
+import { Group as Group24 } from "@visx/group";
+import { Pack as VisxPack, hierarchy as hierarchy2 } from "@visx/hierarchy";
+
+// src/DATADISPLAY/Charts/Pack/Pack.constants.ts
+var PACK_ROOT_CLASS = "w3f-chart-pack";
+var PACK_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  circlePadding: 4,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Pack/Pack.utils.ts
+function buildPackClasses(className, unstyled) {
+  return buildChartRootClasses(PACK_ROOT_CLASS, className, unstyled);
+}
+function buildPackColors(leafCount, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: leafCount }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent13(node) {
+  return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ""}`;
+}
+
+// src/DATADISPLAY/Charts/Pack/Pack.hooks.ts
+import { useMemo as useMemo64, useCallback as useCallback61 } from "react";
+function usePackColors(leafCount, colorScheme) {
+  return useMemo64(() => buildPackColors(leafCount, colorScheme), [leafCount, colorScheme]);
+}
+function usePackInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback61((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback61(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback61((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Pack/PackInner.tsx
+import { jsx as jsx136, jsxs as jsxs87 } from "react/jsx-runtime";
+var PackInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = PACK_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = PACK_DEFAULTS.showLabels,
+    showTooltip = PACK_DEFAULTS.showTooltip,
+    circlePadding = PACK_DEFAULTS.circlePadding,
+    onHover,
+    onSelect
+  } = props;
+  const root = useMemo65(
+    () => hierarchy2(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
+    [data]
+  );
+  const leaves = useMemo65(() => root.leaves(), [root]);
+  const colors = usePackColors(leaves.length, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePackInteraction(onHover, onSelect);
+  const classes = useMemo65(() => buildPackClasses(className, unstyled), [className, unstyled]);
+  if (leaves.length === 0) {
+    return /* @__PURE__ */ jsx136("div", { className: classes, children: /* @__PURE__ */ jsx136("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pack chart" }) });
+  }
+  return /* @__PURE__ */ jsxs87("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx136(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs87("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs87("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Circle pack chart", children: [
+        description && /* @__PURE__ */ jsx136("desc", { children: description }),
+        /* @__PURE__ */ jsx136(
+          VisxPack,
+          {
+            root,
+            size: [width, height],
+            padding: circlePadding,
+            children: (pack) => {
+              const leafNodes = pack.descendants().filter((n) => !n.children);
+              return /* @__PURE__ */ jsxs87(Group24, { children: [
+                pack.descendants().filter((n) => n.children && n.depth > 0).map((node, i) => /* @__PURE__ */ jsx136(
+                  "circle",
+                  {
+                    cx: node.x,
+                    cy: node.y,
+                    r: node.r,
+                    fill: "none",
+                    stroke: "var(--w3f-chart-grid-stroke, #e2e8f0)",
+                    strokeWidth: 1,
+                    strokeDasharray: "3 3"
+                  },
+                  "p-" + i
+                )),
+                leafNodes.map((node, i) => {
+                  const d = node.data;
+                  const isHovered = hoveredIndex === i;
+                  const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+                  return /* @__PURE__ */ jsxs87(
+                    "g",
+                    {
+                      opacity,
+                      style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                      onMouseEnter: () => handleEnter(d, i),
+                      onMouseLeave: handleLeave,
+                      onClick: onSelect ? () => handleClick(d, i) : void 0,
+                      children: [
+                        /* @__PURE__ */ jsx136(
+                          "circle",
+                          {
+                            cx: node.x,
+                            cy: node.y,
+                            r: node.r,
+                            fill: colors[i],
+                            fillOpacity: 0.75
+                          }
+                        ),
+                        showLabels && node.r > 14 && /* @__PURE__ */ jsx136(
+                          "text",
+                          {
+                            x: node.x,
+                            y: node.y,
+                            textAnchor: "middle",
+                            dominantBaseline: "central",
+                            fontSize: Math.min(11, node.r * 0.45),
+                            fill: "#fff",
+                            fontWeight: 500,
+                            pointerEvents: "none",
+                            children: (d.label ?? d.id).slice(0, Math.floor(node.r / 4))
+                          }
+                        )
+                      ]
+                    },
+                    d.id + "-" + i
+                  );
+                })
+              ] });
+            }
+          }
+        )
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const leafNodes = root.leaves();
+        const node = leafNodes[hoveredIndex];
+        if (!node) return null;
+        return /* @__PURE__ */ jsx136(
+          ChartTooltip,
+          {
+            left: node.x ?? 0,
+            top: (node.y ?? 0) - (node.r ?? 0),
+            visible: true,
+            offsetY: -12,
+            children: buildTooltipContent13(node.data)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+PackInner.displayName = "PackInner";
+
+// src/DATADISPLAY/Charts/Pack/Pack.tsx
+import { jsx as jsx137 } from "react/jsx-runtime";
+var Pack = React115.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef52(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx137("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx137("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx137(PackInner, { ...rest, width, height }) }) });
+  }
+);
+Pack.displayName = "Pack";
+
+// src/DATADISPLAY/Charts/Network/Network.tsx
+import React117, { useRef as useRef53 } from "react";
+
+// src/DATADISPLAY/Charts/Network/NetworkInner.tsx
+import { useMemo as useMemo67 } from "react";
+
+// src/DATADISPLAY/Charts/Network/Network.constants.ts
+var NETWORK_ROOT_CLASS = "w3f-chart-network";
+var NETWORK_DEFAULTS = {
+  nodeRadius: 8,
+  showLabels: true,
+  showTooltip: true,
+  linkWidth: 1.5,
+  iterations: 300,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Network/Network.utils.ts
+function buildNetworkClasses(className, unstyled) {
+  return buildChartRootClasses(NETWORK_ROOT_CLASS, className, unstyled);
+}
+function computeForceLayout(data, width, height, iterations) {
+  const nodeMap = /* @__PURE__ */ new Map();
+  for (const n of data.nodes) {
+    nodeMap.set(n.id, {
+      ...n,
+      x: width / 2 + (Math.random() - 0.5) * width * 0.6,
+      y: height / 2 + (Math.random() - 0.5) * height * 0.6,
+      vx: 0,
+      vy: 0
+    });
+  }
+  const nodes = [...nodeMap.values()];
+  const links = [...data.links];
+  const linkPairs = links.map((l) => ({
+    source: nodeMap.get(l.source),
+    target: nodeMap.get(l.target),
+    value: l.value
+  })).filter((l) => l.source && l.target);
+  const repulsionStrength = 800;
+  const attractionStrength = 0.05;
+  const idealLength = Math.min(width, height) * 0.15;
+  const damping = 0.85;
+  const centerStrength = 0.01;
+  for (let iter = 0; iter < iterations; iter++) {
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 1) dist = 1;
+        const force = repulsionStrength / (dist * dist);
+        const fx = dx / dist * force;
+        const fy = dy / dist * force;
+        a.vx -= fx;
+        a.vy -= fy;
+        b.vx += fx;
+        b.vy += fy;
+      }
+    }
+    for (const { source, target } of linkPairs) {
+      let dx = target.x - source.x;
+      let dy = target.y - source.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 1) dist = 1;
+      const displacement = dist - idealLength;
+      const force = displacement * attractionStrength;
+      const fx = dx / dist * force;
+      const fy = dy / dist * force;
+      source.vx += fx;
+      source.vy += fy;
+      target.vx -= fx;
+      target.vy -= fy;
+    }
+    for (const n of nodes) {
+      n.vx += (width / 2 - n.x) * centerStrength;
+      n.vy += (height / 2 - n.y) * centerStrength;
+    }
+    for (const n of nodes) {
+      n.vx *= damping;
+      n.vy *= damping;
+      n.x += n.vx;
+      n.y += n.vy;
+      n.x = Math.max(20, Math.min(width - 20, n.x));
+      n.y = Math.max(20, Math.min(height - 20, n.y));
+    }
+  }
+  return {
+    nodes: nodes.map(({ vx, vy, ...rest }) => rest),
+    links
+  };
+}
+function buildTooltipContent14(node) {
+  return node.label ?? node.id;
+}
+
+// src/DATADISPLAY/Charts/Network/Network.hooks.ts
+import { useMemo as useMemo66, useCallback as useCallback62 } from "react";
+function useNetworkLayout(data, width, height, iterations) {
+  return useMemo66(
+    () => computeForceLayout(data, width, height, iterations),
+    [data, width, height, iterations]
+  );
+}
+function useNetworkColors(nodes, colorScheme) {
+  return useMemo66(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const groups = [...new Set(nodes.map((n) => n.group ?? n.id))];
+    const groupMap = new Map(groups.map((g, i) => [g, palette[i % palette.length]]));
+    return nodes.map((n) => groupMap.get(n.group ?? n.id) ?? palette[0]);
+  }, [nodes, colorScheme]);
+}
+function useNetworkInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback62(
+    (node, index) => {
+      enter(index);
+      onHover?.(node, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback62(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback62(
+    (node, index) => {
+      onSelect?.(node, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Network/NetworkInner.tsx
+import { jsx as jsx138, jsxs as jsxs88 } from "react/jsx-runtime";
+var NetworkInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = NETWORK_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    nodeRadius = NETWORK_DEFAULTS.nodeRadius,
+    showLabels = NETWORK_DEFAULTS.showLabels,
+    showTooltip = NETWORK_DEFAULTS.showTooltip,
+    linkWidth = NETWORK_DEFAULTS.linkWidth,
+    iterations = NETWORK_DEFAULTS.iterations,
+    onHover,
+    onSelect
+  } = props;
+  const layout = useNetworkLayout(data, width, height, iterations);
+  const colors = useNetworkColors(layout.nodes, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useNetworkInteraction(onHover, onSelect);
+  const classes = useMemo67(() => buildNetworkClasses(className, unstyled), [className, unstyled]);
+  const nodeMap = useMemo67(() => {
+    const map = /* @__PURE__ */ new Map();
+    for (const n of layout.nodes) {
+      map.set(n.id, { x: n.x, y: n.y });
+    }
+    return map;
+  }, [layout.nodes]);
+  if (data.nodes.length === 0) {
+    return /* @__PURE__ */ jsx138("div", { className: classes, children: /* @__PURE__ */ jsx138("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty network chart" }) });
+  }
+  return /* @__PURE__ */ jsxs88("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx138(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs88("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs88("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Network chart", children: [
+        description && /* @__PURE__ */ jsx138("desc", { children: description }),
+        layout.links.map((link, i) => {
+          const s = nodeMap.get(link.source);
+          const t = nodeMap.get(link.target);
+          if (!s || !t) return null;
+          const isHighlighted = hoveredIndex != null && (data.nodes[hoveredIndex]?.id === link.source || data.nodes[hoveredIndex]?.id === link.target);
+          return /* @__PURE__ */ jsx138(
+            "line",
+            {
+              x1: s.x,
+              y1: s.y,
+              x2: t.x,
+              y2: t.y,
+              stroke: isHighlighted ? "var(--w3f-primary, #6366f1)" : "#94a3b8",
+              strokeWidth: isHighlighted ? linkWidth * 2 : linkWidth,
+              strokeOpacity: hoveredIndex != null && !isHighlighted ? 0.2 : 0.6,
+              style: { transition: "stroke-opacity 120ms, stroke-width 120ms" }
+            },
+            `link-${i}`
+          );
+        }),
+        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs88("g", { children: [
+          /* @__PURE__ */ jsx138(
+            "circle",
+            {
+              cx: node.x,
+              cy: node.y,
+              r: nodeRadius,
+              fill: colors[i],
+              stroke: "#fff",
+              strokeWidth: 1.5,
+              opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
+              onMouseEnter: () => handleEnter(node, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(node, i) : void 0,
+              style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
+            }
+          ),
+          showLabels && /* @__PURE__ */ jsx138(
+            "text",
+            {
+              x: node.x,
+              y: node.y - nodeRadius - 4,
+              textAnchor: "middle",
+              fontSize: 10,
+              fill: "currentColor",
+              pointerEvents: "none",
+              opacity: hoveredIndex != null && hoveredIndex !== i ? 0.3 : 0.8,
+              children: node.label ?? node.id
+            }
+          )
+        ] }, node.id))
+      ] }),
+      showTooltip && hoveredIndex != null && layout.nodes[hoveredIndex] && /* @__PURE__ */ jsx138(
+        ChartTooltip,
+        {
+          left: layout.nodes[hoveredIndex].x,
+          top: layout.nodes[hoveredIndex].y,
+          visible: true,
+          offsetY: -nodeRadius - 16,
+          children: buildTooltipContent14(layout.nodes[hoveredIndex])
+        }
+      )
+    ] })
+  ] });
+};
+NetworkInner.displayName = "NetworkInner";
+
+// src/DATADISPLAY/Charts/Network/Network.tsx
+import { jsx as jsx139 } from "react/jsx-runtime";
+var Network = React117.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef53(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx139("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx139("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx139(NetworkInner, { ...rest, width, height }) }) });
+  }
+);
+Network.displayName = "Network";
+
+// src/DATADISPLAY/Charts/Sankey/Sankey.tsx
+import React119, { useRef as useRef54 } from "react";
+
+// src/DATADISPLAY/Charts/Sankey/SankeyInner.tsx
+import { useMemo as useMemo69 } from "react";
+
+// src/DATADISPLAY/Charts/Sankey/Sankey.constants.ts
+var SANKEY_ROOT_CLASS = "w3f-chart-sankey";
+var SANKEY_DEFAULTS = {
+  nodeWidth: 20,
+  nodePadding: 12,
+  showLabels: true,
+  showTooltip: true,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Sankey/Sankey.utils.ts
+function buildSankeyClasses(className, unstyled) {
+  return buildChartRootClasses(SANKEY_ROOT_CLASS, className, unstyled);
+}
+function computeSankeyLayout(data, width, height, nodeWidth, nodePadding) {
+  const linksRaw = data.links.filter((l) => (l.value ?? 0) > 0);
+  const outgoing = /* @__PURE__ */ new Map();
+  const incoming = /* @__PURE__ */ new Map();
+  const nodeIds = /* @__PURE__ */ new Set();
+  for (const n of data.nodes) nodeIds.add(n.id);
+  for (const l of linksRaw) {
+    nodeIds.add(l.source);
+    nodeIds.add(l.target);
+    if (!outgoing.has(l.source)) outgoing.set(l.source, []);
+    outgoing.get(l.source).push({ target: l.target, value: l.value });
+    if (!incoming.has(l.target)) incoming.set(l.target, []);
+    incoming.get(l.target).push({ source: l.source, value: l.value });
+  }
+  const layerMap = /* @__PURE__ */ new Map();
+  const visited = /* @__PURE__ */ new Set();
+  function assignLayer(id) {
+    if (layerMap.has(id)) return layerMap.get(id);
+    if (visited.has(id)) return 0;
+    visited.add(id);
+    const inc = incoming.get(id) ?? [];
+    const layer = inc.length === 0 ? 0 : Math.max(...inc.map((l) => assignLayer(l.source) + 1));
+    layerMap.set(id, layer);
+    return layer;
+  }
+  for (const id of nodeIds) assignLayer(id);
+  const maxLayer = Math.max(0, ...layerMap.values());
+  const layerWidth = maxLayer > 0 ? (width - nodeWidth) / maxLayer : 0;
+  const layers = Array.from({ length: maxLayer + 1 }, () => []);
+  for (const [id, layer] of layerMap) layers[layer].push(id);
+  const nodeValueMap = /* @__PURE__ */ new Map();
+  for (const id of nodeIds) {
+    const outVal = (outgoing.get(id) ?? []).reduce((s, l) => s + l.value, 0);
+    const inVal = (incoming.get(id) ?? []).reduce((s, l) => s + l.value, 0);
+    nodeValueMap.set(id, Math.max(outVal, inVal));
+  }
+  const nodeMap = /* @__PURE__ */ new Map();
+  const nodeLabel = /* @__PURE__ */ new Map();
+  for (const n of data.nodes) nodeLabel.set(n.id, n.label ?? n.id);
+  for (let li = 0; li <= maxLayer; li++) {
+    const ids = layers[li];
+    const totalValue = ids.reduce((s, id) => s + nodeValueMap.get(id), 0);
+    const totalPadding = (ids.length - 1) * nodePadding;
+    const availableHeight = Math.max(height - totalPadding, 10);
+    const scale = totalValue > 0 ? availableHeight / totalValue : 1;
+    let y = 0;
+    for (const id of ids) {
+      const val = nodeValueMap.get(id);
+      const h = Math.max(val * scale, 2);
+      const x0 = li * layerWidth;
+      nodeMap.set(id, {
+        id,
+        label: nodeLabel.get(id) ?? id,
+        group: data.nodes.find((n) => n.id === id)?.group,
+        x0,
+        x1: x0 + nodeWidth,
+        y0: y,
+        y1: y + h,
+        value: val,
+        layer: li
+      });
+      y += h + nodePadding;
+    }
+  }
+  const sourceOffsets = /* @__PURE__ */ new Map();
+  const targetOffsets = /* @__PURE__ */ new Map();
+  const layoutLinks = linksRaw.map((l) => {
+    const sNode = nodeMap.get(l.source);
+    const tNode = nodeMap.get(l.target);
+    const sH = sNode.y1 - sNode.y0;
+    const tH = tNode.y1 - tNode.y0;
+    const sTotal = nodeValueMap.get(l.source);
+    const tTotal = nodeValueMap.get(l.target);
+    const linkSHeight = sTotal > 0 ? l.value / sTotal * sH : 0;
+    const linkTHeight = tTotal > 0 ? l.value / tTotal * tH : 0;
+    const sOff = sourceOffsets.get(l.source) ?? 0;
+    const tOff = targetOffsets.get(l.target) ?? 0;
+    const sy0 = sNode.y0 + sOff;
+    const sy1 = sy0 + linkSHeight;
+    const ty0 = tNode.y0 + tOff;
+    const ty1 = ty0 + linkTHeight;
+    sourceOffsets.set(l.source, sOff + linkSHeight);
+    targetOffsets.set(l.target, tOff + linkTHeight);
+    return { ...l, sy0, sy1, ty0, ty1, width: Math.max(linkSHeight, 1) };
+  });
+  return { nodes: [...nodeMap.values()], links: layoutLinks };
+}
+function buildLinkPath(sx, sy0, sy1, tx, ty0, ty1) {
+  const midX = (sx + tx) / 2;
+  return [
+    `M${sx},${sy0}`,
+    `C${midX},${sy0} ${midX},${ty0} ${tx},${ty0}`,
+    `L${tx},${ty1}`,
+    `C${midX},${ty1} ${midX},${sy1} ${sx},${sy1}`,
+    "Z"
+  ].join(" ");
+}
+function buildTooltipContent15(node) {
+  const label = node.label ?? node.id;
+  return node.value != null ? `${label}: ${node.value.toLocaleString()}` : label;
+}
+
+// src/DATADISPLAY/Charts/Sankey/Sankey.hooks.ts
+import { useMemo as useMemo68, useCallback as useCallback63 } from "react";
+function useSankeyLayout(data, width, height, nodeWidth, nodePadding) {
+  return useMemo68(
+    () => computeSankeyLayout(data, width, height, nodeWidth, nodePadding),
+    [data, width, height, nodeWidth, nodePadding]
+  );
+}
+function useSankeyColors(nodes, colorScheme) {
+  return useMemo68(() => {
+    const palette = resolveColorScheme(colorScheme);
+    const groups = [...new Set(nodes.map((n) => n.group ?? n.id))];
+    const groupMap = new Map(groups.map((g, i) => [g, palette[i % palette.length]]));
+    return new Map(nodes.map((n) => [n.id, groupMap.get(n.group ?? n.id) ?? palette[0]]));
+  }, [nodes, colorScheme]);
+}
+function useSankeyInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback63(
+    (node, index) => {
+      enter(index);
+      onHover?.(node, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback63(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback63(
+    (node, index) => {
+      onSelect?.(node, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Sankey/SankeyInner.tsx
+import { jsx as jsx140, jsxs as jsxs89 } from "react/jsx-runtime";
+var SankeyInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = SANKEY_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    nodeWidth = SANKEY_DEFAULTS.nodeWidth,
+    nodePadding = SANKEY_DEFAULTS.nodePadding,
+    showLabels = SANKEY_DEFAULTS.showLabels,
+    showTooltip = SANKEY_DEFAULTS.showTooltip,
+    onHover,
+    onSelect
+  } = props;
+  const layout = useSankeyLayout(data, width, height, nodeWidth, nodePadding);
+  const colorMap = useSankeyColors(layout.nodes, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useSankeyInteraction(onHover, onSelect);
+  const classes = useMemo69(() => buildSankeyClasses(className, unstyled), [className, unstyled]);
+  if (data.nodes.length === 0) {
+    return /* @__PURE__ */ jsx140("div", { className: classes, children: /* @__PURE__ */ jsx140("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sankey chart" }) });
+  }
+  const hoveredNode = hoveredIndex != null ? layout.nodes[hoveredIndex] : null;
+  return /* @__PURE__ */ jsxs89("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx140(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs89("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs89("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sankey chart", children: [
+        description && /* @__PURE__ */ jsx140("desc", { children: description }),
+        layout.links.map((link, i) => {
+          const sNode = layout.nodes.find((n) => n.id === link.source);
+          const tNode = layout.nodes.find((n) => n.id === link.target);
+          if (!sNode || !tNode) return null;
+          const isHighlighted = hoveredNode && (hoveredNode.id === link.source || hoveredNode.id === link.target);
+          const path = buildLinkPath(
+            sNode.x1,
+            link.sy0,
+            link.sy1,
+            tNode.x0,
+            link.ty0,
+            link.ty1
+          );
+          return /* @__PURE__ */ jsx140(
+            "path",
+            {
+              d: path,
+              fill: colorMap.get(link.source) ?? "#94a3b8",
+              fillOpacity: isHighlighted ? 0.5 : hoveredIndex != null ? 0.1 : 0.3,
+              stroke: "none",
+              style: { transition: "fill-opacity 120ms" }
+            },
+            `link-${i}`
+          );
+        }),
+        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs89("g", { children: [
+          /* @__PURE__ */ jsx140(
+            "rect",
+            {
+              x: node.x0,
+              y: node.y0,
+              width: node.x1 - node.x0,
+              height: Math.max(node.y1 - node.y0, 2),
+              fill: colorMap.get(node.id) ?? "#6366f1",
+              opacity: hoveredIndex != null && hoveredIndex !== i ? 0.5 : 1,
+              rx: 2,
+              onMouseEnter: () => handleEnter(node, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(node, i) : void 0,
+              style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms" }
+            }
+          ),
+          showLabels && /* @__PURE__ */ jsx140(
+            "text",
+            {
+              x: node.layer === 0 ? node.x0 - 4 : node.x1 + 4,
+              y: (node.y0 + node.y1) / 2,
+              dy: "0.35em",
+              textAnchor: node.layer === 0 ? "end" : "start",
+              fontSize: 11,
+              fill: "currentColor",
+              pointerEvents: "none",
+              children: node.label ?? node.id
+            }
+          )
+        ] }, node.id))
+      ] }),
+      showTooltip && hoveredNode && /* @__PURE__ */ jsx140(
+        ChartTooltip,
+        {
+          left: (hoveredNode.x0 + hoveredNode.x1) / 2,
+          top: hoveredNode.y0,
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent15(hoveredNode)
+        }
+      )
+    ] })
+  ] });
+};
+SankeyInner.displayName = "SankeyInner";
+
+// src/DATADISPLAY/Charts/Sankey/Sankey.tsx
+import { jsx as jsx141 } from "react/jsx-runtime";
+var Sankey = React119.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef54(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx141("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx141("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx141(SankeyInner, { ...rest, width, height }) }) });
+  }
+);
+Sankey.displayName = "Sankey";
+
+// src/DATADISPLAY/Charts/Funnel/Funnel.tsx
+import React121, { useRef as useRef55 } from "react";
+
+// src/DATADISPLAY/Charts/Funnel/FunnelInner.tsx
+import { useMemo as useMemo71 } from "react";
+
+// src/DATADISPLAY/Charts/Funnel/Funnel.constants.ts
+var FUNNEL_ROOT_CLASS = "w3f-chart-funnel";
+var FUNNEL_DEFAULTS = {
+  showLabels: true,
+  showPercentage: true,
+  showTooltip: true,
+  gap: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Funnel/Funnel.utils.ts
+function buildFunnelClasses(className, unstyled) {
+  return buildChartRootClasses(FUNNEL_ROOT_CLASS, className, unstyled);
+}
+function computeFunnelSegments(data, width, height, gap) {
+  if (data.length === 0) return [];
+  const maxValue = data[0].value;
+  const totalGap = gap * (data.length - 1);
+  const segmentHeight = (height - totalGap) / data.length;
+  const centerX = width / 2;
+  const maxHalfWidth = width * 0.45;
+  return data.map((datum, i) => {
+    const currentRatio = maxValue > 0 ? datum.value / maxValue : 0;
+    const nextRatio = i < data.length - 1 && maxValue > 0 ? data[i + 1].value / maxValue : currentRatio * 0.7;
+    const topHalf = currentRatio * maxHalfWidth;
+    const bottomHalf = (i < data.length - 1 ? nextRatio : currentRatio * 0.7) * maxHalfWidth;
+    const y = i * (segmentHeight + gap);
+    return {
+      datum,
+      index: i,
+      topLeft: centerX - topHalf,
+      topRight: centerX + topHalf,
+      bottomLeft: centerX - bottomHalf,
+      bottomRight: centerX + bottomHalf,
+      y,
+      height: segmentHeight,
+      percentage: maxValue > 0 ? datum.value / maxValue * 100 : 0
+    };
+  });
+}
+function buildSegmentPath(seg) {
+  return [
+    `M${seg.topLeft},${seg.y}`,
+    `L${seg.topRight},${seg.y}`,
+    `L${seg.bottomRight},${seg.y + seg.height}`,
+    `L${seg.bottomLeft},${seg.y + seg.height}`,
+    "Z"
+  ].join(" ");
+}
+function buildTooltipContent16(datum, percentage, formatValue2) {
+  const val = formatValue2 ? formatValue2(datum.value) : datum.value.toLocaleString();
+  return `${datum.label}: ${val} (${percentage.toFixed(1)}%)`;
+}
+
+// src/DATADISPLAY/Charts/Funnel/Funnel.hooks.ts
+import { useMemo as useMemo70, useCallback as useCallback64 } from "react";
+function useFunnelSegments(data, width, height, gap) {
+  return useMemo70(
+    () => computeFunnelSegments(data, width, height, gap),
+    [data, width, height, gap]
+  );
+}
+function useFunnelColors(data, colorScheme) {
+  return useMemo70(() => {
+    const palette = resolveColorScheme(colorScheme);
+    return data.map((_, i) => palette[i % palette.length]);
+  }, [data, colorScheme]);
+}
+function useFunnelInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback64(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback64(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback64(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Funnel/FunnelInner.tsx
+import { jsx as jsx142, jsxs as jsxs90 } from "react/jsx-runtime";
+var FunnelInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = FUNNEL_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = FUNNEL_DEFAULTS.showLabels,
+    showPercentage = FUNNEL_DEFAULTS.showPercentage,
+    showTooltip = FUNNEL_DEFAULTS.showTooltip,
+    gap = FUNNEL_DEFAULTS.gap,
+    formatValue: formatValue2,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const segments = useFunnelSegments(data, width, height, gap);
+  const colors = useFunnelColors(data, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useFunnelInteraction(onHover, onSelect);
+  const classes = useMemo71(() => buildFunnelClasses(className, unstyled), [className, unstyled]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx142("div", { className: classes, children: /* @__PURE__ */ jsx142("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty funnel chart" }) });
+  }
+  const centerX = width / 2;
+  return /* @__PURE__ */ jsxs90("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx142(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs90("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs90("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Funnel chart", children: [
+        description && /* @__PURE__ */ jsx142("desc", { children: description }),
+        segments.map((seg, i) => /* @__PURE__ */ jsxs90("g", { children: [
+          /* @__PURE__ */ jsx142(
+            "path",
+            {
+              d: buildSegmentPath(seg),
+              fill: colors[i],
+              opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.4 : 0.85,
+              stroke: highlightIndex === i ? "#fff" : void 0,
+              strokeWidth: highlightIndex === i ? 2 : void 0,
+              onMouseEnter: () => handleEnter(seg.datum, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(seg.datum, i) : void 0,
+              style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
+            }
+          ),
+          showLabels && /* @__PURE__ */ jsxs90(
+            "text",
+            {
+              x: centerX,
+              y: seg.y + seg.height / 2,
+              dy: "0.35em",
+              textAnchor: "middle",
+              fontSize: 12,
+              fontWeight: 600,
+              fill: "#fff",
+              pointerEvents: "none",
+              children: [
+                seg.datum.label,
+                showPercentage && ` (${seg.percentage.toFixed(0)}%)`
+              ]
+            }
+          )
+        ] }, i))
+      ] }),
+      showTooltip && hoveredIndex != null && segments[hoveredIndex] && /* @__PURE__ */ jsx142(
+        ChartTooltip,
+        {
+          left: centerX,
+          top: segments[hoveredIndex].y,
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent16(segments[hoveredIndex].datum, segments[hoveredIndex].percentage, formatValue2)
+        }
+      )
+    ] })
+  ] });
+};
+FunnelInner.displayName = "FunnelInner";
+
+// src/DATADISPLAY/Charts/Funnel/Funnel.tsx
+import { jsx as jsx143 } from "react/jsx-runtime";
+var Funnel = React121.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef55(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx143("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx143("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx143(FunnelInner, { ...rest, width, height }) }) });
+  }
+);
+Funnel.displayName = "Funnel";
+
+// src/DATADISPLAY/Charts/Waterfall/Waterfall.tsx
+import React123, { useRef as useRef56 } from "react";
+
+// src/DATADISPLAY/Charts/Waterfall/WaterfallInner.tsx
+import { useMemo as useMemo73 } from "react";
+import { Group as Group25 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/Waterfall/Waterfall.constants.ts
+var WATERFALL_ROOT_CLASS = "w3f-chart-waterfall";
+var WATERFALL_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  showLabels: true,
+  showConnectors: true,
+  positiveColor: "#22c55e",
+  negativeColor: "#ef4444",
+  totalColor: "#6366f1",
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Waterfall/Waterfall.utils.ts
+function buildWaterfallClasses(className, unstyled) {
+  return buildChartRootClasses(WATERFALL_ROOT_CLASS, className, unstyled);
+}
+function computeWaterfallBars(data) {
+  let cumulative = 0;
+  return data.map((datum, index) => {
+    if (datum.isTotal) {
+      const bar = {
+        datum,
+        index,
+        y0: 0,
+        y1: cumulative,
+        cumulative
+      };
+      return bar;
+    }
+    const start = cumulative;
+    cumulative += datum.value;
+    return {
+      datum,
+      index,
+      y0: start,
+      y1: cumulative,
+      cumulative
+    };
+  });
+}
+function buildWaterfallScales(bars, data, innerWidth, innerHeight) {
+  const labels = data.map((d) => d.label);
+  const allValues = bars.flatMap((b) => [b.y0, b.y1]);
+  const min = Math.min(0, ...allValues);
+  const max = Math.max(0, ...allValues);
+  const xScale = buildBandScale(labels, [0, innerWidth], 0.3);
+  const yScale = buildLinearScale(min, max, [innerHeight, 0]);
+  return { xScale, yScale };
+}
+function buildTooltipContent17(bar) {
+  const { datum } = bar;
+  if (datum.isTotal) {
+    return `${datum.label}: ${bar.cumulative.toLocaleString()} (total)`;
+  }
+  const sign = datum.value >= 0 ? "+" : "";
+  return `${datum.label}: ${sign}${datum.value.toLocaleString()} \u2192 ${bar.cumulative.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Waterfall/Waterfall.hooks.ts
+import { useMemo as useMemo72, useCallback as useCallback65 } from "react";
+function useWaterfallBars(data) {
+  return useMemo72(() => computeWaterfallBars(data), [data]);
+}
+function useWaterfallScales(bars, data, innerWidth, innerHeight) {
+  return useMemo72(
+    () => buildWaterfallScales(bars, data, innerWidth, innerHeight),
+    [bars, data, innerWidth, innerHeight]
+  );
+}
+function useWaterfallInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback65(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback65(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback65(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Waterfall/WaterfallInner.tsx
+import { jsx as jsx144, jsxs as jsxs91 } from "react/jsx-runtime";
+var WaterfallInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = WATERFALL_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    showXAxis = WATERFALL_DEFAULTS.showXAxis,
+    showYAxis = WATERFALL_DEFAULTS.showYAxis,
+    showGrid = WATERFALL_DEFAULTS.showGrid,
+    showTooltip = WATERFALL_DEFAULTS.showTooltip,
+    showLabels = WATERFALL_DEFAULTS.showLabels,
+    showConnectors = WATERFALL_DEFAULTS.showConnectors,
+    positiveColor = WATERFALL_DEFAULTS.positiveColor,
+    negativeColor = WATERFALL_DEFAULTS.negativeColor,
+    totalColor = WATERFALL_DEFAULTS.totalColor,
+    formatY,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const bars = useWaterfallBars(data);
+  const dims = useInnerDims(width, height, margin);
+  const { xScale, yScale } = useWaterfallScales(bars, data, dims.innerWidth, dims.innerHeight);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWaterfallInteraction(onHover, onSelect);
+  const classes = useMemo73(() => buildWaterfallClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx144("div", { className: classes, children: /* @__PURE__ */ jsx144("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waterfall chart" }) });
+  }
+  const bandwidth = xScale.bandwidth();
+  return /* @__PURE__ */ jsxs91("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx144(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs91("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs91("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waterfall chart", children: [
+        description && /* @__PURE__ */ jsx144("desc", { children: description }),
+        /* @__PURE__ */ jsxs91(Group25, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx144(
+            ChartGrid,
+            {
+              xScale,
+              yScale,
+              width: dims.innerWidth,
+              height: dims.innerHeight,
+              axis: "y"
+            }
+          ),
+          bars.map((bar, i) => {
+            const x = xScale(bar.datum.label) ?? 0;
+            const yTop = yScale(Math.max(bar.y0, bar.y1)) ?? 0;
+            const yBot = yScale(Math.min(bar.y0, bar.y1)) ?? 0;
+            const barHeight = Math.max(yBot - yTop, 1);
+            const fill = bar.datum.isTotal ? totalColor : bar.datum.value >= 0 ? positiveColor : negativeColor;
+            return /* @__PURE__ */ jsxs91("g", { children: [
+              showConnectors && i > 0 && !bar.datum.isTotal && /* @__PURE__ */ jsx144(
+                "line",
+                {
+                  x1: xScale(bars[i - 1].datum.label) + bandwidth,
+                  y1: yScale(bar.y0) ?? 0,
+                  x2: x,
+                  y2: yScale(bar.y0) ?? 0,
+                  stroke: "#94a3b8",
+                  strokeWidth: 1,
+                  strokeDasharray: "3,3"
+                }
+              ),
+              /* @__PURE__ */ jsx144(
+                "rect",
+                {
+                  x,
+                  y: yTop,
+                  width: bandwidth,
+                  height: barHeight,
+                  fill,
+                  opacity: highlightIndex != null ? highlightIndex === i ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.4 : 0.85,
+                  stroke: highlightIndex === i ? "#fff" : void 0,
+                  strokeWidth: highlightIndex === i ? 2 : void 0,
+                  rx: 2,
+                  onMouseEnter: () => handleEnter(bar.datum, i),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(bar.datum, i) : void 0,
+                  style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
+                }
+              ),
+              showLabels && /* @__PURE__ */ jsx144(
+                "text",
+                {
+                  x: x + bandwidth / 2,
+                  y: yTop - 4,
+                  textAnchor: "middle",
+                  fontSize: 10,
+                  fill: "currentColor",
+                  pointerEvents: "none",
+                  children: bar.datum.isTotal ? bar.cumulative.toLocaleString() : `${bar.datum.value >= 0 ? "+" : ""}${bar.datum.value.toLocaleString()}`
+                }
+              )
+            ] }, i);
+          }),
+          showXAxis && /* @__PURE__ */ jsx144(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ jsx144(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && bars[hoveredIndex] && /* @__PURE__ */ jsx144(
+        ChartTooltip,
+        {
+          left: (xScale(bars[hoveredIndex].datum.label) ?? 0) + bandwidth / 2 + dims.margin.left,
+          top: (yScale(Math.max(bars[hoveredIndex].y0, bars[hoveredIndex].y1)) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent17(bars[hoveredIndex])
+        }
+      )
+    ] })
+  ] });
+};
+WaterfallInner.displayName = "WaterfallInner";
+
+// src/DATADISPLAY/Charts/Waterfall/Waterfall.tsx
+import { jsx as jsx145 } from "react/jsx-runtime";
+var Waterfall = React123.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef56(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx145("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx145("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx145(WaterfallInner, { ...rest, width, height }) }) });
+  }
+);
+Waterfall.displayName = "Waterfall";
+
+// src/DATADISPLAY/Charts/Candlestick/Candlestick.tsx
+import React125, { useRef as useRef57 } from "react";
+
+// src/DATADISPLAY/Charts/Candlestick/CandlestickInner.tsx
+import { useMemo as useMemo75 } from "react";
+import { Group as Group26 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/Candlestick/Candlestick.constants.ts
+var CANDLESTICK_ROOT_CLASS = "w3f-chart-candlestick";
+var CANDLESTICK_DEFAULTS = {
+  showXAxis: true,
+  showYAxis: true,
+  showGrid: true,
+  showTooltip: true,
+  bullishColor: "#22c55e",
+  bearishColor: "#ef4444",
+  candleWidthRatio: 0.6,
+  showVolume: false,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Candlestick/Candlestick.utils.ts
+function buildCandlestickClasses(className, unstyled) {
+  return buildChartRootClasses(CANDLESTICK_ROOT_CLASS, className, unstyled);
+}
+function toDate7(d) {
+  if (d instanceof Date) return d;
+  return new Date(d);
+}
+function buildCandlestickScales(data, innerWidth, innerHeight, volumeHeight) {
+  const labels = data.map((_, i) => String(i));
+  const allPrices = data.flatMap((d) => [d.open, d.high, d.low, d.close]);
+  const priceMin = Math.min(...allPrices);
+  const priceMax = Math.max(...allPrices);
+  const priceChartHeight = volumeHeight > 0 ? innerHeight - volumeHeight - 8 : innerHeight;
+  const xScale = buildBandScale(labels, [0, innerWidth], 0.2);
+  const yScale = buildLinearScale(priceMin, priceMax, [priceChartHeight, 0], { padding: 0.05 });
+  let volumeScale = null;
+  if (volumeHeight > 0) {
+    const volumes = data.map((d) => d.volume ?? 0);
+    const maxVol = Math.max(...volumes, 1);
+    volumeScale = buildLinearScale(0, maxVol, [volumeHeight, 0], { padding: 0 });
+  }
+  return { xScale, yScale, volumeScale, priceChartHeight };
+}
+function buildTooltipContent18(datum) {
+  const d = toDate7(datum.date);
+  const dateStr = d.toLocaleDateString();
+  const lines = [
+    dateStr,
+    `O: ${datum.open.toLocaleString()}`,
+    `H: ${datum.high.toLocaleString()}`,
+    `L: ${datum.low.toLocaleString()}`,
+    `C: ${datum.close.toLocaleString()}`
+  ];
+  if (datum.volume != null) {
+    lines.push(`Vol: ${datum.volume.toLocaleString()}`);
+  }
+  return lines.join(" | ");
+}
+function defaultFormatX(d) {
+  const date = toDate7(d);
+  return `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate().toString().padStart(2, "0")}`;
+}
+
+// src/DATADISPLAY/Charts/Candlestick/Candlestick.hooks.ts
+import { useMemo as useMemo74, useCallback as useCallback66 } from "react";
+function useCandlestickScales(data, innerWidth, innerHeight, volumeHeight) {
+  return useMemo74(
+    () => buildCandlestickScales(data, innerWidth, innerHeight, volumeHeight),
+    [data, innerWidth, innerHeight, volumeHeight]
+  );
+}
+function useCandlestickInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback66(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback66(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback66(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Candlestick/CandlestickInner.tsx
+import { jsx as jsx146, jsxs as jsxs92 } from "react/jsx-runtime";
+var CandlestickInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin,
+    className,
+    unstyled = CANDLESTICK_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    showXAxis = CANDLESTICK_DEFAULTS.showXAxis,
+    showYAxis = CANDLESTICK_DEFAULTS.showYAxis,
+    showGrid = CANDLESTICK_DEFAULTS.showGrid,
+    showTooltip = CANDLESTICK_DEFAULTS.showTooltip,
+    bullishColor = CANDLESTICK_DEFAULTS.bullishColor,
+    bearishColor = CANDLESTICK_DEFAULTS.bearishColor,
+    candleWidthRatio = CANDLESTICK_DEFAULTS.candleWidthRatio,
+    showVolume = CANDLESTICK_DEFAULTS.showVolume,
+    formatY,
+    formatX,
+    onHover,
+    onSelect
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const volumeHeight = showVolume ? Math.round(dims.innerHeight * 0.2) : 0;
+  const { xScale, yScale, volumeScale, priceChartHeight } = useCandlestickScales(
+    data,
+    dims.innerWidth,
+    dims.innerHeight,
+    volumeHeight
+  );
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useCandlestickInteraction(onHover, onSelect);
+  const classes = useMemo75(() => buildCandlestickClasses(className, unstyled), [className, unstyled]);
+  const yTickFormat = formatY ?? formatTick;
+  const xTickFormat = formatX ?? defaultFormatX;
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx146("div", { className: classes, children: /* @__PURE__ */ jsx146("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty candlestick chart" }) });
+  }
+  const bandwidth = xScale.bandwidth();
+  const bodyWidth = bandwidth * candleWidthRatio;
+  const bodyOffset = (bandwidth - bodyWidth) / 2;
+  const xAxisFormat = (v) => {
+    const idx = Number(v);
+    return idx < data.length ? xTickFormat(data[idx].date) : "";
+  };
+  return /* @__PURE__ */ jsxs92("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx146(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs92("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs92("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Candlestick chart", children: [
+        description && /* @__PURE__ */ jsx146("desc", { children: description }),
+        /* @__PURE__ */ jsxs92(Group26, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx146(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: priceChartHeight, axis: "y" }),
+          data.map((datum, i) => {
+            const x = xScale(String(i)) ?? 0;
+            const isBullish = datum.close >= datum.open;
+            const color = isBullish ? bullishColor : bearishColor;
+            const bodyTop = yScale(Math.max(datum.open, datum.close)) ?? 0;
+            const bodyBottom = yScale(Math.min(datum.open, datum.close)) ?? 0;
+            const bodyH = Math.max(bodyBottom - bodyTop, 1);
+            const wickX = x + bandwidth / 2;
+            return /* @__PURE__ */ jsxs92(
+              "g",
+              {
+                opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
+                style: { transition: "opacity 120ms ease-out" },
+                onMouseEnter: () => handleEnter(datum, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(datum, i) : void 0,
+                cursor: onSelect ? "pointer" : "default",
+                children: [
+                  /* @__PURE__ */ jsx146("line", { x1: wickX, y1: yScale(datum.high) ?? 0, x2: wickX, y2: yScale(datum.low) ?? 0, stroke: color, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ jsx146(
+                    "rect",
+                    {
+                      x: x + bodyOffset,
+                      y: bodyTop,
+                      width: bodyWidth,
+                      height: bodyH,
+                      fill: color,
+                      stroke: color,
+                      strokeWidth: 1,
+                      fillOpacity: isBullish ? 0.3 : 0.85,
+                      rx: 1
+                    }
+                  )
+                ]
+              },
+              i
+            );
+          }),
+          showVolume && volumeScale && data.map((datum, i) => {
+            if (datum.volume == null) return null;
+            const x = xScale(String(i)) ?? 0;
+            const isBullish = datum.close >= datum.open;
+            const barH = volumeHeight - (volumeScale(datum.volume) ?? 0);
+            return /* @__PURE__ */ jsx146(
+              "rect",
+              {
+                x: x + bodyOffset,
+                y: priceChartHeight + 8 + volumeHeight - barH,
+                width: bodyWidth,
+                height: Math.max(barH, 0),
+                fill: isBullish ? bullishColor : bearishColor,
+                fillOpacity: 0.35,
+                rx: 1
+              },
+              "vol-" + i
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx146(
+            ChartAxis,
+            {
+              scale: xScale,
+              orientation: "bottom",
+              top: showVolume ? dims.innerHeight : priceChartHeight,
+              tickFormat: xAxisFormat,
+              numTicks: Math.min(data.length, 10)
+            }
+          ),
+          showYAxis && /* @__PURE__ */ jsx146(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx146(
+        ChartTooltip,
+        {
+          left: (xScale(String(hoveredIndex)) ?? 0) + bandwidth / 2 + dims.margin.left,
+          top: (yScale(data[hoveredIndex].high) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent18(data[hoveredIndex])
+        }
+      )
+    ] })
+  ] });
+};
+CandlestickInner.displayName = "CandlestickInner";
+
+// src/DATADISPLAY/Charts/Candlestick/Candlestick.tsx
+import { jsx as jsx147 } from "react/jsx-runtime";
+var Candlestick = React125.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef57(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx147("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx147("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx147(CandlestickInner, { ...rest, width, height }) }) });
+  }
+);
+Candlestick.displayName = "Candlestick";
+
+// src/DATADISPLAY/Charts/Sparkline/Sparkline.tsx
+import React127, { useRef as useRef59 } from "react";
+
+// src/DATADISPLAY/Charts/Sparkline/SparklineInner.tsx
+import { useMemo as useMemo77, useCallback as useCallback68, useRef as useRef58 } from "react";
+
+// src/DATADISPLAY/Charts/Sparkline/Sparkline.constants.ts
+var SPARKLINE_ROOT_CLASS = "w3f-chart-sparkline";
+var SPARKLINE_DEFAULTS = {
+  color: "#6366f1",
+  showArea: true,
+  showEndDot: true,
+  showMinMax: false,
+  strokeWidth: 2,
+  curve: "monotone",
+  showTooltip: false,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Sparkline/Sparkline.utils.ts
+import { scaleLinear as scaleLinear12 } from "@visx/scale";
+function buildSparklineClasses(className, unstyled) {
+  return buildChartRootClasses(SPARKLINE_ROOT_CLASS, className, unstyled);
+}
+function buildSparklineScales(data, width, height, padding = 2) {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+  const xScale = scaleLinear12({
+    domain: [0, data.length - 1],
+    range: [padding, width - padding]
+  });
+  const yScale = scaleLinear12({
+    domain: [min - span * 0.05, max + span * 0.05],
+    range: [height - padding, padding]
+  });
+  return { xScale, yScale, min, max };
+}
+function buildSparklinePath(data, xScale, yScale) {
+  if (data.length === 0) return "";
+  const points = data.map((v, i) => `${xScale(i)},${yScale(v)}`);
+  return `M${points.join("L")}`;
+}
+function buildAreaPath(data, xScale, yScale, height, padding) {
+  if (data.length === 0) return "";
+  const line = data.map((v, i) => `${xScale(i)},${yScale(v)}`);
+  return `M${xScale(0)},${height - padding}L${line.join("L")}L${xScale(data.length - 1)},${height - padding}Z`;
+}
+
+// src/DATADISPLAY/Charts/Sparkline/Sparkline.hooks.ts
+import { useMemo as useMemo76, useState as useState55, useCallback as useCallback67 } from "react";
+function useSparklineScales(data, width, height) {
+  return useMemo76(
+    () => buildSparklineScales(data, width, height),
+    [data, width, height]
+  );
+}
+function useSparklineHover(onHover) {
+  const [hoveredIndex, setHoveredIndex] = useState55(null);
+  const handleMove = useCallback67(
+    (index, datum) => {
+      setHoveredIndex(index);
+      onHover?.(datum, index);
+    },
+    [onHover]
+  );
+  const handleLeave = useCallback67(() => {
+    setHoveredIndex(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  return { hoveredIndex, handleMove, handleLeave };
+}
+
+// src/DATADISPLAY/Charts/Sparkline/SparklineInner.tsx
+import { Fragment as Fragment16, jsx as jsx148, jsxs as jsxs93 } from "react/jsx-runtime";
+var PADDING = 4;
+var SparklineInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = SPARKLINE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    title,
+    subtitle,
+    color = SPARKLINE_DEFAULTS.color,
+    showArea = SPARKLINE_DEFAULTS.showArea,
+    showEndDot = SPARKLINE_DEFAULTS.showEndDot,
+    showMinMax = SPARKLINE_DEFAULTS.showMinMax,
+    strokeWidth = SPARKLINE_DEFAULTS.strokeWidth,
+    showTooltip = SPARKLINE_DEFAULTS.showTooltip,
+    onHover,
+    onSelect,
+    highlightIndex = null
+  } = props;
+  const svgRef = useRef58(null);
+  const { xScale, yScale } = useSparklineScales(data, width, height);
+  const { hoveredIndex, handleMove, handleLeave } = useSparklineHover(onHover);
+  const classes = useMemo77(() => buildSparklineClasses(className, unstyled), [className, unstyled]);
+  const linePath = useMemo77(() => buildSparklinePath(data, xScale, yScale), [data, xScale, yScale]);
+  const areaPath = useMemo77(
+    () => showArea ? buildAreaPath(data, xScale, yScale, height, PADDING) : "",
+    [data, xScale, yScale, height, showArea]
+  );
+  const minIdx = useMemo77(() => {
+    if (!showMinMax || data.length === 0) return -1;
+    let mi = 0;
+    for (let i = 1; i < data.length; i++) if (data[i] < data[mi]) mi = i;
+    return mi;
+  }, [data, showMinMax]);
+  const maxIdx = useMemo77(() => {
+    if (!showMinMax || data.length === 0) return -1;
+    let mi = 0;
+    for (let i = 1; i < data.length; i++) if (data[i] > data[mi]) mi = i;
+    return mi;
+  }, [data, showMinMax]);
+  const handleMouseMove = useCallback68((e) => {
+    if (data.length === 0) return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    let nearest = 0;
+    let nearestDist = Infinity;
+    for (let i = 0; i < data.length; i++) {
+      const dist = Math.abs(xScale(i) - mouseX);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = i;
+      }
+    }
+    handleMove(nearest, data[nearest]);
+  }, [data, xScale, handleMove]);
+  const handleClick = useCallback68(() => {
+    if (hoveredIndex != null && onSelect) onSelect(data[hoveredIndex], hoveredIndex);
+  }, [hoveredIndex, data, onSelect]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx148("div", { className: classes, children: /* @__PURE__ */ jsx148("svg", { width, height, role: "img", "aria-label": ariaLabel ?? "Empty sparkline" }) });
+  }
+  return /* @__PURE__ */ jsxs93("div", { className: classes, "data-bind-id": bindId, style: { display: "inline-block", lineHeight: 0 }, children: [
+    /* @__PURE__ */ jsx148(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs93("div", { style: { position: "relative", display: "inline-block" }, children: [
+      /* @__PURE__ */ jsxs93(
+        "svg",
+        {
+          ref: svgRef,
+          width,
+          height,
+          role: "img",
+          "aria-label": ariaLabel ?? "Sparkline",
+          onMouseMove: handleMouseMove,
+          onMouseLeave: handleLeave,
+          onClick: handleClick,
+          style: { cursor: onSelect ? "pointer" : "default" },
+          children: [
+            showArea && /* @__PURE__ */ jsx148("path", { d: areaPath, fill: color, fillOpacity: 0.15 }),
+            /* @__PURE__ */ jsx148("path", { d: linePath, fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" }),
+            showEndDot && data.length > 0 && /* @__PURE__ */ jsx148("circle", { cx: xScale(data.length - 1), cy: yScale(data[data.length - 1]), r: strokeWidth + 1, fill: color }),
+            showMinMax && minIdx >= 0 && /* @__PURE__ */ jsx148("circle", { cx: xScale(minIdx), cy: yScale(data[minIdx]), r: strokeWidth + 1, fill: "#ef4444" }),
+            showMinMax && maxIdx >= 0 && /* @__PURE__ */ jsx148("circle", { cx: xScale(maxIdx), cy: yScale(data[maxIdx]), r: strokeWidth + 1, fill: "#22c55e" }),
+            hoveredIndex != null && /* @__PURE__ */ jsxs93(Fragment16, { children: [
+              /* @__PURE__ */ jsx148(
+                "line",
+                {
+                  x1: xScale(hoveredIndex),
+                  y1: PADDING,
+                  x2: xScale(hoveredIndex),
+                  y2: height - PADDING,
+                  stroke: color,
+                  strokeWidth: 1,
+                  strokeDasharray: "3,3",
+                  opacity: 0.5
+                }
+              ),
+              /* @__PURE__ */ jsx148(
+                "circle",
+                {
+                  cx: xScale(hoveredIndex),
+                  cy: yScale(data[hoveredIndex]),
+                  r: strokeWidth + 1.5,
+                  fill: "white",
+                  stroke: color,
+                  strokeWidth: 1.5
+                }
+              )
+            ] }),
+            highlightIndex != null && highlightIndex < data.length && /* @__PURE__ */ jsx148(
+              "circle",
+              {
+                cx: xScale(highlightIndex),
+                cy: yScale(data[highlightIndex]),
+                r: 4,
+                fill: color,
+                stroke: "#fff",
+                strokeWidth: 2,
+                pointerEvents: "none"
+              }
+            )
+          ]
+        }
+      ),
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx148(ChartTooltip, { left: xScale(hoveredIndex), top: yScale(data[hoveredIndex]), visible: true, offsetY: -12, children: data[hoveredIndex].toLocaleString() })
+    ] })
+  ] });
+};
+SparklineInner.displayName = "SparklineInner";
+
+// src/DATADISPLAY/Charts/Sparkline/Sparkline.tsx
+import { jsx as jsx149 } from "react/jsx-runtime";
+var Sparkline = React127.forwardRef(
+  ({ width: propWidth, height: propHeight = 40, ...rest }, ref) => {
+    const containerRef = useRef59(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 120, 40);
+    return /* @__PURE__ */ jsx149("div", { ref, style: { width: propWidth ? void 0 : "100%", display: "inline-block" }, children: /* @__PURE__ */ jsx149("div", { ref: containerRef, children: /* @__PURE__ */ jsx149(SparklineInner, { ...rest, width, height }) }) });
+  }
+);
+Sparkline.displayName = "Sparkline";
+
+// src/DATADISPLAY/Charts/Bullet/Bullet.tsx
+import React129, { useRef as useRef60 } from "react";
+
+// src/DATADISPLAY/Charts/Bullet/BulletInner.tsx
+import { useMemo as useMemo78 } from "react";
+
+// src/DATADISPLAY/Charts/Bullet/Bullet.constants.ts
+var BULLET_ROOT_CLASS = "w3f-chart-bullet";
+var BULLET_DEFAULTS = {
+  showLabels: true,
+  showValues: true,
+  showTooltip: true,
+  rangeColors: ["#94a3b8", "#cbd5e1", "#e2e8f0"],
+  valueColor: "#1e293b",
+  targetColor: "#ef4444",
+  barHeight: 28,
+  rowGap: 16,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Bullet/Bullet.utils.ts
+import { scaleLinear as scaleLinear13 } from "@visx/scale";
+function buildBulletClasses(className, unstyled) {
+  return buildChartRootClasses(BULLET_ROOT_CLASS, className, unstyled);
+}
+function buildBulletScale(datum, width) {
+  const maxRange = Math.max(...datum.ranges, datum.value, datum.target ?? 0);
+  return scaleLinear13({
+    domain: [0, maxRange],
+    range: [0, width]
+  });
+}
+function buildTooltipContent19(datum) {
+  const parts = [`${datum.label}: ${datum.value.toLocaleString()}`];
+  if (datum.target != null) {
+    parts.push(`Target: ${datum.target.toLocaleString()}`);
+  }
+  parts.push(`Max range: ${Math.max(...datum.ranges).toLocaleString()}`);
+  return parts.join(" | ");
+}
+
+// src/DATADISPLAY/Charts/Bullet/Bullet.hooks.ts
+import { useCallback as useCallback69 } from "react";
+function useBulletInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback69(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback69(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback69(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Bullet/BulletInner.tsx
+import { jsx as jsx150, jsxs as jsxs94 } from "react/jsx-runtime";
+var BulletInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = BULLET_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    showLabels = BULLET_DEFAULTS.showLabels,
+    showValues = BULLET_DEFAULTS.showValues,
+    showTooltip = BULLET_DEFAULTS.showTooltip,
+    barHeight = BULLET_DEFAULTS.barHeight,
+    rowGap = BULLET_DEFAULTS.rowGap,
+    valueColor = BULLET_DEFAULTS.valueColor,
+    targetColor = BULLET_DEFAULTS.targetColor,
+    rangeColors = BULLET_DEFAULTS.rangeColors,
+    highlightIndex,
+    onHover,
+    onSelect
+  } = props;
+  const labelWidth = 80;
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBulletInteraction(onHover, onSelect);
+  const classes = useMemo78(() => buildBulletClasses(className, unstyled), [className, unstyled]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx150("div", { className: classes, children: /* @__PURE__ */ jsx150("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bullet chart" }) });
+  }
+  const leftOffset = showLabels ? labelWidth : 0;
+  const barWidth = width - leftOffset - (showValues ? 50 : 0);
+  const totalHeight = data.length * barHeight + (data.length - 1) * rowGap;
+  const fmt = (n) => n.toLocaleString();
+  return /* @__PURE__ */ jsxs94("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx150(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs94("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs94(
+        "svg",
+        {
+          width,
+          height: Math.max(totalHeight, height),
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Bullet chart",
+          children: [
+            description && /* @__PURE__ */ jsx150("desc", { children: description }),
+            data.map((datum, i) => {
+              const scale = buildBulletScale(datum, barWidth);
+              const y = i * (barHeight + rowGap);
+              const measureH = barHeight * 0.4;
+              const measureY = y + (barHeight - measureH) / 2;
+              const dimmed = highlightIndex != null && highlightIndex !== i || highlightIndex == null && hoveredIndex != null && hoveredIndex !== i;
+              return /* @__PURE__ */ jsxs94("g", { children: [
+                showLabels && /* @__PURE__ */ jsx150(
+                  "text",
+                  {
+                    x: leftOffset - 8,
+                    y: y + barHeight / 2,
+                    textAnchor: "end",
+                    dominantBaseline: "central",
+                    fontSize: 11,
+                    fill: "currentColor",
+                    children: datum.label
+                  }
+                ),
+                /* @__PURE__ */ jsxs94("g", { transform: `translate(${leftOffset}, ${y})`, children: [
+                  /* @__PURE__ */ jsx150(
+                    "rect",
+                    {
+                      x: 0,
+                      y: 0,
+                      width: scale(datum.ranges[2]) ?? 0,
+                      height: barHeight,
+                      fill: rangeColors[2],
+                      rx: 2
+                    }
+                  ),
+                  /* @__PURE__ */ jsx150(
+                    "rect",
+                    {
+                      x: 0,
+                      y: 0,
+                      width: scale(datum.ranges[1]) ?? 0,
+                      height: barHeight,
+                      fill: rangeColors[1],
+                      rx: 2
+                    }
+                  ),
+                  /* @__PURE__ */ jsx150(
+                    "rect",
+                    {
+                      x: 0,
+                      y: 0,
+                      width: scale(datum.ranges[0]) ?? 0,
+                      height: barHeight,
+                      fill: rangeColors[0],
+                      rx: 2
+                    }
+                  ),
+                  /* @__PURE__ */ jsx150(
+                    "rect",
+                    {
+                      x: 0,
+                      y: measureY - y,
+                      width: scale(datum.value) ?? 0,
+                      height: measureH,
+                      fill: valueColor,
+                      opacity: dimmed ? 0.4 : 0.9,
+                      rx: 1,
+                      onMouseEnter: () => handleEnter(datum, i),
+                      onMouseLeave: handleLeave,
+                      onClick: onSelect ? () => handleClick(datum, i) : void 0,
+                      style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
+                    }
+                  ),
+                  datum.target !== void 0 && /* @__PURE__ */ jsx150(
+                    "line",
+                    {
+                      x1: scale(datum.target) ?? 0,
+                      y1: 2,
+                      x2: scale(datum.target) ?? 0,
+                      y2: barHeight - 2,
+                      stroke: targetColor,
+                      strokeWidth: 2.5
+                    }
+                  )
+                ] }),
+                showValues && /* @__PURE__ */ jsx150(
+                  "text",
+                  {
+                    x: leftOffset + barWidth + 8,
+                    y: y + barHeight / 2,
+                    dominantBaseline: "central",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    fill: "currentColor",
+                    children: fmt(datum.value)
+                  }
+                )
+              ] }, i);
+            })
+          ]
+        }
+      ),
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx150(
+        ChartTooltip,
+        {
+          left: leftOffset + (buildBulletScale(data[hoveredIndex], barWidth)(data[hoveredIndex].value) ?? 0) / 2,
+          top: hoveredIndex * (barHeight + rowGap),
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent19(data[hoveredIndex], void 0)
+        }
+      )
+    ] })
+  ] });
+};
+BulletInner.displayName = "BulletInner";
+
+// src/DATADISPLAY/Charts/Bullet/Bullet.tsx
+import { jsx as jsx151 } from "react/jsx-runtime";
+var Bullet = React129.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef60(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx151("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx151("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx151(BulletInner, { ...rest, width, height }) }) });
+  }
+);
+Bullet.displayName = "Bullet";
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.tsx
+import React131, { useRef as useRef61 } from "react";
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmapInner.tsx
+import { useMemo as useMemo80 } from "react";
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.constants.ts
+var CALENDAR_ROOT_CLASS = "w3f-chart-calendar-heatmap";
+var CALENDAR_DEFAULTS = {
+  showMonthLabels: true,
+  showDayLabels: true,
+  showTooltip: true,
+  emptyColor: "#ebedf0",
+  colorRamp: ["#9be9a8", "#40c463", "#30a14e", "#216e39"],
+  cellGap: 2,
+  cellRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.utils.ts
+function buildCalendarClasses(className, unstyled) {
+  return buildChartRootClasses(CALENDAR_ROOT_CLASS, className, unstyled);
+}
+function toDate8(d) {
+  return d instanceof Date ? d : new Date(d);
+}
+function getWeekOfYear(date) {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const startDay = start.getDay();
+  const diff = (date.getTime() - start.getTime()) / 864e5;
+  return Math.floor((diff + startDay) / 7);
+}
+function buildCalendarCells(data) {
+  const dates = data.map((d) => toDate8(d.date));
+  const year = dates.length > 0 ? dates[0].getFullYear() : (/* @__PURE__ */ new Date()).getFullYear();
+  const lookup = /* @__PURE__ */ new Map();
+  for (const d of data) {
+    const dt = toDate8(d.date);
+    const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+    lookup.set(key, d);
+  }
+  const cells = [];
+  const startDate = new Date(year, 0, 1);
+  const endDate = new Date(year, 11, 31);
+  const startWeek = getWeekOfYear(startDate);
+  let current = new Date(startDate);
+  while (current <= endDate) {
+    const dayOfWeek = current.getDay();
+    const weekIndex = getWeekOfYear(current) - startWeek;
+    const key = `${current.getFullYear()}-${current.getMonth()}-${current.getDate()}`;
+    const datum = lookup.get(key) ?? null;
+    cells.push({
+      date: new Date(current),
+      dayOfWeek,
+      weekIndex,
+      value: datum?.value ?? 0,
+      datum
+    });
+    current = new Date(current.getTime() + 864e5);
+  }
+  const weeksCount = cells.length > 0 ? cells[cells.length - 1].weekIndex + 1 : 53;
+  return { cells, year, weeksCount };
+}
+function valueToColor(value, maxValue, emptyColor, colorRamp) {
+  if (value <= 0) return emptyColor;
+  if (maxValue <= 0) return emptyColor;
+  const ratio = Math.min(value / maxValue, 1);
+  const idx = Math.min(Math.floor(ratio * colorRamp.length), colorRamp.length - 1);
+  return colorRamp[idx];
+}
+function buildTooltipContent20(cell, formatValue2) {
+  const dateStr = cell.date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const valStr = formatValue2 ? formatValue2(cell.value) : cell.value.toLocaleString();
+  return `${dateStr}: ${valStr}`;
+}
+var MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function getMonthBoundaries(cells) {
+  const result = [];
+  let lastMonth = -1;
+  for (const cell of cells) {
+    const m = cell.date.getMonth();
+    if (m !== lastMonth) {
+      result.push({ month: MONTH_LABELS[m], weekIndex: cell.weekIndex });
+      lastMonth = m;
+    }
+  }
+  return result;
+}
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.hooks.ts
+import { useMemo as useMemo79, useCallback as useCallback70, useState as useState56 } from "react";
+function useCalendarCells(data) {
+  return useMemo79(() => buildCalendarCells(data), [data]);
+}
+function useCalendarInteraction(onHover, onSelect) {
+  const [hoveredIndex, setHoveredIndex] = useState56(null);
+  const handleEnter = useCallback70(
+    (datum, index) => {
+      setHoveredIndex(index);
+      onHover?.(datum, index);
+    },
+    [onHover]
+  );
+  const handleLeave = useCallback70(() => {
+    setHoveredIndex(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback70(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmapInner.tsx
+import { jsx as jsx152, jsxs as jsxs95 } from "react/jsx-runtime";
+var DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
+var CalendarHeatmapInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = CALENDAR_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    title,
+    subtitle,
+    showMonthLabels = CALENDAR_DEFAULTS.showMonthLabels,
+    showDayLabels = CALENDAR_DEFAULTS.showDayLabels,
+    showTooltip = CALENDAR_DEFAULTS.showTooltip,
+    emptyColor = CALENDAR_DEFAULTS.emptyColor,
+    colorRamp = CALENDAR_DEFAULTS.colorRamp,
+    cellGap = CALENDAR_DEFAULTS.cellGap,
+    cellRadius = CALENDAR_DEFAULTS.cellRadius,
+    formatValue: formatValue2,
+    onHover,
+    onSelect
+  } = props;
+  const { cells, weeksCount } = useCalendarCells(data);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useCalendarInteraction(onHover, onSelect);
+  const classes = useMemo80(() => buildCalendarClasses(className, unstyled), [className, unstyled]);
+  const maxValue = useMemo80(() => {
+    if (data.length === 0) return 1;
+    return Math.max(...data.map((d) => d.value), 1);
+  }, [data]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx152("div", { className: classes, children: /* @__PURE__ */ jsx152("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty calendar heatmap" }) });
+  }
+  const leftPad = showDayLabels ? 30 : 0;
+  const topPad = showMonthLabels ? 18 : 0;
+  const availWidth = width - leftPad - 8;
+  const cellSize = Math.max(Math.floor((availWidth - weeksCount * cellGap) / weeksCount), 6);
+  const svgWidth = leftPad + weeksCount * (cellSize + cellGap) + 8;
+  const svgHeight = topPad + 7 * (cellSize + cellGap) + 8;
+  const monthBoundaries = useMemo80(() => getMonthBoundaries(cells), [cells]);
+  return /* @__PURE__ */ jsxs95("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx152(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs95("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative", overflowX: "auto" }, children: [
+      /* @__PURE__ */ jsxs95("svg", { width: svgWidth, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Calendar heatmap", children: [
+        description && /* @__PURE__ */ jsx152("desc", { children: description }),
+        showMonthLabels && monthBoundaries.map((mb, i) => /* @__PURE__ */ jsx152(
+          "text",
+          {
+            x: leftPad + mb.weekIndex * (cellSize + cellGap),
+            y: 12,
+            fontSize: 10,
+            fill: "currentColor",
+            opacity: 0.7,
+            children: mb.month
+          },
+          i
+        )),
+        showDayLabels && DAY_LABELS.map((label, i) => label ? /* @__PURE__ */ jsx152(
+          "text",
+          {
+            x: leftPad - 6,
+            y: topPad + i * (cellSize + cellGap) + cellSize / 2,
+            textAnchor: "end",
+            dominantBaseline: "central",
+            fontSize: 9,
+            fill: "currentColor",
+            opacity: 0.6,
+            children: label
+          },
+          i
+        ) : null),
+        cells.map((cell, i) => {
+          const x = leftPad + cell.weekIndex * (cellSize + cellGap);
+          const y = topPad + cell.dayOfWeek * (cellSize + cellGap);
+          const fill = valueToColor(cell.value, maxValue, emptyColor, colorRamp);
+          return /* @__PURE__ */ jsx152(
+            "rect",
+            {
+              x,
+              y,
+              width: cellSize,
+              height: cellSize,
+              fill,
+              rx: cellRadius,
+              opacity: hoveredIndex != null && hoveredIndex !== i ? 0.6 : 1,
+              style: { transition: "opacity 80ms ease-out", cursor: onSelect ? "pointer" : "default" },
+              onMouseEnter: () => {
+                if (cell.datum) handleEnter(cell.datum, i);
+              },
+              onMouseLeave: handleLeave,
+              onClick: () => {
+                if (cell.datum && onSelect) handleClick(cell.datum, i);
+              }
+            },
+            i
+          );
+        })
+      ] }),
+      showTooltip && hoveredIndex != null && cells[hoveredIndex] && /* @__PURE__ */ jsx152(
+        ChartTooltip,
+        {
+          left: leftPad + cells[hoveredIndex].weekIndex * (cellSize + cellGap) + cellSize / 2,
+          top: topPad + cells[hoveredIndex].dayOfWeek * (cellSize + cellGap),
+          visible: true,
+          offsetY: -12,
+          children: buildTooltipContent20(cells[hoveredIndex], formatValue2)
+        }
+      )
+    ] })
+  ] });
+};
+CalendarHeatmapInner.displayName = "CalendarHeatmapInner";
+
+// src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.tsx
+import { jsx as jsx153 } from "react/jsx-runtime";
+var CalendarHeatmap = React131.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef61(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 800, 140);
+    return /* @__PURE__ */ jsx153("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx153("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx153(CalendarHeatmapInner, { ...rest, width, height }) }) });
+  }
+);
+CalendarHeatmap.displayName = "CalendarHeatmap";
+
+// src/DATADISPLAY/Charts/Sunburst/Sunburst.tsx
+import React133, { useRef as useRef62 } from "react";
+
+// src/DATADISPLAY/Charts/Sunburst/SunburstInner.tsx
+import { useMemo as useMemo82 } from "react";
+import { Group as Group27 } from "@visx/group";
+import { hierarchy as hierarchy3 } from "@visx/hierarchy";
+import { partition } from "d3-hierarchy";
+import { scaleSqrt } from "@visx/scale";
+import { arc as d3arc } from "d3-shape";
+
+// src/DATADISPLAY/Charts/Sunburst/Sunburst.constants.ts
+var SUNBURST_ROOT_CLASS = "w3f-chart-sunburst";
+var SUNBURST_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  padAngle: 0.01,
+  cornerRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Sunburst/Sunburst.utils.ts
+function buildSunburstClasses(className, unstyled) {
+  return buildChartRootClasses(SUNBURST_ROOT_CLASS, className, unstyled);
+}
+function buildSunburstColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent21(node) {
+  return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ""}`;
+}
+function arcLabelFits(startAngle, endAngle, depth) {
+  const angle = endAngle - startAngle;
+  return angle > 0.3 && depth <= 2;
+}
+
+// src/DATADISPLAY/Charts/Sunburst/Sunburst.hooks.ts
+import { useMemo as useMemo81, useCallback as useCallback71 } from "react";
+function useSunburstColors(count, colorScheme) {
+  return useMemo81(() => buildSunburstColors(count, colorScheme), [count, colorScheme]);
+}
+function useSunburstInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback71((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback71(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback71((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Sunburst/SunburstInner.tsx
+import { jsx as jsx154, jsxs as jsxs96 } from "react/jsx-runtime";
+var SunburstInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = SUNBURST_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = SUNBURST_DEFAULTS.showLabels,
+    showTooltip = SUNBURST_DEFAULTS.showTooltip,
+    padAngle = SUNBURST_DEFAULTS.padAngle,
+    cornerRadius = SUNBURST_DEFAULTS.cornerRadius,
+    onHover,
+    onSelect
+  } = props;
+  const root = useMemo82(() => {
+    const r = hierarchy3(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    return partition().size([2 * Math.PI, r.height + 1])(r);
+  }, [data]);
+  const nodes = useMemo82(() => root.descendants().filter((d) => d.depth > 0), [root]);
+  const maxDepth2 = useMemo82(() => Math.max(...nodes.map((n) => n.depth), 1), [nodes]);
+  const colors = useSunburstColors(nodes.length, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useSunburstInteraction(onHover, onSelect);
+  const classes = useMemo82(() => buildSunburstClasses(className, unstyled), [className, unstyled]);
+  const radius = Math.min(width, height) / 2 * 0.9;
+  const cx = width / 2;
+  const cy = height / 2;
+  const yScale = useMemo82(() => scaleSqrt({
+    domain: [0, maxDepth2 + 1],
+    range: [radius * 0.15, radius]
+  }), [maxDepth2, radius]);
+  const arcGen = useMemo82(() => d3arc().cornerRadius(cornerRadius), [cornerRadius]);
+  if (nodes.length === 0) {
+    return /* @__PURE__ */ jsx154("div", { className: classes, children: /* @__PURE__ */ jsx154("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sunburst" }) });
+  }
+  return /* @__PURE__ */ jsxs96("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx154(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs96("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs96("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sunburst chart", children: [
+        description && /* @__PURE__ */ jsx154("desc", { children: description }),
+        /* @__PURE__ */ jsx154(Group27, { top: cy, left: cx, children: nodes.map((node, i) => {
+          const innerR = yScale(node.depth);
+          const outerR = yScale(node.depth + 1);
+          const isHovered = hoveredIndex === i;
+          const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+          const d = node.data;
+          const startAngle = node.x0;
+          const endAngle = node.x1;
+          const pathStr = arcGen({
+            startAngle,
+            endAngle,
+            innerRadius: innerR,
+            outerRadius: outerR,
+            padAngle
+          }) ?? "";
+          return /* @__PURE__ */ jsxs96(
+            "g",
+            {
+              opacity,
+              style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+              onMouseEnter: () => handleEnter(d, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(d, i) : void 0,
+              children: [
+                /* @__PURE__ */ jsx154("path", { d: pathStr, fill: colors[i] }),
+                showLabels && arcLabelFits(startAngle, endAngle, node.depth) && (() => {
+                  const angle = (startAngle + endAngle) / 2;
+                  const r = (innerR + outerR) / 2;
+                  const x = Math.cos(angle - Math.PI / 2) * r;
+                  const y = Math.sin(angle - Math.PI / 2) * r;
+                  const rotate = angle > Math.PI ? angle * 180 / Math.PI - 270 : angle * 180 / Math.PI - 90;
+                  return /* @__PURE__ */ jsx154(
+                    "text",
+                    {
+                      x,
+                      y,
+                      fontSize: 10,
+                      fill: "#fff",
+                      fontWeight: 500,
+                      textAnchor: "middle",
+                      dominantBaseline: "central",
+                      pointerEvents: "none",
+                      transform: `rotate(${rotate}, ${x}, ${y})`,
+                      children: d.label ?? d.id
+                    }
+                  );
+                })()
+              ]
+            },
+            d.id + "-" + i
+          );
+        }) })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const node = nodes[hoveredIndex];
+        if (!node) return null;
+        return /* @__PURE__ */ jsx154(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent21(node.data) });
+      })()
+    ] })
+  ] });
+};
+SunburstInner.displayName = "SunburstInner";
+
+// src/DATADISPLAY/Charts/Sunburst/Sunburst.tsx
+import { jsx as jsx155 } from "react/jsx-runtime";
+var Sunburst = React133.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef62(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx155("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx155("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx155(SunburstInner, { ...rest, width, height }) }) });
+  }
+);
+Sunburst.displayName = "Sunburst";
+
+// src/DATADISPLAY/Charts/Chord/Chord.tsx
+import React135, { useRef as useRef63 } from "react";
+
+// src/DATADISPLAY/Charts/Chord/ChordInner.tsx
+import { useMemo as useMemo84 } from "react";
+import { Group as Group28 } from "@visx/group";
+import { Chord as VisxChord, Ribbon } from "@visx/chord";
+import { arc as d3arc2 } from "d3-shape";
+
+// src/DATADISPLAY/Charts/Chord/Chord.constants.ts
+var CHORD_ROOT_CLASS = "w3f-chart-chord";
+var CHORD_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  padAngle: 0.05,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Chord/Chord.utils.ts
+function buildChordClasses(className, unstyled) {
+  return buildChartRootClasses(CHORD_ROOT_CLASS, className, unstyled);
+}
+function buildChordColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent22(source, target, value) {
+  return `${source} \u2192 ${target}: ${value.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Chord/Chord.hooks.ts
+import { useMemo as useMemo83, useCallback as useCallback72, useState as useState57 } from "react";
+function useChordColors(count, colorScheme) {
+  return useMemo83(() => buildChordColors(count, colorScheme), [count, colorScheme]);
+}
+function useChordInteraction(onHover, onSelect) {
+  const [hoveredIndex, setHoveredIndex] = useState57(null);
+  const [hoveredDatum, setHoveredDatum] = useState57(null);
+  const handleEnter = useCallback72((d, i) => {
+    setHoveredIndex(i);
+    setHoveredDatum(d);
+    onHover?.(d, i);
+  }, [onHover]);
+  const handleLeave = useCallback72(() => {
+    setHoveredIndex(null);
+    setHoveredDatum(null);
+    onHover?.(null, null);
+  }, [onHover]);
+  const handleClick = useCallback72((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, hoveredDatum, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Chord/ChordInner.tsx
+import { jsx as jsx156, jsxs as jsxs97 } from "react/jsx-runtime";
+var ChordInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = CHORD_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = CHORD_DEFAULTS.showLabels,
+    showTooltip = CHORD_DEFAULTS.showTooltip,
+    padAngle = CHORD_DEFAULTS.padAngle,
+    onHover,
+    onSelect
+  } = props;
+  const { matrix, labels } = data;
+  const colors = useChordColors(labels.length, colorScheme);
+  const { hoveredIndex, hoveredDatum, handleEnter, handleLeave, handleClick } = useChordInteraction(onHover, onSelect);
+  const classes = useMemo84(() => buildChordClasses(className, unstyled), [className, unstyled]);
+  const radius = Math.min(width, height) / 2 * 0.8;
+  const cx = width / 2;
+  const cy = height / 2;
+  const arcGen = useMemo84(() => d3arc2(), []);
+  if (labels.length === 0 || matrix.length === 0) {
+    return /* @__PURE__ */ jsx156("div", { className: classes, children: /* @__PURE__ */ jsx156("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty chord" }) });
+  }
+  return /* @__PURE__ */ jsxs97("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx156(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs97("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs97("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Chord diagram", children: [
+        description && /* @__PURE__ */ jsx156("desc", { children: description }),
+        /* @__PURE__ */ jsx156(Group28, { top: cy, left: cx, children: /* @__PURE__ */ jsx156(VisxChord, { matrix, padAngle, children: ({ chords }) => /* @__PURE__ */ jsxs97("g", { children: [
+          chords.groups.map((group, i) => {
+            const pathStr = arcGen({
+              startAngle: group.startAngle,
+              endAngle: group.endAngle,
+              innerRadius: radius - 10,
+              outerRadius: radius
+            }) ?? "";
+            return /* @__PURE__ */ jsxs97("g", { children: [
+              /* @__PURE__ */ jsx156("path", { d: pathStr, fill: colors[i], stroke: colors[i] }),
+              showLabels && (() => {
+                const angle = (group.startAngle + group.endAngle) / 2;
+                const textR = radius + 14;
+                const x = Math.cos(angle - Math.PI / 2) * textR;
+                const y = Math.sin(angle - Math.PI / 2) * textR;
+                return /* @__PURE__ */ jsx156(
+                  "text",
+                  {
+                    x,
+                    y,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fill: "var(--w3f-text, #333)",
+                    textAnchor: angle > Math.PI ? "end" : "start",
+                    dominantBaseline: "central",
+                    pointerEvents: "none",
+                    children: labels[i]
+                  }
+                );
+              })()
+            ] }, `group-${i}`);
+          }),
+          chords.map((chord, i) => {
+            const isHovered = hoveredIndex === i;
+            const opacity = hoveredIndex != null && !isHovered ? 0.15 : 0.65;
+            const src = labels[chord.source.index];
+            const tgt = labels[chord.target.index];
+            const val = chord.source.value;
+            const datum = { source: src, target: tgt, value: val };
+            return /* @__PURE__ */ jsx156(
+              Ribbon,
+              {
+                chord,
+                radius: radius - 10,
+                fill: colors[chord.source.index],
+                opacity,
+                style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                onMouseEnter: () => handleEnter(datum, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(datum, i) : void 0
+              },
+              `ribbon-${i}`
+            );
+          })
+        ] }) }) })
+      ] }),
+      showTooltip && hoveredDatum != null && /* @__PURE__ */ jsx156(ChartTooltip, { left: cx, top: 10, visible: true, offsetY: 0, children: buildTooltipContent22(hoveredDatum.source, hoveredDatum.target, hoveredDatum.value) })
+    ] })
+  ] });
+};
+ChordInner.displayName = "ChordInner";
+
+// src/DATADISPLAY/Charts/Chord/Chord.tsx
+import { jsx as jsx157 } from "react/jsx-runtime";
+var Chord = React135.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef63(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx157("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx157("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx157(ChordInner, { ...rest, width, height }) }) });
+  }
+);
+Chord.displayName = "Chord";
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBar.tsx
+import React137, { useRef as useRef64 } from "react";
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBarInner.tsx
+import { useMemo as useMemo86 } from "react";
+import { Group as Group29 } from "@visx/group";
+import { scaleLinear as scaleLinear14 } from "@visx/scale";
+import { arc as d3arc3 } from "d3-shape";
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBar.constants.ts
+var POLAR_BAR_ROOT_CLASS = "w3f-chart-polar-bar";
+var POLAR_BAR_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  showLegend: false,
+  padAngle: 0.02,
+  cornerRadius: 2,
+  innerRadius: 0.2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBar.utils.ts
+function buildPolarBarClasses(className, unstyled) {
+  return buildChartRootClasses(POLAR_BAR_ROOT_CLASS, className, unstyled);
+}
+function buildPolarBarColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent23(d) {
+  return `${d.label}: ${d.value.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBar.hooks.ts
+import { useMemo as useMemo85, useCallback as useCallback73 } from "react";
+function usePolarBarColors(count, colorScheme) {
+  return useMemo85(() => buildPolarBarColors(count, colorScheme), [count, colorScheme]);
+}
+function usePolarBarInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback73((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback73(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback73((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBarInner.tsx
+import { jsx as jsx158, jsxs as jsxs98 } from "react/jsx-runtime";
+var PolarBarInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = POLAR_BAR_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = POLAR_BAR_DEFAULTS.showLabels,
+    showTooltip = POLAR_BAR_DEFAULTS.showTooltip,
+    showLegend = POLAR_BAR_DEFAULTS.showLegend,
+    padAngle = POLAR_BAR_DEFAULTS.padAngle,
+    cornerRadius = POLAR_BAR_DEFAULTS.cornerRadius,
+    innerRadius: innerRadiusRatio = POLAR_BAR_DEFAULTS.innerRadius,
+    onHover,
+    onSelect
+  } = props;
+  const colors = usePolarBarColors(data.length, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePolarBarInteraction(onHover, onSelect);
+  const classes = useMemo86(() => buildPolarBarClasses(className, unstyled), [className, unstyled]);
+  const legendHeight = showLegend ? 36 : 0;
+  const svgHeight = height - legendHeight;
+  const radius = Math.min(width, svgHeight) / 2 * 0.85;
+  const innerR = radius * innerRadiusRatio;
+  const cx = width / 2;
+  const cy = svgHeight / 2;
+  const maxValue = useMemo86(() => Math.max(...data.map((d) => d.value), 1), [data]);
+  const radiusScale = useMemo86(() => scaleLinear14({
+    domain: [0, maxValue],
+    range: [innerR, radius]
+  }), [maxValue, innerR, radius]);
+  const arcGen = useMemo86(() => d3arc3().cornerRadius(cornerRadius), [cornerRadius]);
+  const sliceAngle = data.length > 0 ? 2 * Math.PI / data.length : 0;
+  const legendItems = useMemo86(
+    () => data.map((d, i) => ({ id: String(d.label), label: String(d.label), color: colors[i] })),
+    [data, colors]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx158("div", { className: classes, children: /* @__PURE__ */ jsx158("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty polar bar" }) });
+  }
+  return /* @__PURE__ */ jsxs98("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx158(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs98("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs98("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Polar bar chart", children: [
+        description && /* @__PURE__ */ jsx158("desc", { children: description }),
+        /* @__PURE__ */ jsx158(Group29, { top: cy, left: cx, children: data.map((d, i) => {
+          const startAngle = i * sliceAngle;
+          const endAngle = startAngle + sliceAngle - padAngle;
+          const outerR = radiusScale(d.value);
+          const isHovered = hoveredIndex === i;
+          const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+          const pathStr = arcGen({
+            startAngle,
+            endAngle,
+            innerRadius: innerR,
+            outerRadius: outerR
+          }) ?? "";
+          const midAngle = (startAngle + endAngle) / 2;
+          const labelR = radius + 14;
+          const lx = Math.cos(midAngle - Math.PI / 2) * labelR;
+          const ly = Math.sin(midAngle - Math.PI / 2) * labelR;
+          return /* @__PURE__ */ jsxs98(
+            "g",
+            {
+              opacity,
+              style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+              onMouseEnter: () => handleEnter(d, i),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(d, i) : void 0,
+              children: [
+                /* @__PURE__ */ jsx158("path", { d: pathStr, fill: colors[i] }),
+                showLabels && /* @__PURE__ */ jsx158(
+                  "text",
+                  {
+                    x: lx,
+                    y: ly,
+                    fontSize: 10,
+                    fill: "var(--w3f-text, #333)",
+                    fontWeight: 500,
+                    textAnchor: midAngle > Math.PI ? "end" : "start",
+                    dominantBaseline: "central",
+                    pointerEvents: "none",
+                    children: String(d.label)
+                  }
+                )
+              ]
+            },
+            String(d.label) + "-" + i
+          );
+        }) })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        return /* @__PURE__ */ jsx158(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent23(d) });
+      })()
+    ] }),
+    showLegend && /* @__PURE__ */ jsx158(ChartLegend, { items: legendItems, direction: "horizontal" })
+  ] });
+};
+PolarBarInner.displayName = "PolarBarInner";
+
+// src/DATADISPLAY/Charts/PolarBar/PolarBar.tsx
+import { jsx as jsx159 } from "react/jsx-runtime";
+var PolarBar = React137.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef64(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx159("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx159("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx159(PolarBarInner, { ...rest, width, height }) }) });
+  }
+);
+PolarBar.displayName = "PolarBar";
+
+// src/DATADISPLAY/Charts/Waffle/Waffle.tsx
+import React139, { useRef as useRef65 } from "react";
+
+// src/DATADISPLAY/Charts/Waffle/WaffleInner.tsx
+import { useMemo as useMemo88 } from "react";
+
+// src/DATADISPLAY/Charts/Waffle/Waffle.constants.ts
+var WAFFLE_ROOT_CLASS = "w3f-chart-waffle";
+var WAFFLE_DEFAULTS = {
+  showTooltip: true,
+  showLegend: true,
+  totalCells: 100,
+  columns: 10,
+  cellGap: 2,
+  cellRadius: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Waffle/Waffle.utils.ts
+function buildWaffleClasses(className, unstyled) {
+  return buildChartRootClasses(WAFFLE_ROOT_CLASS, className, unstyled);
+}
+function buildWaffleColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildCellMap(data, totalCells) {
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+  if (total === 0) return Array(totalCells).fill(-1);
+  const cells = [];
+  let remaining = totalCells;
+  data.forEach((d, sliceIndex) => {
+    const proportion = d.value / total;
+    const count = sliceIndex === data.length - 1 ? remaining : Math.round(proportion * totalCells);
+    for (let j = 0; j < count && cells.length < totalCells; j++) {
+      cells.push(sliceIndex);
+    }
+    remaining -= count;
+  });
+  while (cells.length < totalCells) {
+    cells.push(data.length - 1);
+  }
+  return cells;
+}
+function buildTooltipContent24(d, total) {
+  const pct = total > 0 ? (d.value / total * 100).toFixed(1) : "0";
+  return `${d.label}: ${d.value.toLocaleString()} (${pct}%)`;
+}
+
+// src/DATADISPLAY/Charts/Waffle/Waffle.hooks.ts
+import { useMemo as useMemo87, useCallback as useCallback74 } from "react";
+function useWaffleColors(count, colorScheme) {
+  return useMemo87(() => buildWaffleColors(count, colorScheme), [count, colorScheme]);
+}
+function useWaffleCellMap(data, totalCells) {
+  return useMemo87(() => buildCellMap(data, totalCells), [data, totalCells]);
+}
+function useWaffleInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback74((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback74(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback74((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Waffle/WaffleInner.tsx
+import { jsx as jsx160, jsxs as jsxs99 } from "react/jsx-runtime";
+var WaffleInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = WAFFLE_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showTooltip = WAFFLE_DEFAULTS.showTooltip,
+    showLegend = WAFFLE_DEFAULTS.showLegend,
+    totalCells = WAFFLE_DEFAULTS.totalCells,
+    columns = WAFFLE_DEFAULTS.columns,
+    cellGap = WAFFLE_DEFAULTS.cellGap,
+    cellRadius = WAFFLE_DEFAULTS.cellRadius,
+    onHover,
+    onSelect
+  } = props;
+  const colors = useWaffleColors(data.length, colorScheme);
+  const cellMap = useWaffleCellMap(data, totalCells);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWaffleInteraction(onHover, onSelect);
+  const classes = useMemo88(() => buildWaffleClasses(className, unstyled), [className, unstyled]);
+  const rows = Math.ceil(totalCells / columns);
+  const legendHeight = showLegend ? 36 : 0;
+  const svgHeight = height - legendHeight;
+  const cellW = (width - (columns - 1) * cellGap) / columns;
+  const cellH = (svgHeight - (rows - 1) * cellGap) / rows;
+  const cellSize = Math.min(cellW, cellH);
+  const gridW = cellSize * columns + cellGap * (columns - 1);
+  const gridH = cellSize * rows + cellGap * (rows - 1);
+  const offsetX = (width - gridW) / 2;
+  const offsetY = (svgHeight - gridH) / 2;
+  const total = useMemo88(() => data.reduce((s, d) => s + d.value, 0), [data]);
+  const legendItems = useMemo88(
+    () => data.map((d, i) => ({ id: d.id, label: d.label, color: colors[i] })),
+    [data, colors]
+  );
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx160("div", { className: classes, children: /* @__PURE__ */ jsx160("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waffle" }) });
+  }
+  return /* @__PURE__ */ jsxs99("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx160(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs99("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs99("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waffle chart", children: [
+        description && /* @__PURE__ */ jsx160("desc", { children: description }),
+        cellMap.map((sliceIdx, cellIdx) => {
+          if (sliceIdx < 0) return null;
+          const col = cellIdx % columns;
+          const row = Math.floor(cellIdx / columns);
+          const x = offsetX + col * (cellSize + cellGap);
+          const y = offsetY + row * (cellSize + cellGap);
+          const d = data[sliceIdx];
+          const isHovered = hoveredIndex === sliceIdx;
+          const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
+          return /* @__PURE__ */ jsx160(
+            "rect",
+            {
+              x,
+              y,
+              width: cellSize,
+              height: cellSize,
+              rx: cellRadius,
+              fill: d.color ?? colors[sliceIdx],
+              opacity,
+              style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+              onMouseEnter: () => handleEnter(d, sliceIdx),
+              onMouseLeave: handleLeave,
+              onClick: onSelect ? () => handleClick(d, sliceIdx) : void 0
+            },
+            cellIdx
+          );
+        })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const d = data[hoveredIndex];
+        if (!d) return null;
+        return /* @__PURE__ */ jsx160(ChartTooltip, { left: width / 2, top: 0, visible: true, offsetY: -12, children: buildTooltipContent24(d, total) });
+      })()
+    ] }),
+    showLegend && /* @__PURE__ */ jsx160(ChartLegend, { items: legendItems, direction: "horizontal" })
+  ] });
+};
+WaffleInner.displayName = "WaffleInner";
+
+// src/DATADISPLAY/Charts/Waffle/Waffle.tsx
+import { jsx as jsx161 } from "react/jsx-runtime";
+var Waffle = React139.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef65(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx161("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx161("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx161(WaffleInner, { ...rest, width, height }) }) });
+  }
+);
+Waffle.displayName = "Waffle";
+
+// src/DATADISPLAY/Charts/Gantt/Gantt.tsx
+import React141, { useRef as useRef66 } from "react";
+
+// src/DATADISPLAY/Charts/Gantt/GanttInner.tsx
+import { useMemo as useMemo90 } from "react";
+import { Group as Group30 } from "@visx/group";
+import { scaleTime as scaleTime7, scaleBand as scaleBand5 } from "@visx/scale";
+
+// src/DATADISPLAY/Charts/Gantt/Gantt.constants.ts
+var GANTT_ROOT_CLASS = "w3f-chart-gantt";
+var GANTT_DEFAULTS = {
+  showLabels: true,
+  showTooltip: true,
+  showXAxis: true,
+  showGrid: true,
+  barHeight: 24,
+  barGap: 8,
+  barRadius: 4,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Gantt/Gantt.utils.ts
+function buildGanttClasses(className, unstyled) {
+  return buildChartRootClasses(GANTT_ROOT_CLASS, className, unstyled);
+}
+function buildGanttColors(groups, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  const result = {};
+  groups.forEach((g, i) => {
+    result[g] = palette[i % palette.length];
+  });
+  return result;
+}
+function toDate9(d) {
+  if (d instanceof Date) return d;
+  return new Date(d);
+}
+function formatDate(d) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${months[d.getMonth()]} ${d.getDate().toString().padStart(2, "0")}`;
+}
+function buildTooltipContent25(task) {
+  const start = formatDate(toDate9(task.start));
+  const end = formatDate(toDate9(task.end));
+  let text = `${task.label}: ${start} \u2013 ${end}`;
+  if (task.progress != null) {
+    text += ` (${Math.round(task.progress * 100)}%)`;
+  }
+  return text;
+}
+
+// src/DATADISPLAY/Charts/Gantt/Gantt.hooks.ts
+import { useMemo as useMemo89, useCallback as useCallback75 } from "react";
+function useGanttColors(groups, colorScheme) {
+  return useMemo89(
+    () => buildGanttColors(groups, colorScheme),
+    [groups, colorScheme]
+  );
+}
+function useGanttInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback75(
+    (datum, index) => {
+      enter(index);
+      onHover?.(datum, index);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback75(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback75(
+    (datum, index) => {
+      onSelect?.(datum, index);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Gantt/GanttInner.tsx
+import { jsx as jsx162, jsxs as jsxs100 } from "react/jsx-runtime";
+var DEFAULT_MARGIN = { top: 20, right: 20, bottom: 40, left: 120 };
+var GanttInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    margin = DEFAULT_MARGIN,
+    className,
+    unstyled = GANTT_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showLabels = GANTT_DEFAULTS.showLabels,
+    showTooltip = GANTT_DEFAULTS.showTooltip,
+    showXAxis = GANTT_DEFAULTS.showXAxis,
+    showGrid = GANTT_DEFAULTS.showGrid,
+    barHeight = GANTT_DEFAULTS.barHeight,
+    barGap = GANTT_DEFAULTS.barGap,
+    barRadius = GANTT_DEFAULTS.barRadius,
+    onHover,
+    onSelect
+  } = props;
+  const dims = useInnerDims(width, height, margin);
+  const groups = useMemo90(() => {
+    const seen = /* @__PURE__ */ new Set();
+    data.forEach((t) => {
+      const g = t.group ?? t.id;
+      seen.add(g);
+    });
+    return Array.from(seen);
+  }, [data]);
+  const colorMap = useGanttColors(groups, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useGanttInteraction(onHover, onSelect);
+  const classes = useMemo90(() => buildGanttClasses(className, unstyled), [className, unstyled]);
+  const { xScale, yScale } = useMemo90(() => {
+    if (data.length === 0) {
+      const now = /* @__PURE__ */ new Date();
+      const later = new Date(now.getTime() + 864e5);
+      return {
+        xScale: scaleTime7({ domain: [now, later], range: [0, dims.innerWidth] }),
+        yScale: scaleBand5({ domain: [], range: [0, dims.innerHeight], padding: 0.2 })
+      };
+    }
+    const dates = data.flatMap((t) => [toDate9(t.start).getTime(), toDate9(t.end).getTime()]);
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+    const span = maxDate.getTime() - minDate.getTime();
+    const padded = span * 0.02;
+    const xs = scaleTime7({
+      domain: [new Date(minDate.getTime() - padded), new Date(maxDate.getTime() + padded)],
+      range: [0, dims.innerWidth]
+    });
+    const labels = data.map((t) => t.label);
+    const ys = scaleBand5({
+      domain: [...labels],
+      range: [0, dims.innerHeight],
+      padding: 0.2
+    });
+    return { xScale: xs, yScale: ys };
+  }, [data, dims.innerWidth, dims.innerHeight]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx162("div", { className: classes, children: /* @__PURE__ */ jsx162("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty Gantt chart" }) });
+  }
+  const bandwidth = yScale.bandwidth();
+  const taskBarHeight = Math.min(barHeight, bandwidth);
+  const barY = (bandwidth - taskBarHeight) / 2;
+  return /* @__PURE__ */ jsxs100("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx162(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs100("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs100("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Gantt chart", children: [
+        description && /* @__PURE__ */ jsx162("desc", { children: description }),
+        /* @__PURE__ */ jsxs100(Group30, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ jsx162(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "x" }),
+          data.map((task, i) => {
+            const startX = xScale(toDate9(task.start)) ?? 0;
+            const endX = xScale(toDate9(task.end)) ?? 0;
+            const taskWidth = Math.max(endX - startX, 2);
+            const y = (yScale(task.label) ?? 0) + barY;
+            const color = colorMap[task.group ?? task.id] ?? colorMap[groups[i % groups.length]];
+            return /* @__PURE__ */ jsxs100(
+              "g",
+              {
+                opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
+                style: { transition: "opacity 120ms ease-out" },
+                onMouseEnter: () => handleEnter(task, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(task, i) : void 0,
+                cursor: onSelect ? "pointer" : "default",
+                children: [
+                  /* @__PURE__ */ jsx162(
+                    "rect",
+                    {
+                      x: startX,
+                      y,
+                      width: taskWidth,
+                      height: taskBarHeight,
+                      fill: color,
+                      fillOpacity: 0.3,
+                      rx: barRadius,
+                      ry: barRadius
+                    }
+                  ),
+                  task.progress != null && task.progress > 0 && /* @__PURE__ */ jsx162(
+                    "rect",
+                    {
+                      x: startX,
+                      y,
+                      width: taskWidth * Math.min(task.progress, 1),
+                      height: taskBarHeight,
+                      fill: color,
+                      fillOpacity: 0.85,
+                      rx: barRadius,
+                      ry: barRadius
+                    }
+                  ),
+                  task.progress == null && /* @__PURE__ */ jsx162(
+                    "rect",
+                    {
+                      x: startX,
+                      y,
+                      width: taskWidth,
+                      height: taskBarHeight,
+                      fill: color,
+                      fillOpacity: 0.75,
+                      rx: barRadius,
+                      ry: barRadius
+                    }
+                  )
+                ]
+              },
+              task.id
+            );
+          }),
+          showLabels && data.map((task, i) => {
+            const y = (yScale(task.label) ?? 0) + barY + taskBarHeight / 2;
+            return /* @__PURE__ */ jsx162(
+              "text",
+              {
+                x: -8,
+                y,
+                textAnchor: "end",
+                dominantBaseline: "central",
+                fontSize: 12,
+                fill: "var(--w3f-text-primary, #333)",
+                opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
+                style: { transition: "opacity 120ms ease-out" },
+                children: task.label
+              },
+              `label-${task.id}`
+            );
+          }),
+          showXAxis && /* @__PURE__ */ jsx162(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
+        ] })
+      ] }),
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx162(
+        ChartTooltip,
+        {
+          left: (xScale(toDate9(data[hoveredIndex].start)) ?? 0) + dims.margin.left,
+          top: (yScale(data[hoveredIndex].label) ?? 0) + dims.margin.top,
+          visible: true,
+          offsetY: -16,
+          children: buildTooltipContent25(data[hoveredIndex])
+        }
+      )
+    ] })
+  ] });
+};
+GanttInner.displayName = "GanttInner";
+
+// src/DATADISPLAY/Charts/Gantt/Gantt.tsx
+import { jsx as jsx163 } from "react/jsx-runtime";
+var Gantt = React141.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef66(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx163("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx163("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx163(GanttInner, { ...rest, width, height }) }) });
+  }
+);
+Gantt.displayName = "Gantt";
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.tsx
+import React143, { useRef as useRef67 } from "react";
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
+import { useMemo as useMemo92 } from "react";
+import { Group as Group31 } from "@visx/group";
+import { Tree as Tree2, hierarchy as hierarchy4 } from "@visx/hierarchy";
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.constants.ts
+var TREE_DIAGRAM_ROOT_CLASS = "w3f-chart-tree-diagram";
+var TREE_DIAGRAM_DEFAULTS = {
+  layout: "top-down",
+  showLabels: true,
+  showTooltip: true,
+  nodeRadius: 6,
+  linkStroke: "var(--w3f-border, #ccc)",
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.utils.ts
+function buildTreeDiagramClasses(className, unstyled) {
+  return buildChartRootClasses(TREE_DIAGRAM_ROOT_CLASS, className, unstyled);
+}
+function buildTreeDiagramColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent26(node) {
+  return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ""}`;
+}
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.hooks.ts
+import { useMemo as useMemo91, useCallback as useCallback76 } from "react";
+function useTreeDiagramColors(count, colorScheme) {
+  return useMemo91(() => buildTreeDiagramColors(count, colorScheme), [count, colorScheme]);
+}
+function useTreeDiagramInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback76((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback76(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback76((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
+import { jsx as jsx164, jsxs as jsxs101 } from "react/jsx-runtime";
+var MARGIN = { top: 40, right: 40, bottom: 40, left: 40 };
+function polarToCartesian(angle, radius) {
+  return [
+    radius * Math.cos(angle - Math.PI / 2),
+    radius * Math.sin(angle - Math.PI / 2)
+  ];
+}
+function getNodePosition(node, layout) {
+  if (layout === "left-right") return [node.y, node.x];
+  if (layout === "radial") return polarToCartesian(node.x, node.y);
+  return [node.x, node.y];
+}
+function maxDepth(root) {
+  return root.height + 1;
+}
+var TreeDiagramInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = TREE_DIAGRAM_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    layout = TREE_DIAGRAM_DEFAULTS.layout,
+    showLabels = TREE_DIAGRAM_DEFAULTS.showLabels,
+    showTooltip = TREE_DIAGRAM_DEFAULTS.showTooltip,
+    nodeRadius = TREE_DIAGRAM_DEFAULTS.nodeRadius,
+    linkStroke = TREE_DIAGRAM_DEFAULTS.linkStroke,
+    onHover,
+    onSelect
+  } = props;
+  const innerWidth = Math.max(width - MARGIN.left - MARGIN.right, 0);
+  const innerHeight = Math.max(height - MARGIN.top - MARGIN.bottom, 0);
+  const root = useMemo92(
+    () => hierarchy4(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
+    [data]
+  );
+  const allNodes = useMemo92(() => root.descendants(), [root]);
+  const depthCount = useMemo92(() => maxDepth(root), [root]);
+  const colors = useTreeDiagramColors(depthCount, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useTreeDiagramInteraction(onHover, onSelect);
+  const classes = useMemo92(() => buildTreeDiagramClasses(className, unstyled), [className, unstyled]);
+  const treeSize = useMemo92(() => {
+    if (layout === "left-right") return [innerHeight, innerWidth];
+    if (layout === "radial") {
+      const radius = Math.min(innerWidth, innerHeight) / 2;
+      return [2 * Math.PI, radius];
+    }
+    return [innerWidth, innerHeight];
+  }, [layout, innerWidth, innerHeight]);
+  const centerX = layout === "radial" ? innerWidth / 2 : 0;
+  const centerY = layout === "radial" ? innerHeight / 2 : 0;
+  if (allNodes.length === 0) {
+    return /* @__PURE__ */ jsx164("div", { className: classes, children: /* @__PURE__ */ jsx164("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty tree diagram" }) });
+  }
+  return /* @__PURE__ */ jsxs101("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx164(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs101("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs101("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
+        description && /* @__PURE__ */ jsx164("desc", { children: description }),
+        /* @__PURE__ */ jsx164(Tree2, { root, size: treeSize, children: (tree) => /* @__PURE__ */ jsxs101(Group31, { top: MARGIN.top + centerY, left: MARGIN.left + centerX, children: [
+          tree.links().map((link, i) => {
+            const [sx, sy] = getNodePosition(link.source, layout);
+            const [tx, ty] = getNodePosition(link.target, layout);
+            return /* @__PURE__ */ jsx164(
+              "line",
+              {
+                x1: sx,
+                y1: sy,
+                x2: tx,
+                y2: ty,
+                stroke: linkStroke,
+                strokeWidth: 1.5,
+                strokeOpacity: 0.6,
+                fill: "none"
+              },
+              `link-${i}`
+            );
+          }),
+          tree.descendants().map((node, i) => {
+            const [nx, ny] = getNodePosition(node, layout);
+            const d = node.data;
+            const isHovered = hoveredIndex === i;
+            const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+            const label = d.label ?? d.id;
+            const fillColor = colors[node.depth % colors.length];
+            let labelDx = 0;
+            let labelDy = 0;
+            let textAnchor = "middle";
+            let labelRotation = 0;
+            if (layout === "top-down") {
+              labelDy = -(nodeRadius + 4);
+              textAnchor = "middle";
+            } else if (layout === "left-right") {
+              labelDx = node.children ? -(nodeRadius + 6) : nodeRadius + 6;
+              labelDy = 3;
+              textAnchor = node.children ? "end" : "start";
+            } else {
+              const angle = node.x;
+              const isRight = angle < Math.PI;
+              labelDx = isRight ? nodeRadius + 6 : -(nodeRadius + 6);
+              labelDy = 3;
+              textAnchor = isRight ? "start" : "end";
+              const degrees = angle * 180 / Math.PI - 90;
+              labelRotation = isRight ? degrees : degrees + 180;
+            }
+            return /* @__PURE__ */ jsxs101(
+              "g",
+              {
+                opacity,
+                style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                children: [
+                  /* @__PURE__ */ jsx164(
+                    "circle",
+                    {
+                      cx: nx,
+                      cy: ny,
+                      r: isHovered ? nodeRadius * 1.3 : nodeRadius,
+                      fill: fillColor,
+                      stroke: "#fff",
+                      strokeWidth: 1.5,
+                      style: { transition: "r 120ms ease-out" }
+                    }
+                  ),
+                  showLabels && /* @__PURE__ */ jsx164(
+                    "text",
+                    {
+                      x: nx,
+                      y: ny,
+                      dx: labelDx,
+                      dy: labelDy,
+                      fontSize: 11,
+                      fontWeight: node.depth === 0 ? 600 : 400,
+                      fill: "var(--w3f-text-primary, #333)",
+                      textAnchor,
+                      pointerEvents: "none",
+                      transform: layout === "radial" && labelRotation ? `rotate(${labelRotation}, ${nx}, ${ny})` : void 0,
+                      children: label
+                    }
+                  )
+                ]
+              },
+              `node-${d.id}-${i}`
+            );
+          })
+        ] }) })
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const nodes = root.descendants();
+        const node = nodes[hoveredIndex];
+        if (!node) return null;
+        const [nx, ny] = getNodePosition(node, layout);
+        return /* @__PURE__ */ jsx164(
+          ChartTooltip,
+          {
+            left: nx + MARGIN.left + centerX,
+            top: ny + MARGIN.top + centerY,
+            visible: true,
+            offsetY: -(nodeRadius + 12),
+            children: buildTooltipContent26(node.data)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+TreeDiagramInner.displayName = "TreeDiagramInner";
+
+// src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.tsx
+import { jsx as jsx165 } from "react/jsx-runtime";
+var TreeDiagram = React143.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef67(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx165("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx165("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx165(TreeDiagramInner, { ...rest, width, height }) }) });
+  }
+);
+TreeDiagram.displayName = "TreeDiagram";
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloud.tsx
+import React145, { useRef as useRef68 } from "react";
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloudInner.tsx
+import { useMemo as useMemo94 } from "react";
+import { Group as Group32 } from "@visx/group";
+import { Wordcloud as VisxWordcloud } from "@visx/wordcloud";
+import { scaleLinear as scaleLinear15 } from "@visx/scale";
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloud.constants.ts
+var WORDCLOUD_ROOT_CLASS = "w3f-chart-wordcloud";
+var WORDCLOUD_DEFAULTS = {
+  showTooltip: true,
+  fontFamily: "inherit",
+  fontMinSize: 12,
+  fontMaxSize: 64,
+  spiral: "archimedean",
+  padding: 2,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloud.utils.ts
+function buildWordCloudClasses(className, unstyled) {
+  return buildChartRootClasses(WORDCLOUD_ROOT_CLASS, className, unstyled);
+}
+function buildWordCloudColors(count, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+function buildTooltipContent27(datum) {
+  return `${datum.text}: ${datum.value.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloud.hooks.ts
+import { useMemo as useMemo93, useCallback as useCallback77 } from "react";
+function useWordCloudColors(count, colorScheme) {
+  return useMemo93(() => buildWordCloudColors(count, colorScheme), [count, colorScheme]);
+}
+function useWordCloudInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback77((d, i) => {
+    enter(i);
+    onHover?.(d, i);
+  }, [enter, onHover]);
+  const handleLeave = useCallback77(() => {
+    leave();
+    onHover?.(null, null);
+  }, [leave, onHover]);
+  const handleClick = useCallback77((d, i) => {
+    onSelect?.(d, i);
+  }, [onSelect]);
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloudInner.tsx
+import { jsx as jsx166, jsxs as jsxs102 } from "react/jsx-runtime";
+var WordCloudInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = WORDCLOUD_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showTooltip = WORDCLOUD_DEFAULTS.showTooltip,
+    fontFamily = WORDCLOUD_DEFAULTS.fontFamily,
+    fontMinSize = WORDCLOUD_DEFAULTS.fontMinSize,
+    fontMaxSize = WORDCLOUD_DEFAULTS.fontMaxSize,
+    spiral = WORDCLOUD_DEFAULTS.spiral,
+    rotate = 0,
+    padding = WORDCLOUD_DEFAULTS.padding,
+    onHover,
+    onSelect
+  } = props;
+  const colors = useWordCloudColors(data.length, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWordCloudInteraction(onHover, onSelect);
+  const classes = useMemo94(() => buildWordCloudClasses(className, unstyled), [className, unstyled]);
+  const fontScale = useMemo94(() => {
+    const values = data.map((d) => d.value);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    return scaleLinear15({
+      domain: [minVal, maxVal],
+      range: [fontMinSize, fontMaxSize]
+    });
+  }, [data, fontMinSize, fontMaxSize]);
+  const rotateFn = useMemo94(() => {
+    if (typeof rotate === "function") return rotate;
+    return () => rotate;
+  }, [rotate]);
+  const wordIndexMap = useMemo94(() => {
+    const map = /* @__PURE__ */ new Map();
+    data.forEach((d, i) => map.set(d.text, i));
+    return map;
+  }, [data]);
+  if (data.length === 0) {
+    return /* @__PURE__ */ jsx166("div", { className: classes, children: /* @__PURE__ */ jsx166("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty word cloud" }) });
+  }
+  return /* @__PURE__ */ jsxs102("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx166(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs102("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs102("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Word cloud", children: [
+        description && /* @__PURE__ */ jsx166("desc", { children: description }),
+        /* @__PURE__ */ jsx166(
+          VisxWordcloud,
+          {
+            width,
+            height,
+            words: data,
+            fontSize: (d) => fontScale(d.value),
+            font: fontFamily,
+            padding,
+            spiral,
+            rotate: (d) => rotateFn(d),
+            children: (cloud) => /* @__PURE__ */ jsx166(Group32, { top: height / 2, left: width / 2, children: cloud.map((word, i) => {
+              const originalIndex = wordIndexMap.get(word.text) ?? i;
+              const datum = data[originalIndex];
+              const isHovered = hoveredIndex === originalIndex;
+              const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+              return /* @__PURE__ */ jsx166(
+                "text",
+                {
+                  transform: `translate(${word.x}, ${word.y}) rotate(${word.rotate})`,
+                  fontSize: word.size,
+                  fontFamily: word.font,
+                  textAnchor: "middle",
+                  fill: colors[originalIndex],
+                  opacity,
+                  style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : "default" },
+                  onMouseEnter: () => handleEnter(datum, originalIndex),
+                  onMouseLeave: handleLeave,
+                  onClick: onSelect ? () => handleClick(datum, originalIndex) : void 0,
+                  children: word.text
+                },
+                `${word.text}-${i}`
+              );
+            }) })
+          }
+        )
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const datum = data[hoveredIndex];
+        if (!datum) return null;
+        return /* @__PURE__ */ jsx166(
+          ChartTooltip,
+          {
+            left: width / 2,
+            top: height / 2,
+            visible: true,
+            offsetY: -12,
+            children: buildTooltipContent27(datum)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+WordCloudInner.displayName = "WordCloudInner";
+
+// src/DATADISPLAY/Charts/WordCloud/WordCloud.tsx
+import { jsx as jsx167 } from "react/jsx-runtime";
+var WordCloud = React145.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef68(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx167("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx167("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx167(WordCloudInner, { ...rest, width, height }) }) });
+  }
+);
+WordCloud.displayName = "WordCloud";
+
+// src/DATADISPLAY/Charts/Geo/Geo.tsx
+import React147, { useRef as useRef69 } from "react";
+
+// src/DATADISPLAY/Charts/Geo/GeoInner.tsx
+import { useMemo as useMemo96 } from "react";
+import { Group as Group33 } from "@visx/group";
+import { Mercator, Graticule } from "@visx/geo";
+
+// src/DATADISPLAY/Charts/Geo/Geo.constants.ts
+var GEO_ROOT_CLASS = "w3f-chart-geo";
+var GEO_DEFAULTS = {
+  showTooltip: true,
+  showGraticule: true,
+  fillDefault: "var(--w3f-surface-variant, #e0e0e0)",
+  strokeColor: "var(--w3f-border, #999)",
+  strokeWidth: 0.5,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/Geo/Geo.utils.ts
+function buildGeoClasses(className, unstyled) {
+  return buildChartRootClasses(GEO_ROOT_CLASS, className, unstyled);
+}
+function buildGeoColorScale(min, max, colorScheme) {
+  const palette = resolveColorScheme(colorScheme);
+  const lightColor = palette[0];
+  const darkColor = palette[Math.min(palette.length - 1, palette.length > 2 ? palette.length - 2 : palette.length - 1)];
+  const range2 = max - min || 1;
+  return (value) => {
+    const t = Math.max(0, Math.min(1, (value - min) / range2));
+    return interpolateColor(lightColor, darkColor, t);
+  };
+}
+function interpolateColor(from, to, t) {
+  const c1 = parseColor(from);
+  const c2 = parseColor(to);
+  if (!c1 || !c2) return to;
+  const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
+  const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
+  const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
+  return `rgb(${r},${g},${b})`;
+}
+function parseColor(color) {
+  const hexMatch = color.match(/^#([0-9a-f]{3,8})$/i);
+  if (hexMatch) {
+    const hex = hexMatch[1];
+    if (hex.length === 3) {
+      return [
+        parseInt(hex[0] + hex[0], 16),
+        parseInt(hex[1] + hex[1], 16),
+        parseInt(hex[2] + hex[2], 16)
+      ];
+    }
+    if (hex.length >= 6) {
+      return [
+        parseInt(hex.slice(0, 2), 16),
+        parseInt(hex.slice(2, 4), 16),
+        parseInt(hex.slice(4, 6), 16)
+      ];
+    }
+  }
+  const rgbMatch = color.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgbMatch) {
+    return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])];
+  }
+  return null;
+}
+function buildTooltipContent28(datum) {
+  const name = datum.label ?? datum.id;
+  return `${name}: ${datum.value.toLocaleString()}`;
+}
+
+// src/DATADISPLAY/Charts/Geo/Geo.hooks.ts
+import { useMemo as useMemo95, useCallback as useCallback78 } from "react";
+function useGeoColorScale(values, colorScheme) {
+  return useMemo95(() => {
+    if (values.length === 0) return (_v) => "#ccc";
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    return buildGeoColorScale(min, max, colorScheme);
+  }, [values, colorScheme]);
+}
+function useGeoInteraction(onHover, onSelect) {
+  const { hoveredIndex, enter, leave } = useHoveredIndex();
+  const handleEnter = useCallback78(
+    (d, i) => {
+      enter(i);
+      onHover?.(d, i);
+    },
+    [enter, onHover]
+  );
+  const handleLeave = useCallback78(
+    () => {
+      leave();
+      onHover?.(null, null);
+    },
+    [leave, onHover]
+  );
+  const handleClick = useCallback78(
+    (d, i) => {
+      onSelect?.(d, i);
+    },
+    [onSelect]
+  );
+  return { hoveredIndex, handleEnter, handleLeave, handleClick };
+}
+
+// src/DATADISPLAY/Charts/Geo/GeoInner.tsx
+import { jsx as jsx168, jsxs as jsxs103 } from "react/jsx-runtime";
+var GeoInner = (props) => {
+  const {
+    data,
+    width,
+    height,
+    className,
+    unstyled = GEO_DEFAULTS.unstyled,
+    bindId,
+    ariaLabel,
+    description,
+    colorScheme,
+    title,
+    subtitle,
+    showTooltip = GEO_DEFAULTS.showTooltip,
+    showGraticule = GEO_DEFAULTS.showGraticule,
+    fillDefault = GEO_DEFAULTS.fillDefault,
+    strokeColor = GEO_DEFAULTS.strokeColor,
+    strokeWidth = GEO_DEFAULTS.strokeWidth,
+    onHover,
+    onSelect
+  } = props;
+  const valueMap = useMemo96(() => {
+    const map = /* @__PURE__ */ new Map();
+    for (const v of data.values) {
+      map.set(v.id, v);
+    }
+    return map;
+  }, [data.values]);
+  const numericValues = useMemo96(
+    () => data.values.map((v) => v.value),
+    [data.values]
+  );
+  const colorScale = useGeoColorScale(numericValues, colorScheme);
+  const { hoveredIndex, handleEnter, handleLeave, handleClick } = useGeoInteraction(onHover, onSelect);
+  const classes = useMemo96(() => buildGeoClasses(className, unstyled), [className, unstyled]);
+  const geojsonFeatures = data.geojson?.features;
+  if (!geojsonFeatures || geojsonFeatures.length === 0) {
+    return /* @__PURE__ */ jsx168("div", { className: classes, children: /* @__PURE__ */ jsx168("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty geo chart" }) });
+  }
+  const centerX = width / 2;
+  const centerY = height / 2;
+  return /* @__PURE__ */ jsxs103("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx168(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs103("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs103("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Choropleth map", children: [
+        description && /* @__PURE__ */ jsx168("desc", { children: description }),
+        /* @__PURE__ */ jsx168(
+          Mercator,
+          {
+            data: geojsonFeatures,
+            fitSize: [[width, height], data.geojson],
+            children: (mercator) => /* @__PURE__ */ jsxs103(Group33, { children: [
+              showGraticule && /* @__PURE__ */ jsx168(
+                Graticule,
+                {
+                  graticule: (g) => mercator.path(g) || "",
+                  stroke: "var(--w3f-border-light, #ddd)",
+                  strokeWidth: 0.3,
+                  strokeOpacity: 0.4
+                }
+              ),
+              mercator.features.map(({ feature, path }, i) => {
+                const featureId = feature.id ?? feature.properties?.iso_a3 ?? feature.properties?.id ?? feature.properties?.name ?? String(i);
+                const match = valueMap.get(String(featureId));
+                const fillColor = match ? colorScale(match.value) : fillDefault;
+                const isHovered = hoveredIndex === i;
+                const dimmed = hoveredIndex != null && !isHovered;
+                const datum = match ?? {
+                  id: String(featureId),
+                  value: 0,
+                  label: feature.properties?.name ?? String(featureId)
+                };
+                return /* @__PURE__ */ jsx168(
+                  "path",
+                  {
+                    d: path || "",
+                    fill: fillColor,
+                    stroke: strokeColor,
+                    strokeWidth: isHovered ? strokeWidth * 2 : strokeWidth,
+                    opacity: dimmed ? 0.6 : 1,
+                    style: { transition: "opacity 120ms ease-out, stroke-width 120ms ease-out", cursor: onSelect ? "pointer" : "default" },
+                    onMouseEnter: () => handleEnter(datum, i),
+                    onMouseLeave: handleLeave,
+                    onClick: onSelect ? () => handleClick(datum, i) : void 0
+                  },
+                  `geo-${i}`
+                );
+              })
+            ] })
+          }
+        )
+      ] }),
+      showTooltip && hoveredIndex != null && (() => {
+        const feature = geojsonFeatures[hoveredIndex];
+        if (!feature) return null;
+        const featureId = feature.id ?? feature.properties?.iso_a3 ?? feature.properties?.id ?? feature.properties?.name ?? String(hoveredIndex);
+        const match = valueMap.get(String(featureId));
+        const datum = match ?? {
+          id: String(featureId),
+          value: 0,
+          label: feature.properties?.name ?? String(featureId)
+        };
+        return /* @__PURE__ */ jsx168(
+          ChartTooltip,
+          {
+            left: centerX,
+            top: centerY,
+            visible: true,
+            offsetY: -24,
+            children: buildTooltipContent28(datum)
+          }
+        );
+      })()
+    ] })
+  ] });
+};
+GeoInner.displayName = "GeoInner";
+
+// src/DATADISPLAY/Charts/Geo/Geo.tsx
+import { jsx as jsx169 } from "react/jsx-runtime";
+var Geo = React147.forwardRef(
+  ({ width: propWidth, height: propHeight, ...rest }, ref) => {
+    const containerRef = useRef69(null);
+    const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
+    return /* @__PURE__ */ jsx169("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx169("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx169(GeoInner, { ...rest, width, height }) }) });
+  }
+);
+Geo.displayName = "Geo";
+
+// src/DATADISPLAY/Charts/BarChart/BarChart.tsx
+import React148, { useRef as useRef71, useMemo as useMemo97 } from "react";
+import { Group as Group34 } from "@visx/group";
+import { Bar as Bar2 } from "@visx/shape";
+import { AxisBottom as AxisBottom2, AxisLeft as AxisLeft2 } from "@visx/axis";
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.constants.ts
 var BAR_CHART_CLASSES = {
@@ -15003,40 +24074,40 @@ var BAR_CHART_MARGIN = {
 };
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.utils.ts
-import { scaleBand, scaleLinear } from "@visx/scale";
+import { scaleBand as scaleBand6, scaleLinear as scaleLinear16 } from "@visx/scale";
 function buildBarChartClasses(className, unstyled) {
   const base = unstyled ? BAR_CHART_CLASSES.unstyled : BAR_CHART_CLASSES.root;
   return className ? `${base} ${className}` : base;
 }
-function buildBarScales(data, innerWidth, innerHeight, horizontal) {
+function buildBarScales2(data, innerWidth, innerHeight, horizontal) {
   const labels = data.map((d) => d.label);
   const maxValue = Math.max(...data.map((d) => d.value), 0);
   if (horizontal) {
-    const yScale2 = scaleBand({
+    const yScale2 = scaleBand6({
       domain: labels,
       range: [0, innerHeight],
       padding: 0.2
     });
-    const xScale2 = scaleLinear({
+    const xScale2 = scaleLinear16({
       domain: [0, maxValue * 1.1],
       range: [0, innerWidth],
       nice: true
     });
     return { xScale: xScale2, yScale: yScale2 };
   }
-  const xScale = scaleBand({
+  const xScale = scaleBand6({
     domain: labels,
     range: [0, innerWidth],
     padding: 0.2
   });
-  const yScale = scaleLinear({
+  const yScale = scaleLinear16({
     domain: [0, maxValue * 1.1],
     range: [innerHeight, 0],
     nice: true
   });
   return { xScale, yScale };
 }
-function formatTick(value) {
+function formatTick2(value) {
   if (typeof value === "number") {
     return value >= 1e3 ? `${(value / 1e3).toFixed(1)}k` : String(value);
   }
@@ -15044,13 +24115,13 @@ function formatTick(value) {
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.hooks.ts
-import { useState as useState47, useEffect as useEffect32, useCallback as useCallback38 } from "react";
-function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
-  const [dimensions, setDimensions] = useState47({
+import { useState as useState58, useEffect as useEffect33, useCallback as useCallback79 } from "react";
+function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
+  const [dimensions, setDimensions] = useState58({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback38(() => {
+  const updateDimensions = useCallback79(() => {
     if (propWidth && propHeight) return;
     const el = containerRef.current;
     if (!el) return;
@@ -15060,7 +24131,7 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect32(() => {
+  useEffect33(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -15074,16 +24145,16 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
   }, [propWidth, propHeight, updateDimensions, containerRef]);
   return dimensions;
 }
-function useHoveredIndex() {
-  const [hoveredIndex, setHoveredIndex] = useState47(null);
-  const onEnter = useCallback38((i) => setHoveredIndex(i), []);
-  const onLeave = useCallback38(() => setHoveredIndex(null), []);
+function useHoveredIndex2() {
+  const [hoveredIndex, setHoveredIndex] = useState58(null);
+  const onEnter = useCallback79((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback79(() => setHoveredIndex(null), []);
   return { hoveredIndex, onEnter, onLeave };
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-import { jsx as jsx84, jsxs as jsxs61 } from "react/jsx-runtime";
-var BarChart = React67.forwardRef(
+import { jsx as jsx170, jsxs as jsxs104 } from "react/jsx-runtime";
+var BarChart = React148.forwardRef(
   ({
     data,
     width: propWidth,
@@ -15096,27 +24167,27 @@ var BarChart = React67.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef29(null);
-    const { width, height } = useChartDimensions(
+    const containerRef = useRef71(null);
+    const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
       propHeight,
       BAR_CHART_DEFAULTS.width,
       BAR_CHART_DEFAULTS.height
     );
-    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex();
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex2();
     const margin = BAR_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo16(
-      () => buildBarScales(data, innerWidth, innerHeight, horizontal),
+    const { xScale, yScale } = useMemo97(
+      () => buildBarScales2(data, innerWidth, innerHeight, horizontal),
       [data, innerWidth, innerHeight, horizontal]
     );
-    const classes = useMemo16(
+    const classes = useMemo97(
       () => buildBarChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx84("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx84("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx84("svg", { width, height, children: /* @__PURE__ */ jsxs61(Group2, { top: margin.top, left: margin.left, children: [
+    return /* @__PURE__ */ jsx170("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx170("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx170("svg", { width, height, children: /* @__PURE__ */ jsxs104(Group34, { top: margin.top, left: margin.left, children: [
       data.map((d, i) => {
         if (horizontal) {
           const bandScale2 = yScale;
@@ -15124,8 +24195,8 @@ var BarChart = React67.forwardRef(
           const barHeight2 = bandScale2.bandwidth?.() ?? 0;
           const barWidth2 = linearScale2(d.value) ?? 0;
           const barY2 = bandScale2(d.label) ?? 0;
-          return /* @__PURE__ */ jsx84(
-            Bar,
+          return /* @__PURE__ */ jsx170(
+            Bar2,
             {
               x: 0,
               y: barY2,
@@ -15146,8 +24217,8 @@ var BarChart = React67.forwardRef(
         const barHeight = innerHeight - (linearScale(d.value) ?? 0);
         const barX = bandScale(d.label) ?? 0;
         const barY = linearScale(d.value) ?? 0;
-        return /* @__PURE__ */ jsx84(
-          Bar,
+        return /* @__PURE__ */ jsx170(
+          Bar2,
           {
             x: barX,
             y: barY,
@@ -15162,22 +24233,22 @@ var BarChart = React67.forwardRef(
           d.label
         );
       }),
-      /* @__PURE__ */ jsx84(
-        AxisBottom,
+      /* @__PURE__ */ jsx170(
+        AxisBottom2,
         {
           top: innerHeight,
           scale: horizontal ? xScale : xScale,
-          tickFormat: formatTick,
+          tickFormat: formatTick2,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx84(
-        AxisLeft,
+      /* @__PURE__ */ jsx170(
+        AxisLeft2,
         {
           scale: horizontal ? yScale : yScale,
-          tickFormat: formatTick,
+          tickFormat: formatTick2,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
@@ -15189,11 +24260,11 @@ var BarChart = React67.forwardRef(
 BarChart.displayName = "BarChart";
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-import React68, { useRef as useRef30, useMemo as useMemo17 } from "react";
-import { Group as Group3 } from "@visx/group";
-import { LinePath } from "@visx/shape";
-import { curveMonotoneX, curveLinear } from "@visx/curve";
-import { AxisBottom as AxisBottom2, AxisLeft as AxisLeft2 } from "@visx/axis";
+import React149, { useRef as useRef72, useMemo as useMemo98 } from "react";
+import { Group as Group35 } from "@visx/group";
+import { LinePath as LinePath5 } from "@visx/shape";
+import { curveMonotoneX as curveMonotoneX7, curveLinear as curveLinear7 } from "@visx/curve";
+import { AxisBottom as AxisBottom3, AxisLeft as AxisLeft3 } from "@visx/axis";
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.constants.ts
 var LINE_CHART_CLASSES = {
@@ -15217,7 +24288,7 @@ var LINE_CHART_MARGIN = {
 };
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.utils.ts
-import { scaleLinear as scaleLinear2 } from "@visx/scale";
+import { scaleLinear as scaleLinear17 } from "@visx/scale";
 function buildLineChartClasses(className, unstyled) {
   const base = unstyled ? LINE_CHART_CLASSES.unstyled : LINE_CHART_CLASSES.root;
   return className ? `${base} ${className}` : base;
@@ -15225,19 +24296,19 @@ function buildLineChartClasses(className, unstyled) {
 function buildLineScales(data, innerWidth, innerHeight) {
   const xValues = data.map((d) => d.x);
   const yValues = data.map((d) => d.y);
-  const xScale = scaleLinear2({
+  const xScale = scaleLinear17({
     domain: [Math.min(...xValues), Math.max(...xValues)],
     range: [0, innerWidth],
     nice: true
   });
-  const yScale = scaleLinear2({
+  const yScale = scaleLinear17({
     domain: [Math.min(0, Math.min(...yValues)), Math.max(...yValues) * 1.1],
     range: [innerHeight, 0],
     nice: true
   });
   return { xScale, yScale };
 }
-function formatTick2(value) {
+function formatTick3(value) {
   if (typeof value === "number") {
     return value >= 1e3 ? `${(value / 1e3).toFixed(1)}k` : String(value);
   }
@@ -15245,8 +24316,8 @@ function formatTick2(value) {
 }
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-import { jsx as jsx85, jsxs as jsxs62 } from "react/jsx-runtime";
-var LineChart = React68.forwardRef(
+import { jsx as jsx171, jsxs as jsxs105 } from "react/jsx-runtime";
+var LineChart = React149.forwardRef(
   ({
     data,
     width: propWidth,
@@ -15260,8 +24331,8 @@ var LineChart = React68.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef30(null);
-    const { width, height } = useChartDimensions(
+    const containerRef = useRef72(null);
+    const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
       propHeight,
@@ -15271,29 +24342,29 @@ var LineChart = React68.forwardRef(
     const margin = LINE_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo17(
+    const { xScale, yScale } = useMemo98(
       () => buildLineScales(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo17(
+    const classes = useMemo98(
       () => buildLineChartClasses(className, unstyled),
       [className, unstyled]
     );
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
-    return /* @__PURE__ */ jsx85("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx85("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx85("svg", { width, height, children: /* @__PURE__ */ jsxs62(Group3, { top: margin.top, left: margin.left, children: [
-      /* @__PURE__ */ jsx85(
-        LinePath,
+    return /* @__PURE__ */ jsx171("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx171("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx171("svg", { width, height, children: /* @__PURE__ */ jsxs105(Group35, { top: margin.top, left: margin.left, children: [
+      /* @__PURE__ */ jsx171(
+        LinePath5,
         {
           data,
           x: getX,
           y: getY,
           stroke: color,
           strokeWidth: 2,
-          curve: curved ? curveMonotoneX : curveLinear
+          curve: curved ? curveMonotoneX7 : curveLinear7
         }
       ),
-      showDots && data.map((d, i) => /* @__PURE__ */ jsx85(
+      showDots && data.map((d, i) => /* @__PURE__ */ jsx171(
         "circle",
         {
           cx: getX(d),
@@ -15305,22 +24376,22 @@ var LineChart = React68.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ jsx85(
-        AxisBottom2,
+      /* @__PURE__ */ jsx171(
+        AxisBottom3,
         {
           top: innerHeight,
           scale: xScale,
-          tickFormat: formatTick2,
+          tickFormat: formatTick3,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx85(
-        AxisLeft2,
+      /* @__PURE__ */ jsx171(
+        AxisLeft3,
         {
           scale: yScale,
-          tickFormat: formatTick2,
+          tickFormat: formatTick3,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
@@ -15332,9 +24403,9 @@ var LineChart = React68.forwardRef(
 LineChart.displayName = "LineChart";
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-import React69, { useRef as useRef31, useMemo as useMemo18 } from "react";
-import { Group as Group4 } from "@visx/group";
-import { Pie } from "@visx/shape";
+import React150, { useRef as useRef73, useMemo as useMemo99 } from "react";
+import { Group as Group36 } from "@visx/group";
+import { Pie as Pie2 } from "@visx/shape";
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.constants.ts
 var PIE_CHART_CLASSES = {
@@ -15372,8 +24443,8 @@ function getSliceValue(d) {
 }
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-import { jsx as jsx86, jsxs as jsxs63 } from "react/jsx-runtime";
-var PieChart = React69.forwardRef(
+import { jsx as jsx172, jsxs as jsxs106 } from "react/jsx-runtime";
+var PieChart = React150.forwardRef(
   ({
     data,
     width: propWidth,
@@ -15385,25 +24456,25 @@ var PieChart = React69.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef31(null);
-    const { width, height } = useChartDimensions(
+    const containerRef = useRef73(null);
+    const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
       propHeight,
       PIE_CHART_DEFAULTS.width,
       PIE_CHART_DEFAULTS.height
     );
-    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex();
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex2();
     const radius = Math.min(width, height) / 2 - 10;
     const innerRadius = donut ? radius * 0.55 : 0;
     const centerX = width / 2;
     const centerY = height / 2;
-    const classes = useMemo18(
+    const classes = useMemo99(
       () => buildPieChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx86("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx86("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx86("svg", { width, height, children: /* @__PURE__ */ jsx86(Group4, { top: centerY, left: centerX, children: /* @__PURE__ */ jsx86(
-      Pie,
+    return /* @__PURE__ */ jsx172("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx172("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx172("svg", { width, height, children: /* @__PURE__ */ jsx172(Group36, { top: centerY, left: centerX, children: /* @__PURE__ */ jsx172(
+      Pie2,
       {
         data,
         pieValue: getSliceValue,
@@ -15412,8 +24483,8 @@ var PieChart = React69.forwardRef(
         padAngle: 0.01,
         children: (pie) => pie.arcs.map((arc, i) => {
           const pathD = pie.path(arc) ?? "";
-          return /* @__PURE__ */ jsxs63("g", { children: [
-            /* @__PURE__ */ jsx86(
+          return /* @__PURE__ */ jsxs106("g", { children: [
+            /* @__PURE__ */ jsx172(
               "path",
               {
                 d: pathD,
@@ -15424,7 +24495,7 @@ var PieChart = React69.forwardRef(
                 style: { cursor: "pointer", transition: "opacity 0.15s" }
               }
             ),
-            radius > 60 && /* @__PURE__ */ jsx86(
+            radius > 60 && /* @__PURE__ */ jsx172(
               "text",
               {
                 x: pie.path.centroid(arc)[0],
@@ -15447,12 +24518,12 @@ var PieChart = React69.forwardRef(
 PieChart.displayName = "PieChart";
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-import React70, { useRef as useRef32, useMemo as useMemo19, useId as useId12 } from "react";
-import { Group as Group5 } from "@visx/group";
-import { AreaClosed, LinePath as LinePath2 } from "@visx/shape";
-import { curveMonotoneX as curveMonotoneX2 } from "@visx/curve";
+import React151, { useRef as useRef74, useMemo as useMemo100, useId as useId12 } from "react";
+import { Group as Group37 } from "@visx/group";
+import { AreaClosed as AreaClosed2, LinePath as LinePath6 } from "@visx/shape";
+import { curveMonotoneX as curveMonotoneX8 } from "@visx/curve";
 import { LinearGradient } from "@visx/gradient";
-import { AxisBottom as AxisBottom3, AxisLeft as AxisLeft3 } from "@visx/axis";
+import { AxisBottom as AxisBottom4, AxisLeft as AxisLeft4 } from "@visx/axis";
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.constants.ts
 var AREA_CHART_CLASSES = {
@@ -15475,27 +24546,27 @@ var AREA_CHART_MARGIN = {
 };
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.utils.ts
-import { scaleLinear as scaleLinear3 } from "@visx/scale";
+import { scaleLinear as scaleLinear18 } from "@visx/scale";
 function buildAreaChartClasses(className, unstyled) {
   const base = unstyled ? AREA_CHART_CLASSES.unstyled : AREA_CHART_CLASSES.root;
   return className ? `${base} ${className}` : base;
 }
-function buildAreaScales(data, innerWidth, innerHeight) {
+function buildAreaScales2(data, innerWidth, innerHeight) {
   const xValues = data.map((d) => d.x);
   const yValues = data.map((d) => d.y);
-  const xScale = scaleLinear3({
+  const xScale = scaleLinear18({
     domain: [Math.min(...xValues), Math.max(...xValues)],
     range: [0, innerWidth],
     nice: true
   });
-  const yScale = scaleLinear3({
+  const yScale = scaleLinear18({
     domain: [0, Math.max(...yValues) * 1.1],
     range: [innerHeight, 0],
     nice: true
   });
   return { xScale, yScale };
 }
-function formatTick3(value) {
+function formatTick4(value) {
   if (typeof value === "number") {
     return value >= 1e3 ? `${(value / 1e3).toFixed(1)}k` : String(value);
   }
@@ -15503,8 +24574,8 @@ function formatTick3(value) {
 }
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-import { jsx as jsx87, jsxs as jsxs64 } from "react/jsx-runtime";
-var AreaChart = React70.forwardRef(
+import { jsx as jsx173, jsxs as jsxs107 } from "react/jsx-runtime";
+var AreaChart = React151.forwardRef(
   ({
     data,
     width: propWidth,
@@ -15517,9 +24588,9 @@ var AreaChart = React70.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef32(null);
+    const containerRef = useRef74(null);
     const gradientId = useId12();
-    const { width, height } = useChartDimensions(
+    const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
       propHeight,
@@ -15529,19 +24600,19 @@ var AreaChart = React70.forwardRef(
     const margin = AREA_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo19(
-      () => buildAreaScales(data, innerWidth, innerHeight),
+    const { xScale, yScale } = useMemo100(
+      () => buildAreaScales2(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo19(
+    const classes = useMemo100(
       () => buildAreaChartClasses(className, unstyled),
       [className, unstyled]
     );
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
     const safeGradientId = gradientId.replace(/:/g, "_");
-    return /* @__PURE__ */ jsx87("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx87("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs64("svg", { width, height, children: [
-      gradient && /* @__PURE__ */ jsx87(
+    return /* @__PURE__ */ jsx173("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx173("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs107("svg", { width, height, children: [
+      gradient && /* @__PURE__ */ jsx173(
         LinearGradient,
         {
           id: safeGradientId,
@@ -15551,46 +24622,46 @@ var AreaChart = React70.forwardRef(
           toOpacity: 0.05
         }
       ),
-      /* @__PURE__ */ jsxs64(Group5, { top: margin.top, left: margin.left, children: [
-        /* @__PURE__ */ jsx87(
-          AreaClosed,
+      /* @__PURE__ */ jsxs107(Group37, { top: margin.top, left: margin.left, children: [
+        /* @__PURE__ */ jsx173(
+          AreaClosed2,
           {
             data,
             x: getX,
             y: getY,
             yScale,
-            curve: curveMonotoneX2,
+            curve: curveMonotoneX8,
             fill: gradient ? `url(#${safeGradientId})` : color,
             fillOpacity: gradient ? 1 : 0.3
           }
         ),
-        /* @__PURE__ */ jsx87(
-          LinePath2,
+        /* @__PURE__ */ jsx173(
+          LinePath6,
           {
             data,
             x: getX,
             y: getY,
             stroke: color,
             strokeWidth: 2,
-            curve: curveMonotoneX2
+            curve: curveMonotoneX8
           }
         ),
-        /* @__PURE__ */ jsx87(
-          AxisBottom3,
+        /* @__PURE__ */ jsx173(
+          AxisBottom4,
           {
             top: innerHeight,
             scale: xScale,
-            tickFormat: formatTick3,
+            tickFormat: formatTick4,
             stroke: "var(--w3f-text-secondary, #94a3b8)",
             tickStroke: "var(--w3f-text-secondary, #94a3b8)",
             tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
           }
         ),
-        /* @__PURE__ */ jsx87(
-          AxisLeft3,
+        /* @__PURE__ */ jsx173(
+          AxisLeft4,
           {
             scale: yScale,
-            tickFormat: formatTick3,
+            tickFormat: formatTick4,
             stroke: "var(--w3f-text-secondary, #94a3b8)",
             tickStroke: "var(--w3f-text-secondary, #94a3b8)",
             tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
@@ -15603,10 +24674,10 @@ var AreaChart = React70.forwardRef(
 AreaChart.displayName = "AreaChart";
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-import React71, { useRef as useRef33, useMemo as useMemo20 } from "react";
-import { Group as Group6 } from "@visx/group";
-import { Circle as Circle2 } from "@visx/shape";
-import { AxisBottom as AxisBottom4, AxisLeft as AxisLeft4 } from "@visx/axis";
+import React152, { useRef as useRef75, useMemo as useMemo101 } from "react";
+import { Group as Group38 } from "@visx/group";
+import { Circle as Circle5 } from "@visx/shape";
+import { AxisBottom as AxisBottom5, AxisLeft as AxisLeft5 } from "@visx/axis";
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.constants.ts
 var SCATTER_PLOT_CLASSES = {
@@ -15629,27 +24700,27 @@ var SCATTER_PLOT_MARGIN = {
 };
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.utils.ts
-import { scaleLinear as scaleLinear4 } from "@visx/scale";
+import { scaleLinear as scaleLinear19 } from "@visx/scale";
 function buildScatterPlotClasses(className, unstyled) {
   const base = unstyled ? SCATTER_PLOT_CLASSES.unstyled : SCATTER_PLOT_CLASSES.root;
   return className ? `${base} ${className}` : base;
 }
-function buildScatterScales(data, innerWidth, innerHeight) {
+function buildScatterScales2(data, innerWidth, innerHeight) {
   const xValues = data.map((d) => d.x);
   const yValues = data.map((d) => d.y);
-  const xScale = scaleLinear4({
+  const xScale = scaleLinear19({
     domain: [Math.min(...xValues) * 0.9, Math.max(...xValues) * 1.1],
     range: [0, innerWidth],
     nice: true
   });
-  const yScale = scaleLinear4({
+  const yScale = scaleLinear19({
     domain: [Math.min(0, Math.min(...yValues)), Math.max(...yValues) * 1.1],
     range: [innerHeight, 0],
     nice: true
   });
   return { xScale, yScale };
 }
-function formatTick4(value) {
+function formatTick5(value) {
   if (typeof value === "number") {
     return value >= 1e3 ? `${(value / 1e3).toFixed(1)}k` : String(value);
   }
@@ -15657,8 +24728,8 @@ function formatTick4(value) {
 }
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-import { jsx as jsx88, jsxs as jsxs65 } from "react/jsx-runtime";
-var ScatterPlot = React71.forwardRef(
+import { jsx as jsx174, jsxs as jsxs108 } from "react/jsx-runtime";
+var ScatterPlot = React152.forwardRef(
   ({
     data,
     width: propWidth,
@@ -15670,29 +24741,29 @@ var ScatterPlot = React71.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef33(null);
-    const { width, height } = useChartDimensions(
+    const containerRef = useRef75(null);
+    const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
       propHeight,
       SCATTER_PLOT_DEFAULTS.width,
       SCATTER_PLOT_DEFAULTS.height
     );
-    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex();
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex2();
     const margin = SCATTER_PLOT_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo20(
-      () => buildScatterScales(data, innerWidth, innerHeight),
+    const { xScale, yScale } = useMemo101(
+      () => buildScatterScales2(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo20(
+    const classes = useMemo101(
       () => buildScatterPlotClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx88("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx88("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx88("svg", { width, height, children: /* @__PURE__ */ jsxs65(Group6, { top: margin.top, left: margin.left, children: [
-      data.map((d, i) => /* @__PURE__ */ jsx88(
-        Circle2,
+    return /* @__PURE__ */ jsx174("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx174("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx174("svg", { width, height, children: /* @__PURE__ */ jsxs108(Group38, { top: margin.top, left: margin.left, children: [
+      data.map((d, i) => /* @__PURE__ */ jsx174(
+        Circle5,
         {
           cx: xScale(d.x) ?? 0,
           cy: yScale(d.y) ?? 0,
@@ -15705,22 +24776,22 @@ var ScatterPlot = React71.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ jsx88(
-        AxisBottom4,
+      /* @__PURE__ */ jsx174(
+        AxisBottom5,
         {
           top: innerHeight,
           scale: xScale,
-          tickFormat: formatTick4,
+          tickFormat: formatTick5,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx88(
-        AxisLeft4,
+      /* @__PURE__ */ jsx174(
+        AxisLeft5,
         {
           scale: yScale,
-          tickFormat: formatTick4,
+          tickFormat: formatTick5,
           stroke: "var(--w3f-text-secondary, #94a3b8)",
           tickStroke: "var(--w3f-text-secondary, #94a3b8)",
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
@@ -15731,8 +24802,810 @@ var ScatterPlot = React71.forwardRef(
 );
 ScatterPlot.displayName = "ScatterPlot";
 
+// src/DATADISPLAY/Charts/RadarChart/RadarChart.tsx
+import React153, { useRef as useRef76, useMemo as useMemo102 } from "react";
+import { Group as Group39 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/RadarChart/RadarChart.constants.ts
+var RADAR_CHART_CLASSES = {
+  root: "w3f-chart w3f-radar-chart",
+  unstyled: "w3f-chart w3f-radar-chart w3f-radar-chart--unstyled",
+  container: "w3f-chart__container"
+};
+var RADAR_CHART_DEFAULTS = {
+  width: 400,
+  height: 400,
+  color: "#6366f1",
+  unstyled: false
+};
+var RADAR_CHART_MARGIN = {
+  top: 40,
+  right: 40,
+  bottom: 40,
+  left: 40
+};
+
+// src/DATADISPLAY/Charts/RadarChart/RadarChart.utils.ts
+import { scaleLinear as scaleLinear20 } from "@visx/scale";
+function buildRadarChartClasses(className, unstyled) {
+  const base = unstyled ? RADAR_CHART_CLASSES.unstyled : RADAR_CHART_CLASSES.root;
+  return className ? `${base} ${className}` : base;
+}
+function radarPoint(index, total, value, radius, maxValue) {
+  const angle = Math.PI * 2 * index / total - Math.PI / 2;
+  const r = value / maxValue * radius;
+  return {
+    x: r * Math.cos(angle),
+    y: r * Math.sin(angle)
+  };
+}
+function buildRadarPolygon(data, radius) {
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
+  return data.map((d, i) => {
+    const pt = radarPoint(i, data.length, d.value, radius, maxValue);
+    return `${pt.x},${pt.y}`;
+  }).join(" ");
+}
+function buildGridPolygon2(total, radius, level, levels) {
+  const r = radius * level / levels;
+  const points = [];
+  for (let i = 0; i < total; i++) {
+    const angle = Math.PI * 2 * i / total - Math.PI / 2;
+    points.push(`${r * Math.cos(angle)},${r * Math.sin(angle)}`);
+  }
+  return points.join(" ");
+}
+function labelPosition2(index, total, radius, offset = 16) {
+  const angle = Math.PI * 2 * index / total - Math.PI / 2;
+  const r = radius + offset;
+  const x = r * Math.cos(angle);
+  const y = r * Math.sin(angle);
+  let anchor = "middle";
+  if (Math.abs(angle) < 0.1 || Math.abs(angle - Math.PI) < 0.1 || Math.abs(angle + Math.PI) < 0.1) {
+    anchor = "middle";
+  } else if (Math.cos(angle) > 0.1) {
+    anchor = "start";
+  } else if (Math.cos(angle) < -0.1) {
+    anchor = "end";
+  }
+  return { x, y, anchor };
+}
+
+// src/DATADISPLAY/Charts/RadarChart/RadarChart.hooks.ts
+import { useState as useState59, useEffect as useEffect34, useCallback as useCallback80 } from "react";
+function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 400) {
+  const [dimensions, setDimensions] = useState59({
+    width: propWidth ?? defaultWidth,
+    height: propHeight ?? defaultHeight
+  });
+  const updateDimensions = useCallback80(() => {
+    if (propWidth && propHeight) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDimensions({
+      width: propWidth ?? Math.max(rect.width, 100),
+      height: propHeight ?? defaultHeight
+    });
+  }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
+  useEffect34(() => {
+    if (propWidth && propHeight) {
+      setDimensions({ width: propWidth, height: propHeight });
+      return;
+    }
+    updateDimensions();
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateDimensions);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [propWidth, propHeight, updateDimensions, containerRef]);
+  return dimensions;
+}
+function useHoveredIndex3() {
+  const [hoveredIndex, setHoveredIndex] = useState59(null);
+  const onEnter = useCallback80((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback80(() => setHoveredIndex(null), []);
+  return { hoveredIndex, onEnter, onLeave };
+}
+
+// src/DATADISPLAY/Charts/RadarChart/RadarChart.tsx
+import { jsx as jsx175, jsxs as jsxs109 } from "react/jsx-runtime";
+var GRID_LEVELS = 5;
+var RadarChart = React153.forwardRef(
+  ({
+    data,
+    width: propWidth,
+    height: propHeight,
+    color = RADAR_CHART_DEFAULTS.color,
+    unstyled = RADAR_CHART_DEFAULTS.unstyled,
+    bindId,
+    className,
+    ...rest
+  }, ref) => {
+    useBridgeBind({ bindId });
+    const containerRef = useRef76(null);
+    const { width, height } = useChartDimensions3(
+      containerRef,
+      propWidth,
+      propHeight,
+      RADAR_CHART_DEFAULTS.width,
+      RADAR_CHART_DEFAULTS.height
+    );
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex3();
+    const margin = RADAR_CHART_MARGIN;
+    const innerWidth = Math.max(width - margin.left - margin.right, 0);
+    const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
+    const radius = Math.min(innerWidth, innerHeight) / 2;
+    const cx = innerWidth / 2 + margin.left;
+    const cy = innerHeight / 2 + margin.top;
+    const classes = useMemo102(
+      () => buildRadarChartClasses(className, unstyled),
+      [className, unstyled]
+    );
+    const polygonPoints = useMemo102(
+      () => buildRadarPolygon(data, radius),
+      [data, radius]
+    );
+    const gridPolygons = useMemo102(
+      () => Array.from(
+        { length: GRID_LEVELS },
+        (_, i) => buildGridPolygon2(data.length, radius, i + 1, GRID_LEVELS)
+      ),
+      [data.length, radius]
+    );
+    const labels = useMemo102(
+      () => data.map((d, i) => ({ ...labelPosition2(i, data.length, radius), label: d.axis })),
+      [data, radius]
+    );
+    return /* @__PURE__ */ jsx175("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx175("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx175("svg", { width, height, children: /* @__PURE__ */ jsxs109(Group39, { top: cy, left: cx, children: [
+      gridPolygons.map((points, i) => /* @__PURE__ */ jsx175(
+        "polygon",
+        {
+          points,
+          fill: "none",
+          stroke: "var(--w3f-text-secondary, #94a3b8)",
+          strokeOpacity: 0.2,
+          strokeWidth: 1
+        },
+        `grid-${i}`
+      )),
+      data.map((_, i) => {
+        const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
+        return /* @__PURE__ */ jsx175(
+          "line",
+          {
+            x1: 0,
+            y1: 0,
+            x2: radius * Math.cos(angle),
+            y2: radius * Math.sin(angle),
+            stroke: "var(--w3f-text-secondary, #94a3b8)",
+            strokeOpacity: 0.3,
+            strokeWidth: 1
+          },
+          `axis-${i}`
+        );
+      }),
+      /* @__PURE__ */ jsx175(
+        "polygon",
+        {
+          points: polygonPoints,
+          fill: color,
+          fillOpacity: 0.25,
+          stroke: color,
+          strokeWidth: 2
+        }
+      ),
+      data.map((d, i) => {
+        const maxVal = Math.max(...data.map((dd) => dd.value), 1);
+        const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
+        const r = d.value / maxVal * radius;
+        return /* @__PURE__ */ jsx175(
+          "circle",
+          {
+            cx: r * Math.cos(angle),
+            cy: r * Math.sin(angle),
+            r: hoveredIndex === i ? 5 : 3.5,
+            fill: color,
+            stroke: "#fff",
+            strokeWidth: 1.5,
+            onMouseEnter: () => onEnter(i),
+            onMouseLeave: onLeave,
+            style: { cursor: "pointer" }
+          },
+          `point-${i}`
+        );
+      }),
+      labels.map((lbl, i) => /* @__PURE__ */ jsx175(
+        "text",
+        {
+          x: lbl.x,
+          y: lbl.y,
+          textAnchor: lbl.anchor,
+          dominantBaseline: "central",
+          fill: "var(--w3f-text-secondary, #94a3b8)",
+          fontSize: 11,
+          children: lbl.label
+        },
+        `label-${i}`
+      ))
+    ] }) }) }) });
+  }
+);
+RadarChart.displayName = "RadarChart";
+
+// src/DATADISPLAY/Charts/GaugeChart/GaugeChart.tsx
+import React154, { useRef as useRef77, useMemo as useMemo103 } from "react";
+
+// src/DATADISPLAY/Charts/GaugeChart/GaugeChart.constants.ts
+var GAUGE_CHART_CLASSES = {
+  root: "w3f-chart w3f-gauge-chart",
+  unstyled: "w3f-chart w3f-gauge-chart w3f-gauge-chart--unstyled",
+  container: "w3f-chart__container"
+};
+var GAUGE_CHART_DEFAULTS = {
+  width: 300,
+  height: 200,
+  color: "#6366f1",
+  min: 0,
+  max: 100,
+  unstyled: false
+};
+
+// src/DATADISPLAY/Charts/GaugeChart/GaugeChart.utils.ts
+import { scaleLinear as scaleLinear21 } from "@visx/scale";
+function buildGaugeChartClasses(className, unstyled) {
+  const base = unstyled ? GAUGE_CHART_CLASSES.unstyled : GAUGE_CHART_CLASSES.root;
+  return className ? `${base} ${className}` : base;
+}
+function buildGaugeScale2(min, max) {
+  return scaleLinear21({
+    domain: [min, max],
+    range: [-Math.PI / 2, Math.PI / 2],
+    clamp: true
+  });
+}
+function getGaugeColor2(value, defaultColor, thresholds) {
+  if (!thresholds || thresholds.length === 0) return defaultColor;
+  const sorted = [...thresholds].sort((a, b) => a.value - b.value);
+  let color = defaultColor;
+  for (const t of sorted) {
+    if (value >= t.value) {
+      color = t.color;
+    }
+  }
+  return color;
+}
+function arcPath2(cx, cy, radius, startAngle, endAngle, innerRadius) {
+  const startX = cx + innerRadius * Math.cos(startAngle - Math.PI);
+  const startY = cy + innerRadius * Math.sin(startAngle - Math.PI);
+  const outerStartX = cx + radius * Math.cos(startAngle - Math.PI);
+  const outerStartY = cy + radius * Math.sin(startAngle - Math.PI);
+  const outerEndX = cx + radius * Math.cos(endAngle - Math.PI);
+  const outerEndY = cy + radius * Math.sin(endAngle - Math.PI);
+  const innerEndX = cx + innerRadius * Math.cos(endAngle - Math.PI);
+  const innerEndY = cy + innerRadius * Math.sin(endAngle - Math.PI);
+  const largeArc = Math.abs(endAngle - startAngle) > Math.PI ? 1 : 0;
+  return [
+    `M ${outerStartX} ${outerStartY}`,
+    `A ${radius} ${radius} 0 ${largeArc} 1 ${outerEndX} ${outerEndY}`,
+    `L ${innerEndX} ${innerEndY}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${startX} ${startY}`,
+    "Z"
+  ].join(" ");
+}
+function needlePath2(cx, cy, length, angle, baseWidth = 4) {
+  const tipX = cx + length * Math.cos(angle - Math.PI);
+  const tipY = cy + length * Math.sin(angle - Math.PI);
+  const perpAngle = angle - Math.PI + Math.PI / 2;
+  const baseX1 = cx + baseWidth * Math.cos(perpAngle);
+  const baseY1 = cy + baseWidth * Math.sin(perpAngle);
+  const baseX2 = cx - baseWidth * Math.cos(perpAngle);
+  const baseY2 = cy - baseWidth * Math.sin(perpAngle);
+  return `M ${baseX1} ${baseY1} L ${tipX} ${tipY} L ${baseX2} ${baseY2} Z`;
+}
+
+// src/DATADISPLAY/Charts/GaugeChart/GaugeChart.hooks.ts
+import { useState as useState60, useEffect as useEffect35, useCallback as useCallback81 } from "react";
+function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth = 300, defaultHeight = 200) {
+  const [dimensions, setDimensions] = useState60({
+    width: propWidth ?? defaultWidth,
+    height: propHeight ?? defaultHeight
+  });
+  const updateDimensions = useCallback81(() => {
+    if (propWidth && propHeight) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDimensions({
+      width: propWidth ?? Math.max(rect.width, 100),
+      height: propHeight ?? defaultHeight
+    });
+  }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
+  useEffect35(() => {
+    if (propWidth && propHeight) {
+      setDimensions({ width: propWidth, height: propHeight });
+      return;
+    }
+    updateDimensions();
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateDimensions);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [propWidth, propHeight, updateDimensions, containerRef]);
+  return dimensions;
+}
+
+// src/DATADISPLAY/Charts/GaugeChart/GaugeChart.tsx
+import { jsx as jsx176, jsxs as jsxs110 } from "react/jsx-runtime";
+var GaugeChart = React154.forwardRef(
+  ({
+    value,
+    min = GAUGE_CHART_DEFAULTS.min,
+    max = GAUGE_CHART_DEFAULTS.max,
+    color = GAUGE_CHART_DEFAULTS.color,
+    thresholds,
+    width: propWidth,
+    height: propHeight,
+    unstyled = GAUGE_CHART_DEFAULTS.unstyled,
+    bindId,
+    className,
+    ...rest
+  }, ref) => {
+    useBridgeBind({ bindId });
+    const containerRef = useRef77(null);
+    const { width, height } = useChartDimensions4(
+      containerRef,
+      propWidth,
+      propHeight,
+      GAUGE_CHART_DEFAULTS.width,
+      GAUGE_CHART_DEFAULTS.height
+    );
+    const classes = useMemo103(
+      () => buildGaugeChartClasses(className, unstyled),
+      [className, unstyled]
+    );
+    const outerRadius = Math.min(width / 2 - 10, height - 30);
+    const innerRadius = outerRadius * 0.65;
+    const cx = width / 2;
+    const cy = height - 20;
+    const angleScale = useMemo103(() => buildGaugeScale2(min, max), [min, max]);
+    const needleAngle = angleScale(Math.max(min, Math.min(max, value)));
+    const fillColor = getGaugeColor2(value, color, thresholds);
+    const bgArc = useMemo103(
+      () => arcPath2(cx, cy, outerRadius, -Math.PI / 2, Math.PI / 2, innerRadius),
+      [cx, cy, outerRadius, innerRadius]
+    );
+    const filledArc = useMemo103(
+      () => arcPath2(cx, cy, outerRadius, -Math.PI / 2, needleAngle, innerRadius),
+      [cx, cy, outerRadius, innerRadius, needleAngle]
+    );
+    const needle = useMemo103(
+      () => needlePath2(cx, cy, outerRadius - 4, needleAngle, 3),
+      [cx, cy, outerRadius, needleAngle]
+    );
+    const pct = Math.round((value - min) / (max - min) * 100);
+    return /* @__PURE__ */ jsx176("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx176("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs110("svg", { width, height, children: [
+      /* @__PURE__ */ jsx176("path", { d: bgArc, fill: "var(--w3f-surface-variant, #334155)", opacity: 0.3 }),
+      /* @__PURE__ */ jsx176("path", { d: filledArc, fill: fillColor }),
+      /* @__PURE__ */ jsx176("path", { d: needle, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ jsx176("circle", { cx, cy, r: 5, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ jsx176(
+        "text",
+        {
+          x: cx,
+          y: cy - innerRadius * 0.3,
+          textAnchor: "middle",
+          dominantBaseline: "central",
+          fill: "var(--w3f-text-primary, #e2e8f0)",
+          fontSize: Math.max(14, outerRadius * 0.22),
+          fontWeight: 700,
+          children: value
+        }
+      ),
+      /* @__PURE__ */ jsx176(
+        "text",
+        {
+          x: cx - outerRadius,
+          y: cy + 14,
+          textAnchor: "middle",
+          fill: "var(--w3f-text-secondary, #94a3b8)",
+          fontSize: 10,
+          children: min
+        }
+      ),
+      /* @__PURE__ */ jsx176(
+        "text",
+        {
+          x: cx + outerRadius,
+          y: cy + 14,
+          textAnchor: "middle",
+          fill: "var(--w3f-text-secondary, #94a3b8)",
+          fontSize: 10,
+          children: max
+        }
+      )
+    ] }) }) });
+  }
+);
+GaugeChart.displayName = "GaugeChart";
+
+// src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.tsx
+import React155, { useRef as useRef78, useMemo as useMemo104 } from "react";
+import { Group as Group40 } from "@visx/group";
+
+// src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.constants.ts
+var HEATMAP_CHART_CLASSES = {
+  root: "w3f-chart w3f-heatmap-chart",
+  unstyled: "w3f-chart w3f-heatmap-chart w3f-heatmap-chart--unstyled",
+  container: "w3f-chart__container"
+};
+var HEATMAP_CHART_DEFAULTS = {
+  width: 400,
+  height: 300,
+  colors: ["#e0e7ff", "#6366f1"],
+  unstyled: false
+};
+var HEATMAP_CHART_MARGIN = {
+  top: 20,
+  right: 20,
+  bottom: 40,
+  left: 60
+};
+
+// src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.utils.ts
+import { scaleBand as scaleBand7, scaleLinear as scaleLinear22 } from "@visx/scale";
+function buildHeatmapChartClasses(className, unstyled) {
+  const base = unstyled ? HEATMAP_CHART_CLASSES.unstyled : HEATMAP_CHART_CLASSES.root;
+  return className ? `${base} ${className}` : base;
+}
+function extractAxes2(data) {
+  const rows = [...new Set(data.map((d) => d.row))];
+  const cols = [...new Set(data.map((d) => d.col))];
+  return { rows, cols };
+}
+function buildHeatmapScales2(data, innerWidth, innerHeight, colors) {
+  const { rows, cols } = extractAxes2(data);
+  const values = data.map((d) => d.value);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const xScale = scaleBand7({
+    domain: cols,
+    range: [0, innerWidth],
+    padding: 0.05
+  });
+  const yScale = scaleBand7({
+    domain: rows,
+    range: [0, innerHeight],
+    padding: 0.05
+  });
+  const colorScale = scaleLinear22({
+    domain: [minVal, maxVal],
+    range: colors
+  });
+  return { xScale, yScale, colorScale };
+}
+function getValue(data, row, col) {
+  const entry = data.find((d) => d.row === row && d.col === col);
+  return entry?.value;
+}
+
+// src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.hooks.ts
+import { useState as useState61, useEffect as useEffect36, useCallback as useCallback82 } from "react";
+function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
+  const [dimensions, setDimensions] = useState61({
+    width: propWidth ?? defaultWidth,
+    height: propHeight ?? defaultHeight
+  });
+  const updateDimensions = useCallback82(() => {
+    if (propWidth && propHeight) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDimensions({
+      width: propWidth ?? Math.max(rect.width, 100),
+      height: propHeight ?? defaultHeight
+    });
+  }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
+  useEffect36(() => {
+    if (propWidth && propHeight) {
+      setDimensions({ width: propWidth, height: propHeight });
+      return;
+    }
+    updateDimensions();
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateDimensions);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [propWidth, propHeight, updateDimensions, containerRef]);
+  return dimensions;
+}
+function useHoveredIndex4() {
+  const [hoveredIndex, setHoveredIndex] = useState61(null);
+  const onEnter = useCallback82((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback82(() => setHoveredIndex(null), []);
+  return { hoveredIndex, onEnter, onLeave };
+}
+
+// src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.tsx
+import { jsx as jsx177, jsxs as jsxs111 } from "react/jsx-runtime";
+var HeatmapChart = React155.forwardRef(
+  ({
+    data,
+    width: propWidth,
+    height: propHeight,
+    colors = HEATMAP_CHART_DEFAULTS.colors,
+    unstyled = HEATMAP_CHART_DEFAULTS.unstyled,
+    bindId,
+    className,
+    ...rest
+  }, ref) => {
+    useBridgeBind({ bindId });
+    const containerRef = useRef78(null);
+    const { width, height } = useChartDimensions5(
+      containerRef,
+      propWidth,
+      propHeight,
+      HEATMAP_CHART_DEFAULTS.width,
+      HEATMAP_CHART_DEFAULTS.height
+    );
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex4();
+    const margin = HEATMAP_CHART_MARGIN;
+    const innerWidth = Math.max(width - margin.left - margin.right, 0);
+    const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
+    const classes = useMemo104(
+      () => buildHeatmapChartClasses(className, unstyled),
+      [className, unstyled]
+    );
+    const { rows, cols } = useMemo104(() => extractAxes2(data), [data]);
+    const { xScale, yScale, colorScale } = useMemo104(
+      () => buildHeatmapScales2(data, innerWidth, innerHeight, colors),
+      [data, innerWidth, innerHeight, colors]
+    );
+    const cells = useMemo104(() => {
+      const result = [];
+      let idx = 0;
+      for (const row of rows) {
+        for (const col of cols) {
+          const val = getValue(data, row, col);
+          if (val !== void 0) {
+            result.push({
+              row,
+              col,
+              value: val,
+              x: xScale(col) ?? 0,
+              y: yScale(row) ?? 0,
+              w: xScale.bandwidth(),
+              h: yScale.bandwidth(),
+              fill: colorScale(val),
+              idx: idx++
+            });
+          }
+        }
+      }
+      return result;
+    }, [data, rows, cols, xScale, yScale, colorScale]);
+    return /* @__PURE__ */ jsx177("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx177("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx177("svg", { width, height, children: /* @__PURE__ */ jsxs111(Group40, { top: margin.top, left: margin.left, children: [
+      cells.map((cell) => /* @__PURE__ */ jsx177(
+        "rect",
+        {
+          x: cell.x,
+          y: cell.y,
+          width: cell.w,
+          height: cell.h,
+          fill: cell.fill,
+          opacity: hoveredIndex === cell.idx ? 0.8 : 1,
+          rx: 2,
+          onMouseEnter: () => onEnter(cell.idx),
+          onMouseLeave: onLeave,
+          style: { cursor: "pointer" }
+        },
+        `${cell.row}-${cell.col}`
+      )),
+      cols.map((col) => /* @__PURE__ */ jsx177(
+        "text",
+        {
+          x: (xScale(col) ?? 0) + xScale.bandwidth() / 2,
+          y: innerHeight + 16,
+          textAnchor: "middle",
+          fill: "var(--w3f-text-secondary, #94a3b8)",
+          fontSize: 10,
+          children: col
+        },
+        `col-${col}`
+      )),
+      rows.map((row) => /* @__PURE__ */ jsx177(
+        "text",
+        {
+          x: -8,
+          y: (yScale(row) ?? 0) + yScale.bandwidth() / 2,
+          textAnchor: "end",
+          dominantBaseline: "central",
+          fill: "var(--w3f-text-secondary, #94a3b8)",
+          fontSize: 10,
+          children: row
+        },
+        `row-${row}`
+      ))
+    ] }) }) }) });
+  }
+);
+HeatmapChart.displayName = "HeatmapChart";
+
+// src/DATADISPLAY/Charts/TreemapChart/TreemapChart.tsx
+import React156, { useRef as useRef79, useMemo as useMemo105 } from "react";
+import { Group as Group41 } from "@visx/group";
+import { Treemap as Treemap2, treemapSquarify as treemapSquarify2, hierarchy as hierarchy5 } from "@visx/hierarchy";
+
+// src/DATADISPLAY/Charts/TreemapChart/TreemapChart.constants.ts
+var TREEMAP_CHART_CLASSES = {
+  root: "w3f-chart w3f-treemap-chart",
+  unstyled: "w3f-chart w3f-treemap-chart w3f-treemap-chart--unstyled",
+  container: "w3f-chart__container"
+};
+var TREEMAP_CHART_DEFAULTS = {
+  width: 400,
+  height: 300,
+  unstyled: false
+};
+var DEFAULT_TREEMAP_COLORS = [
+  "#6366f1",
+  "#f59e0b",
+  "#10b981",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f97316",
+  "#ec4899"
+];
+
+// src/DATADISPLAY/Charts/TreemapChart/TreemapChart.utils.ts
+function buildTreemapChartClasses(className, unstyled) {
+  const base = unstyled ? TREEMAP_CHART_CLASSES.unstyled : TREEMAP_CHART_CLASSES.root;
+  return className ? `${base} ${className}` : base;
+}
+function tileColor(index, colors) {
+  return colors[index % colors.length];
+}
+function textFits2(width, height, minWidth = 30, minHeight = 16) {
+  return width >= minWidth && height >= minHeight;
+}
+function truncateLabel2(label, availableWidth, fontSize = 11) {
+  const charWidth = fontSize * 0.6;
+  const maxChars = Math.floor(availableWidth / charWidth);
+  if (maxChars <= 0) return "";
+  if (label.length <= maxChars) return label;
+  if (maxChars <= 3) return label.slice(0, maxChars);
+  return label.slice(0, maxChars - 1) + "\u2026";
+}
+
+// src/DATADISPLAY/Charts/TreemapChart/TreemapChart.hooks.ts
+import { useState as useState62, useEffect as useEffect37, useCallback as useCallback83 } from "react";
+function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
+  const [dimensions, setDimensions] = useState62({
+    width: propWidth ?? defaultWidth,
+    height: propHeight ?? defaultHeight
+  });
+  const updateDimensions = useCallback83(() => {
+    if (propWidth && propHeight) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDimensions({
+      width: propWidth ?? Math.max(rect.width, 100),
+      height: propHeight ?? defaultHeight
+    });
+  }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
+  useEffect37(() => {
+    if (propWidth && propHeight) {
+      setDimensions({ width: propWidth, height: propHeight });
+      return;
+    }
+    updateDimensions();
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateDimensions);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [propWidth, propHeight, updateDimensions, containerRef]);
+  return dimensions;
+}
+function useHoveredIndex5() {
+  const [hoveredIndex, setHoveredIndex] = useState62(null);
+  const onEnter = useCallback83((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback83(() => setHoveredIndex(null), []);
+  return { hoveredIndex, onEnter, onLeave };
+}
+
+// src/DATADISPLAY/Charts/TreemapChart/TreemapChart.tsx
+import { jsx as jsx178, jsxs as jsxs112 } from "react/jsx-runtime";
+var TREEMAP_MARGIN = { top: 4, right: 4, bottom: 4, left: 4 };
+var TreemapChart = React156.forwardRef(
+  ({
+    data,
+    width: propWidth,
+    height: propHeight,
+    colors = DEFAULT_TREEMAP_COLORS,
+    unstyled = TREEMAP_CHART_DEFAULTS.unstyled,
+    bindId,
+    className,
+    ...rest
+  }, ref) => {
+    useBridgeBind({ bindId });
+    const containerRef = useRef79(null);
+    const { width, height } = useChartDimensions6(
+      containerRef,
+      propWidth,
+      propHeight,
+      TREEMAP_CHART_DEFAULTS.width,
+      TREEMAP_CHART_DEFAULTS.height
+    );
+    const { hoveredIndex, onEnter, onLeave } = useHoveredIndex5();
+    const classes = useMemo105(
+      () => buildTreemapChartClasses(className, unstyled),
+      [className, unstyled]
+    );
+    const innerWidth = Math.max(width - TREEMAP_MARGIN.left - TREEMAP_MARGIN.right, 0);
+    const innerHeight = Math.max(height - TREEMAP_MARGIN.top - TREEMAP_MARGIN.bottom, 0);
+    const root = useMemo105(() => {
+      const h = hierarchy5(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+      return h;
+    }, [data]);
+    return /* @__PURE__ */ jsx178("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx178("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx178("svg", { width, height, children: /* @__PURE__ */ jsx178(Group41, { top: TREEMAP_MARGIN.top, left: TREEMAP_MARGIN.left, children: /* @__PURE__ */ jsx178(
+      Treemap2,
+      {
+        root,
+        size: [innerWidth, innerHeight],
+        tile: treemapSquarify2,
+        round: true,
+        children: (treemap) => {
+          const leaves = treemap.descendants().filter((n) => !n.children);
+          return /* @__PURE__ */ jsx178(Group41, { children: leaves.map((node, i) => {
+            const w = (node.x1 ?? 0) - (node.x0 ?? 0);
+            const h = (node.y1 ?? 0) - (node.y0 ?? 0);
+            return /* @__PURE__ */ jsxs112(Group41, { top: node.y0, left: node.x0, children: [
+              /* @__PURE__ */ jsx178(
+                "rect",
+                {
+                  width: w,
+                  height: h,
+                  fill: tileColor(i, colors),
+                  opacity: hoveredIndex === i ? 0.8 : 1,
+                  stroke: "var(--w3f-surface, #1e293b)",
+                  strokeWidth: 2,
+                  rx: 2,
+                  onMouseEnter: () => onEnter(i),
+                  onMouseLeave: onLeave,
+                  style: { cursor: "pointer" }
+                }
+              ),
+              textFits2(w, h) && /* @__PURE__ */ jsx178(
+                "text",
+                {
+                  x: w / 2,
+                  y: h / 2,
+                  textAnchor: "middle",
+                  dominantBaseline: "central",
+                  fill: "#fff",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  pointerEvents: "none",
+                  children: truncateLabel2(node.data.name, w - 8)
+                }
+              )
+            ] }, `leaf-${i}`);
+          }) });
+        }
+      }
+    ) }) }) }) });
+  }
+);
+TreemapChart.displayName = "TreemapChart";
+
 // src/FEEDBACK/Backdrop/Backdrop.tsx
-import React72, { useMemo as useMemo21 } from "react";
+import React157, { useMemo as useMemo106 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 
 // src/FEEDBACK/Backdrop/Backdrop.constants.ts
@@ -15755,9 +25628,9 @@ function buildBackdropClasses(open, invisible, className) {
 }
 
 // src/FEEDBACK/Backdrop/Backdrop.hooks.ts
-import { useState as useState48, useCallback as useCallback39, useEffect as useEffect33 } from "react";
+import { useState as useState63, useCallback as useCallback84, useEffect as useEffect38 } from "react";
 var useScrollLock2 = (locked) => {
-  useEffect33(() => {
+  useEffect38(() => {
     if (!locked) return;
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
@@ -15774,8 +25647,8 @@ var useScrollLock2 = (locked) => {
 };
 
 // src/FEEDBACK/Backdrop/Backdrop.tsx
-import { jsx as jsx89 } from "react/jsx-runtime";
-var Backdrop = React72.forwardRef(({
+import { jsx as jsx179 } from "react/jsx-runtime";
+var Backdrop = React157.forwardRef(({
   open = false,
   children,
   invisible = BACKDROP_DEFAULTS.invisible,
@@ -15790,16 +25663,16 @@ var Backdrop = React72.forwardRef(({
   ...rest
 }, ref) => {
   useScrollLock2(open);
-  const backdropClasses = useMemo21(
+  const backdropClasses = useMemo106(
     () => buildBackdropClasses(open, invisible, className),
     [open, invisible, className]
   );
-  const inlineStyles = useMemo21(() => ({
+  const inlineStyles = useMemo106(() => ({
     transitionDuration: `${transitionDuration}ms`,
     ...sx
   }), [transitionDuration, sx]);
   if (!open) return null;
-  const content = /* @__PURE__ */ jsx89(
+  const content = /* @__PURE__ */ jsx179(
     Component,
     {
       ref,
@@ -15808,7 +25681,7 @@ var Backdrop = React72.forwardRef(({
       role: "presentation",
       style: inlineStyles,
       ...rest,
-      children: children || showSpinner && /* @__PURE__ */ jsx89(
+      children: children || showSpinner && /* @__PURE__ */ jsx179(
         ProgressSpinner_default,
         {
           mode: "indeterminate",
@@ -15823,7 +25696,7 @@ var Backdrop = React72.forwardRef(({
 Backdrop.displayName = "Backdrop";
 
 // src/FEEDBACK/Ripples/Ripple.tsx
-import React73, { useCallback as useCallback41, useImperativeHandle, useMemo as useMemo22 } from "react";
+import React158, { useCallback as useCallback86, useImperativeHandle, useMemo as useMemo107 } from "react";
 
 // src/FEEDBACK/Ripples/Ripple.constants.ts
 var RIPPLE_DEFAULTS = {
@@ -15866,7 +25739,7 @@ function calculateRippleDimensions(rect, x, y, centered, radius) {
 }
 
 // src/FEEDBACK/Ripples/Ripple.hooks.ts
-import { useRef as useRef34, useCallback as useCallback40 } from "react";
+import { useRef as useRef80, useCallback as useCallback85 } from "react";
 var useRipple = (options = {}) => {
   const {
     disabled = false,
@@ -15876,8 +25749,8 @@ var useRipple = (options = {}) => {
     enterDuration = RIPPLE_DEFAULTS.enterDuration,
     exitDuration = RIPPLE_DEFAULTS.exitDuration
   } = options;
-  const containerRef = useRef34(null);
-  const createRipple = useCallback40((e) => {
+  const containerRef = useRef80(null);
+  const createRipple = useCallback85((e) => {
     if (disabled) return;
     const container = containerRef.current;
     if (!container) return;
@@ -15901,7 +25774,7 @@ var useRipple = (options = {}) => {
     }, totalDuration);
     ripple.dataset.timeoutId = String(timeoutId);
   }, [disabled, centered, unbounded, radius, enterDuration, exitDuration]);
-  const clearRipples = useCallback40(() => {
+  const clearRipples = useCallback85(() => {
     const container = containerRef.current;
     if (!container) return;
     const ripples = container.querySelectorAll(".w3f-ripple");
@@ -15915,8 +25788,8 @@ var useRipple = (options = {}) => {
 };
 
 // src/FEEDBACK/Ripples/Ripple.tsx
-import { jsx as jsx90 } from "react/jsx-runtime";
-var Ripple = React73.forwardRef(({
+import { jsx as jsx180 } from "react/jsx-runtime";
+var Ripple = React158.forwardRef(({
   children,
   className = "",
   color,
@@ -15950,11 +25823,11 @@ var Ripple = React73.forwardRef(({
     },
     fadeOutAll: clearRipples
   }), [containerRef, createRipple, clearRipples]);
-  const handleClick = useCallback41((e) => {
+  const handleClick = useCallback86((e) => {
     createRipple(e);
     onClick?.(e);
   }, [createRipple, onClick]);
-  const handleKeyDown = useCallback41((e) => {
+  const handleKeyDown = useCallback86((e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
@@ -15967,11 +25840,11 @@ var Ripple = React73.forwardRef(({
       onClick?.(e);
     }
   }, [containerRef, createRipple, onClick]);
-  const containerClasses = useMemo22(
+  const containerClasses = useMemo107(
     () => buildRippleClasses(flat, disabled, className),
     [flat, disabled, className]
   );
-  return /* @__PURE__ */ jsx90(
+  return /* @__PURE__ */ jsx180(
     "div",
     {
       ref: containerRef,
@@ -15983,14 +25856,14 @@ var Ripple = React73.forwardRef(({
       "aria-disabled": disabled,
       "data-ripple-color": color,
       ...rest,
-      children: /* @__PURE__ */ jsx90("div", { className: "w3f-ripple-content", children })
+      children: /* @__PURE__ */ jsx180("div", { className: "w3f-ripple-content", children })
     }
   );
 });
 Ripple.displayName = "Ripple";
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-import React74, { useState as useState49, useEffect as useEffect34, useCallback as useCallback42, useMemo as useMemo23 } from "react";
+import React159, { useState as useState64, useEffect as useEffect39, useCallback as useCallback87, useMemo as useMemo108 } from "react";
 
 // src/FEEDBACK/Snackbar/Snackbar.constants.ts
 var SNACKBAR_DEFAULTS = {
@@ -16025,8 +25898,8 @@ function buildSnackbarClasses(variant, isExiting, className) {
 }
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-import { jsx as jsx91, jsxs as jsxs66 } from "react/jsx-runtime";
-var Snackbar = React74.forwardRef(({
+import { jsx as jsx181, jsxs as jsxs113 } from "react/jsx-runtime";
+var Snackbar = React159.forwardRef(({
   open,
   message,
   onClose,
@@ -16043,10 +25916,10 @@ var Snackbar = React74.forwardRef(({
 }, ref) => {
   const isOpen = open ?? show ?? false;
   const hideDuration = autoHideDuration ?? duration ?? SNACKBAR_DEFAULTS.autoHideDuration;
-  const [isVisible, setIsVisible] = useState49(isOpen);
-  const [isExiting, setIsExiting] = useState49(false);
-  const [isPaused, setIsPaused] = useState49(false);
-  const handleClose = useCallback42((reason = "timeout") => {
+  const [isVisible, setIsVisible] = useState64(isOpen);
+  const [isExiting, setIsExiting] = useState64(false);
+  const [isPaused, setIsPaused] = useState64(false);
+  const handleClose = useCallback87((reason = "timeout") => {
     setIsExiting(true);
     setTimeout(() => {
       setIsVisible(false);
@@ -16054,13 +25927,13 @@ var Snackbar = React74.forwardRef(({
       onClose?.(null, reason);
     }, SNACKBAR_DEFAULTS.exitAnimationDuration);
   }, [onClose]);
-  useEffect34(() => {
+  useEffect39(() => {
     if (isOpen) {
       setIsVisible(true);
       setIsExiting(false);
     }
   }, [isOpen]);
-  useEffect34(() => {
+  useEffect39(() => {
     if (!isOpen || hideDuration === null || hideDuration <= 0 || isPaused) return;
     const effectiveDuration = isPaused && resumeHideDuration != null ? resumeHideDuration : hideDuration;
     const timer = setTimeout(() => {
@@ -16068,7 +25941,7 @@ var Snackbar = React74.forwardRef(({
     }, effectiveDuration);
     return () => clearTimeout(timer);
   }, [isOpen, hideDuration, isPaused, resumeHideDuration, handleClose]);
-  useEffect34(() => {
+  useEffect39(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -16078,16 +25951,16 @@ var Snackbar = React74.forwardRef(({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleClose]);
-  const anchorClasses = useMemo23(
+  const anchorClasses = useMemo108(
     () => buildAnchorClasses(anchorOrigin),
     [anchorOrigin]
   );
-  const snackbarClasses = useMemo23(
+  const snackbarClasses = useMemo108(
     () => buildSnackbarClasses(variant, isExiting, className),
     [variant, isExiting, className]
   );
   if (!isVisible) return null;
-  return /* @__PURE__ */ jsx91("div", { className: anchorClasses, children: /* @__PURE__ */ jsxs66(
+  return /* @__PURE__ */ jsx181("div", { className: anchorClasses, children: /* @__PURE__ */ jsxs113(
     "div",
     {
       ref,
@@ -16099,8 +25972,8 @@ var Snackbar = React74.forwardRef(({
       onMouseLeave: () => setIsPaused(false),
       ...rest,
       children: [
-        /* @__PURE__ */ jsx91("p", { className: "w3f-snackbar__message", children: message }),
-        action ? /* @__PURE__ */ jsx91("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ jsx91(
+        /* @__PURE__ */ jsx181("p", { className: "w3f-snackbar__message", children: message }),
+        action ? /* @__PURE__ */ jsx181("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ jsx181(
           "button",
           {
             className: "w3f-snackbar__close",
@@ -16147,7 +26020,7 @@ function buildButtonGridClasses(align = "start", className) {
 }
 
 // src/LAYOUT/ButtonGrid/ButtonGrid.tsx
-import { jsx as jsx92 } from "react/jsx-runtime";
+import { jsx as jsx182 } from "react/jsx-runtime";
 var ButtonGrid = ({
   children,
   align = BUTTON_GRID_DEFAULTS.align,
@@ -16157,7 +26030,7 @@ var ButtonGrid = ({
   ...rest
 }) => {
   const classes = buildButtonGridClasses(align, className);
-  return /* @__PURE__ */ jsx92(Element, { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx182(Element, { className: classes, style, ...rest, children });
 };
 ButtonGrid.displayName = "ButtonGrid";
 
@@ -16185,9 +26058,9 @@ var buildCellClassNames = ({
 };
 
 // src/LAYOUT/Cell/Cell.tsx
-import { jsx as jsx93 } from "react/jsx-runtime";
+import { jsx as jsx183 } from "react/jsx-runtime";
 var CellRow = ({ children, className = "", style, ...props }) => {
-  return /* @__PURE__ */ jsx93("div", { className, style, ...props, children });
+  return /* @__PURE__ */ jsx183("div", { className, style, ...props, children });
 };
 CellRow.displayName = "CellRow";
 var Cell = ({
@@ -16200,12 +26073,285 @@ var Cell = ({
   ...props
 }) => {
   const classes = buildCellClassNames({ content, center, vCenter, className });
-  return /* @__PURE__ */ jsx93("div", { className: classes, style, ...props, children });
+  return /* @__PURE__ */ jsx183("div", { className: classes, style, ...props, children });
 };
 Cell.displayName = "Cell";
 
+// src/LAYOUT/Flexbox/Flexbox.constants.ts
+var FLEX_CONTAINER_DEFAULTS = {
+  direction: "row",
+  wrap: "nowrap",
+  justifyContent: "start",
+  alignItems: "stretch",
+  alignContent: "stretch",
+  inline: false
+};
+var FLEX_BOX_ITEM_DEFAULTS = {
+  bgColor: "#3498db"
+};
+var STANDARD_DIRECTIONS = ["row", "row-reverse", "column", "column-reverse"];
+var STANDARD_JUSTIFY = ["start", "end", "center", "between", "around", "evenly"];
+var STANDARD_ALIGN = ["start", "end", "center", "baseline", "stretch"];
+var STANDARD_ALIGN_CONTENT = ["start", "end", "center", "between", "around", "stretch"];
+
+// src/LAYOUT/Flexbox/Flexbox.utils.ts
+var mapGrowToClass = (grow) => {
+  if (grow === true || grow === 1) return "w3f-flex-grow";
+  if (grow === false || grow === 0) return "w3f-flex-grow-0";
+  return "";
+};
+var mapShrinkToClass = (shrink) => {
+  if (shrink === true || shrink === 1) return "w3f-flex-shrink";
+  if (shrink === false || shrink === 0) return "w3f-flex-shrink-0";
+  return "";
+};
+var mapOrderToClass = (order) => {
+  const orderStr = String(order);
+  if (orderStr === "first") return "w3f-order-first";
+  if (orderStr === "last") return "w3f-order-last";
+  if (["0", "none"].includes(orderStr)) return "w3f-order-none";
+  if (["1", "2", "3"].includes(orderStr)) return `w3f-order-${orderStr}`;
+  return "";
+};
+var mapAutoMarginsToClass = ({ mlAuto, mrAuto }) => {
+  const classes = [];
+  if (mlAuto) classes.push("w3f-ml-auto");
+  if (mrAuto) classes.push("w3f-mr-auto");
+  return classes.join(" ");
+};
+var buildFlexItemClassNames = ({
+  grow,
+  shrink,
+  order,
+  mlAuto,
+  mrAuto,
+  className
+}) => {
+  return [
+    mapGrowToClass(grow),
+    mapShrinkToClass(shrink),
+    mapOrderToClass(order),
+    mapAutoMarginsToClass({ mlAuto, mrAuto }),
+    className
+  ].filter(Boolean).join(" ");
+};
+var mapDirectionToClass = (dir) => {
+  if (dir === "row") return "w3f-flex-row";
+  if (dir === "row-reverse") return "w3f-flex-row-reverse";
+  if (dir === "column") return "w3f-flex-col";
+  if (dir === "column-reverse") return "w3f-flex-col-reverse";
+  return "";
+};
+var mapWrapToClass = (wrap) => {
+  if (wrap === true || wrap === "wrap") return "w3f-flex-wrap";
+  if (wrap === false || wrap === "nowrap") return "w3f-flex-nowrap";
+  if (wrap === "wrap-reverse") return "w3f-flex-wrap-reverse";
+  return "";
+};
+var mapJustifyToClass = (justify) => {
+  if (justify && STANDARD_JUSTIFY.includes(justify)) {
+    return `w3f-justify-${justify}`;
+  }
+  return "";
+};
+var mapAlignItemsToClass = (align) => {
+  if (align && STANDARD_ALIGN.includes(align)) {
+    return `w3f-items-${align}`;
+  }
+  return "";
+};
+var mapAlignContentToClass = (alignContent) => {
+  if (alignContent && STANDARD_ALIGN_CONTENT.includes(alignContent)) {
+    return `w3f-content-${alignContent}`;
+  }
+  return "";
+};
+var buildFlexContainerClassNames = ({
+  direction,
+  wrap,
+  justifyContent,
+  alignItems,
+  alignContent,
+  inline,
+  className
+}) => {
+  return [
+    inline ? "w3f-inline-flex" : "w3f-flex",
+    mapDirectionToClass(direction),
+    mapWrapToClass(wrap),
+    mapJustifyToClass(justifyContent),
+    mapAlignItemsToClass(alignItems),
+    mapAlignContentToClass(alignContent),
+    className
+  ].filter(Boolean).join(" ");
+};
+var buildFlexContainerInlineStyles = ({
+  direction,
+  wrap,
+  justifyContent,
+  alignItems,
+  alignContent,
+  gap,
+  rowGap,
+  columnGap,
+  width,
+  height,
+  padding,
+  margin,
+  style
+}) => {
+  const isStandardDir = STANDARD_DIRECTIONS.includes(direction || "");
+  const isStandardJustify = STANDARD_JUSTIFY.includes(justifyContent || "");
+  const isStandardAlign = STANDARD_ALIGN.includes(alignItems || "");
+  const isStandardAlignContent = STANDARD_ALIGN_CONTENT.includes(alignContent || "");
+  const flexStyle = {
+    flexDirection: !isStandardDir ? direction : void 0,
+    justifyContent: !isStandardJustify ? justifyContent : void 0,
+    alignItems: !isStandardAlign ? alignItems : void 0,
+    alignContent: !isStandardAlignContent ? alignContent : void 0,
+    gap,
+    rowGap,
+    columnGap,
+    width,
+    height,
+    padding,
+    margin,
+    ...style
+  };
+  Object.keys(flexStyle).forEach((key) => {
+    if (flexStyle[key] === void 0) delete flexStyle[key];
+  });
+  return flexStyle;
+};
+var buildFlexItemInlineStyles = ({
+  grow,
+  shrink,
+  order,
+  basis,
+  alignSelf,
+  style
+}) => {
+  const itemStyle = {
+    flexGrow: typeof grow === "number" && grow !== 0 && grow !== 1 ? grow : void 0,
+    flexShrink: typeof shrink === "number" && shrink !== 0 && shrink !== 1 ? shrink : void 0,
+    order: typeof order === "number" && ![0, 1, 2, 3].includes(order) ? order : void 0,
+    flexBasis: basis,
+    alignSelf,
+    ...style
+  };
+  Object.keys(itemStyle).forEach((key) => {
+    if (itemStyle[key] === void 0) delete itemStyle[key];
+  });
+  return itemStyle;
+};
+
+// src/LAYOUT/Flexbox/Flexbox.tsx
+import { jsx as jsx184 } from "react/jsx-runtime";
+var FlexContainer = ({
+  children,
+  direction = FLEX_CONTAINER_DEFAULTS.direction,
+  wrap = FLEX_CONTAINER_DEFAULTS.wrap,
+  justifyContent = FLEX_CONTAINER_DEFAULTS.justifyContent,
+  alignItems = FLEX_CONTAINER_DEFAULTS.alignItems,
+  alignContent = FLEX_CONTAINER_DEFAULTS.alignContent,
+  gap,
+  rowGap,
+  columnGap,
+  width,
+  height,
+  padding,
+  margin,
+  inline = FLEX_CONTAINER_DEFAULTS.inline,
+  className = "",
+  style = {},
+  ...rest
+}) => {
+  const classNames = buildFlexContainerClassNames({
+    direction,
+    wrap,
+    justifyContent,
+    alignItems,
+    alignContent,
+    inline,
+    className
+  });
+  const flexStyle = buildFlexContainerInlineStyles({
+    direction,
+    wrap,
+    justifyContent,
+    alignItems,
+    alignContent,
+    gap,
+    rowGap,
+    columnGap,
+    width,
+    height,
+    padding,
+    margin,
+    style
+  });
+  return /* @__PURE__ */ jsx184("div", { className: classNames, style: flexStyle, ...rest, children });
+};
+FlexContainer.displayName = "FlexContainer";
+var FlexItem = ({
+  children,
+  grow,
+  shrink,
+  order,
+  mlAuto,
+  mrAuto,
+  basis,
+  alignSelf,
+  className = "",
+  style = {},
+  ...rest
+}) => {
+  const classNames = buildFlexItemClassNames({
+    grow,
+    shrink,
+    order,
+    mlAuto,
+    mrAuto,
+    className
+  });
+  const itemStyle = buildFlexItemInlineStyles({
+    grow,
+    shrink,
+    order,
+    basis,
+    alignSelf,
+    style
+  });
+  return /* @__PURE__ */ jsx184("div", { className: classNames, style: itemStyle, ...rest, children });
+};
+FlexItem.displayName = "FlexItem";
+var FlexBoxItem = ({
+  children,
+  bgColor = FLEX_BOX_ITEM_DEFAULTS.bgColor,
+  style = {},
+  className = "",
+  ...rest
+}) => {
+  const boxStyles = {
+    backgroundColor: bgColor,
+    color: "white",
+    padding: "20px",
+    borderRadius: "8px",
+    textAlign: "center",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    minHeight: "50px",
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    ...style
+  };
+  return /* @__PURE__ */ jsx184(FlexItem, { style: boxStyles, className, ...rest, children });
+};
+FlexBoxItem.displayName = "FlexBoxItem";
+
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import React75, { useState as useState51 } from "react";
+import React160, { useState as useState66 } from "react";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.constants.ts
 var GRID_DRAWER_DEFAULTS = {
@@ -16231,7 +26377,7 @@ function buildDrawerWrapperClasses(isDrawerArea, isDrawerOpen) {
 }
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
-import { useState as useState50, useRef as useRef35, useCallback as useCallback43, useEffect as useEffect35 } from "react";
+import { useState as useState65, useRef as useRef81, useCallback as useCallback88, useEffect as useEffect40 } from "react";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.constants.ts
 var GRID_DIVIDER_DEFAULTS = {
@@ -16244,18 +26390,18 @@ var GRID_DIVIDER_DEFAULTS = {
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
 var useGridDividers = (configs) => {
-  const [sizes, setSizes] = useState50(
+  const [sizes, setSizes] = useState65(
     () => configs.map((c) => c.initialSize ?? GRID_DIVIDER_DEFAULTS.initialSize)
   );
-  const [draggingIdx, setDraggingIdx] = useState50(-1);
-  const startPosRef = useRef35(0);
-  const startSizeRef = useRef35(0);
-  const invertedRef = useRef35(false);
-  const configsRef = useRef35(configs);
-  const sizesRef = useRef35(sizes);
+  const [draggingIdx, setDraggingIdx] = useState65(-1);
+  const startPosRef = useRef81(0);
+  const startSizeRef = useRef81(0);
+  const invertedRef = useRef81(false);
+  const configsRef = useRef81(configs);
+  const sizesRef = useRef81(sizes);
   configsRef.current = configs;
   sizesRef.current = sizes;
-  const handleMouseMove = useCallback43((e) => {
+  const handleMouseMove = useCallback88((e) => {
     const idx = draggingIdx;
     if (idx < 0) return;
     const config = configsRef.current[idx];
@@ -16272,11 +26418,11 @@ var useGridDividers = (configs) => {
       return next;
     });
   }, [draggingIdx]);
-  const handleMouseUp = useCallback43(() => {
+  const handleMouseUp = useCallback88(() => {
     setDraggingIdx(-1);
     invertedRef.current = false;
   }, []);
-  useEffect35(() => {
+  useEffect40(() => {
     if (draggingIdx >= 0) {
       const config = configsRef.current[draggingIdx];
       const orientation = config.orientation ?? GRID_DIVIDER_DEFAULTS.orientation;
@@ -16350,14 +26496,14 @@ var gridDividerUtils = {
 var GridWithDividers_utils_default = gridDividerUtils;
 
 // src/LAYOUT/GridWithDividers/Divider.tsx
-import { jsx as jsx94 } from "react/jsx-runtime";
+import { jsx as jsx185 } from "react/jsx-runtime";
 var Divider = ({
   onMouseDown,
   isDragging,
   orientation = "vertical",
   className
 }) => {
-  return /* @__PURE__ */ jsx94(
+  return /* @__PURE__ */ jsx185(
     "div",
     {
       className,
@@ -16368,13 +26514,13 @@ var Divider = ({
 Divider.displayName = "Divider";
 
 // src/LAYOUT/GridWiithDrawers/ToggleButton.tsx
-import { jsx as jsx95 } from "react/jsx-runtime";
+import { jsx as jsx186 } from "react/jsx-runtime";
 var ToggleButton2 = ({
   isDrawerOpen,
   onToggle,
   className = ""
 }) => {
-  return /* @__PURE__ */ jsx95("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx95(
+  return /* @__PURE__ */ jsx186("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx186(
     "button",
     {
       className: GRID_DRAWER_CLASSES.toggleBtn,
@@ -16388,7 +26534,7 @@ var ToggleButton2 = ({
 ToggleButton2.displayName = "ToggleButton";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import { jsx as jsx96, jsxs as jsxs67 } from "react/jsx-runtime";
+import { jsx as jsx187, jsxs as jsxs114 } from "react/jsx-runtime";
 var GridWithDrawer = ({
   templateColumns,
   templateRows,
@@ -16399,7 +26545,7 @@ var GridWithDrawer = ({
   children,
   style = {}
 }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState51(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState66(true);
   const dividerStates = GridWithDividers_hooks_default(dividers);
   let adjustedTemplateColumns = templateColumns;
   let adjustedTemplateRows = templateRows;
@@ -16421,14 +26567,14 @@ var GridWithDrawer = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React75.Children.map(childNodes, (child) => {
-      if (!React75.isValidElement(child)) return child;
+    return React160.Children.map(childNodes, (child) => {
+      if (!React160.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const isDrawerArea = gridArea === drawerAreaName;
       const childStyle = childProps.style || {};
       const { overflow, overflowX, overflowY } = childStyle;
-      const childContent = React75.cloneElement(child, {
+      const childContent = React160.cloneElement(child, {
         ...childProps,
         gridArea: void 0,
         style: {
@@ -16446,7 +26592,7 @@ var GridWithDrawer = ({
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(
         ({ config }) => config.between && config.between[0] === gridArea || config.area === gridArea
       );
-      return /* @__PURE__ */ jsxs67(
+      return /* @__PURE__ */ jsxs114(
         GridAreaItem,
         {
           gridArea,
@@ -16458,7 +26604,7 @@ var GridWithDrawer = ({
             overflowY: isDrawerArea && !isDrawerOpen ? "hidden" : overflowY
           },
           children: [
-            isDrawerArea && /* @__PURE__ */ jsx96(
+            isDrawerArea && /* @__PURE__ */ jsx187(
               ToggleButton2,
               {
                 isDrawerOpen,
@@ -16481,7 +26627,7 @@ var GridWithDrawer = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx96(
+              return /* @__PURE__ */ jsx187(
                 Divider,
                 {
                   className: dividerClass,
@@ -16497,7 +26643,7 @@ var GridWithDrawer = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx96(
+  return /* @__PURE__ */ jsx187(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -16512,8 +26658,8 @@ var GridWithDrawer = ({
 GridWithDrawer.displayName = "GridWithDrawer";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.tsx
-import React76 from "react";
-import { jsx as jsx97, jsxs as jsxs68 } from "react/jsx-runtime";
+import React161 from "react";
+import { jsx as jsx188, jsxs as jsxs115 } from "react/jsx-runtime";
 var normalizeAreas = (areas) => {
   if (!areas) return void 0;
   return areas.trim().split("\n").map((row) => row.trim().replace(/^["']|["']$/g, "")).join("\n");
@@ -16544,15 +26690,15 @@ var GridWithDividers = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React76.Children.map(childNodes, (child) => {
-      if (!child || !React76.isValidElement(child)) return child;
+    return React161.Children.map(childNodes, (child) => {
+      if (!child || !React161.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const childStyle = childProps.style || {};
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(({ config }) => config.between && config.between[0] === gridArea);
       if (applicableDividers.length === 0) return child;
       const { gridArea: _areaProp, style: childRestyle, ...restProps } = childProps;
-      const childWithoutGridArea = React76.cloneElement(child, {
+      const childWithoutGridArea = React161.cloneElement(child, {
         ...restProps,
         gridArea: void 0,
         style: {
@@ -16566,7 +26712,7 @@ var GridWithDividers = ({
           height: "100%"
         }
       });
-      return /* @__PURE__ */ jsxs68(
+      return /* @__PURE__ */ jsxs115(
         GridAreaItem,
         {
           gridArea,
@@ -16590,7 +26736,7 @@ var GridWithDividers = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx97(
+              return /* @__PURE__ */ jsx188(
                 Divider,
                 {
                   className: dividerClass,
@@ -16606,7 +26752,7 @@ var GridWithDividers = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx97(
+  return /* @__PURE__ */ jsx188(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -16638,9 +26784,9 @@ function getTemplateColumns(variant, cols) {
 }
 
 // src/LAYOUT/ImageList/ImageCard.tsx
-import { Fragment as Fragment14, jsx as jsx98, jsxs as jsxs69 } from "react/jsx-runtime";
-var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs69(Fragment14, { children: [
-  /* @__PURE__ */ jsx98(
+import { Fragment as Fragment17, jsx as jsx189, jsxs as jsxs116 } from "react/jsx-runtime";
+var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs116(Fragment17, { children: [
+  /* @__PURE__ */ jsx189(
     "img",
     {
       src: item.src,
@@ -16654,7 +26800,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs69(Fragment14, { child
       }
     }
   ),
-  item.title && /* @__PURE__ */ jsx98("div", { style: {
+  item.title && /* @__PURE__ */ jsx189("div", { style: {
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -16668,7 +26814,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs69(Fragment14, { child
 ImageCard.displayName = "ImageCard";
 
 // src/LAYOUT/ImageList/ImageList.tsx
-import { jsx as jsx99 } from "react/jsx-runtime";
+import { jsx as jsx190 } from "react/jsx-runtime";
 var ImageList = ({
   items,
   variant = IMAGE_LIST_DEFAULTS.variant,
@@ -16679,7 +26825,7 @@ var ImageList = ({
   style
 }) => {
   const templateColumns = getTemplateColumns(variant, cols);
-  return /* @__PURE__ */ jsx99(
+  return /* @__PURE__ */ jsx190(
     Grid,
     {
       templateColumns,
@@ -16692,22 +26838,22 @@ var ImageList = ({
       justifyItems: "stretch",
       children: items.map((item) => {
         if (variant === "quilted" && (item.cols || item.rows)) {
-          return /* @__PURE__ */ jsx99(
+          return /* @__PURE__ */ jsx190(
             GridAreaItem,
             {
               gridColumn: item.cols ? `span ${item.cols}` : void 0,
               gridRow: item.rows ? `span ${item.rows}` : void 0,
               style: { position: "relative", overflow: "hidden", borderRadius: "8px" },
-              children: /* @__PURE__ */ jsx99(ImageCard, { item, height: rowHeight })
+              children: /* @__PURE__ */ jsx190(ImageCard, { item, height: rowHeight })
             },
             item.id
           );
         }
-        return /* @__PURE__ */ jsx99(
+        return /* @__PURE__ */ jsx190(
           "div",
           {
             style: { position: "relative", overflow: "hidden", borderRadius: "8px", minHeight: "200px" },
-            children: /* @__PURE__ */ jsx99(ImageCard, { item, height: rowHeight })
+            children: /* @__PURE__ */ jsx190(ImageCard, { item, height: rowHeight })
           },
           item.id
         );
@@ -16746,7 +26892,7 @@ function buildColClasses({
 }
 
 // src/LAYOUT/Row/Row.tsx
-import { jsx as jsx100 } from "react/jsx-runtime";
+import { jsx as jsx191 } from "react/jsx-runtime";
 var Row = ({
   children,
   className,
@@ -16754,12 +26900,12 @@ var Row = ({
   ...rest
 }) => {
   const classes = buildRowClasses(className);
-  return /* @__PURE__ */ jsx100("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx191("div", { className: classes, style, ...rest, children });
 };
 Row.displayName = "Row";
 
 // src/LAYOUT/Row/Col.tsx
-import { jsx as jsx101 } from "react/jsx-runtime";
+import { jsx as jsx192 } from "react/jsx-runtime";
 var Col = ({
   children,
   className,
@@ -16771,7 +26917,7 @@ var Col = ({
   ...rest
 }) => {
   const classes = buildColClasses({ col, sm, md, lg, className });
-  return /* @__PURE__ */ jsx101("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx192("div", { className: classes, style, ...rest, children });
 };
 Col.displayName = "Col";
 
@@ -16794,7 +26940,7 @@ function buildSubSectionClasses(className) {
 }
 
 // src/LAYOUT/Section/Section.tsx
-import { jsx as jsx102, jsxs as jsxs70 } from "react/jsx-runtime";
+import { jsx as jsx193, jsxs as jsxs117 } from "react/jsx-runtime";
 var Section2 = ({
   children,
   title,
@@ -16804,15 +26950,15 @@ var Section2 = ({
   ...rest
 }) => {
   const classes = buildSectionClasses(className);
-  return /* @__PURE__ */ jsxs70(Element, { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx102("h2", { className: SECTION_CLASSES2.title, children: title }),
+  return /* @__PURE__ */ jsxs117(Element, { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx193("h2", { className: SECTION_CLASSES2.title, children: title }),
     children
   ] });
 };
 Section2.displayName = "Section";
 
 // src/LAYOUT/Section/SubSection.tsx
-import { jsx as jsx103, jsxs as jsxs71 } from "react/jsx-runtime";
+import { jsx as jsx194, jsxs as jsxs118 } from "react/jsx-runtime";
 var SubSection = ({
   children,
   title,
@@ -16821,8 +26967,8 @@ var SubSection = ({
   ...rest
 }) => {
   const classes = buildSubSectionClasses(className);
-  return /* @__PURE__ */ jsxs71("div", { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx103("h3", { className: SUBSECTION_CLASSES.title, children: title }),
+  return /* @__PURE__ */ jsxs118("div", { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx194("h3", { className: SUBSECTION_CLASSES.title, children: title }),
     children
   ] });
 };
@@ -16877,7 +27023,7 @@ function buildStackStyles(gap, align, justify, style) {
 }
 
 // src/LAYOUT/Stack/Stack.tsx
-import { jsx as jsx104 } from "react/jsx-runtime";
+import { jsx as jsx195 } from "react/jsx-runtime";
 var Stack = ({
   as: Tag3 = "div",
   children,
@@ -16893,7 +27039,7 @@ var Stack = ({
 }) => {
   const classes = buildStackClasses(horizontal, size, spacing, gap, className);
   const inlineStyle = buildStackStyles(gap, align, justify, style);
-  return /* @__PURE__ */ jsx104(Tag3, { className: classes, style: inlineStyle, ...rest, children });
+  return /* @__PURE__ */ jsx195(Tag3, { className: classes, style: inlineStyle, ...rest, children });
 };
 Stack.displayName = "Stack";
 
@@ -16939,7 +27085,7 @@ var buildVerticalPaddingClassNames = ({
 };
 
 // src/LAYOUT/VerticalPadding/VerticalPadding.tsx
-import { jsx as jsx105 } from "react/jsx-runtime";
+import { jsx as jsx196 } from "react/jsx-runtime";
 var VerticalPadding = ({
   children,
   size = VERTICAL_PADDING_DEFAULTS.size,
@@ -16952,12 +27098,12 @@ var VerticalPadding = ({
     utilityClass,
     className
   });
-  return /* @__PURE__ */ jsx105("div", { className: classNames, ...rest, children });
+  return /* @__PURE__ */ jsx196("div", { className: classNames, ...rest, children });
 };
 VerticalPadding.displayName = "VerticalPadding";
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import React77, { useRef as useRef36, useCallback as useCallback45, useMemo as useMemo24 } from "react";
+import React162, { useRef as useRef82, useCallback as useCallback90, useMemo as useMemo109 } from "react";
 import {
   Play as Play2,
   Pause as Pause2,
@@ -16993,9 +27139,9 @@ var AUDIO_DEFAULTS = {
 };
 
 // src/MEDIA/AudioPlayer/AudioPlayer.hooks.ts
-import { useState as useState52, useCallback as useCallback44, useEffect as useEffect36 } from "react";
+import { useState as useState67, useCallback as useCallback89, useEffect as useEffect41 } from "react";
 function useAudioPlayer(audioRef, callbacks) {
-  const [state, setState] = useState52({
+  const [state, setState] = useState67({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -17004,7 +27150,7 @@ function useAudioPlayer(audioRef, callbacks) {
     playbackSpeed: 1,
     speedMenuOpen: false
   });
-  const togglePlay = useCallback44(() => {
+  const togglePlay = useCallback89(() => {
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
@@ -17013,7 +27159,7 @@ function useAudioPlayer(audioRef, callbacks) {
       audio.pause();
     }
   }, [audioRef]);
-  const seek = useCallback44(
+  const seek = useCallback89(
     (time) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -17021,7 +27167,7 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const setVolume = useCallback44(
+  const setVolume = useCallback89(
     (vol) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -17032,13 +27178,13 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleMute = useCallback44(() => {
+  const toggleMute = useCallback89(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = !audio.muted;
     setState((s) => ({ ...s, isMuted: audio.muted }));
   }, [audioRef]);
-  const setPlaybackSpeed = useCallback44(
+  const setPlaybackSpeed = useCallback89(
     (speed) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -17047,10 +27193,10 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleSpeedMenu = useCallback44(() => {
+  const toggleSpeedMenu = useCallback89(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect36(() => {
+  useEffect41(() => {
     const audio = audioRef.current;
     if (!audio) return;
     const onPlay = () => {
@@ -17121,8 +27267,8 @@ function getProgressPercent(currentTime, duration) {
 }
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import { jsx as jsx106, jsxs as jsxs72 } from "react/jsx-runtime";
-var AudioPlayer = React77.forwardRef(
+import { jsx as jsx197, jsxs as jsxs119 } from "react/jsx-runtime";
+var AudioPlayer = React162.forwardRef(
   ({
     src,
     title,
@@ -17143,9 +27289,9 @@ var AudioPlayer = React77.forwardRef(
     className = AUDIO_DEFAULTS.className,
     ...rest
   }, ref) => {
-    const audioRef = useRef36(null);
-    const progressRef = useRef36(null);
-    const callbacks = useMemo24(
+    const audioRef = useRef82(null);
+    const progressRef = useRef82(null);
+    const callbacks = useMemo109(
       () => ({ onPlay, onPause, onEnded, onTimeUpdate }),
       [onPlay, onPause, onEnded, onTimeUpdate]
     );
@@ -17158,12 +27304,12 @@ var AudioPlayer = React77.forwardRef(
       setPlaybackSpeed,
       toggleSpeedMenu
     } = useAudioPlayer(audioRef, callbacks);
-    const rootClasses = useMemo24(
+    const rootClasses = useMemo109(
       () => buildAudioPlayerClasses(variant, color, className),
       [variant, color, className]
     );
     const progressPercent = getProgressPercent(state.currentTime, state.duration);
-    const handleProgressClick = useCallback45(
+    const handleProgressClick = useCallback90(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -17173,7 +27319,7 @@ var AudioPlayer = React77.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback45(
+    const handleKeyDown = useCallback90(
       (e) => {
         switch (e.key) {
           case " ":
@@ -17188,7 +27334,7 @@ var AudioPlayer = React77.forwardRef(
       },
       [togglePlay, toggleMute]
     );
-    const handleVolumeChange = useCallback45(
+    const handleVolumeChange = useCallback90(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -17198,7 +27344,7 @@ var AudioPlayer = React77.forwardRef(
     const isCompact = variant === "compact";
     const isCard = variant === "card";
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs72(
+    return /* @__PURE__ */ jsxs119(
       "div",
       {
         ref,
@@ -17209,7 +27355,7 @@ var AudioPlayer = React77.forwardRef(
         "aria-label": title ? `Audio player: ${title}` : "Audio player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx106(
+          /* @__PURE__ */ jsx197(
             "audio",
             {
               ref: audioRef,
@@ -17219,7 +27365,7 @@ var AudioPlayer = React77.forwardRef(
               preload: "metadata"
             }
           ),
-          isCard && cover && /* @__PURE__ */ jsx106("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx106(
+          isCard && cover && /* @__PURE__ */ jsx197("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx197(
             "img",
             {
               src: sanitizeUrl(cover),
@@ -17227,14 +27373,14 @@ var AudioPlayer = React77.forwardRef(
               className: "w3f-audio-player__cover-img"
             }
           ) }),
-          /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__body", children: [
-            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__info", children: [
-              title && /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__title", children: title }),
-              artist && /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__artist", children: artist })
+          /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__body", children: [
+            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__info", children: [
+              title && /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__title", children: title }),
+              artist && /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__artist", children: artist })
             ] }),
-            showProgress && /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__progress-row", children: [
-              !isCompact && /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
-              /* @__PURE__ */ jsx106(
+            showProgress && /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__progress-row", children: [
+              !isCompact && /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
+              /* @__PURE__ */ jsx197(
                 "div",
                 {
                   ref: progressRef,
@@ -17245,7 +27391,7 @@ var AudioPlayer = React77.forwardRef(
                   "aria-valuemin": 0,
                   "aria-valuemax": 100,
                   "aria-valuenow": Math.round(progressPercent),
-                  children: /* @__PURE__ */ jsx106(
+                  children: /* @__PURE__ */ jsx197(
                     "div",
                     {
                       className: "w3f-audio-player__progress-fill",
@@ -17254,38 +27400,38 @@ var AudioPlayer = React77.forwardRef(
                   )
                 }
               ),
-              !isCompact && /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
+              !isCompact && /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
             ] }),
-            /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__controls", children: [
-              /* @__PURE__ */ jsx106(
+            /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__controls", children: [
+              /* @__PURE__ */ jsx197(
                 "button",
                 {
                   className: "w3f-audio-player__btn w3f-audio-player__play-btn",
                   onClick: togglePlay,
                   "aria-label": state.isPlaying ? "Pause" : "Play",
                   type: "button",
-                  children: state.isPlaying ? /* @__PURE__ */ jsx106(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx106(Play2, { size: isCompact ? 16 : 20 })
+                  children: state.isPlaying ? /* @__PURE__ */ jsx197(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx197(Play2, { size: isCompact ? 16 : 20 })
                 }
               ),
-              isCompact && /* @__PURE__ */ jsxs72("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
+              isCompact && /* @__PURE__ */ jsxs119("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
                 formatTime(state.currentTime),
                 " / ",
                 formatTime(state.duration)
               ] }),
-              isCompact && title && /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
-              /* @__PURE__ */ jsx106("span", { className: "w3f-audio-player__spacer" }),
-              showVolume && !isMinimal && /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__volume", children: [
-                /* @__PURE__ */ jsx106(
+              isCompact && title && /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
+              /* @__PURE__ */ jsx197("span", { className: "w3f-audio-player__spacer" }),
+              showVolume && !isMinimal && /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__volume", children: [
+                /* @__PURE__ */ jsx197(
                   "button",
                   {
                     className: "w3f-audio-player__btn",
                     onClick: toggleMute,
                     "aria-label": state.isMuted ? "Unmute" : "Mute",
                     type: "button",
-                    children: /* @__PURE__ */ jsx106(VolumeIcon, { size: isCompact ? 14 : 18 })
+                    children: /* @__PURE__ */ jsx197(VolumeIcon, { size: isCompact ? 14 : 18 })
                   }
                 ),
-                !isCompact && /* @__PURE__ */ jsx106(
+                !isCompact && /* @__PURE__ */ jsx197(
                   "input",
                   {
                     className: "w3f-audio-player__volume-slider",
@@ -17299,8 +27445,8 @@ var AudioPlayer = React77.forwardRef(
                   }
                 )
               ] }),
-              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs72("div", { className: "w3f-audio-player__speed", children: [
-                /* @__PURE__ */ jsxs72(
+              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs119("div", { className: "w3f-audio-player__speed", children: [
+                /* @__PURE__ */ jsxs119(
                   "button",
                   {
                     className: "w3f-audio-player__btn w3f-audio-player__speed-btn",
@@ -17313,7 +27459,7 @@ var AudioPlayer = React77.forwardRef(
                     ]
                   }
                 ),
-                state.speedMenuOpen && /* @__PURE__ */ jsx106("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs72(
+                state.speedMenuOpen && /* @__PURE__ */ jsx197("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs119(
                   "button",
                   {
                     className: [
@@ -17340,7 +27486,7 @@ var AudioPlayer = React77.forwardRef(
 AudioPlayer.displayName = "AudioPlayer";
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import React78, { useRef as useRef38, useCallback as useCallback47, useMemo as useMemo25 } from "react";
+import React163, { useRef as useRef84, useCallback as useCallback92, useMemo as useMemo110 } from "react";
 import {
   Play as Play3,
   Pause as Pause3,
@@ -17388,9 +27534,9 @@ var VIDEO_DEFAULTS = {
 var CONTROLS_HIDE_DELAY = 3e3;
 
 // src/MEDIA/VideoPlayer/VideoPlayer.hooks.ts
-import { useState as useState53, useCallback as useCallback46, useRef as useRef37, useEffect as useEffect37 } from "react";
+import { useState as useState68, useCallback as useCallback91, useRef as useRef83, useEffect as useEffect42 } from "react";
 function useVideoPlayer(videoRef, containerRef, callbacks) {
-  const [state, setState] = useState53({
+  const [state, setState] = useState68({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -17401,15 +27547,15 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     controlsVisible: true,
     speedMenuOpen: false
   });
-  const hideTimerRef = useRef37(null);
-  const resetHideTimer = useCallback46(() => {
+  const hideTimerRef = useRef83(null);
+  const resetHideTimer = useCallback91(() => {
     setState((s) => ({ ...s, controlsVisible: true }));
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       setState((s) => s.isPlaying ? { ...s, controlsVisible: false, speedMenuOpen: false } : s);
     }, CONTROLS_HIDE_DELAY);
   }, []);
-  const togglePlay = useCallback46(() => {
+  const togglePlay = useCallback91(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
@@ -17418,7 +27564,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.pause();
     }
   }, [videoRef]);
-  const seek = useCallback46(
+  const seek = useCallback91(
     (time) => {
       const video = videoRef.current;
       if (!video) return;
@@ -17426,7 +27572,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const seekRelative = useCallback46(
+  const seekRelative = useCallback91(
     (delta) => {
       const video = videoRef.current;
       if (!video) return;
@@ -17434,7 +27580,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const setVolume = useCallback46(
+  const setVolume = useCallback91(
     (vol) => {
       const video = videoRef.current;
       if (!video) return;
@@ -17445,13 +27591,13 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleMute = useCallback46(() => {
+  const toggleMute = useCallback91(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = !video.muted;
     setState((s) => ({ ...s, isMuted: video.muted }));
   }, [videoRef]);
-  const toggleFullscreen = useCallback46(() => {
+  const toggleFullscreen = useCallback91(() => {
     const container = containerRef.current;
     if (!container) return;
     if (document.fullscreenElement) {
@@ -17460,7 +27606,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       container.requestFullscreen();
     }
   }, [containerRef]);
-  const setPlaybackSpeed = useCallback46(
+  const setPlaybackSpeed = useCallback91(
     (speed) => {
       const video = videoRef.current;
       if (!video) return;
@@ -17469,10 +27615,10 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleSpeedMenu = useCallback46(() => {
+  const toggleSpeedMenu = useCallback91(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect37(() => {
+  useEffect42(() => {
     const video = videoRef.current;
     if (!video) return;
     const onPlay = () => {
@@ -17511,14 +27657,14 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [videoRef, callbacks]);
-  useEffect37(() => {
+  useEffect42(() => {
     const onFsChange = () => {
       setState((s) => ({ ...s, isFullscreen: !!document.fullscreenElement }));
     };
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
-  useEffect37(() => {
+  useEffect42(() => {
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
@@ -17560,8 +27706,8 @@ function getProgressPercent2(currentTime, duration) {
 }
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import { jsx as jsx107, jsxs as jsxs73 } from "react/jsx-runtime";
-var VideoPlayer = React78.forwardRef(
+import { jsx as jsx198, jsxs as jsxs120 } from "react/jsx-runtime";
+var VideoPlayer = React163.forwardRef(
   ({
     src,
     poster,
@@ -17587,10 +27733,10 @@ var VideoPlayer = React78.forwardRef(
     style,
     ...rest
   }, ref) => {
-    const videoRef = useRef38(null);
-    const containerRef = useRef38(null);
-    const progressRef = useRef38(null);
-    const setRefs = useCallback47(
+    const videoRef = useRef84(null);
+    const containerRef = useRef84(null);
+    const progressRef = useRef84(null);
+    const setRefs = useCallback92(
       (node) => {
         containerRef.current = node;
         if (typeof ref === "function") ref(node);
@@ -17598,7 +27744,7 @@ var VideoPlayer = React78.forwardRef(
       },
       [ref]
     );
-    const callbacks = useMemo25(
+    const callbacks = useMemo110(
       () => ({ onPlay, onPause, onEnded, onTimeUpdate }),
       [onPlay, onPause, onEnded, onTimeUpdate]
     );
@@ -17614,12 +27760,12 @@ var VideoPlayer = React78.forwardRef(
       toggleSpeedMenu,
       resetHideTimer
     } = useVideoPlayer(videoRef, containerRef, callbacks);
-    const rootClasses = useMemo25(
+    const rootClasses = useMemo110(
       () => buildVideoPlayerClasses(aspectRatio, variant, color, state.isFullscreen, className),
       [aspectRatio, variant, color, state.isFullscreen, className]
     );
     const progressPercent = getProgressPercent2(state.currentTime, state.duration);
-    const handleProgressClick = useCallback47(
+    const handleProgressClick = useCallback92(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -17629,7 +27775,7 @@ var VideoPlayer = React78.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback47(
+    const handleKeyDown = useCallback92(
       (e) => {
         switch (e.key) {
           case " ":
@@ -17657,7 +27803,7 @@ var VideoPlayer = React78.forwardRef(
       },
       [togglePlay, toggleMute, toggleFullscreen, seekRelative, resetHideTimer]
     );
-    const handleVolumeChange = useCallback47(
+    const handleVolumeChange = useCallback92(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -17670,7 +27816,7 @@ var VideoPlayer = React78.forwardRef(
       ...height ? { height } : {}
     };
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs73(
+    return /* @__PURE__ */ jsxs120(
       "div",
       {
         ref: setRefs,
@@ -17683,7 +27829,7 @@ var VideoPlayer = React78.forwardRef(
         "aria-label": "Video player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx107(
+          /* @__PURE__ */ jsx198(
             "video",
             {
               ref: videoRef,
@@ -17697,17 +27843,17 @@ var VideoPlayer = React78.forwardRef(
               onClick: togglePlay
             }
           ),
-          controls && !state.isPlaying && /* @__PURE__ */ jsx107(
+          controls && !state.isPlaying && /* @__PURE__ */ jsx198(
             "button",
             {
               className: "w3f-video-player__overlay-btn",
               onClick: togglePlay,
               "aria-label": "Play",
               type: "button",
-              children: /* @__PURE__ */ jsx107(Play3, { size: 48 })
+              children: /* @__PURE__ */ jsx198(Play3, { size: 48 })
             }
           ),
-          controls && /* @__PURE__ */ jsxs73(
+          controls && /* @__PURE__ */ jsxs120(
             "div",
             {
               className: [
@@ -17715,7 +27861,7 @@ var VideoPlayer = React78.forwardRef(
                 state.controlsVisible ? "w3f-video-player__controls--visible" : ""
               ].filter(Boolean).join(" "),
               children: [
-                showProgress && /* @__PURE__ */ jsx107(
+                showProgress && /* @__PURE__ */ jsx198(
                   "div",
                   {
                     ref: progressRef,
@@ -17726,7 +27872,7 @@ var VideoPlayer = React78.forwardRef(
                     "aria-valuemin": 0,
                     "aria-valuemax": 100,
                     "aria-valuenow": Math.round(progressPercent),
-                    children: /* @__PURE__ */ jsx107(
+                    children: /* @__PURE__ */ jsx198(
                       "div",
                       {
                         className: "w3f-video-player__progress-fill",
@@ -17735,35 +27881,35 @@ var VideoPlayer = React78.forwardRef(
                     )
                   }
                 ),
-                /* @__PURE__ */ jsxs73("div", { className: "w3f-video-player__controls-row", children: [
-                  /* @__PURE__ */ jsx107(
+                /* @__PURE__ */ jsxs120("div", { className: "w3f-video-player__controls-row", children: [
+                  /* @__PURE__ */ jsx198(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: togglePlay,
                       "aria-label": state.isPlaying ? "Pause" : "Play",
                       type: "button",
-                      children: state.isPlaying ? /* @__PURE__ */ jsx107(Pause3, { size: 18 }) : /* @__PURE__ */ jsx107(Play3, { size: 18 })
+                      children: state.isPlaying ? /* @__PURE__ */ jsx198(Pause3, { size: 18 }) : /* @__PURE__ */ jsx198(Play3, { size: 18 })
                     }
                   ),
-                  !isMinimal && /* @__PURE__ */ jsxs73("span", { className: "w3f-video-player__time", children: [
+                  !isMinimal && /* @__PURE__ */ jsxs120("span", { className: "w3f-video-player__time", children: [
                     formatTime2(state.currentTime),
                     " / ",
                     formatTime2(state.duration)
                   ] }),
-                  /* @__PURE__ */ jsx107("span", { className: "w3f-video-player__spacer" }),
-                  showVolume && !isMinimal && /* @__PURE__ */ jsxs73("div", { className: "w3f-video-player__volume", children: [
-                    /* @__PURE__ */ jsx107(
+                  /* @__PURE__ */ jsx198("span", { className: "w3f-video-player__spacer" }),
+                  showVolume && !isMinimal && /* @__PURE__ */ jsxs120("div", { className: "w3f-video-player__volume", children: [
+                    /* @__PURE__ */ jsx198(
                       "button",
                       {
                         className: "w3f-video-player__btn",
                         onClick: toggleMute,
                         "aria-label": state.isMuted ? "Unmute" : "Mute",
                         type: "button",
-                        children: /* @__PURE__ */ jsx107(VolumeIcon, { size: 18 })
+                        children: /* @__PURE__ */ jsx198(VolumeIcon, { size: 18 })
                       }
                     ),
-                    /* @__PURE__ */ jsx107(
+                    /* @__PURE__ */ jsx198(
                       "input",
                       {
                         className: "w3f-video-player__volume-slider",
@@ -17777,8 +27923,8 @@ var VideoPlayer = React78.forwardRef(
                       }
                     )
                   ] }),
-                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs73("div", { className: "w3f-video-player__speed", children: [
-                    /* @__PURE__ */ jsxs73(
+                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs120("div", { className: "w3f-video-player__speed", children: [
+                    /* @__PURE__ */ jsxs120(
                       "button",
                       {
                         className: "w3f-video-player__btn w3f-video-player__speed-btn",
@@ -17791,7 +27937,7 @@ var VideoPlayer = React78.forwardRef(
                         ]
                       }
                     ),
-                    state.speedMenuOpen && /* @__PURE__ */ jsx107("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs73(
+                    state.speedMenuOpen && /* @__PURE__ */ jsx198("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs120(
                       "button",
                       {
                         className: [
@@ -17808,14 +27954,14 @@ var VideoPlayer = React78.forwardRef(
                       speed
                     )) })
                   ] }),
-                  showFullscreen && /* @__PURE__ */ jsx107(
+                  showFullscreen && /* @__PURE__ */ jsx198(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: toggleFullscreen,
                       "aria-label": state.isFullscreen ? "Exit fullscreen" : "Fullscreen",
                       type: "button",
-                      children: state.isFullscreen ? /* @__PURE__ */ jsx107(Minimize, { size: 18 }) : /* @__PURE__ */ jsx107(Maximize, { size: 18 })
+                      children: state.isFullscreen ? /* @__PURE__ */ jsx198(Minimize, { size: 18 }) : /* @__PURE__ */ jsx198(Maximize, { size: 18 })
                     }
                   )
                 ] })
@@ -17830,7 +27976,7 @@ var VideoPlayer = React78.forwardRef(
 VideoPlayer.displayName = "VideoPlayer";
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { forwardRef as forwardRef54, useCallback as useCallback49 } from "react";
+import { forwardRef as forwardRef54, useCallback as useCallback94 } from "react";
 import { Eye as Eye3, EyeOff as EyeOff3, Mail as Mail3, Lock as Lock3, User as User2, ArrowLeft as ArrowLeft2, Loader2 as Loader23, Chrome, Github as Github2, Facebook as Facebook2 } from "lucide-react";
 
 // src/AUTH/AuthLogin/AuthLogin.constants.ts
@@ -17973,13 +28119,13 @@ function hasErrors(errors) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.hooks.ts
-import { useState as useState54, useCallback as useCallback48 } from "react";
+import { useState as useState69, useCallback as useCallback93 } from "react";
 function useAuthForm(initialView = "login", onViewChange) {
-  const [state, setState] = useState54({
+  const [state, setState] = useState69({
     ...INITIAL_FORM_STATE,
     view: initialView
   });
-  const setField = useCallback48(
+  const setField = useCallback93(
     (key, value) => {
       setState((prev) => ({
         ...prev,
@@ -17990,22 +28136,22 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     []
   );
-  const setEmail = useCallback48((v) => setField("email", v), [setField]);
-  const setPassword = useCallback48((v) => setField("password", v), [setField]);
-  const setConfirmPassword = useCallback48(
+  const setEmail = useCallback93((v) => setField("email", v), [setField]);
+  const setPassword = useCallback93((v) => setField("password", v), [setField]);
+  const setConfirmPassword = useCallback93(
     (v) => setField("confirmPassword", v),
     [setField]
   );
-  const setName = useCallback48((v) => setField("name", v), [setField]);
-  const setRememberMe = useCallback48((v) => setField("rememberMe", v), [setField]);
-  const setAcceptTerms = useCallback48((v) => setField("acceptTerms", v), [setField]);
-  const toggleShowPassword = useCallback48(() => {
+  const setName = useCallback93((v) => setField("name", v), [setField]);
+  const setRememberMe = useCallback93((v) => setField("rememberMe", v), [setField]);
+  const setAcceptTerms = useCallback93((v) => setField("acceptTerms", v), [setField]);
+  const toggleShowPassword = useCallback93(() => {
     setState((prev) => ({ ...prev, showPassword: !prev.showPassword }));
   }, []);
-  const toggleShowConfirmPassword = useCallback48(() => {
+  const toggleShowConfirmPassword = useCallback93(() => {
     setState((prev) => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }));
   }, []);
-  const switchView = useCallback48(
+  const switchView = useCallback93(
     (view) => {
       setState((prev) => ({
         ...prev,
@@ -18020,12 +28166,12 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     [onViewChange]
   );
-  const validateLogin = useCallback48(() => {
+  const validateLogin = useCallback93(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email, state.password]);
-  const validateRegister = useCallback48(() => {
+  const validateRegister = useCallback93(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -18036,17 +28182,17 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const validateForgot = useCallback48(() => {
+  const validateForgot = useCallback93(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email]);
-  const tryLogin = useCallback48(() => {
+  const tryLogin = useCallback93(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.email, state.password]);
-  const tryRegister = useCallback48(() => {
+  const tryRegister = useCallback93(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -18057,7 +28203,7 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const tryForgot = useCallback48(() => {
+  const tryForgot = useCallback93(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
@@ -18083,18 +28229,18 @@ function useAuthForm(initialView = "login", onViewChange) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { Fragment as Fragment15, jsx as jsx108, jsxs as jsxs74 } from "react/jsx-runtime";
+import { Fragment as Fragment18, jsx as jsx199, jsxs as jsxs121 } from "react/jsx-runtime";
 var DEFAULT_SOCIAL_PROVIDERS = [
-  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx108(Chrome, { size: 18 }), color: "#DB4437" },
-  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx108(Facebook2, { size: 18 }), color: "#4267B2" },
-  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx108(Github2, { size: 18 }), color: "#333333" }
+  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx199(Chrome, { size: 18 }), color: "#DB4437" },
+  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx199(Facebook2, { size: 18 }), color: "#4267B2" },
+  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx199(Github2, { size: 18 }), color: "#333333" }
 ];
 function PasswordStrengthBar({ password }) {
   if (!password) return null;
   const { strength, score } = validatePassword(password);
   const colors = ["#ef4444", "#f59e0b", "#22c55e", "#16a34a"];
-  return /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.strengthBar, children: [
-    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx108(
+  return /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.strengthBar, children: [
+    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx199(
       "div",
       {
         className: AUTH_CLASSES.strengthSegment,
@@ -18102,7 +28248,7 @@ function PasswordStrengthBar({ password }) {
       },
       i
     )),
-    /* @__PURE__ */ jsx108("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
+    /* @__PURE__ */ jsx199("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
   ] });
 }
 var AuthLogin = forwardRef54(
@@ -18147,7 +28293,7 @@ var AuthLogin = forwardRef54(
     const displayTitle = title ?? viewTitles.title;
     const displaySubtitle = subtitle ?? viewTitles.subtitle;
     const rootClasses = buildAuthClasses(variant, color, className);
-    const handleLoginSubmit = useCallback49(
+    const handleLoginSubmit = useCallback94(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -18161,7 +28307,7 @@ var AuthLogin = forwardRef54(
       },
       [loading, tryLogin, onLogin, state.email, state.password, state.rememberMe]
     );
-    const handleRegisterSubmit = useCallback49(
+    const handleRegisterSubmit = useCallback94(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -18176,7 +28322,7 @@ var AuthLogin = forwardRef54(
       },
       [loading, tryRegister, onRegister, state.name, state.email, state.password, state.confirmPassword]
     );
-    const handleForgotSubmit = useCallback49(
+    const handleForgotSubmit = useCallback94(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -18186,17 +28332,17 @@ var AuthLogin = forwardRef54(
       },
       [loading, tryForgot, onForgotPassword, state.email]
     );
-    const renderHeader = () => /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.header, children: [
-      logo && /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.logo, children: logo }),
-      /* @__PURE__ */ jsx108("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
-      /* @__PURE__ */ jsx108("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
+    const renderHeader = () => /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.header, children: [
+      logo && /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.logo, children: logo }),
+      /* @__PURE__ */ jsx199("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
+      /* @__PURE__ */ jsx199("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
     ] });
-    const renderError = () => error ? /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.error, children: error }) : null;
+    const renderError = () => error ? /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.error, children: error }) : null;
     const renderSocial = () => {
       if (!showSocialLogin || providers.length === 0) return null;
-      return /* @__PURE__ */ jsxs74(Fragment15, { children: [
-        /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx108("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
-        /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs74(
+      return /* @__PURE__ */ jsxs121(Fragment18, { children: [
+        /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx199("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
+        /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs121(
           "button",
           {
             type: "button",
@@ -18206,44 +28352,44 @@ var AuthLogin = forwardRef54(
             disabled: loading,
             children: [
               p.icon,
-              /* @__PURE__ */ jsx108("span", { children: p.name })
+              /* @__PURE__ */ jsx199("span", { children: p.name })
             ]
           },
           p.id
         )) })
       ] });
     };
-    const renderLoginForm = () => /* @__PURE__ */ jsxs74("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+    const renderLoginForm = () => /* @__PURE__ */ jsxs121("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Password",
           type: state.showPassword ? "text" : "password",
           value: state.password,
           onChange: (e) => setPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(Lock3, { size: 18 }),
-          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx108(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx108(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(Lock3, { size: 18 }),
+          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx199(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx199(Eye3, { size: 18 }),
           onIconClick: toggleShowPassword,
           error: state.fieldErrors.password,
           autoComplete: "current-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.rememberRow, children: [
-        showRememberMe && /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.rememberRow, children: [
+        showRememberMe && /* @__PURE__ */ jsx199(
           Checkbox_default,
           {
             label: "Remember me",
@@ -18251,7 +28397,7 @@ var AuthLogin = forwardRef54(
             onChange: setRememberMe
           }
         ),
-        showForgotPassword && /* @__PURE__ */ jsx108(
+        showForgotPassword && /* @__PURE__ */ jsx199(
           "button",
           {
             type: "button",
@@ -18261,7 +28407,7 @@ var AuthLogin = forwardRef54(
           }
         )
       ] }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx199(
         Button_default,
         {
           type: "submit",
@@ -18269,14 +28415,14 @@ var AuthLogin = forwardRef54(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx108(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx199(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Signing in..." : "Sign in"
         }
       ) }),
       renderSocial(),
-      showRegister && /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx108("span", { children: "Don't have an account?" }),
-        /* @__PURE__ */ jsx108(
+      showRegister && /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx199("span", { children: "Don't have an account?" }),
+        /* @__PURE__ */ jsx199(
           "button",
           {
             type: "button",
@@ -18287,68 +28433,68 @@ var AuthLogin = forwardRef54(
         )
       ] })
     ] });
-    const renderRegisterForm = () => /* @__PURE__ */ jsxs74("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+    const renderRegisterForm = () => /* @__PURE__ */ jsxs121("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Full name",
           type: "text",
           value: state.name,
           onChange: (e) => setName(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(User2, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(User2, { size: 18 }),
           error: state.fieldErrors.name,
           autoComplete: "name",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx199(
           Input_default,
           {
             label: "Password",
             type: state.showPassword ? "text" : "password",
             value: state.password,
             onChange: (e) => setPassword(e.target.value),
-            leadingIcon: /* @__PURE__ */ jsx108(Lock3, { size: 18 }),
-            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx108(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx108(Eye3, { size: 18 }),
+            leadingIcon: /* @__PURE__ */ jsx199(Lock3, { size: 18 }),
+            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx199(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx199(Eye3, { size: 18 }),
             onIconClick: toggleShowPassword,
             error: state.fieldErrors.password,
             autoComplete: "new-password",
             required: true
           }
         ),
-        /* @__PURE__ */ jsx108(PasswordStrengthBar, { password: state.password })
+        /* @__PURE__ */ jsx199(PasswordStrengthBar, { password: state.password })
       ] }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Confirm password",
           type: state.showConfirmPassword ? "text" : "password",
           value: state.confirmPassword,
           onChange: (e) => setConfirmPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(Lock3, { size: 18 }),
-          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx108(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx108(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(Lock3, { size: 18 }),
+          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx199(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx199(Eye3, { size: 18 }),
           onIconClick: toggleShowConfirmPassword,
           error: state.fieldErrors.confirmPassword,
           autoComplete: "new-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx199(
           Checkbox_default,
           {
             label: "I agree to the Terms of Service and Privacy Policy",
@@ -18356,9 +28502,9 @@ var AuthLogin = forwardRef54(
             onChange: setAcceptTerms
           }
         ),
-        state.fieldErrors.terms && /* @__PURE__ */ jsx108("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
+        state.fieldErrors.terms && /* @__PURE__ */ jsx199("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
       ] }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx199(
         Button_default,
         {
           type: "submit",
@@ -18366,14 +28512,14 @@ var AuthLogin = forwardRef54(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx108(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx199(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Creating account..." : "Create account"
         }
       ) }),
       renderSocial(),
-      /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx108("span", { children: "Already have an account?" }),
-        /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx199("span", { children: "Already have an account?" }),
+        /* @__PURE__ */ jsx199(
           "button",
           {
             type: "button",
@@ -18384,21 +28530,21 @@ var AuthLogin = forwardRef54(
         )
       ] })
     ] });
-    const renderForgotForm = () => /* @__PURE__ */ jsxs74("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx108(
+    const renderForgotForm = () => /* @__PURE__ */ jsxs121("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx199(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx108(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx199(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx108(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx199(
         Button_default,
         {
           type: "submit",
@@ -18406,19 +28552,19 @@ var AuthLogin = forwardRef54(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx108(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx199(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Sending..." : "Send reset link"
         }
       ) }),
-      /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs74(
+      /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs121(
         "button",
         {
           type: "button",
           className: AUTH_CLASSES.backLink,
           onClick: () => switchView("login"),
           children: [
-            /* @__PURE__ */ jsx108(ArrowLeft2, { size: 16 }),
-            /* @__PURE__ */ jsx108("span", { children: "Back to sign in" })
+            /* @__PURE__ */ jsx199(ArrowLeft2, { size: 16 }),
+            /* @__PURE__ */ jsx199("span", { children: "Back to sign in" })
           ]
         }
       ) })
@@ -18435,16 +28581,16 @@ var AuthLogin = forwardRef54(
       }
     };
     if (variant === "split") {
-      return /* @__PURE__ */ jsxs74("div", { ref, className: rootClasses, children: [
-        /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx108("div", { className: AUTH_CLASSES.logo, children: logo }) }),
-        /* @__PURE__ */ jsxs74("div", { className: AUTH_CLASSES.splitForm, children: [
+      return /* @__PURE__ */ jsxs121("div", { ref, className: rootClasses, children: [
+        /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx199("div", { className: AUTH_CLASSES.logo, children: logo }) }),
+        /* @__PURE__ */ jsxs121("div", { className: AUTH_CLASSES.splitForm, children: [
           renderHeader(),
           renderError(),
           renderView()
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs74("div", { ref, className: rootClasses, children: [
+    return /* @__PURE__ */ jsxs121("div", { ref, className: rootClasses, children: [
       renderHeader(),
       renderError(),
       renderView()
@@ -18454,7 +28600,7 @@ var AuthLogin = forwardRef54(
 AuthLogin.displayName = "AuthLogin";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { forwardRef as forwardRef55, useCallback as useCallback51 } from "react";
+import { forwardRef as forwardRef55, useCallback as useCallback96 } from "react";
 import {
   CreditCard as CreditCard2,
   Check as Check3,
@@ -18532,7 +28678,7 @@ var BANK_DETAILS = {
 };
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.hooks.ts
-import { useState as useState55, useCallback as useCallback50, useMemo as useMemo26 } from "react";
+import { useState as useState70, useCallback as useCallback95, useMemo as useMemo111 } from "react";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.utils.ts
 function formatCardNumber(value) {
@@ -18629,12 +28775,12 @@ var EMPTY_VALIDATION = {
   cvv: null
 };
 function usePaymentForm(defaultMethod) {
-  const [method, setMethod] = useState55(defaultMethod);
-  const [card, setCard] = useState55(EMPTY_CARD);
-  const [validation, setValidation] = useState55(EMPTY_VALIDATION);
-  const [step, setStep] = useState55(0);
-  const brand = useMemo26(() => detectCardBrand(card.number), [card.number]);
-  const handleCardNumberChange = useCallback50(
+  const [method, setMethod] = useState70(defaultMethod);
+  const [card, setCard] = useState70(EMPTY_CARD);
+  const [validation, setValidation] = useState70(EMPTY_VALIDATION);
+  const [step, setStep] = useState70(0);
+  const brand = useMemo111(() => detectCardBrand(card.number), [card.number]);
+  const handleCardNumberChange = useCallback95(
     (value) => {
       const digits = value.replace(/\D/g, "");
       const currentBrand = detectCardBrand(digits);
@@ -18649,14 +28795,14 @@ function usePaymentForm(defaultMethod) {
     },
     []
   );
-  const handleCardNameChange = useCallback50((value) => {
+  const handleCardNameChange = useCallback95((value) => {
     setCard((prev) => ({ ...prev, name: value }));
     setValidation((prev) => ({
       ...prev,
       name: value.trim().length > 0 ? true : null
     }));
   }, []);
-  const handleExpiryChange = useCallback50((value) => {
+  const handleExpiryChange = useCallback95((value) => {
     const formatted = formatExpiry(value);
     setCard((prev) => ({ ...prev, expiry: formatted }));
     setValidation((prev) => ({
@@ -18664,7 +28810,7 @@ function usePaymentForm(defaultMethod) {
       expiry: formatted.length === 5 ? validateExpiry(formatted) : null
     }));
   }, []);
-  const handleCvvChange = useCallback50(
+  const handleCvvChange = useCallback95(
     (value) => {
       const digits = value.replace(/\D/g, "").slice(0, brand === "amex" ? 4 : 3);
       setCard((prev) => ({ ...prev, cvv: digits }));
@@ -18676,7 +28822,7 @@ function usePaymentForm(defaultMethod) {
     },
     [brand]
   );
-  const validateAll = useCallback50(() => {
+  const validateAll = useCallback95(() => {
     const numValid = validateCardNumber(card.number);
     const nameValid = card.name.trim().length > 0;
     const expValid = validateExpiry(card.expiry);
@@ -18689,11 +28835,11 @@ function usePaymentForm(defaultMethod) {
     });
     return numValid && nameValid && expValid && cvvValid;
   }, [card, brand]);
-  const isCardFormValid = useMemo26(
+  const isCardFormValid = useMemo111(
     () => validation.number === true && validation.name === true && validation.expiry === true && validation.cvv === true,
     [validation]
   );
-  const resetForm = useCallback50(() => {
+  const resetForm = useCallback95(() => {
     setCard(EMPTY_CARD);
     setValidation(EMPTY_VALIDATION);
     setStep(0);
@@ -18717,17 +28863,17 @@ function usePaymentForm(defaultMethod) {
 }
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { Fragment as Fragment16, jsx as jsx109, jsxs as jsxs75 } from "react/jsx-runtime";
+import { Fragment as Fragment19, jsx as jsx200, jsxs as jsxs122 } from "react/jsx-runtime";
 var MethodIcon = ({ method }) => {
   switch (method) {
     case "credit-card":
     case "debit-card":
-      return /* @__PURE__ */ jsx109(CreditCard2, { size: 18 });
+      return /* @__PURE__ */ jsx200(CreditCard2, { size: 18 });
     case "paypal":
     case "mercadopago":
-      return /* @__PURE__ */ jsx109(Wallet, { size: 18 });
+      return /* @__PURE__ */ jsx200(Wallet, { size: 18 });
     case "bank-transfer":
-      return /* @__PURE__ */ jsx109(Landmark, { size: 18 });
+      return /* @__PURE__ */ jsx200(Landmark, { size: 18 });
   }
 };
 var BrandLabel = ({ brand }) => {
@@ -18739,7 +28885,7 @@ var BrandLabel = ({ brand }) => {
   };
   const label = labels[brand] || "";
   if (!label) return null;
-  return /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
+  return /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
 };
 var CardForm = ({ form, compact }) => {
   const { card, brand, validation } = form;
@@ -18748,11 +28894,11 @@ var CardForm = ({ form, compact }) => {
     valid === false ? `${PAYMENT_CLASSES.fieldInput}--invalid` : "",
     valid === true ? `${PAYMENT_CLASSES.fieldInput}--valid` : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.form, children: [
-    /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx109("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
-      /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.cardNumber, children: [
-        /* @__PURE__ */ jsx109(
+  return /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.form, children: [
+    /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx200("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
+      /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.cardNumber, children: [
+        /* @__PURE__ */ jsx200(
           "input",
           {
             type: "text",
@@ -18765,13 +28911,13 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 17 : 19
           }
         ),
-        /* @__PURE__ */ jsx109(BrandLabel, { brand })
+        /* @__PURE__ */ jsx200(BrandLabel, { brand })
       ] }),
-      validation.number === false && /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
+      validation.number === false && /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
     ] }),
-    /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx109("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
-      /* @__PURE__ */ jsx109(
+    /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx200("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
+      /* @__PURE__ */ jsx200(
         "input",
         {
           type: "text",
@@ -18782,12 +28928,12 @@ var CardForm = ({ form, compact }) => {
           autoComplete: "cc-name"
         }
       ),
-      validation.name === false && /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
+      validation.name === false && /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
     ] }),
-    /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.fieldRow, children: [
-      /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx109("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
-        /* @__PURE__ */ jsx109(
+    /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.fieldRow, children: [
+      /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx200("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
+        /* @__PURE__ */ jsx200(
           "input",
           {
             type: "text",
@@ -18800,11 +28946,11 @@ var CardForm = ({ form, compact }) => {
             maxLength: 5
           }
         ),
-        validation.expiry === false && /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
+        validation.expiry === false && /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
       ] }),
-      /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx109("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
-        /* @__PURE__ */ jsx109(
+      /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx200("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
+        /* @__PURE__ */ jsx200(
           "input",
           {
             type: "password",
@@ -18817,38 +28963,38 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 4 : 3
           }
         ),
-        validation.cvv === false && /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
+        validation.cvv === false && /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
       ] })
     ] })
   ] });
 };
 var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading }) => {
   if (method === "bank-transfer") {
-    return /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.altMethod, children: [
-      /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
-      /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.bankDetails, children: [
-        /* @__PURE__ */ jsxs75("div", { children: [
-          /* @__PURE__ */ jsx109("strong", { children: "Bank:" }),
+    return /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.altMethod, children: [
+      /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
+      /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.bankDetails, children: [
+        /* @__PURE__ */ jsxs122("div", { children: [
+          /* @__PURE__ */ jsx200("strong", { children: "Bank:" }),
           " ",
           BANK_DETAILS.bank
         ] }),
-        /* @__PURE__ */ jsxs75("div", { children: [
-          /* @__PURE__ */ jsx109("strong", { children: "Account:" }),
+        /* @__PURE__ */ jsxs122("div", { children: [
+          /* @__PURE__ */ jsx200("strong", { children: "Account:" }),
           " ",
           BANK_DETAILS.account
         ] }),
-        /* @__PURE__ */ jsxs75("div", { children: [
-          /* @__PURE__ */ jsx109("strong", { children: "Routing:" }),
+        /* @__PURE__ */ jsxs122("div", { children: [
+          /* @__PURE__ */ jsx200("strong", { children: "Routing:" }),
           " ",
           BANK_DETAILS.routing
         ] }),
-        /* @__PURE__ */ jsxs75("div", { children: [
-          /* @__PURE__ */ jsx109("strong", { children: "SWIFT:" }),
+        /* @__PURE__ */ jsxs122("div", { children: [
+          /* @__PURE__ */ jsx200("strong", { children: "SWIFT:" }),
           " ",
           BANK_DETAILS.swift
         ] }),
-        /* @__PURE__ */ jsxs75("div", { children: [
-          /* @__PURE__ */ jsx109("strong", { children: "Amount:" }),
+        /* @__PURE__ */ jsxs122("div", { children: [
+          /* @__PURE__ */ jsx200("strong", { children: "Amount:" }),
           " ",
           formatAmount(amount, currencySymbol)
         ] })
@@ -18856,13 +29002,13 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
     ] });
   }
   const label = method === "mercadopago" ? "Continue with MercadoPago" : "Continue with PayPal";
-  return /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.altMethod, children: [
-    /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
+  return /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.altMethod, children: [
+    /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
       "You will be redirected to ",
       METHOD_LABELS[method],
       " to complete the payment."
     ] }),
-    /* @__PURE__ */ jsx109(
+    /* @__PURE__ */ jsx200(
       Button_default,
       {
         variant: "raised",
@@ -18876,15 +29022,15 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
   ] });
 };
 var STEP_LABELS = ["Method", "Details", "Confirm"];
-var StepIndicator = ({ current }) => /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
+var StepIndicator = ({ current }) => /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
   const cls = [
     PAYMENT_CLASSES.step,
     i === current ? PAYMENT_CLASSES.stepActive : "",
     i < current ? PAYMENT_CLASSES.stepCompleted : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs75("div", { className: cls, children: [
-    /* @__PURE__ */ jsx109("span", { children: i + 1 }),
-    /* @__PURE__ */ jsx109("span", { children: label })
+  return /* @__PURE__ */ jsxs122("div", { className: cls, children: [
+    /* @__PURE__ */ jsx200("span", { children: i + 1 }),
+    /* @__PURE__ */ jsx200("span", { children: label })
   ] }, label);
 }) });
 var PaymentGateway = forwardRef55(
@@ -18910,7 +29056,7 @@ var PaymentGateway = forwardRef55(
     const rootClass = buildPaymentClasses(variant, color, className);
     const isStepped = variant === "stepped";
     const isCardMethod = form.method === "credit-card" || form.method === "debit-card";
-    const handleMethodSelect = useCallback51(
+    const handleMethodSelect = useCallback96(
       (m) => {
         form.setMethod(m);
         onMethodChange?.(m);
@@ -18918,7 +29064,7 @@ var PaymentGateway = forwardRef55(
       },
       [form, onMethodChange, isStepped]
     );
-    const handleSubmit = useCallback51(() => {
+    const handleSubmit = useCallback96(() => {
       if (isCardMethod) {
         if (!form.validateAll()) return;
       }
@@ -18938,16 +29084,16 @@ var PaymentGateway = forwardRef55(
       onPayment?.(data);
     }, [form, isCardMethod, amount, currency, onPayment]);
     if (success) {
-      return /* @__PURE__ */ jsx109("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.success, children: [
-        /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx109(Check3, { size: 48 }) }),
-        /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
+      return /* @__PURE__ */ jsx200("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.success, children: [
+        /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx200(Check3, { size: 48 }) }),
+        /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
       ] }) });
     }
     if (isStepped) {
-      return /* @__PURE__ */ jsxs75("div", { ref, className: rootClass, children: [
-        /* @__PURE__ */ jsx109(StepIndicator, { current: form.step }),
-        /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.body, children: [
-          form.step === 0 && /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs75(
+      return /* @__PURE__ */ jsxs122("div", { ref, className: rootClass, children: [
+        /* @__PURE__ */ jsx200(StepIndicator, { current: form.step }),
+        /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.body, children: [
+          form.step === 0 && /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs122(
             "button",
             {
               type: "button",
@@ -18959,13 +29105,13 @@ var PaymentGateway = forwardRef55(
               ].filter(Boolean).join(" "),
               onClick: () => handleMethodSelect(m),
               children: [
-                /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx109(MethodIcon, { method: m }) }),
-                /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+                /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx200(MethodIcon, { method: m }) }),
+                /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
               ]
             },
             m
           )) }),
-          form.step === 1 && /* @__PURE__ */ jsx109(Fragment16, { children: isCardMethod ? /* @__PURE__ */ jsx109(CardForm, { form }) : /* @__PURE__ */ jsx109(
+          form.step === 1 && /* @__PURE__ */ jsx200(Fragment19, { children: isCardMethod ? /* @__PURE__ */ jsx200(CardForm, { form }) : /* @__PURE__ */ jsx200(
             AltMethodPanel,
             {
               method: form.method,
@@ -18976,8 +29122,8 @@ var PaymentGateway = forwardRef55(
               loading
             }
           ) }),
-          form.step === 2 && /* @__PURE__ */ jsxs75(Fragment16, { children: [
-            showOrderSummary && orderItems && /* @__PURE__ */ jsx109(
+          form.step === 2 && /* @__PURE__ */ jsxs122(Fragment19, { children: [
+            showOrderSummary && orderItems && /* @__PURE__ */ jsx200(
               OrderSummary,
               {
                 items: orderItems,
@@ -18985,7 +29131,7 @@ var PaymentGateway = forwardRef55(
                 currencySymbol
               }
             ),
-            /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx109(
+            /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx200(
               Button_default,
               {
                 variant: "raised",
@@ -18993,17 +29139,17 @@ var PaymentGateway = forwardRef55(
                 fullWidth: true,
                 onClick: handleSubmit,
                 disabled: loading || isCardMethod && !form.isCardFormValid,
-                children: loading ? /* @__PURE__ */ jsx109(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+                children: loading ? /* @__PURE__ */ jsx200(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
               }
             ) })
           ] })
         ] }),
-        error && /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-          /* @__PURE__ */ jsx109(AlertCircle2, { size: 16 }),
-          /* @__PURE__ */ jsx109("span", { children: error })
+        error && /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+          /* @__PURE__ */ jsx200(AlertCircle2, { size: 16 }),
+          /* @__PURE__ */ jsx200("span", { children: error })
         ] }),
-        form.step > 0 && /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.stepNav, children: [
-          /* @__PURE__ */ jsx109(
+        form.step > 0 && /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.stepNav, children: [
+          /* @__PURE__ */ jsx200(
             Button_default,
             {
               variant: "text",
@@ -19012,7 +29158,7 @@ var PaymentGateway = forwardRef55(
               children: "Back"
             }
           ),
-          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx109(
+          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx200(
             Button_default,
             {
               variant: "outline",
@@ -19028,8 +29174,8 @@ var PaymentGateway = forwardRef55(
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs75("div", { ref, className: rootClass, children: [
-      /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs75(
+    return /* @__PURE__ */ jsxs122("div", { ref, className: rootClass, children: [
+      /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs122(
         "button",
         {
           type: "button",
@@ -19041,14 +29187,14 @@ var PaymentGateway = forwardRef55(
           ].filter(Boolean).join(" "),
           onClick: () => handleMethodSelect(m),
           children: [
-            /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx109(MethodIcon, { method: m }) }),
-            /* @__PURE__ */ jsx109("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+            /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx200(MethodIcon, { method: m }) }),
+            /* @__PURE__ */ jsx200("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
           ]
         },
         m
       )) }),
-      /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.body, children: [
-        isCardMethod ? /* @__PURE__ */ jsx109(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx109(
+      /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.body, children: [
+        isCardMethod ? /* @__PURE__ */ jsx200(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx200(
           AltMethodPanel,
           {
             method: form.method,
@@ -19059,7 +29205,7 @@ var PaymentGateway = forwardRef55(
             loading
           }
         ),
-        showOrderSummary && orderItems && /* @__PURE__ */ jsx109(
+        showOrderSummary && orderItems && /* @__PURE__ */ jsx200(
           OrderSummary,
           {
             items: orderItems,
@@ -19068,11 +29214,11 @@ var PaymentGateway = forwardRef55(
           }
         )
       ] }),
-      error && /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-        /* @__PURE__ */ jsx109(AlertCircle2, { size: 16 }),
-        /* @__PURE__ */ jsx109("span", { children: error })
+      error && /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+        /* @__PURE__ */ jsx200(AlertCircle2, { size: 16 }),
+        /* @__PURE__ */ jsx200("span", { children: error })
       ] }),
-      isCardMethod && /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx109(
+      isCardMethod && /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx200(
         Button_default,
         {
           variant: "raised",
@@ -19080,31 +29226,31 @@ var PaymentGateway = forwardRef55(
           fullWidth: true,
           onClick: handleSubmit,
           disabled: loading,
-          children: loading ? /* @__PURE__ */ jsx109(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+          children: loading ? /* @__PURE__ */ jsx200(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
         }
       ) })
     ] });
   }
 );
 PaymentGateway.displayName = "PaymentGateway";
-var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.summary, children: [
-  /* @__PURE__ */ jsx109("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
-  items.map((item, i) => /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.summaryItem, children: [
-    /* @__PURE__ */ jsxs75("span", { children: [
+var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.summary, children: [
+  /* @__PURE__ */ jsx200("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
+  items.map((item, i) => /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.summaryItem, children: [
+    /* @__PURE__ */ jsxs122("span", { children: [
       item.name,
       " x",
       item.quantity
     ] }),
-    /* @__PURE__ */ jsx109("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
+    /* @__PURE__ */ jsx200("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
   ] }, `${item.name}-${i}`)),
-  /* @__PURE__ */ jsxs75("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
-    /* @__PURE__ */ jsx109("span", { children: "Total" }),
-    /* @__PURE__ */ jsx109("span", { children: formatAmount(amount, currencySymbol) })
+  /* @__PURE__ */ jsxs122("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
+    /* @__PURE__ */ jsx200("span", { children: "Total" }),
+    /* @__PURE__ */ jsx200("span", { children: formatAmount(amount, currencySymbol) })
   ] })
 ] });
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { forwardRef as forwardRef56, useCallback as useCallback53 } from "react";
+import { forwardRef as forwardRef56, useCallback as useCallback98 } from "react";
 import { ShoppingCart as ShoppingCartIcon, Trash2 as Trash22, Plus as Plus3, Minus as Minus2, PackageOpen } from "lucide-react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.constants.ts
@@ -19154,7 +29300,7 @@ var CART_CLASSES = {
 };
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.hooks.ts
-import { useMemo as useMemo27, useState as useState56, useCallback as useCallback52 } from "react";
+import { useMemo as useMemo112, useState as useState71, useCallback as useCallback97 } from "react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.utils.ts
 function formatCurrency2(amount, symbol, _currency) {
@@ -19180,7 +29326,7 @@ function countItems(items) {
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.hooks.ts
 function useCartCalculations(items, taxRate, shippingCost, freeShippingThreshold) {
-  return useMemo27(() => {
+  return useMemo112(() => {
     const subtotal = calculateSubtotal(items);
     const tax = subtotal * taxRate;
     const qualifiesForFreeShipping = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
@@ -19191,8 +29337,8 @@ function useCartCalculations(items, taxRate, shippingCost, freeShippingThreshold
   }, [items, taxRate, shippingCost, freeShippingThreshold]);
 }
 function useItemRemoveAnimation() {
-  const [removingIds, setRemovingIds] = useState56(/* @__PURE__ */ new Set());
-  const startRemove = useCallback52(
+  const [removingIds, setRemovingIds] = useState71(/* @__PURE__ */ new Set());
+  const startRemove = useCallback97(
     (id, onComplete) => {
       setRemovingIds((prev) => new Set(prev).add(id));
       setTimeout(() => {
@@ -19210,7 +29356,7 @@ function useItemRemoveAnimation() {
 }
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { jsx as jsx110, jsxs as jsxs76 } from "react/jsx-runtime";
+import { jsx as jsx201, jsxs as jsxs123 } from "react/jsx-runtime";
 var CartItemRow = ({
   item,
   currencySymbol,
@@ -19243,15 +29389,15 @@ var CartItemRow = ({
     CART_CLASSES.item,
     isRemoving ? CART_CLASSES.itemRemoving : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs76("div", { className: rowClass, role: "listitem", children: [
-    showImage && item.image && /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx110("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
-    /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.itemInfo, children: [
-      /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.itemName, children: item.name }),
-      item.description && /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.itemDescription, children: item.description })
+  return /* @__PURE__ */ jsxs123("div", { className: rowClass, role: "listitem", children: [
+    showImage && item.image && /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx201("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
+    /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.itemInfo, children: [
+      /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.itemName, children: item.name }),
+      item.description && /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.itemDescription, children: item.description })
     ] }),
-    /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
-    showQuantityControls && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.itemQty, children: [
-      /* @__PURE__ */ jsx110(
+    /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
+    showQuantityControls && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.itemQty, children: [
+      /* @__PURE__ */ jsx201(
         "button",
         {
           type: "button",
@@ -19259,11 +29405,11 @@ var CartItemRow = ({
           onClick: handleDecrement,
           disabled: item.quantity <= 1,
           "aria-label": "Decrease quantity",
-          children: /* @__PURE__ */ jsx110(Minus2, { size: 14 })
+          children: /* @__PURE__ */ jsx201(Minus2, { size: 14 })
         }
       ),
-      /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
-      /* @__PURE__ */ jsx110(
+      /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
+      /* @__PURE__ */ jsx201(
         "button",
         {
           type: "button",
@@ -19271,19 +29417,19 @@ var CartItemRow = ({
           onClick: handleIncrement,
           disabled: item.quantity >= (item.maxQuantity ?? 99),
           "aria-label": "Increase quantity",
-          children: /* @__PURE__ */ jsx110(Plus3, { size: 14 })
+          children: /* @__PURE__ */ jsx201(Plus3, { size: 14 })
         }
       )
     ] }),
-    /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
-    showRemoveButton && /* @__PURE__ */ jsx110(
+    /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
+    showRemoveButton && /* @__PURE__ */ jsx201(
       "button",
       {
         type: "button",
         className: CART_CLASSES.itemRemove,
         onClick: handleRemove,
         "aria-label": `Remove ${item.name}`,
-        children: /* @__PURE__ */ jsx110(Trash22, { size: 16 })
+        children: /* @__PURE__ */ jsx201(Trash22, { size: 16 })
       }
     )
   ] });
@@ -19320,20 +29466,20 @@ var ShoppingCart2 = forwardRef56(
     );
     const { removingIds, startRemove } = useItemRemoveAnimation();
     const rootClass = buildCartClasses(variant, color, className);
-    const handleCheckout = useCallback53(() => {
+    const handleCheckout = useCallback98(() => {
       onCheckout?.(summary);
     }, [onCheckout, summary]);
     const isEmpty = items.length === 0;
     const qualifiesForFreeShipping = freeShippingThreshold > 0 && summary.subtotal >= freeShippingThreshold;
-    return /* @__PURE__ */ jsxs76("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
-      /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.header, children: [
-        /* @__PURE__ */ jsx110(ShoppingCartIcon, { size: 20 }),
-        /* @__PURE__ */ jsxs76("span", { children: [
+    return /* @__PURE__ */ jsxs123("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
+      /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.header, children: [
+        /* @__PURE__ */ jsx201(ShoppingCartIcon, { size: 20 }),
+        /* @__PURE__ */ jsxs123("span", { children: [
           "Cart (",
           summary.itemCount,
           ")"
         ] }),
-        !isEmpty && onClearCart && /* @__PURE__ */ jsx110(
+        !isEmpty && onClearCart && /* @__PURE__ */ jsx201(
           Button_default,
           {
             variant: "text",
@@ -19345,11 +29491,11 @@ var ShoppingCart2 = forwardRef56(
           }
         )
       ] }),
-      isEmpty && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.empty, children: [
-        /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx110(PackageOpen, { size: 48 }) }),
-        /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
+      isEmpty && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.empty, children: [
+        /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx201(PackageOpen, { size: 48 }) }),
+        /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
       ] }),
-      !isEmpty && /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx110(
+      !isEmpty && /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx201(
         CartItemRow,
         {
           item,
@@ -19365,30 +29511,30 @@ var ShoppingCart2 = forwardRef56(
         },
         item.id
       )) }),
-      !isEmpty && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.summary, children: [
-        showSubtotal && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
+      !isEmpty && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.summary, children: [
+        showSubtotal && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
         ] }),
-        showTax && taxRate > 0 && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsxs76("span", { className: CART_CLASSES.summaryLabel, children: [
+        showTax && taxRate > 0 && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsxs123("span", { className: CART_CLASSES.summaryLabel, children: [
             "Tax (",
             (taxRate * 100).toFixed(0),
             "%)"
           ] }),
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
         ] }),
-        showShipping && /* @__PURE__ */ jsxs76("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
+        showShipping && /* @__PURE__ */ jsxs123("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
         ] }),
-        qualifiesForFreeShipping && /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
-        /* @__PURE__ */ jsxs76("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
-          /* @__PURE__ */ jsx110("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
+        qualifiesForFreeShipping && /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
+        /* @__PURE__ */ jsxs123("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
+          /* @__PURE__ */ jsx201("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
         ] })
       ] }),
-      !isEmpty && onCheckout && /* @__PURE__ */ jsx110("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs76(
+      !isEmpty && onCheckout && /* @__PURE__ */ jsx201("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs123(
         Button_default,
         {
           variant: "raised",
@@ -19408,7 +29554,7 @@ var ShoppingCart2 = forwardRef56(
 ShoppingCart2.displayName = "ShoppingCart";
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { memo as memo2, useRef as useRef40, useState as useState58, useEffect as useEffect39 } from "react";
+import { memo as memo2, useRef as useRef86, useState as useState73, useEffect as useEffect44 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.constants.ts
 var DP_WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mi\xE9", "Jue", "Vie", "S\xE1b"];
@@ -19485,7 +29631,7 @@ var DP_CLASSES = {
 };
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
-import { useState as useState57, useCallback as useCallback54, useRef as useRef39, useEffect as useEffect38 } from "react";
+import { useState as useState72, useCallback as useCallback99, useRef as useRef85, useEffect as useEffect43 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.utils.ts
 function toDateValue(date) {
@@ -19600,22 +29746,22 @@ function parseInitialMonth(initialMonth) {
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
 function useMonthNavigation(initialMonth) {
-  const [current, setCurrent] = useState57(
+  const [current, setCurrent] = useState72(
     () => parseInitialMonth(initialMonth)
   );
-  const goPrev = useCallback54(() => setCurrent(prevMonth), []);
-  const goNext = useCallback54(() => setCurrent(nextMonth), []);
-  const setMonth = useCallback54((cal) => setCurrent(cal), []);
+  const goPrev = useCallback99(() => setCurrent(prevMonth), []);
+  const goNext = useCallback99(() => setCurrent(nextMonth), []);
+  const setMonth = useCallback99((cal) => setCurrent(cal), []);
   const days = buildCalendarDays(current.year, current.month);
   return { current, days, goPrev, goNext, setMonth };
 }
 function useDropdown() {
-  const [isOpen, setIsOpen] = useState57(false);
-  const rootRef = useRef39(null);
-  const open = useCallback54(() => setIsOpen(true), []);
-  const close = useCallback54(() => setIsOpen(false), []);
-  const toggle = useCallback54(() => setIsOpen((p) => !p), []);
-  useEffect38(() => {
+  const [isOpen, setIsOpen] = useState72(false);
+  const rootRef = useRef85(null);
+  const open = useCallback99(() => setIsOpen(true), []);
+  const close = useCallback99(() => setIsOpen(false), []);
+  const toggle = useCallback99(() => setIsOpen((p) => !p), []);
+  useEffect43(() => {
     const onClickOutside = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         close();
@@ -19627,27 +29773,27 @@ function useDropdown() {
   return { isOpen, open, close, toggle, rootRef };
 }
 function useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [selected, setSelected] = useState57(defaultValue ?? null);
-  const select = useCallback54((date) => {
+  const [selected, setSelected] = useState72(defaultValue ?? null);
+  const select = useCallback99((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     setSelected(date);
     onChange?.(toDateValue(date));
   }, [onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback54(() => {
+  const clear = useCallback99(() => {
     setSelected(null);
     onChange?.(null);
   }, [onChange]);
   return { selected, select, clear };
 }
 function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [startDate, setStartDate] = useState57(
+  const [startDate, setStartDate] = useState72(
     defaultValue?.startDate?.date ?? null
   );
-  const [endDate, setEndDate] = useState57(
+  const [endDate, setEndDate] = useState72(
     defaultValue?.endDate?.date ?? null
   );
-  const [selecting, setSelecting] = useState57("start");
-  const selectDate = useCallback54((date) => {
+  const [selecting, setSelecting] = useState72("start");
+  const selectDate = useCallback99((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     if (selecting === "start" || !startDate) {
       setStartDate(date);
@@ -19662,15 +29808,15 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
       onChange?.(buildRangeValue(s, e));
     }
   }, [selecting, startDate, onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback54(() => {
+  const clear = useCallback99(() => {
     setStartDate(null);
     setEndDate(null);
     setSelecting("start");
     onChange?.(buildRangeValue(null, null));
   }, [onChange]);
-  const isDayInRange = useCallback54((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
-  const isDayStart = useCallback54((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
-  const isDayEnd = useCallback54((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
+  const isDayInRange = useCallback99((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
+  const isDayStart = useCallback99((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
+  const isDayEnd = useCallback99((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
   return {
     startDate,
     endDate,
@@ -19683,25 +29829,25 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
   };
 }
 function useMultipleDatePicker(onChange, onAccept) {
-  const [pickers, setPickers] = useState57([
+  const [pickers, setPickers] = useState72([
     { id: 1, value: null, initialMonth: /* @__PURE__ */ new Date() }
   ]);
-  const nextId = useRef39(2);
-  const addPicker = useCallback54(() => {
+  const nextId = useRef85(2);
+  const addPicker = useCallback99(() => {
     setPickers((prev) => [
       ...prev,
       { id: nextId.current++, value: null, initialMonth: /* @__PURE__ */ new Date() }
     ]);
   }, []);
-  const removePicker = useCallback54((id) => {
+  const removePicker = useCallback99((id) => {
     setPickers((prev) => prev.length > 1 ? prev.filter((p) => p.id !== id) : prev);
   }, []);
-  const updateValue = useCallback54((id, value) => {
+  const updateValue = useCallback99((id, value) => {
     setPickers((prev) => prev.map((p) => p.id === id ? { ...p, value } : p));
     const current = pickers.map((p) => p.id === id ? value : p.value).filter(Boolean);
     onChange?.(current);
   }, [pickers, onChange]);
-  const accept = useCallback54(() => {
+  const accept = useCallback99(() => {
     const values = pickers.map((p) => p.value).filter(Boolean);
     onAccept?.(values);
   }, [pickers, onAccept]);
@@ -19709,17 +29855,17 @@ function useMultipleDatePicker(onChange, onAccept) {
 }
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { Fragment as Fragment17, jsx as jsx111, jsxs as jsxs77 } from "react/jsx-runtime";
+import { Fragment as Fragment20, jsx as jsx202, jsxs as jsxs124 } from "react/jsx-runtime";
 var MonthYearPicker = ({ year, month, onSelect }) => {
-  const [selectedYear, setSelectedYear] = useState58(year);
-  const selectedYearRef = useRef40(null);
+  const [selectedYear, setSelectedYear] = useState73(year);
+  const selectedYearRef = useRef86(null);
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
   const years = Array.from({ length: 151 }, (_, i) => currentYear - 100 + i);
-  useEffect39(() => {
+  useEffect44(() => {
     selectedYearRef.current?.scrollIntoView({ block: "center", behavior: "auto" });
   }, []);
-  return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.ymPicker, children: [
-    /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx111(
+  return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.ymPicker, children: [
+    /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx202(
       "button",
       {
         ref: y === selectedYear ? selectedYearRef : void 0,
@@ -19729,7 +29875,7 @@ var MonthYearPicker = ({ year, month, onSelect }) => {
       },
       y
     )) }),
-    /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx111(
+    /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx202(
       "button",
       {
         className: [DP_CLASSES.monthItem, i === month && selectedYear === year ? DP_CLASSES.monthItemSelected : ""].filter(Boolean).join(" "),
@@ -19758,24 +29904,24 @@ var Calendar2 = memo2(({
   nextDisabled = false,
   setMonth
 }) => {
-  const [mode, setMode] = useState58("days");
-  return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.calendar, children: [
-    /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.header, children: [
-      /* @__PURE__ */ jsx111("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
-      /* @__PURE__ */ jsxs77(
+  const [mode, setMode] = useState73("days");
+  return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.calendar, children: [
+    /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.header, children: [
+      /* @__PURE__ */ jsx202("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
+      /* @__PURE__ */ jsxs124(
         "button",
         {
           className: DP_CLASSES.title,
           onClick: () => setMode((m) => m === "days" ? "month-year" : "days"),
           children: [
             formatMonthTitle(year, month),
-            /* @__PURE__ */ jsx111("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
+            /* @__PURE__ */ jsx202("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
           ]
         }
       ),
-      /* @__PURE__ */ jsx111("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
+      /* @__PURE__ */ jsx202("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
     ] }),
-    mode === "month-year" ? /* @__PURE__ */ jsx111(
+    mode === "month-year" ? /* @__PURE__ */ jsx202(
       MonthYearPicker,
       {
         year,
@@ -19785,9 +29931,9 @@ var Calendar2 = memo2(({
           setMode("days");
         }
       }
-    ) : /* @__PURE__ */ jsxs77(Fragment17, { children: [
-      /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx111("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
-      /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
+    ) : /* @__PURE__ */ jsxs124(Fragment20, { children: [
+      /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx202("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
+      /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
         const isSel = selectedDate ? isSameDay(cell.date, selectedDate) : false;
         const isStart = startDate ? isSameDay(cell.date, startDate) : false;
         const isEnd = endDate ? isSameDay(cell.date, endDate) : false;
@@ -19805,7 +29951,7 @@ var Calendar2 = memo2(({
           isStart && !isEnd ? DP_CLASSES.dayRangeStart : "",
           !isStart && isEnd ? DP_CLASSES.dayRangeEnd : ""
         ].filter(Boolean).join(" ");
-        return /* @__PURE__ */ jsx111(
+        return /* @__PURE__ */ jsx202(
           "button",
           {
             className: cls,
@@ -19839,7 +29985,7 @@ var DatePicker = ({
   const { current, days, goPrev, goNext, setMonth } = useMonthNavigation(initialMonth);
   const { selected, select, clear } = useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = selected ? toDateValue(selected).display : "";
-  const calendar = /* @__PURE__ */ jsx111(
+  const calendar = /* @__PURE__ */ jsx202(
     Calendar2,
     {
       year: current.year,
@@ -19859,16 +30005,16 @@ var DatePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.root, children: [
-      name && /* @__PURE__ */ jsx111("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.root, children: [
+      name && /* @__PURE__ */ jsx202("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
       calendar,
-      clearable && selected && /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx111("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      clearable && selected && /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx202("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] });
   }
-  return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx111("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
-    /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx111(
+  return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx202("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx202(
         "input",
         {
           readOnly: true,
@@ -19878,13 +30024,13 @@ var DatePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx111("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+      /* @__PURE__ */ jsx202("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.dropdown, children: calendar })
+    isOpen && /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.dropdown, children: calendar })
   ] });
 };
 DatePicker.displayName = "DatePicker";
-var StaticDatePicker = (props) => /* @__PURE__ */ jsx111(DatePicker, { ...props, inline: true });
+var StaticDatePicker = (props) => /* @__PURE__ */ jsx202(DatePicker, { ...props, inline: true });
 StaticDatePicker.displayName = "StaticDatePicker";
 var DateRangePicker = ({
   defaultValue,
@@ -19913,7 +30059,7 @@ var DateRangePicker = ({
     isDayEnd
   } = useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = startDate ? buildRangeValue(startDate, endDate).formattedRange || toDateValue(startDate).display : "";
-  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx111(
+  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx202(
     Calendar2,
     {
       year: nav.current.year,
@@ -19933,13 +30079,13 @@ var DateRangePicker = ({
     }
   );
   const singleCalendar = calendarBase(leftNav);
-  const dualCalendar = /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.dual, children: [
+  const dualCalendar = /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.dual, children: [
     calendarBase(
       leftNav,
       false,
       !discontinuous ? leftNav.current.month === rightNav.current.month - 1 && leftNav.current.year === rightNav.current.year : false
     ),
-    /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.dualDivider }),
+    /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.dualDivider }),
     calendarBase(
       rightNav,
       !discontinuous ? rightNav.current.month === leftNav.current.month + 1 && rightNav.current.year === leftNav.current.year : false,
@@ -19947,20 +30093,20 @@ var DateRangePicker = ({
     )
   ] });
   const content = dual ? dualCalendar : singleCalendar;
-  return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx111("input", { type: "hidden", name, value: displayValue }),
-    /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx111("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
-      /* @__PURE__ */ jsx111("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+  return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx202("input", { type: "hidden", name, value: displayValue }),
+    /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx202("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
+      /* @__PURE__ */ jsx202("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.dropdown, children: [
+    isOpen && /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.dropdown, children: [
       content,
-      /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx111("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx202("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] })
   ] });
 };
 DateRangePicker.displayName = "DateRangePicker";
-var DateRangePickerDual = (props) => /* @__PURE__ */ jsx111(DateRangePicker, { ...props, dual: true });
+var DateRangePickerDual = (props) => /* @__PURE__ */ jsx202(DateRangePicker, { ...props, dual: true });
 DateRangePickerDual.displayName = "DateRangePickerDual";
 var MultipleDatePicker = ({
   onChange,
@@ -19974,8 +30120,8 @@ var MultipleDatePicker = ({
   name
 }) => {
   const { pickers, addPicker, removePicker, updateValue, accept } = useMultipleDatePicker(onChange, onAccept);
-  return /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.multiple, children: [
-    name && /* @__PURE__ */ jsx111(
+  return /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.multiple, children: [
+    name && /* @__PURE__ */ jsx202(
       "input",
       {
         type: "hidden",
@@ -19983,12 +30129,12 @@ var MultipleDatePicker = ({
         value: JSON.stringify(pickers.map((p) => p.value?.formatted ?? ""))
       }
     ),
-    /* @__PURE__ */ jsx111("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.multipleItem, children: [
-      /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.multipleItemLabel, children: [
+    /* @__PURE__ */ jsx202("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.multipleItem, children: [
+      /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.multipleItemLabel, children: [
         "Fecha ",
         idx + 1
       ] }),
-      pickers.length > 1 && /* @__PURE__ */ jsx111(
+      pickers.length > 1 && /* @__PURE__ */ jsx202(
         "button",
         {
           className: DP_CLASSES.multipleItemRemove,
@@ -19997,7 +30143,7 @@ var MultipleDatePicker = ({
           children: "\u2715"
         }
       ),
-      /* @__PURE__ */ jsx111(
+      /* @__PURE__ */ jsx202(
         StaticDatePicker,
         {
           defaultValue: p.value?.date ?? null,
@@ -20010,8 +30156,8 @@ var MultipleDatePicker = ({
       )
     ] }, p.id)) }),
     children,
-    /* @__PURE__ */ jsxs77("div", { className: DP_CLASSES.actions, children: [
-      pickers.length < maxPickers && /* @__PURE__ */ jsx111(
+    /* @__PURE__ */ jsxs124("div", { className: DP_CLASSES.actions, children: [
+      pickers.length < maxPickers && /* @__PURE__ */ jsx202(
         "button",
         {
           onClick: addPicker,
@@ -20019,7 +30165,7 @@ var MultipleDatePicker = ({
           children: "+ Agregar fecha"
         }
       ),
-      /* @__PURE__ */ jsx111(
+      /* @__PURE__ */ jsx202(
         "button",
         {
           onClick: accept,
@@ -20033,7 +30179,7 @@ var MultipleDatePicker = ({
 MultipleDatePicker.displayName = "MultipleDatePicker";
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { memo as memo3, useRef as useRef42 } from "react";
+import { memo as memo3, useRef as useRef88 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.constants.ts
 var TP_CLASSES = {
@@ -20072,7 +30218,7 @@ var ALL_MINUTES = Array.from({ length: 60 }, (_, i) => i);
 var ALL_SECONDS = Array.from({ length: 60 }, (_, i) => i);
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
-import { useState as useState59, useCallback as useCallback55, useRef as useRef41, useEffect as useEffect40 } from "react";
+import { useState as useState74, useCallback as useCallback100, useRef as useRef87, useEffect as useEffect45 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.utils.ts
 function buildTimeValue(hours24, minutes, seconds, format) {
@@ -20123,12 +30269,12 @@ function formatTimeDisplay(hours24, minutes, seconds, format, showSeconds) {
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
 function useTPDropdown() {
-  const [isOpen, setIsOpen] = useState59(false);
-  const rootRef = useRef41(null);
-  const open = useCallback55(() => setIsOpen(true), []);
-  const close = useCallback55(() => setIsOpen(false), []);
-  const toggle = useCallback55(() => setIsOpen((p) => !p), []);
-  useEffect40(() => {
+  const [isOpen, setIsOpen] = useState74(false);
+  const rootRef = useRef87(null);
+  const open = useCallback100(() => setIsOpen(true), []);
+  const close = useCallback100(() => setIsOpen(false), []);
+  const toggle = useCallback100(() => setIsOpen((p) => !p), []);
+  useEffect45(() => {
     const onOut = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) close();
     };
@@ -20147,44 +30293,44 @@ function useTimePicker(options) {
     onChange
   } = options;
   const parsed = parsePartialTime(defaultValue);
-  const [hours24, setHours24] = useState59(parsed.hours24);
-  const [minutes, setMinutes] = useState59(parsed.minutes);
-  const [seconds, setSeconds] = useState59(parsed.seconds);
+  const [hours24, setHours24] = useState74(parsed.hours24);
+  const [minutes, setMinutes] = useState74(parsed.minutes);
+  const [seconds, setSeconds] = useState74(parsed.seconds);
   const ampm = hours24 < 12 ? "AM" : "PM";
   const hours12 = to12Hour(hours24);
   const hourValues = format === 12 ? HOURS_12 : HOURS_24;
   const minuteValues = generateRange(59, minuteStep);
   const secondValues = generateRange(59, secondStep);
-  const emitChange = useCallback55((h, m, s) => {
+  const emitChange = useCallback100((h, m, s) => {
     onChange?.(buildTimeValue(h, m, s, format));
   }, [onChange, format]);
-  const setHour = useCallback55((raw) => {
+  const setHour = useCallback100((raw) => {
     const h = format === 12 ? to24Hour(raw, ampm) : raw;
     setHours24(h);
     emitChange(h, minutes, seconds);
   }, [format, ampm, minutes, seconds, emitChange]);
-  const setMinute = useCallback55((m) => {
+  const setMinute = useCallback100((m) => {
     setMinutes(m);
     emitChange(hours24, m, seconds);
   }, [hours24, seconds, emitChange]);
-  const setSecond = useCallback55((s) => {
+  const setSecond = useCallback100((s) => {
     setSeconds(s);
     emitChange(hours24, minutes, s);
   }, [hours24, minutes, emitChange]);
-  const toggleAmPm = useCallback55(() => {
+  const toggleAmPm = useCallback100(() => {
     const newAmPm = ampm === "AM" ? "PM" : "AM";
     const newH = to24Hour(hours12, newAmPm);
     setHours24(newH);
     emitChange(newH, minutes, seconds);
   }, [ampm, hours12, minutes, seconds, emitChange]);
-  const setNow = useCallback55(() => {
+  const setNow = useCallback100(() => {
     const { hours24: h, minutes: m, seconds: s } = getNowValues();
     setHours24(h);
     setMinutes(m);
     setSeconds(s);
     emitChange(h, m, s);
   }, [emitChange]);
-  const clear = useCallback55(() => {
+  const clear = useCallback100(() => {
     setHours24(0);
     setMinutes(0);
     setSeconds(0);
@@ -20210,11 +30356,11 @@ function useTimePicker(options) {
 }
 function useScrollWheel(containerRef, values, selected, onSelect) {
   const ITEM_HEIGHT = 44;
-  const isMounted = useRef41(false);
-  const isProgrammatic = useRef41(false);
-  const programmaticTimer = useRef41(null);
-  const snapTimer = useRef41(null);
-  useEffect40(() => {
+  const isMounted = useRef87(false);
+  const isProgrammatic = useRef87(false);
+  const programmaticTimer = useRef87(null);
+  const snapTimer = useRef87(null);
+  useEffect45(() => {
     const el = containerRef.current;
     if (!el) return;
     const idx = values.indexOf(selected);
@@ -20234,7 +30380,7 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
       }, 500);
     }
   }, [selected, values, containerRef]);
-  const onScroll = useCallback55(() => {
+  const onScroll = useCallback100(() => {
     if (isProgrammatic.current) return;
     const el = containerRef.current;
     if (!el) return;
@@ -20251,13 +30397,13 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
 }
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { Fragment as Fragment18, jsx as jsx112, jsxs as jsxs78 } from "react/jsx-runtime";
+import { Fragment as Fragment21, jsx as jsx203, jsxs as jsxs125 } from "react/jsx-runtime";
 var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
-  const scrollRef = useRef42(null);
+  const scrollRef = useRef88(null);
   const { onScroll } = useScrollWheel(scrollRef, values, selected, onSelect);
-  return /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.column, children: [
-    /* @__PURE__ */ jsx112("span", { className: TP_CLASSES.columnLabel, children: label }),
-    /* @__PURE__ */ jsx112(
+  return /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.column, children: [
+    /* @__PURE__ */ jsx203("span", { className: TP_CLASSES.columnLabel, children: label }),
+    /* @__PURE__ */ jsx203(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -20268,9 +30414,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         children: "\u25B2"
       }
     ),
-    /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
-      /* @__PURE__ */ jsx112("div", { style: { height: 44, flexShrink: 0 } }),
-      values.map((v) => /* @__PURE__ */ jsx112(
+    /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
+      /* @__PURE__ */ jsx203("div", { style: { height: 44, flexShrink: 0 } }),
+      values.map((v) => /* @__PURE__ */ jsx203(
         "button",
         {
           className: `${TP_CLASSES.item}${v === selected ? ` ${TP_CLASSES.itemSelected}` : ""}`,
@@ -20280,9 +30426,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         },
         v
       )),
-      /* @__PURE__ */ jsx112("div", { style: { height: 44, flexShrink: 0 } })
+      /* @__PURE__ */ jsx203("div", { style: { height: 44, flexShrink: 0 } })
     ] }),
-    /* @__PURE__ */ jsx112(
+    /* @__PURE__ */ jsx203(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -20323,10 +30469,10 @@ var TimePickerPanel = memo3(({
     clear
   } = state;
   const displayH = format === 12 ? hours12 : hours24;
-  return /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.panel, children: [
-    /* @__PURE__ */ jsx112("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx112("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
-    /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.wheels, children: [
-      /* @__PURE__ */ jsx112(
+  return /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.panel, children: [
+    /* @__PURE__ */ jsx203("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx203("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
+    /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.wheels, children: [
+      /* @__PURE__ */ jsx203(
         WheelColumn,
         {
           label: "Horas",
@@ -20335,8 +30481,8 @@ var TimePickerPanel = memo3(({
           onSelect: setHour
         }
       ),
-      /* @__PURE__ */ jsx112("span", { className: TP_CLASSES.separator, children: ":" }),
-      /* @__PURE__ */ jsx112(
+      /* @__PURE__ */ jsx203("span", { className: TP_CLASSES.separator, children: ":" }),
+      /* @__PURE__ */ jsx203(
         WheelColumn,
         {
           label: "Minutos",
@@ -20345,9 +30491,9 @@ var TimePickerPanel = memo3(({
           onSelect: setMinute
         }
       ),
-      showSeconds && /* @__PURE__ */ jsxs78(Fragment18, { children: [
-        /* @__PURE__ */ jsx112("span", { className: TP_CLASSES.separator, children: ":" }),
-        /* @__PURE__ */ jsx112(
+      showSeconds && /* @__PURE__ */ jsxs125(Fragment21, { children: [
+        /* @__PURE__ */ jsx203("span", { className: TP_CLASSES.separator, children: ":" }),
+        /* @__PURE__ */ jsx203(
           WheelColumn,
           {
             label: "Segundos",
@@ -20357,8 +30503,8 @@ var TimePickerPanel = memo3(({
           }
         )
       ] }),
-      format === 12 && /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.ampm, children: [
-        /* @__PURE__ */ jsx112(
+      format === 12 && /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.ampm, children: [
+        /* @__PURE__ */ jsx203(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "AM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -20366,7 +30512,7 @@ var TimePickerPanel = memo3(({
             children: "AM"
           }
         ),
-        /* @__PURE__ */ jsx112(
+        /* @__PURE__ */ jsx203(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "PM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -20376,8 +30522,8 @@ var TimePickerPanel = memo3(({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.actions, children: [
-      showNow && /* @__PURE__ */ jsx112(
+    /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.actions, children: [
+      showNow && /* @__PURE__ */ jsx203(
         "button",
         {
           onClick: () => {
@@ -20387,7 +30533,7 @@ var TimePickerPanel = memo3(({
           children: "Ahora"
         }
       ),
-      onClear && /* @__PURE__ */ jsx112(
+      onClear && /* @__PURE__ */ jsx203(
         "button",
         {
           onClick: () => {
@@ -20398,7 +30544,7 @@ var TimePickerPanel = memo3(({
           children: "Limpiar"
         }
       ),
-      onAccept && /* @__PURE__ */ jsx112(
+      onAccept && /* @__PURE__ */ jsx203(
         "button",
         {
           onClick: () => {
@@ -20445,7 +30591,7 @@ var TimePicker = ({
     format,
     showSeconds
   );
-  const panel = /* @__PURE__ */ jsx112(
+  const panel = /* @__PURE__ */ jsx203(
     TimePickerPanel,
     {
       state,
@@ -20458,16 +30604,16 @@ var TimePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs78("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
-      name && /* @__PURE__ */ jsx112("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    return /* @__PURE__ */ jsxs125("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
+      name && /* @__PURE__ */ jsx203("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
       panel,
       children
     ] });
   }
-  return /* @__PURE__ */ jsxs78("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx112("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
-    /* @__PURE__ */ jsxs78("div", { className: TP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx112(
+  return /* @__PURE__ */ jsxs125("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx203("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    /* @__PURE__ */ jsxs125("div", { className: TP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx203(
         "input",
         {
           readOnly: true,
@@ -20477,14 +30623,14 @@ var TimePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx112("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
+      /* @__PURE__ */ jsx203("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx112("div", { className: TP_CLASSES.dropdown, children: panel }),
+    isOpen && /* @__PURE__ */ jsx203("div", { className: TP_CLASSES.dropdown, children: panel }),
     children
   ] });
 };
 TimePicker.displayName = "TimePicker";
-var StaticTimePicker = (props) => /* @__PURE__ */ jsx112(TimePicker, { ...props, inline: true });
+var StaticTimePicker = (props) => /* @__PURE__ */ jsx203(TimePicker, { ...props, inline: true });
 StaticTimePicker.displayName = "StaticTimePicker";
 export {
   Accordion,
@@ -20497,7 +30643,11 @@ export {
   AppBarLeading,
   AppBarTitle,
   AppBarTrailing,
+  Area,
   AreaChart,
+  AreaInner,
+  AreaStacked,
+  AreaStackedInner,
   AudioPlayer,
   AuthLogin,
   Autocomplete,
@@ -20505,19 +30655,47 @@ export {
   Backdrop,
   Badge,
   BadgeWrapper,
+  Bar,
   BarChart,
+  BarGrouped,
+  BarGroupedHorizontal,
+  BarGroupedHorizontalInner,
+  BarGroupedInner,
+  BarHorizontal,
+  BarHorizontalInner,
+  BarInner,
+  BarStacked,
+  BarStackedHorizontal,
+  BarStackedHorizontalInner,
+  BarStackedInner,
   BottomNavigation,
   BottomSheetPanel,
+  BoxPlot,
+  BoxPlotInner,
   Breadcrumbs,
+  Bubble,
+  BubbleInner,
+  Bullet,
+  BulletInner,
   Button,
   ButtonGrid,
   ButtonGroup,
   ButtonToggle,
+  CalendarHeatmap,
+  CalendarHeatmapInner,
+  Candlestick,
+  CandlestickInner,
   Card,
   Card_2,
   Cell,
+  ChartAxis,
+  ChartGrid,
+  ChartLegend,
+  ChartTooltip,
   Checkbox,
   Chip,
+  Chord,
+  ChordInner,
   Col,
   Console,
   Container,
@@ -20528,15 +30706,34 @@ export {
   DateRangePickerDual,
   Desktop,
   Dividers,
+  Donut,
+  DotPlot,
+  DotPlotInner,
   Drawer,
   EmailField,
+  FlexContainer,
+  FlexItem,
   FloatingActionButton,
   Fonts,
   Form,
   FormField,
+  Funnel,
+  FunnelInner,
+  Gantt,
+  GanttInner,
+  Gauge,
+  GaugeChart,
+  GaugeInner,
+  Geo,
+  GeoInner,
   Grid,
   GridWithDividers,
   GridWithDrawer,
+  Heatmap,
+  HeatmapChart,
+  HeatmapInner,
+  Histogram,
+  HistogramInner,
   Icon,
   Image2 as Image,
   ImageCard,
@@ -20545,7 +30742,11 @@ export {
   Input,
   InputChipContainer,
   Section2 as LayoutSection,
+  Line,
   LineChart,
+  LineInner,
+  LineMulti,
+  LineMultiInner,
   Link,
   LiveForm,
   Marquee,
@@ -20557,27 +30758,42 @@ export {
   ModalSimple,
   ModalWithData,
   MultipleDatePicker,
+  Network,
+  NetworkInner,
   Note,
   NumberField,
+  Pack,
+  PackInner,
   Pagination,
   Panel,
   Paper,
   PaperDesign,
   PasswordField,
   PaymentGateway,
+  Pie,
   PieChart,
+  PieInner,
+  PolarBar,
+  PolarBarInner,
   PopUp,
   ProgressBar,
   ProgressBarBuffer,
   ProgressBarIndeterminate,
   ProgressSpinner,
   Quotes,
+  Radar,
+  RadarChart,
+  RadarInner,
   RadioButton,
   RangeSlider,
   Rating,
   RelojAnalogico,
   Ripple,
   Row,
+  Sankey,
+  SankeyInner,
+  Scatter,
+  ScatterInner,
   ScatterPlot,
   Section,
   SectionTitle,
@@ -20587,26 +30803,47 @@ export {
   SlideToggle,
   Slider,
   Snackbar,
+  Sparkline,
+  SparklineInner,
   SpeedDial,
   Stack,
   StaticDatePicker,
   StaticTimePicker,
   Stepper,
+  Streamgraph,
+  StreamgraphInner,
   SubSection,
+  Sunburst,
+  SunburstInner,
   Table,
   Tabs,
   Tag2 as Tag,
   Text,
   TextField,
+  Threshold,
+  ThresholdInner,
   TimePicker,
   ToggleButton,
   Tooltip,
   TransferList,
   Tree,
   TreeControls,
+  TreeDiagram,
+  TreeDiagramInner,
+  Treemap,
+  TreemapChart,
+  TreemapInner,
   VerticalPadding,
   VideoPlayer,
+  Violin,
+  ViolinInner,
+  Waffle,
+  WaffleInner,
+  Waterfall,
+  WaterfallInner,
   Window,
-  WindowGrid
+  WindowGrid,
+  WordCloud,
+  WordCloudInner
 };
 //# sourceMappingURL=index.js.map

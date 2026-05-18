@@ -19,7 +19,7 @@
 import { execSync }                                         from 'child_process';
 import { existsSync, readFileSync, writeFileSync,
          copyFileSync, mkdirSync }                          from 'fs';
-import { join, resolve, relative }                          from 'path';
+import { join, resolve }                                    from 'path';
 import { fileURLToPath }                                    from 'url';
 import * as readline                                        from 'readline';
 
@@ -261,7 +261,6 @@ if (!layoutFile) {
   if (layout.includes('w3f.css')) {
     ok('CSS link already present in layout');
   } else {
-    // Replace the entire layout with a clean version that includes the link
     writeFileSync(
       layoutFile,
 `import type { Metadata } from 'next';

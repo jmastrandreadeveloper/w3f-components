@@ -156,7 +156,8 @@ ok(`Plataforma: ${PLATFORM}`);
 const SRC       = join(PLATFORM, 'packages', 'components', 'src');
 const CSS_SRC   = join(PLATFORM, 'packages', 'css-framework', 'src');
 const DOCS_SRC  = join(PLATFORM, 'packages', 'docs', 'manual');
-const INIT_SRC  = join(PLATFORM, 'packages', 'components', 'scripts', 'init-nextjs.mjs');
+const INIT_SRC    = join(PLATFORM, 'packages', 'components', 'scripts', 'init-nextjs.mjs');
+const CREATE_SRC  = join(PLATFORM, 'packages', 'components', 'scripts', 'create-w3f-app.mjs');
 
 // ─── Utilidad de copia ────────────────────────────────────────────────────────
 
@@ -312,7 +313,8 @@ if (!opts.dryRun) {
 // ─── Paso 3: Scripts ──────────────────────────────────────────────────────────
 
 header('Paso 3 — Sincronizar scripts');
-syncFile(INIT_SRC, join(TARGET, 'scripts', 'init-nextjs.mjs'), 'scripts/init-nextjs.mjs');
+syncFile(INIT_SRC,   join(TARGET, 'scripts', 'init-nextjs.mjs'),    'scripts/init-nextjs.mjs');
+syncFile(CREATE_SRC, join(TARGET, 'scripts', 'create-w3f-app.mjs'), 'scripts/create-w3f-app.mjs');
 
 // ─── Paso 4: Manual ───────────────────────────────────────────────────────────
 
