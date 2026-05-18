@@ -2,13 +2,11 @@
   "name": "@w3f/components",
   "version": "1.0.0",
   "description": "W3F Component Library — 121 React components + 43 charts with CSS custom properties",
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./*": {
@@ -32,9 +30,9 @@
     "w3f-create" : "scripts/create-w3f-app.mjs"
   },
   "scripts": {
-    "build": "node esbuild.config.js",
+    "build": "node esbuild.config.mjs",
     "build:types": "node_modules/.bin/tsc --emitDeclarationOnly --outDir dist/types",
-    "build:all": "node esbuild.config.js && node_modules/.bin/tsc --emitDeclarationOnly --outDir dist/types",
+    "build:all": "node esbuild.config.mjs && node_modules/.bin/tsc --emitDeclarationOnly --outDir dist/types",
     "update": "node scripts/update.mjs",
     "update:commit": "node scripts/update.mjs --commit",
     "update:push": "node scripts/update.mjs --push",

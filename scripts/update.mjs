@@ -359,7 +359,7 @@ if (opts.noBuild) {
     if (opts.dryRun) {
       dry('node esbuild.config.js');
     } else {
-      run('node esbuild.config.js', { stdio: 'inherit', alwaysRun: false });
+      run('node esbuild.config.mjs', { stdio: 'inherit', alwaysRun: false });
       ok('dist/w3f.css reconstruido');
     }
   } catch (err) {
