@@ -95,11 +95,13 @@ cat > "$TARGET/css/tokens.css" << 'CSS'
 CSS
 
 # -----------------------------------------------------------
-# 5. SCRIPTS — init-nextjs.mjs (setup script for users)
+# 5. SCRIPTS — setup scripts for users
 # -----------------------------------------------------------
-echo "  [scripts] init-nextjs.mjs"
+echo "  [scripts] create-w3f-app.mjs, init-nextjs.mjs"
 mkdir -p "$TARGET/scripts"
-cp "$PLATFORM/packages/components/scripts/init-nextjs.mjs" "$TARGET/scripts/init-nextjs.mjs"
+cp "$PLATFORM/packages/components/scripts/create-w3f-app.mjs" "$TARGET/scripts/create-w3f-app.mjs"
+[ -f "$PLATFORM/packages/components/scripts/init-nextjs.mjs" ] && \
+  cp "$PLATFORM/packages/components/scripts/init-nextjs.mjs" "$TARGET/scripts/init-nextjs.mjs"
 
 # -----------------------------------------------------------
 # 6. MANUAL — todos los capitulos (docs/manual/)
