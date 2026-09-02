@@ -1342,6 +1342,7 @@ var Checkbox = (0, import_react10.forwardRef)(({
   color = CHECKBOX_DEFAULTS.color,
   unstyled = CHECKBOX_DEFAULTS.unstyled,
   bindId,
+  style,
   ...props
 }, ref) => {
   const { formContext, isFormControlled, checkboxValue, setIsChecked, uniqueId } = useCheckbox({ name, checked });
@@ -1363,7 +1364,7 @@ var Checkbox = (0, import_react10.forwardRef)(({
     }
     if (onBlur) onBlur(e);
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: buildCheckboxContainerClasses(className, unstyled), children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: buildCheckboxContainerClasses(className, unstyled), style, children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: buildCheckboxWrapperClasses(disabled, unstyled), children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
         "input",
@@ -1489,6 +1490,7 @@ var EmailField = (0, import_react12.forwardRef)(
     validateOnChange = EMAILFIELD_DEFAULTS.validateOnChange,
     placeholder,
     autoFocus,
+    style,
     ...props
   }, ref) => {
     const formContext = useEmailFieldFormContext();
@@ -1531,7 +1533,7 @@ var EmailField = (0, import_react12.forwardRef)(
     };
     const hasValue = String(currentValue ?? "").length > 0;
     const isFloating = isFocused || hasValue || Boolean(placeholder);
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: buildContainerClasses(className, unstyled), children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: buildContainerClasses(className, unstyled), style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: buildWrapperClasses(size), children: [
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: EMAILFIELD_CLASSES.iconLeading, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_lucide_react2.Mail, { size: 16 }) }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
@@ -1865,7 +1867,9 @@ var FormField = (0, import_react15.forwardRef)(({
   children,
   className = "",
   unstyled = FORM_FIELD_DEFAULTS.unstyled,
-  bindId
+  bindId,
+  style,
+  ...props
 }, ref) => {
   const formContext = useFormFieldContext();
   const labelId = (0, import_react15.useId)();
@@ -1880,6 +1884,8 @@ var FormField = (0, import_react15.forwardRef)(({
       className: buildFormFieldClasses(layout, hasError, disabled, className, unstyled),
       role: "group",
       "aria-labelledby": label ? labelId : void 0,
+      style,
+      ...props,
       children: [
         label && /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("label", { id: labelId, className: FORM_FIELD_CLASSES.label, children: [
           label,
@@ -2626,6 +2632,8 @@ var Input = (0, import_react18.forwardRef)(
     mask,
     pattern,
     variant,
+    style,
+    onKeyDown: onKeyDownProp,
     ...props
   }, ref) => {
     const formContext = useInputFormContext();
@@ -2663,11 +2671,17 @@ var Input = (0, import_react18.forwardRef)(
       dispatch("change", { value: e.target.value });
       if (onChange) onChange(e);
     };
+    const handleKeyDown = (e) => {
+      if (type === "number" && ["e", "E", "+", "-"].includes(e.key)) {
+        e.preventDefault();
+      }
+      if (onKeyDownProp) onKeyDownProp(e);
+    };
     const alwaysFloatTypes = ["date", "time", "datetime-local", "month", "week", "color"];
     const hasValue = isControlled ? inputValue !== "" && inputValue !== void 0 && inputValue !== null : false;
     const isFloating = isFocused || hasValue || alwaysFloatTypes.includes(type);
     const hasError = Boolean(resolvedError);
-    return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: buildContainerClasses2(className, unstyled), children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: buildContainerClasses2(className, unstyled), style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: buildWrapperClasses2(size), children: [
         leadingIcon && /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: buildIconClasses2("leading"), children: renderIconContent(leadingIcon) }),
         /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
@@ -2684,6 +2698,7 @@ var Input = (0, import_react18.forwardRef)(
               dispatch("focus", { value: e.target.value });
             },
             onBlur: handleBlur,
+            onKeyDown: handleKeyDown,
             disabled,
             required,
             autoComplete,
@@ -3107,6 +3122,7 @@ var NumberField = (0, import_react21.forwardRef)(
     variant,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
+    style,
     ...props
   }, ref) => {
     const [isFocused, setIsFocused] = (0, import_react21.useState)(false);
@@ -3159,7 +3175,7 @@ var NumberField = (0, import_react21.forwardRef)(
     const hasValue = String(internalValue) !== "";
     const isFloating = isFocused || hasValue || Boolean(placeholder);
     const hasError = Boolean(fieldError);
-    return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: `${NUMBERFIELD_CLASSES.container} ${className}`, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: `${NUMBERFIELD_CLASSES.container} ${className}`, style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: buildWrapperClasses3(size, unstyled, variant), children: [
         leadingIcon && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: NUMBERFIELD_CLASSES.iconLeading, children: leadingIcon }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
@@ -3396,6 +3412,7 @@ var PasswordField = (0, import_react23.forwardRef)(
     onFocus: onFocusProp,
     placeholder,
     autoFocus,
+    style,
     ...props
   }, ref) => {
     const formContext = usePasswordFieldFormContext();
@@ -3430,7 +3447,7 @@ var PasswordField = (0, import_react23.forwardRef)(
     const isFloating = isFocused || hasValue || Boolean(placeholder);
     const strength = showStrength ? getPasswordStrength(String(currentValue ?? "")) : null;
     const activeSegments = strength ? STRENGTH_SEGMENTS[strength] : 0;
-    return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: buildContainerClasses3(className, unstyled), children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: buildContainerClasses3(className, unstyled), style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)("div", { className: buildWrapperClasses4(size), children: [
         /* @__PURE__ */ (0, import_jsx_runtime14.jsx)("div", { className: PASSWORDFIELD_CLASSES.iconLeading, children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_lucide_react18.Lock, { size: 16 }) }),
         /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(
@@ -4559,6 +4576,7 @@ var Select = (0, import_react31.forwardRef)(
     unstyled = SELECT_DEFAULTS.unstyled,
     bindId,
     variant,
+    style,
     ...props
   }, ref) => {
     const formContext = useSelectFormContext();
@@ -4591,7 +4609,7 @@ var Select = (0, import_react31.forwardRef)(
     };
     const isFloating = isFocused || hasSelectValue(currentValue);
     const finalTrailingIcon = trailingIcon ?? (!multiple ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DefaultChevron, {}) : null);
-    return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: [SELECT_CLASSES.container, unstyled && "w3f-select-container--unstyled", className].filter(Boolean).join(" "), children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: [SELECT_CLASSES.container, unstyled && "w3f-select-container--unstyled", className].filter(Boolean).join(" "), style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: SELECT_CLASSES.wrapper, children: [
         leadingIcon && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: SELECT_CLASSES.iconLeading, children: leadingIcon }),
         /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(
@@ -5192,6 +5210,7 @@ var TextField = (0, import_react37.forwardRef)(
     onClear,
     autoFocus = TEXTFIELD_DEFAULTS.autoFocus,
     onKeyDown: onKeyDownProp,
+    style,
     ...props
   }, ref) => {
     const formContext = useTextFieldFormContext();
@@ -5255,7 +5274,7 @@ var TextField = (0, import_react37.forwardRef)(
     const isFloating = isFocused || hasValue || Boolean(placeholder);
     const showClearButton = clearable && hasValue && !disabled;
     const hasTrailingContent = Boolean(trailingIcon) || showClearButton;
-    return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: buildContainerClasses5(className, unstyled), children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: buildContainerClasses5(className, unstyled), style, children: [
       /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: buildWrapperClasses5(size), children: [
         leadingIcon && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: TEXTFIELD_CLASSES.iconLeading, children: leadingIcon }),
         /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
