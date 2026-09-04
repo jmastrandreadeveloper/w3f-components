@@ -3703,7 +3703,7 @@
 
 /* src/INPUTS/RadioButton/css/RadioButton.structural.css */
 @layer w3f-structural {
-  .radio-material {
+  .w3f-radio-group {
     --w3f-radio-size: var(--w3f-space-5);
     --w3f-radio-bg: var(--w3f-gray-200);
     --w3f-radio-border-color: var(--w3f-gray-400);
@@ -3720,6 +3720,8 @@
     --w3f-radio-checked-border-color: var(--w3f-primary-600);
     --w3f-radio-dot-color: var(--w3f-on-primary);
     --w3f-radio-disabled-opacity: 0.5;
+  }
+  .radio-material {
     position: relative;
     padding-left: 1.75rem;
     cursor: pointer;
@@ -16258,7 +16260,7 @@
 
 /* src/INPUTS/RadioButton/css/RadioButton.defaults.css */
 @layer w3f-presets {
-  .radio-material {
+  .w3f-radio-group {
     --w3f-radio-size: 20px;
     --w3f-radio-transition: 0.2s ease;
     --w3f-radio-bg: #ffffff;

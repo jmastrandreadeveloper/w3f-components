@@ -3687,7 +3687,7 @@ var RadioGroup = (0, import_react25.forwardRef)(({
     direction
   };
   const hasError = Boolean(fieldError);
-  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("div", { ref, className, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("div", { ref, className: `${RADIO_CLASSES.group} ${className}`.trim(), ...props, children: [
     /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("fieldset", { className: RADIO_CLASSES.fieldset, children: [
       label && /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("legend", { className: RADIO_CLASSES.legend, children: [
         label,
@@ -4910,7 +4910,8 @@ var SlideToggle = (0, import_react35.forwardRef)(({
   helperText,
   className = SLIDE_TOGGLE_DEFAULTS.className,
   unstyled = SLIDE_TOGGLE_DEFAULTS.unstyled,
-  bindId
+  bindId,
+  style
 }, ref) => {
   const formContext = useSlideToggleFormContext();
   const isFormControlled = !!(formContext && name);
@@ -5075,12 +5076,12 @@ var SlideToggle = (0, import_react35.forwardRef)(({
     ) : null });
   };
   if (!label) {
-    return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { ref, className, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { ref, className, style, children: [
       renderToggle(),
       renderMessages()
     ] });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { ref, className, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { ref, className, style, children: [
     /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
       "div",
       {
@@ -5461,25 +5462,33 @@ var useToggleGroupFormContext = () => {
 var useToggleGroup = ({
   name,
   value,
+  defaultValue,
   onChange,
   exclusive = false,
   disabled = false
 }) => {
   const formContext = useToggleGroupFormContext();
   const isFormControlled = !!(formContext && name);
-  const groupValue = isFormControlled ? formContext.values[name] ?? (exclusive ? null : []) : value;
+  const isControlled = value !== void 0;
+  const [internalValue, setInternalValue] = (0, import_react38.useState)(
+    defaultValue ?? (exclusive ? null : [])
+  );
+  const groupValue = isFormControlled ? formContext.values[name] ?? (exclusive ? null : []) : isControlled ? value : internalValue;
   const groupError = isFormControlled ? formContext.errors[name] : void 0;
   const currentValue = exclusive ? groupValue : Array.isArray(groupValue) ? groupValue : [];
   const handleToggleChange = (0, import_react38.useCallback)(
     (event, buttonValue) => {
       if (disabled) return;
       const newValue = computeNewValue(buttonValue, currentValue, exclusive ?? false);
+      if (!isControlled && !isFormControlled) {
+        setInternalValue(newValue);
+      }
       if (isFormControlled && formContext && name) {
         formContext.setFieldValue(name, newValue);
       }
       if (onChange) onChange(event, newValue);
     },
-    [exclusive, currentValue, onChange, isFormControlled, disabled, name, formContext]
+    [exclusive, currentValue, onChange, isControlled, isFormControlled, disabled, name, formContext]
   );
   return {
     currentValue,
@@ -5541,6 +5550,7 @@ ToggleButton.displayName = "ToggleButton";
 var ToggleButtonGroup = (0, import_react39.forwardRef)(({
   name,
   value,
+  defaultValue,
   onChange,
   exclusive = TOGGLE_GROUP_DEFAULTS.exclusive,
   color = TOGGLE_GROUP_DEFAULTS.color,
@@ -5560,6 +5570,7 @@ var ToggleButtonGroup = (0, import_react39.forwardRef)(({
   const { currentValue, groupError, handleToggleChange } = useToggleGroup({
     name,
     value,
+    defaultValue,
     onChange,
     exclusive,
     disabled
