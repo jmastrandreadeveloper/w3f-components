@@ -14673,9 +14673,47 @@ var useColumnReorder = (columns) => {
   }, []);
   return { columnOrder, orderedColumns, handleDragMouseDown };
 };
+var useTableResize = () => {
+  const [resizedWidth, setResizedWidth] = (0, import_react108.useState)(void 0);
+  const [resizedHeight, setResizedHeight] = (0, import_react108.useState)(void 0);
+  const containerRef = (0, import_react108.useRef)(null);
+  const handleEdgeResizeMouseDown = (0, import_react108.useCallback)((e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const container = containerRef.current;
+    if (!container) return;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startW = container.offsetWidth;
+    const startH = container.offsetHeight;
+    const cursor = direction === "e" ? "ew-resize" : direction === "s" ? "ns-resize" : "nwse-resize";
+    document.body.style.cursor = cursor;
+    document.body.style.userSelect = "none";
+    document.body.style.webkitUserSelect = "none";
+    const onMouseMove = (mv) => {
+      const dx = mv.clientX - startX;
+      const dy = mv.clientY - startY;
+      if (direction !== "s") setResizedWidth(Math.max(200, startW + dx));
+      if (direction !== "e") setResizedHeight(Math.max(80, startH + dy));
+    };
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+    };
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }, []);
+  return { resizedWidth, resizedHeight, containerRef, handleEdgeResizeMouseDown };
+};
 
 // src/DATADISPLAY/Table/Table.tsx
 var import_jsx_runtime81 = require("react/jsx-runtime");
+var MinimizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
+var MaximizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("rect", { x: "2", y: "2", width: "8", height: "8" }) });
+var RestoreIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
 var Table = import_react109.default.forwardRef(({
   data = [],
   columns = [],
@@ -14695,9 +14733,28 @@ var Table = import_react109.default.forwardRef(({
   onRowClick,
   selectedRowKey,
   selectedRowValue,
+  showControls = false,
+  tableTitle,
+  resizable = false,
   ...rest
 }, ref) => {
   const headerRowRef = (0, import_react109.useRef)(null);
+  const { resizedWidth, resizedHeight, containerRef, handleEdgeResizeMouseDown } = useTableResize();
+  const mergedRef = (0, import_react109.useCallback)((node) => {
+    containerRef.current = node;
+    if (typeof ref === "function") ref(node);
+    else if (ref) ref.current = node;
+  }, [ref, containerRef]);
+  const [isMinimized, setIsMinimized] = (0, import_react109.useState)(false);
+  const [isMaximized, setIsMaximized] = (0, import_react109.useState)(false);
+  const handleMinimize = () => {
+    setIsMinimized((prev) => !prev);
+    if (isMaximized) setIsMaximized(false);
+  };
+  const handleMaximize = () => {
+    setIsMaximized((prev) => !prev);
+    if (isMinimized) setIsMinimized(false);
+  };
   const { sortState, handleSort } = useTableSort();
   const { globalFilter, handleFilterChange, filteredData } = useTableFilter(data, columns);
   const { columnWidths, initWidths, handleResizeMouseDown, widthsInitializedRef } = useColumnResize();
@@ -14741,8 +14798,22 @@ var Table = import_react109.default.forwardRef(({
     }
   }, [enableColumnResize, columns, initWidths, widthsInitializedRef]);
   const displayColumns = enableColumnReorder ? orderedColumns : columns;
-  const containerClasses = buildContainerClasses6(className, unstyled);
+  const containerClasses = [
+    buildContainerClasses6(className, unstyled),
+    isMaximized ? "w3f-table-container--maximized" : "",
+    isMinimized ? "w3f-table-container--minimized" : "",
+    resizable ? "w3f-table-resizable" : "",
+    resizable && resizedHeight !== void 0 ? "w3f-table-container--resized" : ""
+  ].filter(Boolean).join(" ");
+  const containerStyle = resizable && (resizedWidth !== void 0 || resizedHeight !== void 0) ? {
+    ...resizedWidth !== void 0 ? { width: resizedWidth } : {},
+    ...resizedHeight !== void 0 ? { height: resizedHeight } : {}
+  } : void 0;
   const tableClassList = buildTableClasses(size, variant, color, enableColumnResize, unstyled);
+  const totalTableWidth = (0, import_react109.useMemo)(() => {
+    if (!enableColumnResize || Object.keys(columnWidths).length === 0) return void 0;
+    return displayColumns.reduce((sum, col) => sum + (columnWidths[col.accessorKey] ?? 100), 0);
+  }, [enableColumnResize, columnWidths, displayColumns]);
   const renderSortIcon = (columnKey) => {
     if (sortState.key === columnKey) {
       if (sortState.direction === "asc") return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.ArrowUp, { size: 14 });
@@ -14750,7 +14821,34 @@ var Table = import_react109.default.forwardRef(({
     }
     return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.ArrowUpDown, { size: 14 });
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { ref, className: containerClasses, ...rest, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { ref: mergedRef, className: containerClasses, style: containerStyle, ...rest, children: [
+    showControls && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-controls", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-controls-title", children: tableTitle ?? "" }),
+      /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-controls-buttons", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+          "button",
+          {
+            className: "w3f-table-ctrl-btn",
+            onClick: handleMinimize,
+            "aria-label": isMinimized ? "Restaurar" : "Minimizar",
+            title: isMinimized ? "Restaurar" : "Minimizar",
+            type: "button",
+            children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(MinimizeIcon3, {})
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+          "button",
+          {
+            className: "w3f-table-ctrl-btn",
+            onClick: handleMaximize,
+            "aria-label": isMaximized ? "Restaurar" : "Maximizar",
+            title: isMaximized ? "Restaurar" : "Maximizar",
+            type: "button",
+            children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(RestoreIcon3, {}) : /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(MaximizeIcon3, {})
+          }
+        )
+      ] })
+    ] }),
     enableFiltering && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("div", { className: "w3f-table-toolbar", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-filter", children: [
       /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-filter-icon", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.Search, { size: 16 }) }),
       /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
@@ -14770,59 +14868,66 @@ var Table = import_react109.default.forwardRef(({
       {
         className: ["w3f-table-wrapper", maxHeight ? "w3f-table-wrapper-scrollable" : ""].filter(Boolean).join(" "),
         style: maxHeight ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : void 0,
-        children: /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("table", { className: tableClassList, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { ref: headerRowRef, children: displayColumns.map((col) => {
-            const isSortable = enableSorting && col.sortable !== false && !col.cell;
-            const isSorted = sortState.key === col.accessorKey;
-            const width = enableColumnResize ? columnWidths[col.accessorKey] : void 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(
-              "th",
-              {
-                "data-column-key": col.accessorKey,
-                className: [
-                  isSortable ? "w3f-table-sortable" : "",
-                  isSorted ? "w3f-table-sorted" : "",
-                  enableColumnReorder ? "w3f-table-draggable" : ""
-                ].filter(Boolean).join(" "),
-                style: width ? { width: `${width}px` } : void 0,
-                onClick: isSortable ? () => handleSort(col.accessorKey) : void 0,
-                onMouseDown: enableColumnReorder ? (e) => handleDragMouseDown(e, col.accessorKey, headerRowRef) : void 0,
-                "aria-sort": isSorted ? sortState.direction === "asc" ? "ascending" : "descending" : void 0,
-                children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("span", { className: "w3f-table-header-content", children: [
-                    col.header,
-                    isSortable && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-sort-icon", children: renderSortIcon(col.accessorKey) })
-                  ] }),
-                  enableColumnResize && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
-                    "div",
-                    {
-                      className: "w3f-table-resize-handle",
-                      onMouseDown: (e) => handleResizeMouseDown(e, col.accessorKey)
-                    }
-                  )
-                ]
-              },
-              col.accessorKey
-            );
-          }) }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { colSpan: displayColumns.length, className: "w3f-table-empty", children: "No se encontraron resultados" }) }) : paginatedData.map((row, rowIndex) => {
-            const isSelected2 = selectedRowKey != null && row[selectedRowKey] === selectedRowValue;
-            return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
-              "tr",
-              {
-                onClick: onRowClick ? () => onRowClick(row, rowIndex) : void 0,
-                style: {
-                  cursor: onRowClick ? "pointer" : void 0,
-                  backgroundColor: isSelected2 ? "var(--w3f-primary-50, #eff6ff)" : void 0,
-                  outline: isSelected2 ? "2px solid var(--w3f-primary, #3b82f6)" : void 0,
-                  outlineOffset: "-2px"
-                },
-                children: displayColumns.map((col) => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { children: col.cell ? col.cell(row) : row[col.accessorKey] }, col.accessorKey))
-              },
-              row.id ?? rowIndex
-            );
-          }) })
-        ] })
+        children: /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(
+          "table",
+          {
+            className: tableClassList,
+            style: totalTableWidth !== void 0 ? { width: totalTableWidth } : void 0,
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { ref: headerRowRef, children: displayColumns.map((col) => {
+                const isSortable = enableSorting && col.sortable !== false && !col.cell;
+                const isSorted = sortState.key === col.accessorKey;
+                const width = enableColumnResize ? columnWidths[col.accessorKey] : void 0;
+                return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(
+                  "th",
+                  {
+                    "data-column-key": col.accessorKey,
+                    className: [
+                      isSortable ? "w3f-table-sortable" : "",
+                      isSorted ? "w3f-table-sorted" : "",
+                      enableColumnReorder ? "w3f-table-draggable" : ""
+                    ].filter(Boolean).join(" "),
+                    style: width ? { width: `${width}px` } : void 0,
+                    onClick: isSortable ? () => handleSort(col.accessorKey) : void 0,
+                    onMouseDown: enableColumnReorder ? (e) => handleDragMouseDown(e, col.accessorKey, headerRowRef) : void 0,
+                    "aria-sort": isSorted ? sortState.direction === "asc" ? "ascending" : "descending" : void 0,
+                    children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("span", { className: "w3f-table-header-content", children: [
+                        col.header,
+                        isSortable && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-sort-icon", children: renderSortIcon(col.accessorKey) })
+                      ] }),
+                      enableColumnResize && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+                        "div",
+                        {
+                          className: "w3f-table-resize-handle",
+                          onMouseDown: (e) => handleResizeMouseDown(e, col.accessorKey)
+                        }
+                      )
+                    ]
+                  },
+                  col.accessorKey
+                );
+              }) }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { colSpan: displayColumns.length, className: "w3f-table-empty", children: "No se encontraron resultados" }) }) : paginatedData.map((row, rowIndex) => {
+                const isSelected2 = selectedRowKey != null && row[selectedRowKey] === selectedRowValue;
+                return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+                  "tr",
+                  {
+                    onClick: onRowClick ? () => onRowClick(row, rowIndex) : void 0,
+                    style: {
+                      cursor: onRowClick ? "pointer" : void 0,
+                      backgroundColor: isSelected2 ? "var(--w3f-primary-50, #eff6ff)" : void 0,
+                      outline: isSelected2 ? "2px solid var(--w3f-primary, #3b82f6)" : void 0,
+                      outlineOffset: "-2px"
+                    },
+                    children: displayColumns.map((col) => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { children: col.cell ? col.cell(row) : row[col.accessorKey] }, col.accessorKey))
+                  },
+                  row.id ?? rowIndex
+                );
+              }) })
+            ]
+          }
+        )
       }
     ),
     enablePagination && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-pagination", children: [
@@ -14853,6 +14958,29 @@ var Table = import_react109.default.forwardRef(({
           showFirstButton: true,
           showLastButton: true,
           ...paginationProps
+        }
+      )
+    ] }),
+    resizable && !isMaximized && !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(import_jsx_runtime81.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+        "div",
+        {
+          className: "w3f-table-edge-handle w3f-table-edge-handle--e",
+          onMouseDown: (e) => handleEdgeResizeMouseDown(e, "e")
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+        "div",
+        {
+          className: "w3f-table-edge-handle w3f-table-edge-handle--s",
+          onMouseDown: (e) => handleEdgeResizeMouseDown(e, "s")
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+        "div",
+        {
+          className: "w3f-table-edge-handle w3f-table-edge-handle--se",
+          onMouseDown: (e) => handleEdgeResizeMouseDown(e, "se")
         }
       )
     ] })
