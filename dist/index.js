@@ -4811,6 +4811,7 @@ var Slider = (0, import_react33.forwardRef)(({
   ] });
 });
 Slider.displayName = "Slider";
+var Slider_default = Slider;
 
 // src/INPUTS/SlideToggle/SlideToggle.tsx
 var import_react35 = require("react");
@@ -8667,171 +8668,35 @@ ContextMenu.displayName = "ContextMenu";
 // src/SURFACES/Desktop/Desktop.tsx
 var import_react62 = __toESM(require("react"));
 
-// src/LAYOUT/Grid/Grid.constants.ts
-var VALID_COL_SPANS = ["full", "1", "2", "3", "4", "6"];
-
-// src/LAYOUT/Grid/Grid.utils.ts
-var buildGridItemClassNames = ({
-  colSpan,
-  className
-}) => {
-  const classes = [];
-  if (colSpan) {
-    const spanStr = String(colSpan);
-    if (VALID_COL_SPANS.includes(spanStr)) {
-      classes.push(`w3f-col-span-${spanStr}`);
-    }
-  }
-  if (className) classes.push(className);
-  return classes.filter(Boolean).join(" ");
-};
-var buildGridInlineStyles = (props) => {
-  const {
-    grid,
-    gridTemplate,
-    templateColumns,
-    templateRows,
-    templateAreas,
-    gap,
-    rowGap,
-    columnGap,
-    autoColumns,
-    autoRows,
-    autoFlow,
-    justifyContent,
-    alignContent,
-    placeContent,
-    justifyItems,
-    alignItems,
-    placeItems,
-    justifySelf,
-    alignSelf,
-    placeSelf,
-    gridRow,
-    gridColumn,
-    gridArea,
-    width,
-    height,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-    padding,
-    margin,
-    style
-  } = props;
-  const gridStyle = {
-    display: "grid",
-    grid,
-    gridTemplate,
-    gridTemplateColumns: templateColumns,
-    gridTemplateRows: templateRows,
-    gridTemplateAreas: templateAreas ? templateAreas.trim().split("\n").map((row) => `"${row.trim()}"`).join(" ") : void 0,
-    gap,
-    rowGap,
-    columnGap,
-    gridAutoColumns: autoColumns,
-    gridAutoRows: autoRows,
-    gridAutoFlow: autoFlow,
-    justifyContent,
-    alignContent,
-    placeContent,
-    justifyItems,
-    alignItems,
-    placeItems,
-    justifySelf,
-    alignSelf,
-    placeSelf,
-    gridRow,
-    gridColumn,
-    gridArea,
-    width,
-    height,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-    padding,
-    margin,
-    ...style
-  };
-  Object.keys(gridStyle).forEach((key) => {
-    if (gridStyle[key] === void 0) delete gridStyle[key];
-  });
-  return gridStyle;
-};
-var buildGridItemInlineStyles = ({
-  gridArea,
-  gridRow,
-  gridColumn,
-  justifySelf,
-  alignSelf,
-  placeSelf,
-  style
-}) => {
-  const itemStyle = {
-    gridArea,
-    gridRow,
-    gridColumn,
-    justifySelf,
-    alignSelf,
-    placeSelf,
-    ...style
-  };
-  Object.keys(itemStyle).forEach((key) => {
-    if (itemStyle[key] === void 0) delete itemStyle[key];
-  });
-  return itemStyle;
-};
-
-// src/LAYOUT/Grid/Grid.tsx
-var import_jsx_runtime35 = require("react/jsx-runtime");
-var Grid = ({
-  children,
-  className,
-  style,
-  ...props
-}) => {
-  const gridStyle = buildGridInlineStyles({ ...props, style });
-  return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { style: gridStyle, className, ...{}, children });
-};
-Grid.displayName = "Grid";
-var GridAreaItem = ({
-  children,
-  colSpan,
-  gridArea,
-  gridRow,
-  gridColumn,
-  justifySelf,
-  alignSelf,
-  placeSelf,
-  style,
-  className,
-  ...rest
-}) => {
-  const classNames = buildGridItemClassNames({ colSpan, className });
-  const itemStyle = buildGridItemInlineStyles({
-    gridArea,
-    gridRow,
-    gridColumn,
-    justifySelf,
-    alignSelf,
-    placeSelf,
-    style
-  });
-  return /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("div", { style: itemStyle, className: classNames, ...rest, children });
-};
-GridAreaItem.displayName = "GridAreaItem";
-var Grid_default = Grid;
-
 // src/SURFACES/Desktop/Desktop.constants.ts
 var DESKTOP_CLASSES = {
-  root: "w3f-desktop"
+  root: "w3f-desktop",
+  viewport: "w3f-desktop-viewport",
+  canvas: "w3f-desktop-canvas",
+  toolbar: "w3f-desktop-toolbar",
+  toolbarSlider: "w3f-desktop-toolbar-slider",
+  toolbarLabel: "w3f-desktop-toolbar-label",
+  pannable: "w3f-desktop--pannable",
+  panning: "w3f-desktop--panning"
 };
 var DESKTOP_DEFAULTS = {
   unstyled: false,
   className: "",
-  background: "#f0f2f5"
+  background: "#f0f2f5",
+  height: "100vh",
+  // zoom
+  zoomable: false,
+  defaultZoom: 1,
+  minZoom: 0.25,
+  maxZoom: 3,
+  zoomStep: 0.1,
+  showZoomControls: true,
+  // pan
+  pannable: false,
+  defaultPan: { x: 0, y: 0 },
+  // canvas
+  canvasWidth: 3e3,
+  canvasHeight: 2e3
 };
 var BASE_Z_INDEX = 100;
 
@@ -8851,10 +8716,13 @@ function syncWindowOrder(prevOrder, currentKeys) {
   });
   return filtered;
 }
-function buildDesktopClasses(className, unstyled) {
-  const base = DESKTOP_CLASSES.root;
-  if (unstyled) return [base, `${base}--unstyled`, className].filter(Boolean).join(" ");
-  return [base, className].filter(Boolean).join(" ");
+function buildDesktopClasses(className, unstyled, pannable, isPanning) {
+  const classes = [DESKTOP_CLASSES.root];
+  if (unstyled) classes.push(`${DESKTOP_CLASSES.root}--unstyled`);
+  if (pannable) classes.push(DESKTOP_CLASSES.pannable);
+  if (isPanning) classes.push(DESKTOP_CLASSES.panning);
+  if (className) classes.push(className);
+  return classes.join(" ");
 }
 
 // src/SURFACES/Desktop/Desktop.hooks.ts
@@ -8876,52 +8744,295 @@ function useWindowOrder(children) {
   }, []);
   return { windowOrder, handleWindowFocus };
 }
+function useCanvasTransform({
+  zoomEnabled,
+  panEnabled,
+  defaultZoom,
+  minZoom,
+  maxZoom,
+  zoomStep,
+  defaultPan,
+  containerRef
+}) {
+  const [zoom, setZoom] = (0, import_react61.useState)(defaultZoom);
+  const [pan, setPan] = (0, import_react61.useState)(defaultPan);
+  const [isPanning, setIsPanning] = (0, import_react61.useState)(false);
+  const stateRef = (0, import_react61.useRef)({ zoom, pan });
+  (0, import_react61.useEffect)(() => {
+    stateRef.current = { zoom, pan };
+  }, [zoom, pan]);
+  (0, import_react61.useEffect)(() => {
+    if (!zoomEnabled) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      e.preventDefault();
+      const { zoom: currentZoom, pan: currentPan } = stateRef.current;
+      const delta = e.deltaY < 0 ? zoomStep : -zoomStep;
+      const newZoom = Math.min(maxZoom, Math.max(minZoom, Math.round((currentZoom + delta) * 100) / 100));
+      if (newZoom === currentZoom) return;
+      const rect = el.getBoundingClientRect();
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+      const canvasX = (cursorX - currentPan.x) / currentZoom;
+      const canvasY = (cursorY - currentPan.y) / currentZoom;
+      const newPanX = cursorX - canvasX * newZoom;
+      const newPanY = cursorY - canvasY * newZoom;
+      setZoom(newZoom);
+      setPan({ x: newPanX, y: newPanY });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoomEnabled, containerRef, zoomStep, minZoom, maxZoom]);
+  const clamp = (0, import_react61.useCallback)(
+    (v) => Math.min(maxZoom, Math.max(minZoom, Math.round(v * 100) / 100)),
+    [minZoom, maxZoom]
+  );
+  const zoomIn = (0, import_react61.useCallback)(() => setZoom((prev) => clamp(prev + zoomStep)), [clamp, zoomStep]);
+  const zoomOut = (0, import_react61.useCallback)(() => setZoom((prev) => clamp(prev - zoomStep)), [clamp, zoomStep]);
+  const resetZoom = (0, import_react61.useCallback)(() => {
+    setZoom(defaultZoom);
+    setPan(defaultPan);
+  }, [defaultZoom, defaultPan]);
+  const setZoomLevel = (0, import_react61.useCallback)((v) => setZoom(clamp(v)), [clamp]);
+  const handlePanStart = (0, import_react61.useCallback)((e) => {
+    if (!panEnabled) return;
+    if (e.target !== e.currentTarget) return;
+    e.preventDefault();
+    const startMouse = { x: e.clientX, y: e.clientY };
+    const startPan = { ...stateRef.current.pan };
+    setIsPanning(true);
+    const handleMouseMove = (ev) => {
+      setPan({
+        x: startPan.x + (ev.clientX - startMouse.x),
+        y: startPan.y + (ev.clientY - startMouse.y)
+      });
+    };
+    const handleMouseUp = () => {
+      setIsPanning(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, [panEnabled]);
+  return { zoom, pan, isPanning, zoomIn, zoomOut, resetZoom, setZoomLevel, handlePanStart };
+}
 
 // src/SURFACES/Desktop/Desktop.tsx
-var import_jsx_runtime36 = require("react/jsx-runtime");
+var import_jsx_runtime35 = require("react/jsx-runtime");
 var Desktop = (0, import_react62.forwardRef)(({
   children,
   unstyled = DESKTOP_DEFAULTS.unstyled,
   className = DESKTOP_DEFAULTS.className,
   style,
-  background = DESKTOP_DEFAULTS.background
-}, ref) => {
+  background = DESKTOP_DEFAULTS.background,
+  height = DESKTOP_DEFAULTS.height,
+  // zoom
+  zoomable = DESKTOP_DEFAULTS.zoomable,
+  defaultZoom = DESKTOP_DEFAULTS.defaultZoom,
+  minZoom = DESKTOP_DEFAULTS.minZoom,
+  maxZoom = DESKTOP_DEFAULTS.maxZoom,
+  zoomStep = DESKTOP_DEFAULTS.zoomStep,
+  showZoomControls = DESKTOP_DEFAULTS.showZoomControls,
+  // pan
+  pannable = DESKTOP_DEFAULTS.pannable,
+  defaultPan = DESKTOP_DEFAULTS.defaultPan,
+  // canvas
+  canvasWidth = DESKTOP_DEFAULTS.canvasWidth,
+  canvasHeight = DESKTOP_DEFAULTS.canvasHeight
+}, forwardedRef) => {
+  const containerRef = (0, import_react62.useRef)(null);
+  const setRef = (0, import_react62.useCallback)((node) => {
+    containerRef.current = node;
+    if (typeof forwardedRef === "function") {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  }, [forwardedRef]);
   const { windowOrder, handleWindowFocus } = useWindowOrder(children);
-  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
-    Grid_default,
+  const {
+    zoom,
+    pan,
+    isPanning,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    setZoomLevel,
+    handlePanStart
+  } = useCanvasTransform({
+    zoomEnabled: zoomable,
+    panEnabled: pannable,
+    defaultZoom,
+    minZoom,
+    maxZoom,
+    zoomStep,
+    defaultPan,
+    containerRef
+  });
+  const containerHeight = typeof height === "number" ? `${height}px` : height;
+  const cssCanvasWidth = typeof canvasWidth === "number" ? `${canvasWidth}px` : canvasWidth;
+  const cssCanvasHeight = typeof canvasHeight === "number" ? `${canvasHeight}px` : canvasHeight;
+  const canvasStyle = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: cssCanvasWidth,
+    height: cssCanvasHeight,
+    transformOrigin: "0 0",
+    transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+    willChange: "transform"
+  };
+  if (pannable) {
+    canvasStyle.cursor = isPanning ? "grabbing" : "grab";
+  }
+  const mappedChildren = import_react62.default.Children.map(children, (child) => {
+    if (!import_react62.default.isValidElement(child)) return child;
+    const key = child.key;
+    if (!key) {
+      console.warn('Desktop: Window sin "key" prop. El z-index management requiere keys \xFAnicas.');
+      return child;
+    }
+    const zIndex = getWindowZIndex(windowOrder, String(key));
+    return import_react62.default.cloneElement(
+      child,
+      {
+        style: { ...child.props.style, zIndex },
+        onFocus: () => {
+          handleWindowFocus(String(key));
+          const childProps = child.props;
+          if (typeof childProps.onFocus === "function") childProps.onFocus();
+        }
+      }
+    );
+  });
+  const showToolbar = zoomable && showZoomControls;
+  const toolbarBtnStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 28,
+    height: 28,
+    padding: "0 4px",
+    border: "none",
+    background: "transparent",
+    color: "#cbd5e1",
+    cursor: "pointer",
+    borderRadius: 5,
+    fontSize: 18,
+    lineHeight: 1,
+    fontFamily: "inherit",
+    outline: "none"
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(
+    "div",
     {
-      ref,
-      className: buildDesktopClasses(className, unstyled),
+      ref: setRef,
+      className: buildDesktopClasses(className, unstyled, pannable, isPanning),
       style: {
-        position: "relative",
+        display: "flex",
+        flexDirection: "column",
         width: "100%",
-        height: "100vh",
-        overflow: "hidden",
+        height: containerHeight,
         background,
         ...style
       },
-      children: import_react62.default.Children.map(children, (child) => {
-        if (!import_react62.default.isValidElement(child)) return child;
-        const key = child.key;
-        if (!key) {
-          console.warn(
-            'Desktop: Window component is missing a unique "key" prop. Z-index management relies on keys.'
-          );
-          return child;
-        }
-        const zIndex = getWindowZIndex(windowOrder, String(key));
-        return import_react62.default.cloneElement(
-          child,
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+          "div",
           {
-            style: { ...child.props.style, zIndex },
-            onFocus: () => {
-              handleWindowFocus(String(key));
-              const childProps = child.props;
-              if (typeof childProps.onFocus === "function") childProps.onFocus();
-            }
+            className: DESKTOP_CLASSES.viewport,
+            style: { position: "relative", flex: 1, overflow: "hidden" },
+            children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+              "div",
+              {
+                className: DESKTOP_CLASSES.canvas,
+                style: canvasStyle,
+                onMouseDown: pannable ? handlePanStart : void 0,
+                children: mappedChildren
+              }
+            )
           }
-        );
-      })
+        ),
+        showToolbar && /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(
+          "div",
+          {
+            className: DESKTOP_CLASSES.toolbar,
+            style: {
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              height: "44px",
+              padding: "0 16px",
+              background: "rgba(15, 23, 42, 0.85)",
+              borderTop: "1px solid rgba(255,255,255,0.10)",
+              backdropFilter: "blur(8px)",
+              userSelect: "none"
+            },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: DESKTOP_CLASSES.toolbarLabel,
+                  onClick: zoomOut,
+                  title: "Zoom out",
+                  "aria-label": "Zoom out",
+                  style: toolbarBtnStyle,
+                  children: "\u2212"
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                "div",
+                {
+                  className: DESKTOP_CLASSES.toolbarSlider,
+                  style: { flex: 1, minWidth: 80, maxWidth: 240, display: "flex", alignItems: "center" },
+                  children: /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                    Slider_default,
+                    {
+                      value: zoom,
+                      min: minZoom,
+                      max: maxZoom,
+                      step: zoomStep,
+                      showValue: false,
+                      onChange: setZoomLevel
+                    }
+                  )
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: DESKTOP_CLASSES.toolbarLabel,
+                  onClick: zoomIn,
+                  title: "Zoom in",
+                  "aria-label": "Zoom in",
+                  style: toolbarBtnStyle,
+                  children: "+"
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime35.jsxs)(
+                "button",
+                {
+                  type: "button",
+                  className: `${DESKTOP_CLASSES.toolbarLabel} w3f-desktop-toolbar-pct`,
+                  onClick: resetZoom,
+                  title: "Restablecer zoom",
+                  "aria-label": "Restablecer zoom",
+                  style: { ...toolbarBtnStyle, minWidth: 52, fontSize: 12, fontWeight: 600, opacity: 0.8 },
+                  children: [
+                    Math.round(zoom * 100),
+                    "%"
+                  ]
+                }
+              )
+            ]
+          }
+        )
+      ]
     }
   );
 });
@@ -8971,7 +9082,7 @@ var buildImageClasses = (circle, rounded, border, shadow, filter, hoverEffect, u
 };
 
 // src/DATADISPLAY/Image/Image.tsx
-var import_jsx_runtime37 = require("react/jsx-runtime");
+var import_jsx_runtime36 = require("react/jsx-runtime");
 var Image2 = (0, import_react63.forwardRef)(({
   src,
   alt,
@@ -8991,7 +9102,7 @@ var Image2 = (0, import_react63.forwardRef)(({
 }, ref) => {
   useBridgeBind({ bindId });
   const imageClasses = buildImageClasses(circle, rounded, border, shadow, filter, hoverEffect, unstyled, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { ref, className: `w3f-image-wrapper ${wrapperClassName}`, children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { ref, className: `w3f-image-wrapper ${wrapperClassName}`, children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
     "img",
     {
       src: sanitizeUrl(src),
@@ -9028,14 +9139,14 @@ var useContainerProps = ({ className = "", ...restProps }) => {
 };
 
 // src/LAYOUT/Container/Container.tsx
-var import_jsx_runtime38 = require("react/jsx-runtime");
+var import_jsx_runtime37 = require("react/jsx-runtime");
 var Container = ({
   children,
   as: Element = CONTAINER_DEFAULTS.as,
   ...props
 }) => {
   const processedProps = useContainerProps(props);
-  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(Element, { ...processedProps, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Element, { ...processedProps, children });
 };
 Container.displayName = "Container";
 var Container_default = Container;
@@ -9075,7 +9186,7 @@ var buildPanelClassNames = ({
 };
 
 // src/LAYOUT/Panels/Panel.tsx
-var import_jsx_runtime39 = require("react/jsx-runtime");
+var import_jsx_runtime38 = require("react/jsx-runtime");
 var Panel = ({
   children,
   color,
@@ -9094,7 +9205,7 @@ var Panel = ({
     border,
     className
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: classNames, style: color ? { backgroundColor: color } : void 0, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("div", { className: classNames, style: color ? { backgroundColor: color } : void 0, ...rest, children });
 };
 Panel.displayName = "Panel";
 
@@ -9207,7 +9318,7 @@ function useImageGallery(images, enabled) {
 }
 
 // src/SURFACES/ImageGallery/ImageGallery.tsx
-var import_jsx_runtime40 = require("react/jsx-runtime");
+var import_jsx_runtime39 = require("react/jsx-runtime");
 var ImageGallery = (0, import_react65.forwardRef)(({
   images = IMAGE_GALLERY_DEFAULTS.images,
   title,
@@ -9226,17 +9337,17 @@ var ImageGallery = (0, import_react65.forwardRef)(({
 }, ref) => {
   const { selectedImage, currentIndex, openLightbox, closeLightbox, goToPrevious, goToNext } = useImageGallery(images, lightbox);
   if (images.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Container_default, { ref, className: IMAGE_GALLERY_CLASSES.container, children: [
-      title && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("h3", { className: IMAGE_GALLERY_CLASSES.title, children: title }),
-      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Panel, { className: IMAGE_GALLERY_CLASSES.empty, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(Container_default, { ref, className: IMAGE_GALLERY_CLASSES.container, children: [
+      title && /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("h3", { className: IMAGE_GALLERY_CLASSES.title, children: title }),
+      /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(Panel, { className: IMAGE_GALLERY_CLASSES.empty, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
           "svg",
           {
             className: IMAGE_GALLERY_CLASSES.emptyIcon,
             fill: "none",
             stroke: "currentColor",
             viewBox: "0 0 24 24",
-            children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
               "path",
               {
                 strokeLinecap: "round",
@@ -9247,22 +9358,22 @@ var ImageGallery = (0, import_react65.forwardRef)(({
             )
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("p", { className: IMAGE_GALLERY_CLASSES.emptyText, children: emptyMessage })
+        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("p", { className: IMAGE_GALLERY_CLASSES.emptyText, children: emptyMessage })
       ] })
     ] });
   }
   const galleryCls = buildGalleryClasses(layout, className, unstyled);
   const gridStyle = buildGridStyle(layout, columns, gap);
-  return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Container_default, { ref, className: IMAGE_GALLERY_CLASSES.container, children: [
-    title && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("h3", { className: IMAGE_GALLERY_CLASSES.title, children: title }),
-    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: galleryCls, style: gridStyle, children: images.map((image, index) => /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(Container_default, { ref, className: IMAGE_GALLERY_CLASSES.container, children: [
+    title && /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("h3", { className: IMAGE_GALLERY_CLASSES.title, children: title }),
+    /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: galleryCls, style: gridStyle, children: images.map((image, index) => /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
       Panel,
       {
         className: IMAGE_GALLERY_CLASSES.item,
         padding: false,
         card: true,
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
             Image2,
             {
               src: thumbnails && image.thumbnail ? image.thumbnail : image.src,
@@ -9275,12 +9386,12 @@ var ImageGallery = (0, import_react65.forwardRef)(({
               loading: "lazy"
             }
           ),
-          showCaptions && image.caption && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("p", { className: IMAGE_GALLERY_CLASSES.caption, children: image.caption })
+          showCaptions && image.caption && /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("p", { className: IMAGE_GALLERY_CLASSES.caption, children: image.caption })
         ]
       },
       image.id ?? index
     )) }),
-    lightbox && selectedImage && /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+    lightbox && selectedImage && /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
       "div",
       {
         className: IMAGE_GALLERY_CLASSES.lightboxOverlay,
@@ -9289,14 +9400,14 @@ var ImageGallery = (0, import_react65.forwardRef)(({
         "aria-modal": "true",
         "aria-label": "Vista ampliada de imagen",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
             Button_default,
             {
               className: IMAGE_GALLERY_CLASSES.lightboxClose,
               onClick: closeLightbox,
               "aria-label": "Cerrar lightbox",
               variant: "text",
-              children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
                 "path",
                 {
                   strokeLinecap: "round",
@@ -9307,15 +9418,15 @@ var ImageGallery = (0, import_react65.forwardRef)(({
               ) })
             }
           ),
-          images.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(import_jsx_runtime40.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+          images.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(import_jsx_runtime39.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
               Button_default,
               {
                 className: `${IMAGE_GALLERY_CLASSES.lightboxNav} ${IMAGE_GALLERY_CLASSES.lightboxPrev}`,
                 onClick: goToPrevious,
                 "aria-label": "Imagen anterior",
                 variant: "text",
-                children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
                   "path",
                   {
                     strokeLinecap: "round",
@@ -9326,14 +9437,14 @@ var ImageGallery = (0, import_react65.forwardRef)(({
                 ) })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
               Button_default,
               {
                 className: `${IMAGE_GALLERY_CLASSES.lightboxNav} ${IMAGE_GALLERY_CLASSES.lightboxNext}`,
                 onClick: goToNext,
                 "aria-label": "Siguiente imagen",
                 variant: "text",
-                children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("svg", { fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
                   "path",
                   {
                     strokeLinecap: "round",
@@ -9345,14 +9456,14 @@ var ImageGallery = (0, import_react65.forwardRef)(({
               }
             )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
             Panel,
             {
               className: IMAGE_GALLERY_CLASSES.lightboxContent,
               onClick: (e) => e.stopPropagation(),
               padding: false,
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
                   "img",
                   {
                     src: sanitizeUrl(selectedImage.src),
@@ -9360,9 +9471,9 @@ var ImageGallery = (0, import_react65.forwardRef)(({
                     className: IMAGE_GALLERY_CLASSES.lightboxImage
                   }
                 ),
-                selectedImage.caption && /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: IMAGE_GALLERY_CLASSES.lightboxCaption, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("p", { children: selectedImage.caption }),
-                  images.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("span", { className: IMAGE_GALLERY_CLASSES.lightboxCounter, children: [
+                selectedImage.caption && /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: IMAGE_GALLERY_CLASSES.lightboxCaption, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("p", { children: selectedImage.caption }),
+                  images.length > 1 && /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("span", { className: IMAGE_GALLERY_CLASSES.lightboxCounter, children: [
                     currentIndex + 1,
                     " / ",
                     images.length
@@ -9479,7 +9590,7 @@ function buildMasonryCardClasses(hover, className) {
 }
 
 // src/SURFACES/Masonry/Masonry.tsx
-var import_jsx_runtime41 = require("react/jsx-runtime");
+var import_jsx_runtime40 = require("react/jsx-runtime");
 var MasonryCtx = (0, import_react66.createContext)({ variant: "column" });
 var MasonryItem = (0, import_react66.memo)(({
   size = MSN_DEFAULTS.size,
@@ -9489,7 +9600,7 @@ var MasonryItem = (0, import_react66.memo)(({
 }) => {
   const { variant } = (0, import_react66.useContext)(MasonryCtx);
   const cls = buildMasonryItemClasses(variant, size, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("div", { className: cls, style, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: cls, style, children });
 });
 MasonryItem.displayName = "MasonryItem";
 var MasonryCard = (0, import_react66.memo)(({
@@ -9508,7 +9619,7 @@ var MasonryCard = (0, import_react66.memo)(({
   const { variant } = (0, import_react66.useContext)(MasonryCtx);
   const itemCls = buildMasonryItemClasses(variant, size);
   const cardCls = buildMasonryCardClasses(hover, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("div", { className: itemCls, style, children: /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: itemCls, style, children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
     "div",
     {
       className: cardCls,
@@ -9519,17 +9630,17 @@ var MasonryCard = (0, import_react66.memo)(({
         if (e.key === "Enter" || e.key === " ") onClick(e);
       } : void 0,
       children: [
-        gradient && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+        gradient && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
           "div",
           {
             className: MSN_CLASSES.cardHeader,
             style: { height: headerHeight, background: gradient }
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: MSN_CLASSES.cardBody, children: [
-          title && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("h3", { className: MSN_CLASSES.cardTitle, children: title }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: MSN_CLASSES.cardBody, children: [
+          title && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("h3", { className: MSN_CLASSES.cardTitle, children: title }),
           children,
-          name !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+          name !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
             "input",
             {
               type: "hidden",
@@ -9566,7 +9677,7 @@ var Masonry = (0, import_react66.forwardRef)(({
     gridColumns,
     style
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(MasonryCtx.Provider, { value: { variant }, children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("div", { ref, className: rootCls, style: rootStyle, children }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(MasonryCtx.Provider, { value: { variant }, children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { ref, className: rootCls, style: rootStyle, children }) });
 });
 Masonry.displayName = "Masonry";
 
@@ -9646,7 +9757,7 @@ function useMenuItemSubmenu() {
 }
 
 // src/SURFACES/Menu/Menu.tsx
-var import_jsx_runtime42 = require("react/jsx-runtime");
+var import_jsx_runtime41 = require("react/jsx-runtime");
 var MenuItem = ({ item, onClose, onSelect }) => {
   const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
   const { showSubmenu, setShowSubmenu, handleMouseEnter, handleMouseLeave } = useMenuItemSubmenu();
@@ -9660,7 +9771,7 @@ var MenuItem = ({ item, onClose, onSelect }) => {
       onClose();
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
     "div",
     {
       className: [MENU_CLASSES.item, showSubmenu && MENU_CLASSES.isActive].filter(Boolean).join(" "),
@@ -9668,7 +9779,7 @@ var MenuItem = ({ item, onClose, onSelect }) => {
       onMouseLeave: handleMouseLeave,
       style: { position: "relative" },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
           Button_default,
           {
             className: [
@@ -9678,12 +9789,12 @@ var MenuItem = ({ item, onClose, onSelect }) => {
             onClick: handleClick,
             variant: "none",
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime42.jsx)("span", { className: MENU_CLASSES.label, children: item.label }),
-              hasSubItems && /* @__PURE__ */ (0, import_jsx_runtime42.jsx)("span", { className: MENU_CLASSES.arrow, children: "\u25B8" })
+              /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: MENU_CLASSES.label, children: item.label }),
+              hasSubItems && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: MENU_CLASSES.arrow, children: "\u25B8" })
             ]
           }
         ),
-        hasSubItems && showSubmenu && /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
+        hasSubItems && showSubmenu && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
           "div",
           {
             className: MENU_CLASSES.submenu,
@@ -9694,7 +9805,7 @@ var MenuItem = ({ item, onClose, onSelect }) => {
               top: 0,
               overflow: "visible"
             },
-            children: item.subItems.map((subItem, index) => /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
+            children: item.subItems.map((subItem, index) => /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
               MenuItem,
               {
                 item: subItem,
@@ -9735,12 +9846,12 @@ var MenuBarCategory = (0, import_react68.forwardRef)(({
     left: position === "right" ? Math.max(0, anchorRect.right - DROPDOWN_MIN_WIDTH) : position === "center" ? anchorRect.left + anchorRect.width / 2 : anchorRect.left,
     transform: position === "center" ? "translateX(-50%)" : void 0
   } : { display: "block", overflow: "visible" };
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)("div", { className: containerCls, ref: (node) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: containerCls, ref: (node) => {
     containerRef.current = node;
     if (typeof ref === "function") ref(node);
     else if (ref) ref.current = node;
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
       Button_default,
       {
         className: [MENU_CLASSES.trigger, isOpen && MENU_CLASSES.isActive].filter(Boolean).join(" "),
@@ -9749,7 +9860,7 @@ var MenuBarCategory = (0, import_react68.forwardRef)(({
         children: label
       }
     ),
-    isOpen && /* @__PURE__ */ (0, import_jsx_runtime42.jsx)("div", { className: dropdownCls, style: dropdownStyle, children: items.map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
+    isOpen && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("div", { className: dropdownCls, style: dropdownStyle, children: items.map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
       MenuItem,
       {
         item,
@@ -9806,7 +9917,7 @@ function buildPaperStyle(widthUnits, heightUnits, style) {
 }
 
 // src/SURFACES/Paper/Paper.tsx
-var import_jsx_runtime43 = require("react/jsx-runtime");
+var import_jsx_runtime42 = require("react/jsx-runtime");
 var Paper = (0, import_react69.forwardRef)(({
   children,
   className = PAPER_DEFAULTS.className,
@@ -9822,7 +9933,7 @@ var Paper = (0, import_react69.forwardRef)(({
 }, ref) => {
   const cls = buildPaperClasses(variant, gridColor, size, fullWidth, debug, className, unstyled);
   const computedStyle = buildPaperStyle(widthUnits, heightUnits, style);
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)("div", { ref, className: cls, style: computedStyle, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)("div", { ref, className: cls, style: computedStyle, children });
 });
 Paper.displayName = "Paper";
 var Paper_default = Paper;
@@ -9877,7 +9988,7 @@ function buildPaperDesignClasses(className, unstyled) {
 }
 
 // src/SURFACES/PaperDesign/PaperDesign.tsx
-var import_jsx_runtime44 = require("react/jsx-runtime");
+var import_jsx_runtime43 = require("react/jsx-runtime");
 var PaperDesign = ({
   children,
   className,
@@ -9918,7 +10029,7 @@ var PaperDesign = ({
     alignItems,
     gridStyle
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
     Paper_default,
     {
       className,
@@ -9930,7 +10041,7 @@ var PaperDesign = ({
       widthUnits,
       heightUnits,
       style,
-      children: /* @__PURE__ */ (0, import_jsx_runtime44.jsx)("div", { className: buildPaperDesignClasses(void 0, unstyled), style: computedGridStyle, children })
+      children: /* @__PURE__ */ (0, import_jsx_runtime43.jsx)("div", { className: buildPaperDesignClasses(void 0, unstyled), style: computedGridStyle, children })
     }
   );
 };
@@ -10095,7 +10206,7 @@ function useBadgeContent(children, max, variant, ariaLabel) {
 }
 
 // src/DATADISPLAY/Badge/Badge.tsx
-var import_jsx_runtime45 = require("react/jsx-runtime");
+var import_jsx_runtime44 = require("react/jsx-runtime");
 var Badge = import_react71.default.forwardRef(
   ({
     children,
@@ -10120,7 +10231,7 @@ var Badge = import_react71.default.forwardRef(
       () => buildBadgeClasses(color, size, variant, position, pulse, animate, className, unstyled),
       [color, size, variant, position, pulse, animate, className, unstyled]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
       "span",
       {
         ref,
@@ -10137,7 +10248,7 @@ Badge.displayName = "Badge";
 var Badge_default = Badge;
 
 // src/DATADISPLAY/Card/Card.tsx
-var import_jsx_runtime46 = require("react/jsx-runtime");
+var import_jsx_runtime45 = require("react/jsx-runtime");
 var Card = (0, import_react72.forwardRef)(({
   imageSrc,
   imageAlt = CARD_DEFAULTS.imageAlt,
@@ -10197,7 +10308,7 @@ var Card = (0, import_react72.forwardRef)(({
   } : {};
   const renderImage = () => {
     if (!imageSrc) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
       "img",
       {
         src: sanitizeUrl(imageSrc),
@@ -10209,23 +10320,23 @@ var Card = (0, import_react72.forwardRef)(({
   };
   const renderHeader = () => {
     if (!title && !subtitle && !headerExtra) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("header", { className: headerClasses, children: [
-      title && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("h3", { className: "w3f-card-title", children: title }),
-      subtitle && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("p", { className: "w3f-card-subtitle", children: subtitle }),
-      headerExtra && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-header-extra", children: headerExtra })
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("header", { className: headerClasses, children: [
+      title && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("h3", { className: "w3f-card-title", children: title }),
+      subtitle && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("p", { className: "w3f-card-subtitle", children: subtitle }),
+      headerExtra && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-header-extra", children: headerExtra })
     ] });
   };
   const renderContent = () => {
     if (!content) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: contentClasses, children: content });
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: contentClasses, children: content });
   };
   const renderActions = () => {
     if (!actions && (!buttons || buttons.length === 0)) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: actionsClasses, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: actionsClasses, children: [
       actions && actions,
       !actions && buttons.length > 0 && buttons.map((buttonProps, index) => {
         const { key, ...restButtonProps } = buttonProps;
-        return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
           Button_default,
           {
             ...restButtonProps
@@ -10237,11 +10348,11 @@ var Card = (0, import_react72.forwardRef)(({
   };
   const renderActionArea = () => {
     if (!actionAreaContent) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-action-area", children: actionAreaContent });
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-action-area", children: actionAreaContent });
   };
   const renderCustom = () => {
     if (!customContent) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-custom", children: customContent });
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-custom", children: customContent });
   };
   const renderBadge = () => {
     if (!badge) return null;
@@ -10252,15 +10363,15 @@ var Card = (0, import_react72.forwardRef)(({
         ...badgeRestProps
       } = badge;
       const finalContent = badgeChildren !== void 0 ? badgeChildren : badgeContent;
-      return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Badge_default, { ...badgeRestProps, children: finalContent }) });
+      return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Badge_default, { ...badgeRestProps, children: finalContent }) });
     }
     if (import_react72.default.isValidElement(badge)) {
-      return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-badge", children: badge });
+      return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-badge", children: badge });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Badge_default, { color: "primary", size: "md", children: badge }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Badge_default, { color: "primary", size: "md", children: badge }) });
   };
   if (layoutMode) {
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
       renderBadge(),
       renderImage(),
       renderHeader(),
@@ -10271,10 +10382,10 @@ var Card = (0, import_react72.forwardRef)(({
     ] });
   }
   if (imagePosition === "left" || imagePosition === "right") {
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
       renderBadge(),
       imagePosition === "left" && renderImage(),
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "w3f-card-body", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "w3f-card-body", children: [
         renderHeader(),
         renderContent(),
         renderActions(),
@@ -10284,7 +10395,7 @@ var Card = (0, import_react72.forwardRef)(({
       imagePosition === "right" && renderImage()
     ] });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
     renderBadge(),
     imagePosition === "top" && renderImage(),
     renderHeader(),
@@ -10352,7 +10463,7 @@ function buildPopUpContainerClasses(className, size, unstyled) {
 }
 
 // src/SURFACES/PopUp/PopUp.tsx
-var import_jsx_runtime47 = require("react/jsx-runtime");
+var import_jsx_runtime46 = require("react/jsx-runtime");
 var PopUp = (0, import_react74.forwardRef)(({
   isOpen,
   onClose,
@@ -10373,23 +10484,23 @@ var PopUp = (0, import_react74.forwardRef)(({
 }, ref) => {
   usePopUpKeyboard(isOpen, onClose);
   if (!isOpen) return null;
-  const defaultActions = /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(import_jsx_runtime47.Fragment, { children: [
-    showCancel && /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Button_default, { variant: "text", color: "gray", onClick: onClose, children: cancelText }),
-    /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Button_default, { variant: "raised", color: "primary", onClick: onConfirm ?? onClose, children: confirmText })
+  const defaultActions = /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(import_jsx_runtime46.Fragment, { children: [
+    showCancel && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Button_default, { variant: "text", color: "gray", onClick: onClose, children: cancelText }),
+    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Button_default, { variant: "raised", color: "primary", onClick: onConfirm ?? onClose, children: confirmText })
   ] });
-  const popUpContent = /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
+  const popUpContent = /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
     "div",
     {
       ref,
       className: buildPopUpOverlayClasses(isOpen),
       onClick: closeOnOverlayClick ? onClose : void 0,
-      children: /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
         "div",
         {
           className: buildPopUpContainerClasses(className, size, unstyled),
           onClick: (e) => e.stopPropagation(),
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
               Card_default,
               {
                 title,
@@ -10403,7 +10514,7 @@ var PopUp = (0, import_react74.forwardRef)(({
                 className: POPUP_CLASSES.card
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
               "button",
               {
                 className: POPUP_CLASSES.closeBtn,
@@ -10447,7 +10558,7 @@ function buildSectionPanelClassName(className, unstyled) {
 }
 
 // src/SURFACES/Section/Section.tsx
-var import_jsx_runtime48 = require("react/jsx-runtime");
+var import_jsx_runtime47 = require("react/jsx-runtime");
 var Section = (0, import_react75.forwardRef)(({
   title,
   description,
@@ -10461,7 +10572,7 @@ var Section = (0, import_react75.forwardRef)(({
   ...rest
 }, ref) => {
   const panelClassName = buildSectionPanelClassName(className, unstyled);
-  return /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
     Panel,
     {
       ref,
@@ -10473,10 +10584,10 @@ var Section = (0, import_react75.forwardRef)(({
       padding: false,
       ...rest,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("div", { className: SECTION_CLASSES.header, children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("h3", { className: SECTION_CLASSES.title, children: title }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)("div", { className: SECTION_CLASSES.body, children: [
-          description && /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("p", { className: SECTION_CLASSES.description, children: description }),
-          /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("div", { className: SECTION_CLASSES.content, children })
+        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("div", { className: SECTION_CLASSES.header, children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("h3", { className: SECTION_CLASSES.title, children: title }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: SECTION_CLASSES.body, children: [
+          description && /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("p", { className: SECTION_CLASSES.description, children: description }),
+          /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("div", { className: SECTION_CLASSES.content, children })
         ] })
       ]
     }
@@ -10488,13 +10599,13 @@ Section.displayName = "Section";
 var import_react78 = require("react");
 
 // src/DATADISPLAY/TreeRefactorized/Tree.constants.tsx
-var import_jsx_runtime49 = require("react/jsx-runtime");
-var folderClosedSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H447l-80-80H160v480Zm0 0v-480 480Z" }) });
-var folderOpenSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640H447l-80-80H160v480l96-320h684L837-217q-8 26-29.5 41.5T760-160H160Zm84-80h516l72-240H316l-72 240Zm0 0 72-240-72 240Zm-84-400v-80 80Z" }) });
-var fileSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" }) });
-var fileCodeSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z" }) });
-var toggleCollapsedSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "16px", viewBox: "0 -960 960 960", width: "16px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z" }) });
-var toggleExpandedSvg = /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "16px", viewBox: "0 -960 960 960", width: "16px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("path", { d: "M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z" }) });
+var import_jsx_runtime48 = require("react/jsx-runtime");
+var folderClosedSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H447l-80-80H160v480Zm0 0v-480 480Z" }) });
+var folderOpenSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h240l80 80h320q33 0 56.5 23.5T880-640H447l-80-80H160v480l96-320h684L837-217q-8 26-29.5 41.5T760-160H160Zm84-80h516l72-240H316l-72 240Zm0 0 72-240-72 240Zm-84-400v-80 80Z" }) });
+var fileSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z" }) });
+var fileCodeSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z" }) });
+var toggleCollapsedSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "16px", viewBox: "0 -960 960 960", width: "16px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z" }) });
+var toggleExpandedSvg = /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "16px", viewBox: "0 -960 960 960", width: "16px", fill: "#5f6368", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("path", { d: "M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z" }) });
 var TREE_DEFAULTS = {
   unstyled: false,
   className: ""
@@ -10545,7 +10656,7 @@ var collectAllExpandableNodeIds = (nodes) => {
 };
 
 // src/DATADISPLAY/TreeRefactorized/TreeContext.tsx
-var import_jsx_runtime50 = require("react/jsx-runtime");
+var import_jsx_runtime49 = require("react/jsx-runtime");
 var TreeContext = (0, import_react76.createContext)(void 0);
 var useTreeContext = () => {
   const context = (0, import_react76.useContext)(TreeContext);
@@ -10605,28 +10716,28 @@ var TreeProvider = ({ children, data, onNodeSelect }) => {
     totalNodes,
     isValid
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(TreeContext.Provider, { value, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(TreeContext.Provider, { value, children });
 };
 TreeProvider.displayName = "TreeProvider";
 
 // src/DATADISPLAY/TreeRefactorized/TreeControls.tsx
-var import_jsx_runtime51 = require("react/jsx-runtime");
-var ExpandAllIcon = (props) => /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("path", { d: "M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" }) });
-var CollapseAllIcon = (props) => /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("path", { d: "M200-440v-80h560v80H200Z" }) });
+var import_jsx_runtime50 = require("react/jsx-runtime");
+var ExpandAllIcon = (props) => /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("path", { d: "M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" }) });
+var CollapseAllIcon = (props) => /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("svg", { ...props, xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("path", { d: "M200-440v-80h560v80H200Z" }) });
 var TreeControls = () => {
   const { handleToggleAll, isExpanded, totalNodes } = useTreeContext();
   const buttonClasses = "w3f-tree-simple-btn w3f-text-primary";
-  return /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "w3f-tree-controls w3f-flex w3f-items-center w3f-mb-2", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "w3f-tree-controls w3f-flex w3f-items-center w3f-mb-2", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
       "button",
       {
         className: buttonClasses,
         onClick: handleToggleAll,
         title: isExpanded ? "Colapsar todo" : "Expandir todo",
-        children: isExpanded ? /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(CollapseAllIcon, { className: "w3f-tree-simple-btn-icon" }) : /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(ExpandAllIcon, { className: "w3f-tree-simple-btn-icon" })
+        children: isExpanded ? /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(CollapseAllIcon, { className: "w3f-tree-simple-btn-icon" }) : /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(ExpandAllIcon, { className: "w3f-tree-simple-btn-icon" })
       }
     ),
-    totalNodes > 0 && /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "w3f-text-gray-600 w3f-ml-2", children: /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("span", { className: "w3f-text-sm", children: [
+    totalNodes > 0 && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "w3f-text-gray-600 w3f-ml-2", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("span", { className: "w3f-text-sm", children: [
       "(",
       totalNodes,
       " nodos)"
@@ -10637,7 +10748,7 @@ TreeControls.displayName = "TreeControls";
 
 // src/DATADISPLAY/TreeRefactorized/TreeNode.tsx
 var import_react77 = __toESM(require("react"));
-var import_jsx_runtime52 = require("react/jsx-runtime");
+var import_jsx_runtime51 = require("react/jsx-runtime");
 var TreeNode = import_react77.default.memo(({ node, isChild = false }) => {
   const { expandedNodes, toggleNode, handleNodeClick } = useTreeContext();
   const isExpanded = expandedNodes.has(node.id);
@@ -10655,13 +10766,13 @@ var TreeNode = import_react77.default.memo(({ node, isChild = false }) => {
   if (isChild) nodeClasses += " w3f-pl-4";
   const toggleClasses = `w3f-tree-toggle w3f-mr-1 ${isExpanded ? "expanded" : ""}`;
   const submenuClasses = `w3f-tree-submenu w3f-pl-2 ${isExpanded ? "" : "w3f-hidden"}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("li", { className: itemClasses, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: nodeClasses, onClick: onNodeClick, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: toggleClasses, children: nodeHasChildren && (isExpanded ? ToggleIcons.expanded : ToggleIcons.collapsed) }),
-      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: "w3f-tree-icon w3f-mr-1", children: nodeIconSvg }),
-      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: nodeHasChildren ? "w3f-text-gray-800 w3f-font-medium" : "w3f-text-gray-700", children: node.name })
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("li", { className: itemClasses, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: nodeClasses, onClick: onNodeClick, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: toggleClasses, children: nodeHasChildren && (isExpanded ? ToggleIcons.expanded : ToggleIcons.collapsed) }),
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "w3f-tree-icon w3f-mr-1", children: nodeIconSvg }),
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: nodeHasChildren ? "w3f-text-gray-800 w3f-font-medium" : "w3f-text-gray-700", children: node.name })
     ] }),
-    nodeHasChildren && /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("ul", { className: submenuClasses, children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("div", { className: "w3f-tree-submenu-inner", children: node.children.map((childNode) => /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(
+    nodeHasChildren && /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("ul", { className: submenuClasses, children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("div", { className: "w3f-tree-submenu-inner", children: node.children.map((childNode) => /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
       TreeNode,
       {
         node: childNode,
@@ -10674,7 +10785,7 @@ var TreeNode = import_react77.default.memo(({ node, isChild = false }) => {
 TreeNode.displayName = "TreeNode";
 
 // src/DATADISPLAY/TreeRefactorized/Tree.tsx
-var import_jsx_runtime53 = require("react/jsx-runtime");
+var import_jsx_runtime52 = require("react/jsx-runtime");
 var Tree = ({
   unstyled = TREE_DEFAULTS.unstyled,
   className = TREE_DEFAULTS.className
@@ -10682,15 +10793,15 @@ var Tree = ({
   const { data, isValid } = useTreeContext();
   const alertClasses = "w3f-bg-warning-light w3f-text-warning p-3 w3f-rounded w3f-flex w3f-items-center w3f-gap-2";
   if (!isValid) {
-    return /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: alertClasses, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("path", { d: "m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T440-320q-17 0-28.5 11.5T480-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z" }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("span", { children: "No hay datos para mostrar en el \xE1rbol" })
+    return /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: alertClasses, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("svg", { xmlns: "http://www.w3.org/2000/svg", height: "24px", viewBox: "0 -960 960 960", width: "24px", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("path", { d: "m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T440-320q-17 0-28.5 11.5T480-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { children: "No hay datos para mostrar en el \xE1rbol" })
     ] });
   }
   const containerClasses = buildTreeClasses(unstyled, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: containerClasses, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(TreeControls, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { className: "w3f-tree-main", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("ul", { className: "w3f-tree-list", children: data.map((node) => /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: containerClasses, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(TreeControls, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("div", { className: "w3f-tree-main", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("ul", { className: "w3f-tree-list", children: data.map((node) => /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(
       TreeNode,
       {
         node
@@ -10734,8 +10845,8 @@ function buildSidenavContainerClasses(variant, className, unstyled) {
 }
 
 // src/SURFACES/Sidenav/Sidenav.tsx
-var import_jsx_runtime54 = require("react/jsx-runtime");
-var LoadingIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
+var import_jsx_runtime53 = require("react/jsx-runtime");
+var LoadingIcon = () => /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
   "svg",
   {
     className: SIDENAV_CLASSES.alertIcon,
@@ -10744,10 +10855,10 @@ var LoadingIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
     viewBox: "0 -960 960 960",
     width: "24px",
     fill: "currentColor",
-    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("path", { d: "M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q20-22 36-47.5t26.5-53q10.5-27.5 16-56.5t5.5-59q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z" })
+    children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("path", { d: "M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q20-22 36-47.5t26.5-53q10.5-27.5 16-56.5t5.5-59q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z" })
   }
 );
-var ErrorIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
+var ErrorIcon = () => /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
   "svg",
   {
     className: SIDENAV_CLASSES.alertIcon,
@@ -10756,10 +10867,10 @@ var ErrorIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
     viewBox: "0 -960 960 960",
     width: "24px",
     fill: "currentColor",
-    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("path", { d: "M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" })
+    children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("path", { d: "M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" })
   }
 );
-var WarningIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
+var WarningIcon = () => /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
   "svg",
   {
     className: SIDENAV_CLASSES.alertIcon,
@@ -10768,7 +10879,7 @@ var WarningIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
     viewBox: "0 -960 960 960",
     width: "24px",
     fill: "currentColor",
-    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("path", { d: "m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T400-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z" })
+    children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("path", { d: "m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T400-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z" })
   }
 );
 var Sidenav = (0, import_react78.forwardRef)(({
@@ -10782,27 +10893,27 @@ var Sidenav = (0, import_react78.forwardRef)(({
 }, ref) => {
   const containerCls = buildSidenavContainerClasses(variant, className, unstyled);
   if (loading) {
-    return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertLoading}`, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(LoadingIcon, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("span", { children: "Cargando navegaci\xF3n..." })
+    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertLoading}`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(LoadingIcon, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("span", { children: "Cargando navegaci\xF3n..." })
     ] }) });
   }
   if (error) {
-    return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertError}`, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(ErrorIcon, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("span", { children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertError}`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(ErrorIcon, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("span", { children: [
         "Error: ",
         error
       ] })
     ] }) });
   }
   if (!treeData || !Array.isArray(treeData) || treeData.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertError}`, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(WarningIcon, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("span", { children: "No hay datos para mostrar" })
+    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: `${SIDENAV_CLASSES.alert} ${SIDENAV_CLASSES.alertError}`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(WarningIcon, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("span", { children: "No hay datos para mostrar" })
     ] }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(TreeProvider, { data: treeData, onNodeSelect, children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Tree, {}) }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { ref, className: containerCls, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(TreeProvider, { data: treeData, onNodeSelect, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(Tree, {}) }) });
 });
 Sidenav.displayName = "Sidenav";
 
@@ -10918,8 +11029,8 @@ function buildTabsItemClass(isActive, highlightActiveTab) {
 }
 
 // src/SURFACES/Tabs/Tabs.tsx
-var import_jsx_runtime55 = require("react/jsx-runtime");
-var CloseIcon = () => /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+var import_jsx_runtime54 = require("react/jsx-runtime");
+var CloseIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
   "svg",
   {
     className: TABS_CLASSES.closeIcon,
@@ -10927,17 +11038,17 @@ var CloseIcon = () => /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
     stroke: "currentColor",
     viewBox: "0 0 24 24",
     style: { width: "16px", height: "16px" },
-    children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" })
+    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" })
   }
 );
-var EmptyIcon = () => /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+var EmptyIcon = () => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
   "svg",
   {
     className: TABS_CLASSES.emptyIcon,
     fill: "none",
     stroke: "currentColor",
     viewBox: "0 0 24 24",
-    children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
       "path",
       {
         strokeLinecap: "round",
@@ -10967,20 +11078,20 @@ var Tabs = (0, import_react80.forwardRef)(({
   );
   const containerCls = buildTabsContainerClass(void 0, unstyled);
   if (tabs.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { ref, className: containerCls, children: [
-      title && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("h3", { className: TABS_CLASSES.titleEl, children: title }),
-      /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: TABS_CLASSES.empty, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(EmptyIcon, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: TABS_CLASSES.emptyText, children: "No hay pesta\xF1as abiertas" })
+    return /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { ref, className: containerCls, children: [
+      title && /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("h3", { className: TABS_CLASSES.titleEl, children: title }),
+      /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { className: TABS_CLASSES.empty, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(EmptyIcon, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("p", { className: TABS_CLASSES.emptyText, children: "No hay pesta\xF1as abiertas" })
       ] })
     ] });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { ref, className: containerCls, "aria-label": title, children: [
-    title && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("h3", { className: TABS_CLASSES.titleEl, children: title }),
-    /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: buildTabsLayoutClass(vertical), children: [
-      /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("div", { className: buildTabsListClass(variant, colorScheme, unstyled), role: "tablist", children: tabs.map((tab) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { ref, className: containerCls, "aria-label": title, children: [
+    title && /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("h3", { className: TABS_CLASSES.titleEl, children: title }),
+    /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)("div", { className: buildTabsLayoutClass(vertical), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { className: buildTabsListClass(variant, colorScheme, unstyled), role: "tablist", children: tabs.map((tab) => {
         const isActive = activeTabId === tab.id;
-        return /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(
+        return /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(
           "div",
           {
             role: "tab",
@@ -10996,8 +11107,8 @@ var Tabs = (0, import_react80.forwardRef)(({
               }
             },
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("span", { className: TABS_CLASSES.itemText, children: tab.title }),
-              closable && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("span", { className: TABS_CLASSES.itemText, children: tab.title }),
+              closable && /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
                 Button_default,
                 {
                   className: TABS_CLASSES.closeBtn,
@@ -11007,7 +11118,7 @@ var Tabs = (0, import_react80.forwardRef)(({
                   variant: "text",
                   size: "sm",
                   style: TABS_CLOSE_BTN_STYLE,
-                  icon: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CloseIcon, {})
+                  icon: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(CloseIcon, {})
                 }
               )
             ]
@@ -11015,7 +11126,7 @@ var Tabs = (0, import_react80.forwardRef)(({
           tab.id
         );
       }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("div", { className: TABS_CLASSES.content, children: tabs.map((tab) => /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { className: TABS_CLASSES.content, children: tabs.map((tab) => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
         "div",
         {
           id: `panel-${tab.id}`,
@@ -11023,9 +11134,9 @@ var Tabs = (0, import_react80.forwardRef)(({
           "aria-labelledby": `tab-${tab.id}`,
           hidden: activeTabId !== tab.id,
           className: TABS_CLASSES.panel,
-          children: typeof tab.content === "string" ? /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(import_jsx_runtime55.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("h4", { className: TABS_CLASSES.panelTitle, children: tab.title }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: TABS_CLASSES.panelText, children: tab.content })
+          children: typeof tab.content === "string" ? /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(import_jsx_runtime54.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("h4", { className: TABS_CLASSES.panelTitle, children: tab.title }),
+            /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("p", { className: TABS_CLASSES.panelText, children: tab.content })
           ] }) : tab.content
         },
         tab.id
@@ -11076,7 +11187,7 @@ function buildSectionTitleStyle(borderColor, style) {
 }
 
 // src/SURFACES/Titles/SectionTitle.tsx
-var import_jsx_runtime56 = require("react/jsx-runtime");
+var import_jsx_runtime55 = require("react/jsx-runtime");
 var SectionTitle = ({
   title,
   subtitle,
@@ -11088,9 +11199,9 @@ var SectionTitle = ({
 }) => {
   const cls = buildSectionTitleClasses(align, className, unstyled);
   const computedStyle = buildSectionTitleStyle(borderColor, style);
-  return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: cls, style: computedStyle, children: [
-    title && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("h3", { className: SECTION_TITLE_CLASSES.title, children: title }),
-    subtitle && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: SECTION_TITLE_CLASSES.subtitle, children: subtitle })
+  return /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: cls, style: computedStyle, children: [
+    title && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("h3", { className: SECTION_TITLE_CLASSES.title, children: title }),
+    subtitle && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: SECTION_TITLE_CLASSES.subtitle, children: subtitle })
   ] });
 };
 SectionTitle.displayName = "SectionTitle";
@@ -11358,11 +11469,11 @@ function buildWindowStyle(style, position, dimensions, isMaximized, zIndex) {
 }
 
 // src/SURFACES/Window/Window.tsx
-var import_jsx_runtime57 = require("react/jsx-runtime");
-var MinimizeIcon = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
-var MaximizeIcon = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("rect", { x: "2", y: "2", width: "8", height: "8", fill: "none", stroke: "currentColor", strokeWidth: "1.5" }) });
-var RestoreIcon = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
-var CloseIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("path", { d: "M2,2 L10,10 M10,2 L2,10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) });
+var import_jsx_runtime56 = require("react/jsx-runtime");
+var MinimizeIcon = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
+var MaximizeIcon = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("rect", { x: "2", y: "2", width: "8", height: "8", fill: "none", stroke: "currentColor", strokeWidth: "1.5" }) });
+var RestoreIcon = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
+var CloseIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M2,2 L10,10 M10,2 L2,10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) });
 var Window = (0, import_react82.forwardRef)(({
   title = WINDOW_DEFAULTS.title,
   icon,
@@ -11436,8 +11547,8 @@ var Window = (0, import_react82.forwardRef)(({
   const bodyCls = buildWindowBodyClasses(noPadding, bodyClassName);
   const footerCls = buildWindowFooterClasses(footerAlign, footerClassName);
   const windowStyle = buildWindowStyle(style, position, dimensions, isMaximized, zIndex);
-  const renderMacosButtons = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
-    closable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+  const renderMacosButtons = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
+    closable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
       "button",
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlClose}`,
@@ -11445,10 +11556,10 @@ var Window = (0, import_react82.forwardRef)(({
         "aria-label": "Cerrar",
         title: "Cerrar",
         type: "button",
-        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "\xD7" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\xD7" })
       }
     ),
-    minimizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    minimizable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
       "button",
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMinimize}`,
@@ -11456,10 +11567,10 @@ var Window = (0, import_react82.forwardRef)(({
         "aria-label": "Minimizar",
         title: "Minimizar",
         type: "button",
-        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "\u2212" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2212" })
       }
     ),
-    maximizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    maximizable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
       "button",
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMaximize}`,
@@ -11467,19 +11578,19 @@ var Window = (0, import_react82.forwardRef)(({
         "aria-label": isMaximized ? "Restaurar" : "Maximizar",
         title: isMaximized ? "Restaurar" : "Maximizar",
         type: "button",
-        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "+" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "+" })
       }
     ),
-    icon && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
+    icon && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
   ] });
-  const renderWindowsButtons = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(import_jsx_runtime57.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
-      icon && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
+  const renderWindowsButtons = () => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
+      icon && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarRight, children: [
-      minimizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: WINDOW_CLASSES.titlebarRight, children: [
+      minimizable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
         "button",
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMinimize}`,
@@ -11487,10 +11598,10 @@ var Window = (0, import_react82.forwardRef)(({
           "aria-label": "Minimizar",
           title: "Minimizar",
           type: "button",
-          children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(MinimizeIcon, {})
+          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(MinimizeIcon, {})
         }
       ),
-      maximizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+      maximizable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
         "button",
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMaximize}`,
@@ -11498,10 +11609,10 @@ var Window = (0, import_react82.forwardRef)(({
           "aria-label": isMaximized ? "Restaurar" : "Maximizar",
           title: isMaximized ? "Restaurar" : "Maximizar",
           type: "button",
-          children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(RestoreIcon, {}) : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(MaximizeIcon, {})
+          children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RestoreIcon, {}) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(MaximizeIcon, {})
         }
       ),
-      closable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+      closable && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
         "button",
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlClose}`,
@@ -11509,14 +11620,14 @@ var Window = (0, import_react82.forwardRef)(({
           "aria-label": "Cerrar",
           title: "Cerrar",
           type: "button",
-          children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CloseIcon2, {})
+          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CloseIcon2, {})
         }
       )
     ] })
   ] });
   const renderResizeHandles = () => {
     if (!resizable || isMaximized) return null;
-    return RESIZE_DIRECTIONS.map((dir) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    return RESIZE_DIRECTIONS.map((dir) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
       "div",
       {
         className: `${WINDOW_CLASSES.resizeHandle} ${WINDOW_CLASSES.resizeHandle}--${dir}`,
@@ -11527,14 +11638,14 @@ var Window = (0, import_react82.forwardRef)(({
   };
   const renderFooter = () => {
     if (!footer && (!buttons || buttons.length === 0)) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: footerCls, children: footer ?? buttons.map(({ key, text, children: btnChildren, ...rest }, index) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Button_default, { ...rest, children: text ?? btnChildren }, key ?? `window-btn-${index}`)) });
+    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: footerCls, children: footer ?? buttons.map(({ key, text, children: btnChildren, ...rest }, index) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Button_default, { ...rest, children: text ?? btnChildren }, key ?? `window-btn-${index}`)) });
   };
-  const windowContent = /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { ref: (node) => {
+  const windowContent = /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { ref: (node) => {
     windowRef.current = node;
     if (typeof ref === "function") ref(node);
     else if (ref) ref.current = node;
   }, className: windowCls, style: windowStyle, onClick: handleWindowClick, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
       "div",
       {
         className: `${WINDOW_CLASSES.titlebar} ${isDragging ? WINDOW_CLASSES.titlebarDragging : ""}`,
@@ -11542,12 +11653,12 @@ var Window = (0, import_react82.forwardRef)(({
         children: osStyle === "macos" ? renderMacosButtons() : renderWindowsButtons()
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: bodyCls, children }),
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: bodyCls, children }),
     renderFooter(),
     renderResizeHandles()
   ] });
   if (modal) {
-    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.overlay, children: windowContent });
+    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: WINDOW_CLASSES.overlay, children: windowContent });
   }
   return windowContent;
 });
@@ -11650,11 +11761,11 @@ function buildWindowGridClasses(windowClasses, gridBaseClass, unstyled) {
 }
 
 // src/SURFACES/WindowGrid/WindowGrid.tsx
-var import_jsx_runtime58 = require("react/jsx-runtime");
-var MinimizeIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
-var MaximizeIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("rect", { x: "2", y: "2", width: "8", height: "8", fill: "none", stroke: "currentColor", strokeWidth: "1.5" }) });
-var RestoreIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
-var CloseIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("path", { d: "M2,2 L10,10 M10,2 L2,10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) });
+var import_jsx_runtime57 = require("react/jsx-runtime");
+var MinimizeIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
+var MaximizeIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("rect", { x: "2", y: "2", width: "8", height: "8", fill: "none", stroke: "currentColor", strokeWidth: "1.5" }) });
+var RestoreIcon2 = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
+var CloseIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("path", { d: "M2,2 L10,10 M10,2 L2,10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) });
 var WindowGrid = (0, import_react84.forwardRef)(({
   // Window props
   title = WINDOW_DEFAULTS.title,
@@ -11755,8 +11866,8 @@ var WindowGrid = (0, import_react84.forwardRef)(({
     gridColumns,
     autoResponsive
   );
-  const renderMacosButtons = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
-    closable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+  const renderMacosButtons = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
+    closable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       Button_default,
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlClose}`,
@@ -11764,10 +11875,10 @@ var WindowGrid = (0, import_react84.forwardRef)(({
         "aria-label": "Cerrar",
         variant: "text",
         size: "sm",
-        children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { children: "\xD7" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "\xD7" })
       }
     ),
-    minimizable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    minimizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       Button_default,
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMinimize}`,
@@ -11775,10 +11886,10 @@ var WindowGrid = (0, import_react84.forwardRef)(({
         "aria-label": "Minimizar",
         variant: "text",
         size: "sm",
-        children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { children: "\u2212" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "\u2212" })
       }
     ),
-    maximizable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    maximizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       Button_default,
       {
         className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMaximize}`,
@@ -11786,24 +11897,24 @@ var WindowGrid = (0, import_react84.forwardRef)(({
         "aria-label": isMaximized ? "Restaurar" : "Maximizar",
         variant: "text",
         size: "sm",
-        children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { children: "+" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "+" })
       }
     ),
-    icon && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
+    icon && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("h2", { className: WINDOW_CLASSES.title, children: title })
   ] });
-  const renderWindowsButtons = () => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(import_jsx_runtime58.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
-      icon && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("h2", { className: WINDOW_CLASSES.title, children: title }),
-      autoResponsive && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { style: { fontSize: "0.75rem", opacity: 0.6, marginLeft: "8px" }, children: [
+  const renderWindowsButtons = () => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(import_jsx_runtime57.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
+      icon && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.icon, children: icon }),
+      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("h2", { className: WINDOW_CLASSES.title, children: title }),
+      autoResponsive && /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { style: { fontSize: "0.75rem", opacity: 0.6, marginLeft: "8px" }, children: [
         "(",
         currentBreakpoint,
         ")"
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: WINDOW_CLASSES.titlebarRight, children: [
-      minimizable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: WINDOW_CLASSES.titlebarRight, children: [
+      minimizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
         Button_default,
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMinimize}`,
@@ -11811,10 +11922,10 @@ var WindowGrid = (0, import_react84.forwardRef)(({
           "aria-label": "Minimizar",
           variant: "text",
           size: "sm",
-          children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(MinimizeIcon2, {})
+          children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(MinimizeIcon2, {})
         }
       ),
-      maximizable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+      maximizable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
         Button_default,
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlMaximize}`,
@@ -11822,10 +11933,10 @@ var WindowGrid = (0, import_react84.forwardRef)(({
           "aria-label": isMaximized ? "Restaurar" : "Maximizar",
           variant: "text",
           size: "sm",
-          children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(RestoreIcon2, {}) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(MaximizeIcon2, {})
+          children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(RestoreIcon2, {}) : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(MaximizeIcon2, {})
         }
       ),
-      closable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+      closable && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
         Button_default,
         {
           className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlClose}`,
@@ -11833,14 +11944,14 @@ var WindowGrid = (0, import_react84.forwardRef)(({
           "aria-label": "Cerrar",
           variant: "text",
           size: "sm",
-          children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CloseIcon3, {})
+          children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CloseIcon3, {})
         }
       )
     ] })
   ] });
   const renderResizeHandles = () => {
     if (!resizable || isMaximized) return null;
-    return RESIZE_DIRECTIONS.map((dir) => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    return RESIZE_DIRECTIONS.map((dir) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "div",
       {
         className: `${WINDOW_CLASSES.resizeHandle} ${WINDOW_CLASSES.resizeHandle}--${dir}`,
@@ -11851,14 +11962,14 @@ var WindowGrid = (0, import_react84.forwardRef)(({
   };
   const renderFooter = () => {
     if (!footer && (!buttons || buttons.length === 0)) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: footerCls, children: footer ?? buttons.map(({ key, text, children: btnChildren, ...rest }, index) => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Button_default, { ...rest, children: text ?? btnChildren }, key ?? `wg-btn-${index}`)) });
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: footerCls, children: footer ?? buttons.map(({ key, text, children: btnChildren, ...rest }, index) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Button_default, { ...rest, children: text ?? btnChildren }, key ?? `wg-btn-${index}`)) });
   };
-  const windowContent = /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { ref: (node) => {
+  const windowContent = /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { ref: (node) => {
     windowRef.current = node;
     if (typeof ref === "function") ref(node);
     else if (ref) ref.current = node;
   }, className: windowCls, style: windowStyle, onClick: handleWindowClick, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "div",
       {
         className: `${WINDOW_CLASSES.titlebar} ${isDragging ? WINDOW_CLASSES.titlebarDragging : ""}`,
@@ -11866,11 +11977,11 @@ var WindowGrid = (0, import_react84.forwardRef)(({
         children: osStyle === "macos" ? renderMacosButtons() : renderWindowsButtons()
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { ref: bodyRef, className: bodyCls, children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { style: gridStyle, children }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { ref: bodyRef, className: bodyCls, children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { style: gridStyle, children }) }),
     renderFooter(),
     renderResizeHandles()
   ] });
-  if (modal) return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: WINDOW_CLASSES.overlay, children: windowContent });
+  if (modal) return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: WINDOW_CLASSES.overlay, children: windowContent });
   return windowContent;
 });
 WindowGrid.displayName = "WindowGrid";
@@ -11933,7 +12044,7 @@ function useAvatarForm(name) {
 }
 
 // src/DATADISPLAY/Avatar/Avatar.tsx
-var import_jsx_runtime59 = require("react/jsx-runtime");
+var import_jsx_runtime58 = require("react/jsx-runtime");
 var Avatar = (0, import_react86.forwardRef)(({
   src,
   alt = AVATAR_DEFAULTS.alt,
@@ -11988,8 +12099,8 @@ var Avatar = (0, import_react86.forwardRef)(({
     reader.readAsDataURL(file);
     e.target.value = "";
   };
-  const avatarContent = safeSrc ? /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("img", { src: safeSrc, alt, className: "w3f-avatar-img" }) : /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "w3f-avatar-text", children: children || "?" });
-  const avatarElement = /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(
+  const avatarContent = safeSrc ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("img", { src: safeSrc, alt, className: "w3f-avatar-img" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "w3f-avatar-text", children: children || "?" });
+  const avatarElement = /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
     "div",
     {
       ref,
@@ -12001,7 +12112,7 @@ var Avatar = (0, import_react86.forwardRef)(({
       ...rest,
       children: [
         avatarContent,
-        uploadable && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+        uploadable && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
           "input",
           {
             ref: fileInputRef,
@@ -12016,16 +12127,16 @@ var Avatar = (0, import_react86.forwardRef)(({
     }
   );
   if (status || badge !== void 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "w3f-avatar-wrapper", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "w3f-avatar-wrapper", children: [
       avatarElement,
-      status && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+      status && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
         "span",
         {
           className: `w3f-avatar-status w3f-avatar-status-${status}`,
           "aria-label": `Estado: ${status}`
         }
       ),
-      badge !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "w3f-avatar-badge", children: badge > 99 ? "99+" : badge })
+      badge !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "w3f-avatar-badge", children: badge > 99 ? "99+" : badge })
     ] });
   }
   return avatarElement;
@@ -12035,9 +12146,9 @@ var AvatarGroup = (0, import_react86.forwardRef)(({ children, max = 5, className
   const childrenArray = import_react86.default.Children.toArray(children);
   const visibleChildren = max ? childrenArray.slice(0, max) : childrenArray;
   const extraCount = max && childrenArray.length > max ? childrenArray.length - max : 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { ref, className: `w3f-avatar-group ${className}`, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { ref, className: `w3f-avatar-group ${className}`, children: [
     visibleChildren,
-    extraCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Avatar, { color: "gray", size: "medium", children: [
+    extraCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Avatar, { color: "gray", size: "medium", children: [
       "+",
       extraCount
     ] })
@@ -12047,7 +12158,7 @@ AvatarGroup.displayName = "AvatarGroup";
 
 // src/DATADISPLAY/Badge/BadgeWrapper.tsx
 var import_react87 = __toESM(require("react"));
-var import_jsx_runtime60 = require("react/jsx-runtime");
+var import_jsx_runtime59 = require("react/jsx-runtime");
 var BadgeWrapper = import_react87.default.forwardRef(({
   children,
   badgeContent,
@@ -12087,7 +12198,7 @@ var BadgeWrapper = import_react87.default.forwardRef(({
       ...badgeProps
     };
   }, [badgeProps, overlap]);
-  return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(
     "div",
     {
       ref,
@@ -12096,7 +12207,7 @@ var BadgeWrapper = import_react87.default.forwardRef(({
       ...rest,
       children: [
         children,
-        shouldShowBadge && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Badge_default, { ...enhancedBadgeProps, children: badgeContent })
+        shouldShowBadge && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Badge_default, { ...enhancedBadgeProps, children: badgeContent })
       ]
     }
   );
@@ -12180,7 +12291,7 @@ function getMaxHeight(size, maxHeight) {
 }
 
 // src/DATADISPLAY/BottomSheetPanel/BottomSheetPanel.tsx
-var import_jsx_runtime61 = require("react/jsx-runtime");
+var import_jsx_runtime60 = require("react/jsx-runtime");
 var BottomSheetPanel = (0, import_react89.forwardRef)(({
   isOpen,
   onClose,
@@ -12212,14 +12323,14 @@ var BottomSheetPanel = (0, import_react89.forwardRef)(({
   if (!shouldRender) return null;
   const unstyledClass = unstyled ? "w3f-bottom-sheet-panel--unstyled" : "";
   const sizeClass = unstyled ? "" : size !== "auto" ? `bottom-sheet-panel--${size}` : "";
-  return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
     "div",
     {
       ref,
       className: `bottom-sheet-backdrop ${isAnimating ? "is-open" : ""}`,
       onClick: handleBackdropClick,
       role: "presentation",
-      children: /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
         "div",
         {
           ref: panelRef,
@@ -12231,16 +12342,16 @@ var BottomSheetPanel = (0, import_react89.forwardRef)(({
           "aria-labelledby": title ? "bottom-sheet-title" : void 0,
           tabIndex: -1,
           children: [
-            (title || showCloseButton) && /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: "bottom-sheet-header", children: [
-              title && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("h3", { id: "bottom-sheet-title", className: "bottom-sheet-title", children: title }),
-              showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
+            (title || showCloseButton) && /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "bottom-sheet-header", children: [
+              title && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("h3", { id: "bottom-sheet-title", className: "bottom-sheet-title", children: title }),
+              showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                 "button",
                 {
                   onClick: onClose,
                   className: "bottom-sheet-close-btn",
                   "aria-label": "Cerrar panel",
                   type: "button",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
+                  children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                     "svg",
                     {
                       width: "24",
@@ -12249,14 +12360,14 @@ var BottomSheetPanel = (0, import_react89.forwardRef)(({
                       fill: "none",
                       stroke: "currentColor",
                       strokeWidth: "2",
-                      children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("path", { d: "M18 6L6 18M6 6l12 12" })
+                      children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("path", { d: "M18 6L6 18M6 6l12 12" })
                     }
                   )
                 }
               )
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "bottom-sheet-content", children }),
-            footer && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "bottom-sheet-footer", children: footer })
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "bottom-sheet-content", children }),
+            footer && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "bottom-sheet-footer", children: footer })
           ]
         }
       )
@@ -12335,7 +12446,7 @@ function buildCard2ActionsClasses(actionsAlign) {
 }
 
 // src/DATADISPLAY/Card_2/Card_2.tsx
-var import_jsx_runtime62 = require("react/jsx-runtime");
+var import_jsx_runtime61 = require("react/jsx-runtime");
 var Card_2 = (0, import_react90.forwardRef)(({
   layoutName,
   layoutStyle,
@@ -12395,24 +12506,24 @@ var Card_2 = (0, import_react90.forwardRef)(({
         ...badgeRestProps
       } = badge;
       const finalContent = badgeChildren !== void 0 ? badgeChildren : badgeContent;
-      return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Badge_default, { ...badgeRestProps, children: finalContent }) });
+      return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Badge_default, { ...badgeRestProps, children: finalContent }) });
     }
     if (import_react90.default.isValidElement(badge)) {
-      return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-card-badge", children: badge });
+      return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-card-badge", children: badge });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Badge_default, { color: "primary", size: "md", children: badge }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-card-badge", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Badge_default, { color: "primary", size: "md", children: badge }) });
   };
   const renderHeader = () => {
     if (!title && !subtitle && !headerExtra) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)("header", { className: "w3f-slot-header", children: [
-      title && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("h3", { className: "w3f-card-title", children: title }),
-      subtitle && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("p", { className: "w3f-card-subtitle", children: subtitle }),
-      headerExtra && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-card-header-extra", children: headerExtra })
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("header", { className: "w3f-slot-header", children: [
+      title && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("h3", { className: "w3f-card-title", children: title }),
+      subtitle && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("p", { className: "w3f-card-subtitle", children: subtitle }),
+      headerExtra && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-card-header-extra", children: headerExtra })
     ] });
   };
   const renderMedia = () => {
     if (!imageSrc) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-slot-media", children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-slot-media", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
       "img",
       {
         src: sanitizeUrl(imageSrc),
@@ -12424,28 +12535,28 @@ var Card_2 = (0, import_react90.forwardRef)(({
   };
   const renderContent = () => {
     if (!content) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-slot-content", children: content });
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-slot-content", children: content });
   };
   const renderActions = () => {
     if (!actions && (!buttons || buttons.length === 0)) return null;
     const actionsClasses = buildCard2ActionsClasses(actionsAlign);
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)("div", { className: actionsClasses, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: actionsClasses, children: [
       actions,
       !actions && buttons.map((buttonProps, index) => {
         const { key, ...rest } = buttonProps;
-        return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Button_default, { ...rest }, key || `c2-btn-${index}`);
+        return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Button_default, { ...rest }, key || `c2-btn-${index}`);
       })
     ] });
   };
   const renderActionArea = () => {
     if (!actionAreaContent) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-slot-action-area", children: actionAreaContent });
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-slot-action-area", children: actionAreaContent });
   };
   const renderCustom = () => {
     if (!customContent) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "w3f-slot-custom", children: customContent });
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { className: "w3f-slot-custom", children: customContent });
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { ref, className: cardClasses, style: mergedStyle, ...interactiveProps, children: [
     renderBadge(),
     renderHeader(),
     renderMedia(),
@@ -12487,7 +12598,7 @@ var buildChipClasses = (disabled, isFocused, className, unstyled, variant) => {
 };
 
 // src/DATADISPLAY/Chip/Chip.tsx
-var import_jsx_runtime63 = require("react/jsx-runtime");
+var import_jsx_runtime62 = require("react/jsx-runtime");
 var Chip = import_react91.default.forwardRef(({
   label,
   variant,
@@ -12513,7 +12624,7 @@ var Chip = import_react91.default.forwardRef(({
     }
     onKeyDown?.(e);
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)(
     "div",
     {
       ref,
@@ -12531,8 +12642,8 @@ var Chip = import_react91.default.forwardRef(({
       },
       style,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("span", { className: "w3f-chip__label", children: label }),
-        onClose && !disabled && /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("span", { className: "w3f-chip__label", children: label }),
+        onClose && !disabled && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(
           "span",
           {
             onClick: (e) => {
@@ -12651,7 +12762,7 @@ function useChipNavigation(chips, inputValue, inputRef, chipRefs, onAddChip, onR
 }
 
 // src/DATADISPLAY/Chip/InputChipContainer.tsx
-var import_jsx_runtime64 = require("react/jsx-runtime");
+var import_jsx_runtime63 = require("react/jsx-runtime");
 var InputChipContainer = () => {
   const inputRef = (0, import_react93.useRef)(null);
   const chipRefs = (0, import_react93.useRef)([]);
@@ -12681,7 +12792,7 @@ var InputChipContainer = () => {
   (0, import_react93.useEffect)(() => {
     chipRefs.current = chipRefs.current.slice(0, chips.length);
   }, [chips.length]);
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)(
     "div",
     {
       ref: containerRef,
@@ -12690,8 +12801,8 @@ var InputChipContainer = () => {
       role: "group",
       "aria-label": "Editor de etiquetas con navegaci\xF3n por teclado",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { className: "w3f-chip-wrapper", children: [
-          chips.map((chip, index) => /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)("div", { className: "w3f-chip-wrapper", children: [
+          chips.map((chip, index) => /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
             Chip_default,
             {
               ref: (el) => {
@@ -12705,7 +12816,7 @@ var InputChipContainer = () => {
             },
             chip.id
           )),
-          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
             "input",
             {
               ref: inputRef,
@@ -12720,14 +12831,14 @@ var InputChipContainer = () => {
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("div", { id: "chip-help", className: "w3f-chip-help", children: /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("p", { style: { margin: 0 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("strong", { children: "Navegaci\xF3n:" }),
+        /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("div", { id: "chip-help", className: "w3f-chip-help", children: /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)("p", { style: { margin: 0 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("strong", { children: "Navegaci\xF3n:" }),
           " \u2190 \u2192 mover entre chips, ",
-          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("strong", { children: "Enter" }),
+          /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("strong", { children: "Enter" }),
           " agregar, ",
-          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("strong", { children: "Backspace/Supr" }),
+          /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("strong", { children: "Backspace/Supr" }),
           " eliminar, ",
-          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("strong", { children: "Esc" }),
+          /* @__PURE__ */ (0, import_jsx_runtime63.jsx)("strong", { children: "Esc" }),
           " volver al input"
         ] }) })
       ]
@@ -12960,20 +13071,20 @@ function useAutoScroll(messages) {
 }
 
 // src/DATADISPLAY/Console/Console.tsx
-var import_jsx_runtime65 = require("react/jsx-runtime");
+var import_jsx_runtime64 = require("react/jsx-runtime");
 var ConsoleMessageLine = ({ message, showTimestamp }) => {
   const { id, timestamp, content, level, label } = message;
   const cls = buildMessageClasses(level);
   const jsonContent = isJsonable(content);
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: cls, children: [
-    showTimestamp && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.messageTimestamp, children: formatTimestamp(timestamp) }),
-    /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("span", { className: CONSOLE_CLASSES.messageLevel, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { className: cls, children: [
+    showTimestamp && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.messageTimestamp, children: formatTimestamp(timestamp) }),
+    /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("span", { className: CONSOLE_CLASSES.messageLevel, children: [
       "[",
       level.toUpperCase(),
       "]"
     ] }),
-    label && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.messageLabel, children: label }),
-    /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.messageContent, children: jsonContent ? /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("pre", { className: CONSOLE_CLASSES.messageJson, children: JSON.stringify(content, null, 2) }) : formatContentAsString(content) })
+    label && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.messageLabel, children: label }),
+    /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.messageContent, children: jsonContent ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("pre", { className: CONSOLE_CLASSES.messageJson, children: JSON.stringify(content, null, 2) }) : formatContentAsString(content) })
   ] }, id);
 };
 var Console = import_react96.default.forwardRef(({
@@ -13009,16 +13120,16 @@ var Console = import_react96.default.forwardRef(({
     }
   };
   const rootCls = buildConsoleClasses(theme, unstyled, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)(ConsoleContext.Provider, { value: consoleState, children: [
-    children && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: CONSOLE_CLASSES.children, children }),
-    /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { ref, className: rootCls, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: CONSOLE_CLASSES.header, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: CONSOLE_CLASSES.headerLeft, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.title, children: title }),
-          /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.badge, children: messages.length })
+  return /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ConsoleContext.Provider, { value: consoleState, children: [
+    children && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("div", { className: CONSOLE_CLASSES.children, children }),
+    /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { ref, className: rootCls, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { className: CONSOLE_CLASSES.header, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { className: CONSOLE_CLASSES.headerLeft, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.title, children: title }),
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.badge, children: messages.length })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: CONSOLE_CLASSES.headerRight, children: [
-          showLevelFilter && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: CONSOLE_CLASSES.filter, children: CONSOLE_LEVELS.map((lvl) => /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)(
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)("div", { className: CONSOLE_CLASSES.headerRight, children: [
+          showLevelFilter && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("div", { className: CONSOLE_CLASSES.filter, children: CONSOLE_LEVELS.map((lvl) => /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(
             "button",
             {
               type: "button",
@@ -13027,12 +13138,12 @@ var Console = import_react96.default.forwardRef(({
               title: `${lvl === "all" ? "Todos" : lvl}${counts[lvl] ? ` (${counts[lvl]})` : ""}`,
               children: [
                 CONSOLE_LEVEL_LABELS[lvl],
-                lvl !== "all" && counts[lvl] ? /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: CONSOLE_CLASSES.badge, children: counts[lvl] }) : null
+                lvl !== "all" && counts[lvl] ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("span", { className: CONSOLE_CLASSES.badge, children: counts[lvl] }) : null
               ]
             },
             lvl
           )) }),
-          showSearch && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: CONSOLE_CLASSES.search, children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
+          showSearch && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("div", { className: CONSOLE_CLASSES.search, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
             "input",
             {
               type: "text",
@@ -13043,7 +13154,7 @@ var Console = import_react96.default.forwardRef(({
               "aria-label": "Buscar en consola"
             }
           ) }),
-          showExportButton && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
+          showExportButton && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
             "button",
             {
               type: "button",
@@ -13054,7 +13165,7 @@ var Console = import_react96.default.forwardRef(({
               children: "\u2193"
             }
           ),
-          showClearButton && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
+          showClearButton && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
             "button",
             {
               type: "button",
@@ -13067,7 +13178,7 @@ var Console = import_react96.default.forwardRef(({
           )
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
         "div",
         {
           ref: bodyRef,
@@ -13076,7 +13187,7 @@ var Console = import_react96.default.forwardRef(({
           role: "log",
           "aria-live": "polite",
           "aria-label": title,
-          children: visibleMessages.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: CONSOLE_CLASSES.empty, children: messages.length === 0 ? "\u25B6 Esperando mensajes\u2026" : "Sin resultados para el filtro activo." }) : visibleMessages.map((msg) => /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
+          children: visibleMessages.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)("div", { className: CONSOLE_CLASSES.empty, children: messages.length === 0 ? "\u25B6 Esperando mensajes\u2026" : "Sin resultados para el filtro activo." }) : visibleMessages.map((msg) => /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
             ConsoleMessageLine,
             {
               message: msg,
@@ -13142,7 +13253,7 @@ function useEscapeKey2(isOpen, onClose) {
 }
 
 // src/DATADISPLAY/Dialog/Modal.tsx
-var import_jsx_runtime66 = require("react/jsx-runtime");
+var import_jsx_runtime65 = require("react/jsx-runtime");
 var Modal = ({
   show,
   onClose,
@@ -13166,10 +13277,10 @@ var Modal = ({
   const unstyledMod = unstyled ? " w3f-dialog--unstyled" : "";
   const backdropClass = show ? `w3f-modal-backdrop is-open${unstyledMod}` : `w3f-modal-backdrop${unstyledMod}`;
   const sizeClass = unstyled ? "" : size !== "md" ? `w3f-modal-${size}` : "";
-  return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(import_jsx_runtime66.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", { className: backdropClass, onClick: handleBackdropClick, children: /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: `w3f-modal-card ${sizeClass}`, ref: modalRef, role: "dialog", "aria-modal": "true", "aria-labelledby": "modal-title", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("header", { className: `w3f-modal-header w3f-bg-${headerVariant}`, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("h2", { id: "modal-title", className: "w3f-modal-title", children: title }),
-      showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(import_jsx_runtime65.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: backdropClass, onClick: handleBackdropClick, children: /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: `w3f-modal-card ${sizeClass}`, ref: modalRef, role: "dialog", "aria-modal": "true", "aria-labelledby": "modal-title", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("header", { className: `w3f-modal-header w3f-bg-${headerVariant}`, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("h2", { id: "modal-title", className: "w3f-modal-title", children: title }),
+      showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
         Button_default,
         {
           onClick: onClose,
@@ -13181,15 +13292,15 @@ var Modal = ({
         }
       )
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", { className: "w3f-modal-body", children }),
-    footer && /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("footer", { className: "w3f-modal-footer", children: footer })
+    /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("div", { className: "w3f-modal-body", children }),
+    footer && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("footer", { className: "w3f-modal-footer", children: footer })
   ] }) }) });
 };
 Modal.displayName = "Modal";
 var Modal_default = Modal;
 
 // src/DATADISPLAY/Dialog/ModalConfirm.tsx
-var import_jsx_runtime67 = require("react/jsx-runtime");
+var import_jsx_runtime66 = require("react/jsx-runtime");
 var ModalConfirm = ({
   show,
   onClose,
@@ -13204,56 +13315,56 @@ var ModalConfirm = ({
     onConfirm();
     onClose();
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
     Modal_default,
     {
       show,
       onClose,
       title,
       size: "sm",
-      footer: /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(import_jsx_runtime67.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Button_default, { variant: "outlined", color: "secondary", onClick: onClose, children: cancelText }),
-        /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Button_default, { variant: "raised", color: variant, onClick: handleConfirm, children: confirmText })
+      footer: /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(import_jsx_runtime66.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Button_default, { variant: "outlined", color: "secondary", onClick: onClose, children: cancelText }),
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Button_default, { variant: "raised", color: variant, onClick: handleConfirm, children: confirmText })
       ] }),
-      children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("p", { style: { margin: 0, color: "var(--w3f-on-surface)" }, children: message })
+      children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("p", { style: { margin: 0, color: "var(--w3f-on-surface)" }, children: message })
     }
   );
 };
 ModalConfirm.displayName = "ModalConfirm";
 
 // src/DATADISPLAY/Dialog/ModalSimple.tsx
-var import_jsx_runtime68 = require("react/jsx-runtime");
+var import_jsx_runtime67 = require("react/jsx-runtime");
 var ModalSimple = ({ show, onClose, title, children, size = "md" }) => {
-  return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Modal_default, { show, onClose, title, size, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Modal_default, { show, onClose, title, size, children });
 };
 ModalSimple.displayName = "ModalSimple";
 
 // src/DATADISPLAY/Dialog/ModalWithData.tsx
-var import_jsx_runtime69 = require("react/jsx-runtime");
+var import_jsx_runtime68 = require("react/jsx-runtime");
 var ModalWithData = ({ show, onClose, title, data, size = "md" }) => {
-  return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
     Modal_default,
     {
       show,
       onClose,
       title,
       size,
-      footer: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Button_default, { variant: "raised", color: "danger", onClick: onClose, children: "Cerrar" }),
-      children: data ? /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "w3f-modal-data-card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("h3", { children: "Detalles del Usuario" }),
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "w3f-modal-data-item", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-label", children: "Nombre:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-value", children: data.name })
+      footer: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Button_default, { variant: "raised", color: "danger", onClick: onClose, children: "Cerrar" }),
+      children: data ? /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "w3f-modal-data-card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("h3", { children: "Detalles del Usuario" }),
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "w3f-modal-data-item", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-label", children: "Nombre:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-value", children: data.name })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "w3f-modal-data-item", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-label", children: "Email:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-value", children: data.email })
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "w3f-modal-data-item", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-label", children: "Email:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-value", children: data.email })
         ] }),
-        data.phone && /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "w3f-modal-data-item", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-label", children: "Tel\xE9fono:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "w3f-modal-data-value", children: data.phone })
+        data.phone && /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "w3f-modal-data-item", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-label", children: "Tel\xE9fono:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "w3f-modal-data-value", children: data.phone })
         ] })
-      ] }) : /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("p", { style: { color: "var(--w3f-gray-500)" }, children: "No se encontraron datos para mostrar." })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("p", { style: { color: "var(--w3f-gray-500)" }, children: "No se encontraron datos para mostrar." })
     }
   );
 };
@@ -13320,7 +13431,7 @@ var buildLineBackgroundColor = (color) => {
 };
 
 // src/DATADISPLAY/Dividers/Dividers.tsx
-var import_jsx_runtime70 = require("react/jsx-runtime");
+var import_jsx_runtime69 = require("react/jsx-runtime");
 var Dividers = (0, import_react99.forwardRef)(({
   type = DIVIDERS_DEFAULTS.type,
   className = DIVIDERS_DEFAULTS.className,
@@ -13351,7 +13462,7 @@ var Dividers = (0, import_react99.forwardRef)(({
     };
     const posClass = `w3f-dividers-with-content--${contentPosition}`;
     const lineMinClass = contentPosition !== "center" ? "w3f-dividers-line w3f-dividers-line--min" : "w3f-dividers-line";
-    return /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(
       "div",
       {
         ref,
@@ -13359,8 +13470,8 @@ var Dividers = (0, import_react99.forwardRef)(({
         style: Object.keys(cssVars).length > 0 ? cssVars : void 0,
         ...props,
         children: [
-          contentPosition !== "left" && /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("div", { className: contentPosition === "center" ? "w3f-dividers-line" : lineMinClass }),
-          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+          contentPosition !== "left" && /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("div", { className: contentPosition === "center" ? "w3f-dividers-line" : lineMinClass }),
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
             "div",
             {
               className: "w3f-dividers-content",
@@ -13368,7 +13479,7 @@ var Dividers = (0, import_react99.forwardRef)(({
               children
             }
           ),
-          contentPosition !== "right" && /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("div", { className: contentPosition === "center" ? "w3f-dividers-line" : lineMinClass })
+          contentPosition !== "right" && /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("div", { className: contentPosition === "center" ? "w3f-dividers-line" : lineMinClass })
         ]
       }
     );
@@ -13386,7 +13497,7 @@ var Dividers = (0, import_react99.forwardRef)(({
     style
   );
   if (type === "horizontal") {
-    return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
       "hr",
       {
         ref,
@@ -13397,7 +13508,7 @@ var Dividers = (0, import_react99.forwardRef)(({
     );
   }
   if (type === "vertical") {
-    return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
       "span",
       {
         ref,
@@ -13532,7 +13643,7 @@ var buildFontsClasses = (size, family, weight, italic, underline, unstyled, cust
 };
 
 // src/DATADISPLAY/Fonts/Fonts.tsx
-var import_jsx_runtime71 = require("react/jsx-runtime");
+var import_jsx_runtime70 = require("react/jsx-runtime");
 var Fonts = ({
   text = FONTS_DEFAULTS.text,
   customClasses = FONTS_DEFAULTS.customClasses,
@@ -13556,9 +13667,9 @@ var Fonts = ({
       // only forward the transform prop, not any writing-mode CSS
       ...style?.transform ? { transform: style.transform } : {}
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Element, { className: finalClasses, style: stackStyle, children: [...text].map((char, i) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { children: char }, i)) });
+    return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(Element, { className: finalClasses, style: stackStyle, children: [...text].map((char, i) => /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: char }, i)) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Element, { className: finalClasses, style, children: text });
+  return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(Element, { className: finalClasses, style, children: text });
 };
 Fonts.displayName = "Fonts";
 
@@ -13614,7 +13725,7 @@ function buildFadeMask(direction, fadeEdge) {
 }
 
 // src/DATADISPLAY/Marquee/Marquee.tsx
-var import_jsx_runtime72 = require("react/jsx-runtime");
+var import_jsx_runtime71 = require("react/jsx-runtime");
 var Marquee = (0, import_react100.forwardRef)(({
   children,
   direction = MARQUEE_DEFAULTS.direction,
@@ -13643,8 +13754,8 @@ var Marquee = (0, import_react100.forwardRef)(({
     ...fadeMask ? { WebkitMaskImage: fadeMask, maskImage: fadeMask } : {}
   };
   const copies = safeRepeat;
-  const tracks = Array.from({ length: copies }, (_, i) => /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "w3f-marquee__group", "aria-hidden": i > 0 ? true : void 0, children }, i));
-  return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+  const tracks = Array.from({ length: copies }, (_, i) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("div", { className: "w3f-marquee__group", "aria-hidden": i > 0 ? true : void 0, children }, i));
+  return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
     "div",
     {
       ref,
@@ -13653,7 +13764,7 @@ var Marquee = (0, import_react100.forwardRef)(({
       role: "marquee",
       "aria-label": ariaLabel || "Scrolling content",
       ...rest,
-      children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: trackClasses, children: tracks })
+      children: /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("div", { className: trackClasses, children: tracks })
     }
   );
 });
@@ -13739,7 +13850,7 @@ var useNoteDismiss = (onDismiss) => {
 };
 
 // src/DATADISPLAY/Note/Note.tsx
-var import_jsx_runtime73 = require("react/jsx-runtime");
+var import_jsx_runtime72 = require("react/jsx-runtime");
 var Note = (0, import_react102.forwardRef)(({
   children,
   type = NOTE_DEFAULTS.type,
@@ -13765,10 +13876,10 @@ var Note = (0, import_react102.forwardRef)(({
   if (!isVisible) {
     return null;
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("div", { ref, className: classNames, role: "alert", ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "w3f-note-content-container", children: [
-    icon && /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("div", { className: "w3f-note-icon", children: icon }),
-    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("div", { className: "w3f-note-text-content", children }),
-    dismissible && /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { ref, className: classNames, role: "alert", ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "w3f-note-content-container", children: [
+    icon && /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "w3f-note-icon", children: icon }),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "w3f-note-text-content", children }),
+    dismissible && /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
       Button_default,
       {
         onClick: () => {
@@ -13832,7 +13943,7 @@ var buildProgressBarClasses = (size, unstyled) => {
 };
 
 // src/DATADISPLAY/ProgressBar/ProgressBar.tsx
-var import_jsx_runtime74 = require("react/jsx-runtime");
+var import_jsx_runtime73 = require("react/jsx-runtime");
 var ProgressBar = (0, import_react103.forwardRef)(({
   progress,
   color = PROGRESS_BAR_DEFAULTS.color,
@@ -13847,7 +13958,7 @@ var ProgressBar = (0, import_react103.forwardRef)(({
   const validatedProgress = clampProgress(progress);
   const progressBgClass = getProgressBgClass(color);
   const displayText = label || `${validatedProgress}%`;
-  return /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
     "div",
     {
       ref,
@@ -13857,12 +13968,12 @@ var ProgressBar = (0, import_react103.forwardRef)(({
       "aria-valuemin": 0,
       "aria-valuemax": 100,
       "aria-label": ariaLabel || `Progreso: ${validatedProgress}%`,
-      children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
         "div",
         {
           className: `w3f-progress-bar-fill ${progressBgClass}`,
           style: { width: `${validatedProgress}%` },
-          children: showLabel && validatedProgress > 0 && /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { className: "w3f-progress-bar-text w3f-text-on-primary", children: displayText })
+          children: showLabel && validatedProgress > 0 && /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { className: "w3f-progress-bar-text w3f-text-on-primary", children: displayText })
         }
       )
     }
@@ -13871,7 +13982,7 @@ var ProgressBar = (0, import_react103.forwardRef)(({
 ProgressBar.displayName = "ProgressBar";
 
 // src/DATADISPLAY/ProgressBar/ProgressBarBuffer.tsx
-var import_jsx_runtime75 = require("react/jsx-runtime");
+var import_jsx_runtime74 = require("react/jsx-runtime");
 var ProgressBarBuffer = ({
   progress,
   buffer,
@@ -13889,7 +14000,7 @@ var ProgressBarBuffer = ({
   const bufferBgClass = getProgressBgClass(bufferColor);
   const sizeClass = getSizeClass(size);
   const displayText = label || `${validatedProgress}%`;
-  return /* @__PURE__ */ (0, import_jsx_runtime75.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
     "div",
     {
       className: `${sizeClass} w3f-bg-gray-200`,
@@ -13899,7 +14010,7 @@ var ProgressBarBuffer = ({
       "aria-valuemax": 100,
       "aria-label": ariaLabel || `Progreso: ${validatedProgress}% (B\xFAfer: ${finalBuffer}%)`,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
           "div",
           {
             className: `w3f-progress-bar-buffer ${bufferBgClass}`,
@@ -13907,12 +14018,12 @@ var ProgressBarBuffer = ({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
           "div",
           {
             className: `w3f-progress-bar-fill ${progressBgClass}`,
             style: { width: `${validatedProgress}%` },
-            children: showLabel && validatedProgress > 0 && /* @__PURE__ */ (0, import_jsx_runtime75.jsx)("span", { className: "w3f-progress-bar-text w3f-text-on-primary", children: displayText })
+            children: showLabel && validatedProgress > 0 && /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { className: "w3f-progress-bar-text w3f-text-on-primary", children: displayText })
           }
         )
       ]
@@ -13922,7 +14033,7 @@ var ProgressBarBuffer = ({
 ProgressBarBuffer.displayName = "ProgressBarBuffer";
 
 // src/DATADISPLAY/ProgressBar/ProgressBarIndeterminate.tsx
-var import_jsx_runtime76 = require("react/jsx-runtime");
+var import_jsx_runtime75 = require("react/jsx-runtime");
 var ProgressBarIndeterminate = ({
   color = PROGRESS_BAR_INDETERMINATE_DEFAULTS.color,
   ariaLabel = PROGRESS_BAR_INDETERMINATE_DEFAULTS.ariaLabel,
@@ -13932,7 +14043,7 @@ var ProgressBarIndeterminate = ({
   const barBgClass = getProgressBgClass(color);
   const sizeClass = getSizeClass(size);
   const animationClass = variant === "pulse" ? "w3f-indeterminate-animation-pulse" : "w3f-indeterminate-animation";
-  return /* @__PURE__ */ (0, import_jsx_runtime76.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(
     "div",
     {
       className: `${sizeClass} w3f-indeterminate-bar w3f-bg-gray-200`,
@@ -13942,7 +14053,7 @@ var ProgressBarIndeterminate = ({
       "aria-valuemin": 0,
       "aria-valuemax": 100,
       "aria-busy": "true",
-      children: /* @__PURE__ */ (0, import_jsx_runtime76.jsx)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(
         "div",
         {
           className: `${animationClass} ${barBgClass}`,
@@ -14009,7 +14120,7 @@ var calcDashOffset = (mode, value, circumference) => {
 };
 
 // src/DATADISPLAY/ProgressSpinner/ProgressSpinner.tsx
-var import_jsx_runtime77 = require("react/jsx-runtime");
+var import_jsx_runtime76 = require("react/jsx-runtime");
 var ProgressSpinner = (0, import_react104.forwardRef)(({
   mode = PROGRESS_SPINNER_DEFAULTS.mode,
   value = PROGRESS_SPINNER_DEFAULTS.value,
@@ -14037,7 +14148,7 @@ var ProgressSpinner = (0, import_react104.forwardRef)(({
   const backgroundCircleColor = "var(--w3f-outline-variant)";
   const accessibilityLabel = ariaLabel || (mode === "determinate" ? `Progreso: ${Math.round(value)}%` : "Cargando");
   const wrapperClasses = buildProgressSpinnerClasses(unstyled, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime76.jsx)(
     "div",
     {
       ref,
@@ -14046,7 +14157,7 @@ var ProgressSpinner = (0, import_react104.forwardRef)(({
       role: "status",
       "aria-live": "polite",
       "aria-label": accessibilityLabel,
-      children: /* @__PURE__ */ (0, import_jsx_runtime77.jsxs)(
+      children: /* @__PURE__ */ (0, import_jsx_runtime76.jsxs)(
         "svg",
         {
           width: finalDiameter,
@@ -14055,7 +14166,7 @@ var ProgressSpinner = (0, import_react104.forwardRef)(({
           className: svgClass,
           "aria-hidden": "true",
           children: [
-            mode === "determinate" && /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(
+            mode === "determinate" && /* @__PURE__ */ (0, import_jsx_runtime76.jsx)(
               "circle",
               {
                 cx: center,
@@ -14066,7 +14177,7 @@ var ProgressSpinner = (0, import_react104.forwardRef)(({
                 strokeWidth
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime76.jsx)(
               "circle",
               {
                 cx: center,
@@ -14120,7 +14231,7 @@ var getQuoteBgClass = (color) => {
 };
 
 // src/DATADISPLAY/Quotes/Quotes.tsx
-var import_jsx_runtime78 = require("react/jsx-runtime");
+var import_jsx_runtime77 = require("react/jsx-runtime");
 var Quotes = ({
   children,
   text,
@@ -14134,13 +14245,13 @@ var Quotes = ({
 }) => {
   const quoteClasses = buildQuoteClasses(color, size, unstyled, className);
   const bgClass = unstyled ? "" : getQuoteBgClass(color);
-  return /* @__PURE__ */ (0, import_jsx_runtime78.jsxs)("blockquote", { className: `${quoteClasses} ${bgClass}`, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime78.jsxs)("div", { className: "w3f-quote-content", children: [
-      showQuoteMark && !icon && /* @__PURE__ */ (0, import_jsx_runtime78.jsx)("span", { className: `w3f-quote-mark w3f-text-${color}`, "aria-hidden": "true", children: "\u275D" }),
-      icon && /* @__PURE__ */ (0, import_jsx_runtime78.jsx)("span", { className: "w3f-quote-icon", "aria-hidden": "true", children: icon }),
-      /* @__PURE__ */ (0, import_jsx_runtime78.jsx)("div", { className: "w3f-quote-text", children: /* @__PURE__ */ (0, import_jsx_runtime78.jsx)("p", { children: children || text }) })
+  return /* @__PURE__ */ (0, import_jsx_runtime77.jsxs)("blockquote", { className: `${quoteClasses} ${bgClass}`, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime77.jsxs)("div", { className: "w3f-quote-content", children: [
+      showQuoteMark && !icon && /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("span", { className: `w3f-quote-mark w3f-text-${color}`, "aria-hidden": "true", children: "\u275D" }),
+      icon && /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("span", { className: "w3f-quote-icon", "aria-hidden": "true", children: icon }),
+      /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("div", { className: "w3f-quote-text", children: /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("p", { children: children || text }) })
     ] }),
-    author && /* @__PURE__ */ (0, import_jsx_runtime78.jsx)("footer", { className: "w3f-quote-author", children: /* @__PURE__ */ (0, import_jsx_runtime78.jsxs)("cite", { children: [
+    author && /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("footer", { className: "w3f-quote-author", children: /* @__PURE__ */ (0, import_jsx_runtime77.jsxs)("cite", { children: [
       "\u2014 ",
       author
     ] }) })
@@ -14193,7 +14304,7 @@ var buildTextDirectionStyle = (direction, writingMode, existingStyle) => {
 };
 
 // src/DATADISPLAY/Text/Text.tsx
-var import_jsx_runtime79 = require("react/jsx-runtime");
+var import_jsx_runtime78 = require("react/jsx-runtime");
 var Text = (0, import_react105.forwardRef)(({
   content,
   element: Element = "p",
@@ -14213,7 +14324,7 @@ var Text = (0, import_react105.forwardRef)(({
   const contentToRender = hasContentProp ? Array.isArray(content) ? content : [content] : children;
   const finalClasses = buildTextClasses(customClasses, align, leading, unstyled);
   const finalStyle = buildTextDirectionStyle(direction, writingMode, style);
-  return /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(Element, { ref, className: finalClasses || void 0, style: finalStyle, ...props, children: hasContentProp ? contentToRender.map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(import_react105.default.Fragment, { children: item }, index)) : contentToRender });
+  return /* @__PURE__ */ (0, import_jsx_runtime78.jsx)(Element, { ref, className: finalClasses || void 0, style: finalStyle, ...props, children: hasContentProp ? contentToRender.map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime78.jsx)(import_react105.default.Fragment, { children: item }, index)) : contentToRender });
 });
 Text.displayName = "Text";
 var Text_default = Text;
@@ -14303,7 +14414,7 @@ var useClock = () => {
 };
 
 // src/DATADISPLAY/Reloj/RelojAnalogico.tsx
-var import_jsx_runtime80 = require("react/jsx-runtime");
+var import_jsx_runtime79 = require("react/jsx-runtime");
 var RelojAnalogico = ({
   size = RELOJ_DEFAULTS.size,
   showTics = RELOJ_DEFAULTS.showTics,
@@ -14327,7 +14438,7 @@ var RelojAnalogico = ({
     return [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((hour, index) => {
       if (!visibleNumbers.includes(hour)) return null;
       const numberStyle = buildHourNumberStyle(index, clockRadius);
-      return /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(
         Text_default,
         {
           style: numberStyle,
@@ -14343,12 +14454,12 @@ var RelojAnalogico = ({
     if (!showTics) return null;
     const minuteTics = generateTics(false, clockRadius);
     const hourTics = generateTics(true, clockRadius);
-    return /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)(import_jsx_runtime80.Fragment, { children: [
-      minuteTics.map((style, i) => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("div", { style }, `tic-m-${i}`)),
-      hourTics.map((style, i) => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("div", { style }, `tic-h-${i}`))
+    return /* @__PURE__ */ (0, import_jsx_runtime79.jsxs)(import_jsx_runtime79.Fragment, { children: [
+      minuteTics.map((style, i) => /* @__PURE__ */ (0, import_jsx_runtime79.jsx)("div", { style }, `tic-m-${i}`)),
+      hourTics.map((style, i) => /* @__PURE__ */ (0, import_jsx_runtime79.jsx)("div", { style }, `tic-h-${i}`))
     ] });
   }, [showTics, clockRadius]);
-  return /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime79.jsxs)(
     "div",
     {
       className: buildRelojClasses(unstyled, className),
@@ -14358,7 +14469,7 @@ var RelojAnalogico = ({
       children: [
         hourNumbers,
         ticElements,
-        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(
           "div",
           {
             className: "w3f-clock-analog-hand w3f-clock-hour-hand",
@@ -14373,7 +14484,7 @@ var RelojAnalogico = ({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(
           "div",
           {
             className: "w3f-clock-analog-hand w3f-clock-minute-hand",
@@ -14388,7 +14499,7 @@ var RelojAnalogico = ({
             "aria-hidden": "true"
           }
         ),
-        showSeconds && /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
+        showSeconds && /* @__PURE__ */ (0, import_jsx_runtime79.jsx)(
           "div",
           {
             className: "w3f-clock-analog-hand w3f-clock-second-hand",
@@ -14403,7 +14514,7 @@ var RelojAnalogico = ({
             "aria-hidden": "true"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("div", { className: "w3f-clock-center-dot", "aria-hidden": "true" })
+        /* @__PURE__ */ (0, import_jsx_runtime79.jsx)("div", { className: "w3f-clock-center-dot", "aria-hidden": "true" })
       ]
     }
   );
@@ -14710,10 +14821,10 @@ var useTableResize = () => {
 };
 
 // src/DATADISPLAY/Table/Table.tsx
-var import_jsx_runtime81 = require("react/jsx-runtime");
-var MinimizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
-var MaximizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("rect", { x: "2", y: "2", width: "8", height: "8" }) });
-var RestoreIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
+var import_jsx_runtime80 = require("react/jsx-runtime");
+var MinimizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("rect", { x: "2", y: "5", width: "8", height: "2" }) });
+var MaximizeIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", stroke: "currentColor", strokeWidth: "1.5", children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("rect", { x: "2", y: "2", width: "8", height: "8" }) });
+var RestoreIcon3 = () => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
 var Table = import_react109.default.forwardRef(({
   data = [],
   columns = [],
@@ -14816,16 +14927,16 @@ var Table = import_react109.default.forwardRef(({
   }, [enableColumnResize, columnWidths, displayColumns]);
   const renderSortIcon = (columnKey) => {
     if (sortState.key === columnKey) {
-      if (sortState.direction === "asc") return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.ArrowUp, { size: 14 });
-      if (sortState.direction === "desc") return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.ArrowDown, { size: 14 });
+      if (sortState.direction === "asc") return /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(import_lucide_react27.ArrowUp, { size: 14 });
+      if (sortState.direction === "desc") return /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(import_lucide_react27.ArrowDown, { size: 14 });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.ArrowUpDown, { size: 14 });
+    return /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(import_lucide_react27.ArrowUpDown, { size: 14 });
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { ref: mergedRef, className: containerClasses, style: containerStyle, ...rest, children: [
-    showControls && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-controls", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-controls-title", children: tableTitle ?? "" }),
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-controls-buttons", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { ref: mergedRef, className: containerClasses, style: containerStyle, ...rest, children: [
+    showControls && /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { className: "w3f-table-controls", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("span", { className: "w3f-table-controls-title", children: tableTitle ?? "" }),
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { className: "w3f-table-controls-buttons", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
           "button",
           {
             className: "w3f-table-ctrl-btn",
@@ -14833,10 +14944,10 @@ var Table = import_react109.default.forwardRef(({
             "aria-label": isMinimized ? "Restaurar" : "Minimizar",
             title: isMinimized ? "Restaurar" : "Minimizar",
             type: "button",
-            children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(MinimizeIcon3, {})
+            children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(MinimizeIcon3, {})
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
           "button",
           {
             className: "w3f-table-ctrl-btn",
@@ -14844,14 +14955,14 @@ var Table = import_react109.default.forwardRef(({
             "aria-label": isMaximized ? "Restaurar" : "Maximizar",
             title: isMaximized ? "Restaurar" : "Maximizar",
             type: "button",
-            children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(RestoreIcon3, {}) : /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(MaximizeIcon3, {})
+            children: isMaximized ? /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(RestoreIcon3, {}) : /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(MaximizeIcon3, {})
           }
         )
       ] })
     ] }),
-    enableFiltering && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("div", { className: "w3f-table-toolbar", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-filter", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-filter-icon", children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(import_lucide_react27.Search, { size: 16 }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+    enableFiltering && /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("div", { className: "w3f-table-toolbar", children: /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { className: "w3f-table-filter", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("span", { className: "w3f-table-filter-icon", children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(import_lucide_react27.Search, { size: 16 }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
         "input",
         {
           type: "text",
@@ -14863,22 +14974,22 @@ var Table = import_react109.default.forwardRef(({
         }
       )
     ] }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
       "div",
       {
         className: ["w3f-table-wrapper", maxHeight ? "w3f-table-wrapper-scrollable" : ""].filter(Boolean).join(" "),
         style: maxHeight ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : void 0,
-        children: /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)(
           "table",
           {
             className: tableClassList,
             style: totalTableWidth !== void 0 ? { width: totalTableWidth } : void 0,
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { ref: headerRowRef, children: displayColumns.map((col) => {
+              /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("tr", { ref: headerRowRef, children: displayColumns.map((col) => {
                 const isSortable = enableSorting && col.sortable !== false && !col.cell;
                 const isSorted = sortState.key === col.accessorKey;
                 const width = enableColumnResize ? columnWidths[col.accessorKey] : void 0;
-                return /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(
+                return /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)(
                   "th",
                   {
                     "data-column-key": col.accessorKey,
@@ -14892,11 +15003,11 @@ var Table = import_react109.default.forwardRef(({
                     onMouseDown: enableColumnReorder ? (e) => handleDragMouseDown(e, col.accessorKey, headerRowRef) : void 0,
                     "aria-sort": isSorted ? sortState.direction === "asc" ? "ascending" : "descending" : void 0,
                     children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("span", { className: "w3f-table-header-content", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("span", { className: "w3f-table-header-content", children: [
                         col.header,
-                        isSortable && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { className: "w3f-table-sort-icon", children: renderSortIcon(col.accessorKey) })
+                        isSortable && /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("span", { className: "w3f-table-sort-icon", children: renderSortIcon(col.accessorKey) })
                       ] }),
-                      enableColumnResize && /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+                      enableColumnResize && /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
                         "div",
                         {
                           className: "w3f-table-resize-handle",
@@ -14908,9 +15019,9 @@ var Table = import_react109.default.forwardRef(({
                   col.accessorKey
                 );
               }) }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { colSpan: displayColumns.length, className: "w3f-table-empty", children: "No se encontraron resultados" }) }) : paginatedData.map((row, rowIndex) => {
+              /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("tbody", { children: paginatedData.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("td", { colSpan: displayColumns.length, className: "w3f-table-empty", children: "No se encontraron resultados" }) }) : paginatedData.map((row, rowIndex) => {
                 const isSelected2 = selectedRowKey != null && row[selectedRowKey] === selectedRowValue;
-                return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+                return /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
                   "tr",
                   {
                     onClick: onRowClick ? () => onRowClick(row, rowIndex) : void 0,
@@ -14920,7 +15031,7 @@ var Table = import_react109.default.forwardRef(({
                       outline: isSelected2 ? "2px solid var(--w3f-primary, #3b82f6)" : void 0,
                       outlineOffset: "-2px"
                     },
-                    children: displayColumns.map((col) => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("td", { children: col.cell ? col.cell(row) : row[col.accessorKey] }, col.accessorKey))
+                    children: displayColumns.map((col) => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("td", { children: col.cell ? col.cell(row) : row[col.accessorKey] }, col.accessorKey))
                   },
                   row.id ?? rowIndex
                 );
@@ -14930,25 +15041,25 @@ var Table = import_react109.default.forwardRef(({
         )
       }
     ),
-    enablePagination && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-pagination", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("div", { className: "w3f-table-pagination-info", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { children: sortedData.length === 0 ? "0 resultados" : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, sortedData.length)} de ${sortedData.length}` }),
-        /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { children: "|" }),
-        /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)("label", { children: [
+    enablePagination && /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { className: "w3f-table-pagination", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("div", { className: "w3f-table-pagination-info", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("span", { children: sortedData.length === 0 ? "0 resultados" : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, sortedData.length)} de ${sortedData.length}` }),
+        /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("span", { children: "|" }),
+        /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)("label", { children: [
           "Filas:",
-          /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
             "select",
             {
               className: "w3f-table-page-size-select",
               value: pageSize,
               onChange: handlePageSizeChange,
               "aria-label": "Filas por p\xE1gina",
-              children: PAGE_SIZE_OPTIONS.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("option", { value: opt, children: opt }, opt))
+              children: PAGE_SIZE_OPTIONS.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime80.jsx)("option", { value: opt, children: opt }, opt))
             }
           )
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
         Pagination_default,
         {
           count: totalPages,
@@ -14961,22 +15072,22 @@ var Table = import_react109.default.forwardRef(({
         }
       )
     ] }),
-    resizable && !isMaximized && !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime81.jsxs)(import_jsx_runtime81.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+    resizable && !isMaximized && !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime80.jsxs)(import_jsx_runtime80.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
         "div",
         {
           className: "w3f-table-edge-handle w3f-table-edge-handle--e",
           onMouseDown: (e) => handleEdgeResizeMouseDown(e, "e")
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
         "div",
         {
           className: "w3f-table-edge-handle w3f-table-edge-handle--s",
           onMouseDown: (e) => handleEdgeResizeMouseDown(e, "s")
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime81.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime80.jsx)(
         "div",
         {
           className: "w3f-table-edge-handle w3f-table-edge-handle--se",
@@ -15017,7 +15128,7 @@ var buildTagClasses = (color, light, className, unstyled, variant) => {
 };
 
 // src/DATADISPLAY/Tag/Tag.tsx
-var import_jsx_runtime82 = require("react/jsx-runtime");
+var import_jsx_runtime81 = require("react/jsx-runtime");
 var Tag2 = (0, import_react110.forwardRef)(({
   color,
   light = TAG_DEFAULTS.light,
@@ -15031,7 +15142,7 @@ var Tag2 = (0, import_react110.forwardRef)(({
 }, ref) => {
   useBridgeBind({ bindId });
   const classes = buildTagClasses(color, light, className, unstyled, variant);
-  return /* @__PURE__ */ (0, import_jsx_runtime82.jsx)("span", { ref, className: classes, style, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime81.jsx)("span", { ref, className: classes, style, ...rest, children });
 });
 Tag2.displayName = "Tag";
 
@@ -15103,7 +15214,7 @@ var useTooltipVisibility = (showDelay, hideDelay) => {
 };
 
 // src/DATADISPLAY/Tooltip/Tooltip.tsx
-var import_jsx_runtime83 = require("react/jsx-runtime");
+var import_jsx_runtime82 = require("react/jsx-runtime");
 var Tooltip = (0, import_react112.forwardRef)(({ children, config = {}, unstyled = TOOLTIP_DEFAULTS.unstyled }, ref) => {
   const {
     message = TOOLTIP_DEFAULTS.message,
@@ -15116,7 +15227,7 @@ var Tooltip = (0, import_react112.forwardRef)(({ children, config = {}, unstyled
   const { isVisible, handleMouseEnter, handleMouseLeave } = useTooltipVisibility(showDelay, hideDelay);
   const tooltipClass = buildTooltipClasses(position, variant, isVisible, unstyled);
   const arrowClass = buildArrowClasses(position);
-  return /* @__PURE__ */ (0, import_jsx_runtime83.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime82.jsxs)(
     "div",
     {
       ref,
@@ -15125,9 +15236,9 @@ var Tooltip = (0, import_react112.forwardRef)(({ children, config = {}, unstyled
       onMouseLeave: handleMouseLeave,
       children: [
         children,
-        /* @__PURE__ */ (0, import_jsx_runtime83.jsxs)("div", { className: tooltipClass, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime82.jsxs)("div", { className: tooltipClass, children: [
           message,
-          arrow && /* @__PURE__ */ (0, import_jsx_runtime83.jsx)("div", { className: arrowClass })
+          arrow && /* @__PURE__ */ (0, import_jsx_runtime82.jsx)("div", { className: arrowClass })
         ] })
       ]
     }
@@ -15487,7 +15598,7 @@ function useTickFormat(tickFormat) {
 }
 
 // src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.tsx
-var import_jsx_runtime84 = require("react/jsx-runtime");
+var import_jsx_runtime83 = require("react/jsx-runtime");
 var ChartAxis = (props) => {
   const {
     scale,
@@ -15536,7 +15647,7 @@ var ChartAxis = (props) => {
   };
   const AxisComponent = orientation === "top" ? import_axis.AxisTop : orientation === "right" ? import_axis.AxisRight : orientation === "bottom" ? import_axis.AxisBottom : import_axis.AxisLeft;
   const finalTickFormat = hideTickLabels ? () => "" : format;
-  return /* @__PURE__ */ (0, import_jsx_runtime84.jsx)("g", { className: rootClass, children: /* @__PURE__ */ (0, import_jsx_runtime84.jsx)(AxisComponent, { ...commonProps, tickFormat: finalTickFormat }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime83.jsx)("g", { className: rootClass, children: /* @__PURE__ */ (0, import_jsx_runtime83.jsx)(AxisComponent, { ...commonProps, tickFormat: finalTickFormat }) });
 };
 ChartAxis.displayName = "ChartAxis";
 
@@ -15564,7 +15675,7 @@ function buildGridClasses(axis, className) {
 }
 
 // src/DATADISPLAY/Charts/primitives/ChartGrid/ChartGrid.tsx
-var import_jsx_runtime85 = require("react/jsx-runtime");
+var import_jsx_runtime84 = require("react/jsx-runtime");
 var ChartGrid = (props) => {
   const {
     xScale,
@@ -15586,8 +15697,8 @@ var ChartGrid = (props) => {
   };
   const drawRows = (axis === "rows" || axis === "both") && yScale;
   const drawCols = (axis === "columns" || axis === "both") && xScale;
-  return /* @__PURE__ */ (0, import_jsx_runtime85.jsxs)("g", { className: rootClass, transform: `translate(${left}, ${top})`, children: [
-    drawRows && /* @__PURE__ */ (0, import_jsx_runtime85.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime84.jsxs)("g", { className: rootClass, transform: `translate(${left}, ${top})`, children: [
+    drawRows && /* @__PURE__ */ (0, import_jsx_runtime84.jsx)(
       import_grid.GridRows,
       {
         scale: yScale,
@@ -15596,7 +15707,7 @@ var ChartGrid = (props) => {
         ...commonProps
       }
     ),
-    drawCols && /* @__PURE__ */ (0, import_jsx_runtime85.jsx)(
+    drawCols && /* @__PURE__ */ (0, import_jsx_runtime84.jsx)(
       import_grid.GridColumns,
       {
         scale: xScale,
@@ -15629,7 +15740,7 @@ function buildTooltipClasses2(visible, className) {
 }
 
 // src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.tsx
-var import_jsx_runtime86 = require("react/jsx-runtime");
+var import_jsx_runtime85 = require("react/jsx-runtime");
 var ChartTooltip = (props) => {
   const {
     left,
@@ -15641,7 +15752,7 @@ var ChartTooltip = (props) => {
     offsetY = CHART_TOOLTIP_DEFAULTS.offsetY
   } = props;
   const rootClass = buildTooltipClasses2(visible, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime86.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime85.jsx)(
     "div",
     {
       className: rootClass,
@@ -15705,7 +15816,7 @@ function getSwatchStyle(color, shape, disabled) {
 }
 
 // src/DATADISPLAY/Charts/primitives/ChartLegend/ChartLegend.tsx
-var import_jsx_runtime87 = require("react/jsx-runtime");
+var import_jsx_runtime86 = require("react/jsx-runtime");
 var ChartLegend = (props) => {
   const {
     items,
@@ -15717,7 +15828,7 @@ var ChartLegend = (props) => {
   const rootClass = buildLegendClasses(direction, className);
   const clickable = !!onToggle;
   if (items.length === 0) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("div", { className: rootClass, role: "list", "aria-label": "Chart legend", children: items.map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime86.jsx)("div", { className: rootClass, role: "list", "aria-label": "Chart legend", children: items.map((item, i) => /* @__PURE__ */ (0, import_jsx_runtime86.jsxs)(
     "button",
     {
       type: "button",
@@ -15727,7 +15838,7 @@ var ChartLegend = (props) => {
       role: "listitem",
       "aria-label": `${item.label}${item.disabled ? " (hidden)" : ""}`,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime86.jsx)(
           "span",
           {
             className: CHART_LEGEND_CLASSES.swatch,
@@ -15735,7 +15846,7 @@ var ChartLegend = (props) => {
             "aria-hidden": true
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("span", { className: CHART_LEGEND_CLASSES.label, children: item.label })
+        /* @__PURE__ */ (0, import_jsx_runtime86.jsx)("span", { className: CHART_LEGEND_CLASSES.label, children: item.label })
       ]
     },
     item.id
@@ -15744,18 +15855,18 @@ var ChartLegend = (props) => {
 ChartLegend.displayName = "ChartLegend";
 
 // src/DATADISPLAY/Charts/_base/ChartHeader.tsx
-var import_jsx_runtime88 = require("react/jsx-runtime");
+var import_jsx_runtime87 = require("react/jsx-runtime");
 var ChartHeader = ({ title, subtitle }) => {
   if (!title && !subtitle) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime88.jsxs)("div", { className: BASE_CHART_CLASSES.header, children: [
-    title && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)("div", { className: BASE_CHART_CLASSES.title, children: title }),
-    subtitle && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)("div", { className: BASE_CHART_CLASSES.subtitle, children: subtitle })
+  return /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)("div", { className: BASE_CHART_CLASSES.header, children: [
+    title && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("div", { className: BASE_CHART_CLASSES.title, children: title }),
+    subtitle && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("div", { className: BASE_CHART_CLASSES.subtitle, children: subtitle })
   ] });
 };
 ChartHeader.displayName = "ChartHeader";
 
 // src/DATADISPLAY/Charts/Bar/BarInner.tsx
-var import_jsx_runtime89 = require("react/jsx-runtime");
+var import_jsx_runtime88 = require("react/jsx-runtime");
 var BarInner = (props) => {
   const {
     data,
@@ -15808,7 +15919,7 @@ var BarInner = (props) => {
     [showLegend, data, getLabel, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime89.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime88.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
       "svg",
       {
         width,
@@ -15819,10 +15930,10 @@ var BarInner = (props) => {
       }
     ) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime89.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime89.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime89.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime88.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime88.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime88.jsxs)(
         "svg",
         {
           width,
@@ -15831,9 +15942,9 @@ var BarInner = (props) => {
           role: "img",
           "aria-label": ariaLabel ?? "Bar chart",
           children: [
-            description && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)("desc", { children: description }),
-            /* @__PURE__ */ (0, import_jsx_runtime89.jsxs)(import_group.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-              showGrid && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+            description && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)("desc", { children: description }),
+            /* @__PURE__ */ (0, import_jsx_runtime88.jsxs)(import_group.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+              showGrid && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
                 ChartGrid,
                 {
                   yScale,
@@ -15849,7 +15960,7 @@ var BarInner = (props) => {
                 const barX = xScale(label) ?? 0;
                 const barY = yScale(value) ?? 0;
                 const barHeight = dims.innerHeight - barY;
-                return /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+                return /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
                   import_shape.Bar,
                   {
                     x: barX,
@@ -15869,7 +15980,7 @@ var BarInner = (props) => {
                   label
                 );
               }),
-              showXAxis && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+              showXAxis && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
                 ChartAxis,
                 {
                   scale: xScale,
@@ -15877,7 +15988,7 @@ var BarInner = (props) => {
                   top: dims.innerHeight
                 }
               ),
-              showYAxis && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+              showYAxis && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
                 ChartAxis,
                 {
                   scale: yScale,
@@ -15889,7 +16000,7 @@ var BarInner = (props) => {
           ]
         }
       ),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(
         ChartTooltip,
         {
           left: (xScale(String(getLabel(data[hoveredIndex]))) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left,
@@ -15900,13 +16011,13 @@ var BarInner = (props) => {
         }
       )
     ] }),
-    showLegend && legendItems.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && legendItems.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime88.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 BarInner.displayName = "BarInner";
 
 // src/DATADISPLAY/Charts/Bar/Bar.tsx
-var import_jsx_runtime90 = require("react/jsx-runtime");
+var import_jsx_runtime89 = require("react/jsx-runtime");
 var Bar = import_react117.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react117.useRef)(null);
@@ -15917,7 +16028,7 @@ var Bar = import_react117.default.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime90.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime90.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(BarInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime89.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime89.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime89.jsx)(BarInner, { ...rest, width, height }) }) });
   }
 );
 Bar.displayName = "Bar";
@@ -15997,7 +16108,7 @@ function useBarHInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontalInner.tsx
-var import_jsx_runtime91 = require("react/jsx-runtime");
+var import_jsx_runtime90 = require("react/jsx-runtime");
 var BarHorizontalInner = (props) => {
   const {
     data,
@@ -16034,22 +16145,22 @@ var BarHorizontalInner = (props) => {
   const classes = (0, import_react119.useMemo)(() => buildBarHClasses(className, unstyled), [className, unstyled]);
   const xTickFormat = formatX ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime91.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime91.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty horizontal bar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime90.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime90.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty horizontal bar chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime91.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime91.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime91.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Horizontal bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime91.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime91.jsxs)(import_group2.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime90.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime90.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime90.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Horizontal bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime90.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime90.jsxs)(import_group2.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
           data.map((d, i) => {
             const label = String(getLabel(d));
             const value = getValue2(d);
             const bh = yScale.bandwidth();
             const barY = yScale(label) ?? 0;
             const barWidth = xScale(value) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(
               import_shape2.Bar,
               {
                 x: 0,
@@ -16069,11 +16180,11 @@ var BarHorizontalInner = (props) => {
               label
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(ChartAxis, { scale: yScale, orientation: "left" })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(ChartAxis, { scale: yScale, orientation: "left" })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime90.jsx)(
         ChartTooltip,
         {
           left: (xScale(getValue2(data[hoveredIndex])) ?? 0) + dims.margin.left,
@@ -16089,12 +16200,12 @@ var BarHorizontalInner = (props) => {
 BarHorizontalInner.displayName = "BarHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.tsx
-var import_jsx_runtime92 = require("react/jsx-runtime");
+var import_jsx_runtime91 = require("react/jsx-runtime");
 var BarHorizontal = import_react120.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react120.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime92.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime92.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(BarHorizontalInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime91.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime91.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime91.jsx)(BarHorizontalInner, { ...rest, width, height }) }) });
   }
 );
 BarHorizontal.displayName = "BarHorizontal";
@@ -16184,7 +16295,7 @@ function useBarGroupedInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGroupedInner.tsx
-var import_jsx_runtime93 = require("react/jsx-runtime");
+var import_jsx_runtime92 = require("react/jsx-runtime");
 var BarGroupedInner = (props) => {
   const {
     data,
@@ -16227,20 +16338,20 @@ var BarGroupedInner = (props) => {
     [keys, colorMap]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime93.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime93.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped bar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime92.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime92.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped bar chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime93.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime93.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime93.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime93.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime93.jsxs)(import_group3.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime92.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime92.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime92.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime92.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime92.jsxs)(import_group3.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
           data.map((d, gi) => {
             const label = String(getLabel(d));
             const groupX = x0Scale(label) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(import_group3.Group, { left: groupX, children: keys.map((key, ki) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(import_group3.Group, { left: groupX, children: keys.map((key, ki) => {
               const value = Number(d[key]) || 0;
               const barX = x1Scale(key) ?? 0;
               const barY = yScale(value) ?? 0;
@@ -16249,7 +16360,7 @@ var BarGroupedInner = (props) => {
               const isHighlightedGroup = highlightIndex === gi;
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
-              return /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(
                 import_shape3.Bar,
                 {
                   x: barX,
@@ -16270,8 +16381,8 @@ var BarGroupedInner = (props) => {
               );
             }) }, label);
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(ChartAxis, { scale: x0Scale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(ChartAxis, { scale: x0Scale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
       showTooltip && hovered != null && (() => {
@@ -16281,7 +16392,7 @@ var BarGroupedInner = (props) => {
         const value = Number(d[key]) || 0;
         const groupX = x0Scale(label) ?? 0;
         const barX = x1Scale(key) ?? 0;
-        return /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime92.jsx)(
           ChartTooltip,
           {
             left: groupX + barX + x1Scale.bandwidth() / 2 + dims.margin.left,
@@ -16298,12 +16409,12 @@ var BarGroupedInner = (props) => {
 BarGroupedInner.displayName = "BarGroupedInner";
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGrouped.tsx
-var import_jsx_runtime94 = require("react/jsx-runtime");
+var import_jsx_runtime93 = require("react/jsx-runtime");
 var BarGrouped = import_react123.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react123.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime94.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime94.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(BarGroupedInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime93.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime93.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime93.jsx)(BarGroupedInner, { ...rest, width, height }) }) });
   }
 );
 BarGrouped.displayName = "BarGrouped";
@@ -16393,7 +16504,7 @@ function useBarGHInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontalInner.tsx
-var import_jsx_runtime95 = require("react/jsx-runtime");
+var import_jsx_runtime94 = require("react/jsx-runtime");
 var BarGroupedHorizontalInner = (props) => {
   const {
     data,
@@ -16433,20 +16544,20 @@ var BarGroupedHorizontalInner = (props) => {
   const xTickFormat = formatX ?? formatTick;
   const legendItems = (0, import_react125.useMemo)(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime95.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime95.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped horizontal bar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime94.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime94.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped horizontal bar chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime95.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime95.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime95.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped horizontal bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime95.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime95.jsxs)(import_group4.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime94.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime94.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime94.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Grouped horizontal bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime94.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime94.jsxs)(import_group4.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
           data.map((d, gi) => {
             const label = String(getLabel(d));
             const groupY = y0Scale(label) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(import_group4.Group, { top: groupY, children: keys.map((key, ki) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(import_group4.Group, { top: groupY, children: keys.map((key, ki) => {
               const value = Number(d[key]) || 0;
               const barY = y1Scale(key) ?? 0;
               const barW = xScale(value) ?? 0;
@@ -16454,7 +16565,7 @@ var BarGroupedHorizontalInner = (props) => {
               const isHighlightedGroup = highlightIndex === gi;
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
-              return /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(
                 import_shape4.Bar,
                 {
                   x: 0,
@@ -16475,8 +16586,8 @@ var BarGroupedHorizontalInner = (props) => {
               );
             }) }, label);
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartAxis, { scale: y0Scale, orientation: "left" })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartAxis, { scale: y0Scale, orientation: "left" })
         ] })
       ] }),
       showTooltip && hovered != null && (() => {
@@ -16486,7 +16597,7 @@ var BarGroupedHorizontalInner = (props) => {
         const value = Number(d[key]) || 0;
         const groupY = y0Scale(label) ?? 0;
         const barY = y1Scale(key) ?? 0;
-        return /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(ChartTooltip, { left: (xScale(value) ?? 0) + dims.margin.left, top: groupY + barY + y1Scale.bandwidth() / 2 + dims.margin.top, visible: true, offsetX: 8, children: `${key}: ${value.toLocaleString()}` });
+        return /* @__PURE__ */ (0, import_jsx_runtime94.jsx)(ChartTooltip, { left: (xScale(value) ?? 0) + dims.margin.left, top: groupY + barY + y1Scale.bandwidth() / 2 + dims.margin.top, visible: true, offsetX: 8, children: `${key}: ${value.toLocaleString()}` });
       })()
     ] })
   ] });
@@ -16494,12 +16605,12 @@ var BarGroupedHorizontalInner = (props) => {
 BarGroupedHorizontalInner.displayName = "BarGroupedHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.tsx
-var import_jsx_runtime96 = require("react/jsx-runtime");
+var import_jsx_runtime95 = require("react/jsx-runtime");
 var BarGroupedHorizontal = import_react126.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react126.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime96.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime96.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(BarGroupedHorizontalInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime95.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime95.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime95.jsx)(BarGroupedHorizontalInner, { ...rest, width, height }) }) });
   }
 );
 BarGroupedHorizontal.displayName = "BarGroupedHorizontal";
@@ -16596,7 +16707,7 @@ function useBarStackedInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BarStacked/BarStackedInner.tsx
-var import_jsx_runtime97 = require("react/jsx-runtime");
+var import_jsx_runtime96 = require("react/jsx-runtime");
 var BarStackedInner = (props) => {
   const {
     data,
@@ -16636,20 +16747,20 @@ var BarStackedInner = (props) => {
   const yTickFormat = formatY ?? formatTick;
   const legendItems = (0, import_react128.useMemo)(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime97.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime97.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked bar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime96.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime96.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked bar chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime97.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime97.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime97.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime97.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime97.jsxs)(import_group5.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime96.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime96.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime96.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime96.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime96.jsxs)(import_group5.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
           stackRows.map((row, gi) => {
             const barX = xScale(row.label) ?? 0;
             const bw = xScale.bandwidth();
-            return /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(import_group5.Group, { children: row.segments.map((seg, ki) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(import_group5.Group, { children: row.segments.map((seg, ki) => {
               const y0 = yScale(seg.y0) ?? 0;
               const y1 = yScale(seg.y1) ?? 0;
               const barY = y1;
@@ -16658,7 +16769,7 @@ var BarStackedInner = (props) => {
               const isHighlightedGroup = highlightIndex === gi;
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
-              return /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(
                 import_shape5.Bar,
                 {
                   x: barX,
@@ -16679,14 +16790,14 @@ var BarStackedInner = (props) => {
               );
             }) }, row.label);
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
       showTooltip && hovered != null && (() => {
         const row = stackRows[hovered.groupIdx];
         const seg = row.segments[hovered.keyIdx];
-        return /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime96.jsx)(
           ChartTooltip,
           {
             left: (xScale(row.label) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left,
@@ -16703,12 +16814,12 @@ var BarStackedInner = (props) => {
 BarStackedInner.displayName = "BarStackedInner";
 
 // src/DATADISPLAY/Charts/BarStacked/BarStacked.tsx
-var import_jsx_runtime98 = require("react/jsx-runtime");
+var import_jsx_runtime97 = require("react/jsx-runtime");
 var BarStacked = import_react129.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react129.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime98.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime98.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(BarStackedInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime97.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime97.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime97.jsx)(BarStackedInner, { ...rest, width, height }) }) });
   }
 );
 BarStacked.displayName = "BarStacked";
@@ -16805,7 +16916,7 @@ function useBarSHInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontalInner.tsx
-var import_jsx_runtime99 = require("react/jsx-runtime");
+var import_jsx_runtime98 = require("react/jsx-runtime");
 var BarStackedHorizontalInner = (props) => {
   const {
     data,
@@ -16845,20 +16956,20 @@ var BarStackedHorizontalInner = (props) => {
   const xTickFormat = formatX ?? formatTick;
   const legendItems = (0, import_react131.useMemo)(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime99.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime99.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked horizontal bar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime98.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime98.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked horizontal bar chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime99.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime99.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime99.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked horizontal bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime99.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime99.jsxs)(import_group6.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime98.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime98.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime98.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked horizontal bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime98.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime98.jsxs)(import_group6.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
           stackRows.map((row, gi) => {
             const barY = yScale(row.label) ?? 0;
             const bh = yScale.bandwidth();
-            return /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(import_group6.Group, { children: row.segments.map((seg, ki) => {
+            return /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(import_group6.Group, { children: row.segments.map((seg, ki) => {
               const x0 = xScale(seg.x0) ?? 0;
               const x1 = xScale(seg.x1) ?? 0;
               const barX = x0;
@@ -16867,7 +16978,7 @@ var BarStackedHorizontalInner = (props) => {
               const isHighlightedGroup = highlightIndex === gi;
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
-              return /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(
                 import_shape6.Bar,
                 {
                   x: barX,
@@ -16888,14 +16999,14 @@ var BarStackedHorizontalInner = (props) => {
               );
             }) }, row.label);
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(ChartAxis, { scale: yScale, orientation: "left" })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(ChartAxis, { scale: yScale, orientation: "left" })
         ] })
       ] }),
       showTooltip && hovered != null && (() => {
         const row = stackRows[hovered.groupIdx];
         const seg = row.segments[hovered.keyIdx];
-        return /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime98.jsx)(
           ChartTooltip,
           {
             left: (xScale(seg.x1) ?? 0) + dims.margin.left,
@@ -16912,12 +17023,12 @@ var BarStackedHorizontalInner = (props) => {
 BarStackedHorizontalInner.displayName = "BarStackedHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.tsx
-var import_jsx_runtime100 = require("react/jsx-runtime");
+var import_jsx_runtime99 = require("react/jsx-runtime");
 var BarStackedHorizontal = import_react132.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react132.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(BarStackedHorizontalInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime99.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime99.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime99.jsx)(BarStackedHorizontalInner, { ...rest, width, height }) }) });
   }
 );
 BarStackedHorizontal.displayName = "BarStackedHorizontal";
@@ -17004,7 +17115,7 @@ function useLineInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Line/LineInner.tsx
-var import_jsx_runtime101 = require("react/jsx-runtime");
+var import_jsx_runtime100 = require("react/jsx-runtime");
 var LineInner = (props) => {
   const {
     data,
@@ -17043,16 +17154,16 @@ var LineInner = (props) => {
   const yTickFormat = formatY ?? formatTick;
   const curve = curved ? import_curve.curveMonotoneX : import_curve.curveLinear;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty line chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty line chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime101.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime101.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime101.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Line chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime101.jsxs)(import_group7.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-          /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime100.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime100.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime100.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Line chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime100.jsxs)(import_group7.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(
             import_shape7.LinePath,
             {
               data: [...data],
@@ -17066,7 +17177,7 @@ var LineInner = (props) => {
           showDots && data.map((d, i) => {
             const cx = xScale(toDate(getDate(d))) ?? 0;
             const cy = yScale(getValue2(d)) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(
               "circle",
               {
                 cx,
@@ -17087,7 +17198,7 @@ var LineInner = (props) => {
           !showDots && data.map((d, i) => {
             const cx = xScale(toDate(getDate(d))) ?? 0;
             const cy = yScale(getValue2(d)) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(
               "circle",
               {
                 cx,
@@ -17102,7 +17213,7 @@ var LineInner = (props) => {
               i
             );
           }),
-          hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(
+          hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(
             "circle",
             {
               cx: xScale(toDate(getDate(data[hoveredIndex]))) ?? 0,
@@ -17118,20 +17229,20 @@ var LineInner = (props) => {
             const d = data[highlightIndex];
             const cx = xScale(toDate(getDate(d))) ?? 0;
             const cy = yScale(getValue2(d)) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime101.jsxs)("g", { pointerEvents: "none", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
-              /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("circle", { cx, cy, r: 12, fill: color, opacity: 0.2 }),
-              /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5 })
+            return /* @__PURE__ */ (0, import_jsx_runtime100.jsxs)("g", { pointerEvents: "none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
+              /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("circle", { cx, cy, r: 12, fill: color, opacity: 0.2 }),
+              /* @__PURE__ */ (0, import_jsx_runtime100.jsx)("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5 })
             ] });
           })(),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
         const date = toDate(getDate(d));
-        return /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime100.jsx)(
           ChartTooltip,
           {
             left: (xScale(date) ?? 0) + dims.margin.left,
@@ -17148,12 +17259,12 @@ var LineInner = (props) => {
 LineInner.displayName = "LineInner";
 
 // src/DATADISPLAY/Charts/Line/Line.tsx
-var import_jsx_runtime102 = require("react/jsx-runtime");
+var import_jsx_runtime101 = require("react/jsx-runtime");
 var Line = import_react135.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react135.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(LineInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime101.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime101.jsx)(LineInner, { ...rest, width, height }) }) });
   }
 );
 Line.displayName = "Line";
@@ -17235,7 +17346,7 @@ function useLineMultiHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
-var import_jsx_runtime103 = require("react/jsx-runtime");
+var import_jsx_runtime102 = require("react/jsx-runtime");
 var LineMultiInner = (props) => {
   const {
     data,
@@ -17274,26 +17385,26 @@ var LineMultiInner = (props) => {
     [data, colorMap]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty multi-line chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty multi-line chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime103.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime103.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Multi-line chart", children: [
-      description && /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("desc", { children: description }),
-      /* @__PURE__ */ (0, import_jsx_runtime103.jsxs)(import_group8.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-        showGrid && /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime102.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime102.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Multi-line chart", children: [
+      description && /* @__PURE__ */ (0, import_jsx_runtime102.jsx)("desc", { children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime102.jsxs)(import_group8.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+        showGrid && /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
         data.map((series) => {
           const active = highlightSeriesId ?? hovered;
           const isDimmed = active != null && active !== series.id;
-          return /* @__PURE__ */ (0, import_jsx_runtime103.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime102.jsxs)(
             "g",
             {
               onMouseEnter: () => enter(series.id),
               onMouseLeave: leave,
               style: { cursor: "pointer" },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(
                   import_shape8.LinePath,
                   {
                     data: [...series.data],
@@ -17305,7 +17416,7 @@ var LineMultiInner = (props) => {
                     curve
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(
                   import_shape8.LinePath,
                   {
                     data: [...series.data],
@@ -17316,7 +17427,7 @@ var LineMultiInner = (props) => {
                     curve
                   }
                 ),
-                showDots && series.data.map((pt, pi) => /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(
+                showDots && series.data.map((pt, pi) => /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(
                   "circle",
                   {
                     cx: xScale(toDate2(pt.date)) ?? 0,
@@ -17332,8 +17443,8 @@ var LineMultiInner = (props) => {
             series.id
           );
         }),
-        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-        showYAxis && /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+        showYAxis && /* @__PURE__ */ (0, import_jsx_runtime102.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
       ] })
     ] }) })
   ] });
@@ -17341,12 +17452,12 @@ var LineMultiInner = (props) => {
 LineMultiInner.displayName = "LineMultiInner";
 
 // src/DATADISPLAY/Charts/LineMulti/LineMulti.tsx
-var import_jsx_runtime104 = require("react/jsx-runtime");
+var import_jsx_runtime103 = require("react/jsx-runtime");
 var LineMulti = import_react138.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react138.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(LineMultiInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime103.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime103.jsx)(LineMultiInner, { ...rest, width, height }) }) });
   }
 );
 LineMulti.displayName = "LineMulti";
@@ -17427,7 +17538,7 @@ function useAreaInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Area/AreaInner.tsx
-var import_jsx_runtime105 = require("react/jsx-runtime");
+var import_jsx_runtime104 = require("react/jsx-runtime");
 var AreaInner = (props) => {
   const {
     data,
@@ -17468,16 +17579,16 @@ var AreaInner = (props) => {
   const yTickFormat = formatY ?? formatTick;
   const curve = curved ? import_curve3.curveMonotoneX : import_curve3.curveLinear;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty area chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty area chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime105.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime105.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime105.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Area chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime105.jsxs)(import_group9.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-          /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime104.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime104.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime104.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Area chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime104.jsxs)(import_group9.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(
             import_shape9.AreaClosed,
             {
               data: [...data],
@@ -17489,7 +17600,7 @@ var AreaInner = (props) => {
               curve
             }
           ),
-          showLine && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(
+          showLine && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(
             import_shape9.LinePath,
             {
               data: [...data],
@@ -17500,7 +17611,7 @@ var AreaInner = (props) => {
               curve
             }
           ),
-          data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(
+          data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(
             "circle",
             {
               cx: xScale(toDate3(getDate(d))) ?? 0,
@@ -17514,7 +17625,7 @@ var AreaInner = (props) => {
             },
             i
           )),
-          hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(
+          hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(
             "circle",
             {
               cx: xScale(toDate3(getDate(data[hoveredIndex]))) ?? 0,
@@ -17526,16 +17637,16 @@ var AreaInner = (props) => {
               pointerEvents: "none"
             }
           ),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat }),
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat }),
           highlightIndex != null && data[highlightIndex] != null && (() => {
             const d = data[highlightIndex];
             const cx = xScale(toDate3(getDate(d))) ?? 0;
             const cy = yScale(getValue2(d)) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime105.jsxs)("g", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("circle", { cx, cy, r: 12, fill: color, opacity: 0.2, pointerEvents: "none" }),
-              /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5, pointerEvents: "none" }),
-              /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6, pointerEvents: "none" })
+            return /* @__PURE__ */ (0, import_jsx_runtime104.jsxs)("g", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("circle", { cx, cy, r: 12, fill: color, opacity: 0.2, pointerEvents: "none" }),
+              /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("circle", { cx, cy, r: 6, fill: color, stroke: "#fff", strokeWidth: 2.5, pointerEvents: "none" }),
+              /* @__PURE__ */ (0, import_jsx_runtime104.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6, pointerEvents: "none" })
             ] });
           })()
         ] })
@@ -17543,7 +17654,7 @@ var AreaInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
         const date = toDate3(getDate(d));
-        return /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(ChartTooltip, { left: (xScale(date) ?? 0) + dims.margin.left, top: (yScale(getValue2(d)) ?? 0) + dims.margin.top, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}` });
+        return /* @__PURE__ */ (0, import_jsx_runtime104.jsx)(ChartTooltip, { left: (xScale(date) ?? 0) + dims.margin.left, top: (yScale(getValue2(d)) ?? 0) + dims.margin.top, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}` });
       })()
     ] })
   ] });
@@ -17551,7 +17662,7 @@ var AreaInner = (props) => {
 AreaInner.displayName = "AreaInner";
 
 // src/DATADISPLAY/Charts/Area/Area.tsx
-var import_jsx_runtime106 = require("react/jsx-runtime");
+var import_jsx_runtime105 = require("react/jsx-runtime");
 var Area = import_react141.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react141.useRef)(null);
@@ -17562,7 +17673,7 @@ var Area = import_react141.default.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(AreaInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime105.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime105.jsx)(AreaInner, { ...rest, width, height }) }) });
   }
 );
 Area.displayName = "Area";
@@ -17677,7 +17788,7 @@ function useAreaStackedHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStackedInner.tsx
-var import_jsx_runtime107 = require("react/jsx-runtime");
+var import_jsx_runtime106 = require("react/jsx-runtime");
 var AreaStackedInner = (props) => {
   const {
     data,
@@ -17722,26 +17833,26 @@ var AreaStackedInner = (props) => {
     [keys, data, colorMap]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked area chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked area chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime107.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime107.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked area chart", children: [
-      description && /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("desc", { children: description }),
-      /* @__PURE__ */ (0, import_jsx_runtime107.jsxs)(import_group10.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-        showGrid && /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime106.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime106.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked area chart", children: [
+      description && /* @__PURE__ */ (0, import_jsx_runtime106.jsx)("desc", { children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime106.jsxs)(import_group10.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+        showGrid && /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
         layers.map((layer) => {
           const activeHover = highlightSeriesId !== void 0 ? highlightSeriesId : hovered;
           const isDimmed = activeHover != null && activeHover !== layer.key;
-          return /* @__PURE__ */ (0, import_jsx_runtime107.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime106.jsxs)(
             "g",
             {
               onMouseEnter: () => enter(layer.key),
               onMouseLeave: leave,
               style: { cursor: "pointer" },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(
                   import_shape10.Area,
                   {
                     data: layer.points,
@@ -17754,7 +17865,7 @@ var AreaStackedInner = (props) => {
                     style: { transition: "fill-opacity 120ms ease-out" }
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(
                   import_shape10.Area,
                   {
                     data: layer.points,
@@ -17770,8 +17881,8 @@ var AreaStackedInner = (props) => {
             layer.key
           );
         }),
-        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
-        showYAxis && /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickRotate: tickRotateX }),
+        showYAxis && /* @__PURE__ */ (0, import_jsx_runtime106.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
       ] })
     ] }) })
   ] });
@@ -17779,12 +17890,12 @@ var AreaStackedInner = (props) => {
 AreaStackedInner.displayName = "AreaStackedInner";
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStacked.tsx
-var import_jsx_runtime108 = require("react/jsx-runtime");
+var import_jsx_runtime107 = require("react/jsx-runtime");
 var AreaStacked = import_react144.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react144.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(AreaStackedInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime107.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime107.jsx)(AreaStackedInner, { ...rest, width, height }) }) });
   }
 );
 AreaStacked.displayName = "AreaStacked";
@@ -17880,7 +17991,7 @@ function useThresholdInteraction(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Threshold/ThresholdInner.tsx
-var import_jsx_runtime109 = require("react/jsx-runtime");
+var import_jsx_runtime108 = require("react/jsx-runtime");
 var ThresholdInner = (props) => {
   const {
     data,
@@ -17928,19 +18039,19 @@ var ThresholdInner = (props) => {
     { id: "below", label: `${label1} > ${label0}`, color: colors.below }
   ], [label0, label1, colors]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty threshold chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty threshold chart" }) });
   }
   const mutableData = [...data];
   const thresholdId = `threshold-${bindId ?? "default"}-${width}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Threshold chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)(import_group11.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-          /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Threshold chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)(import_group11.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(
             import_Threshold3.default,
             {
               id: thresholdId,
@@ -17955,7 +18066,7 @@ var ThresholdInner = (props) => {
               belowAreaProps: { fill: colors.below, fillOpacity }
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(
             import_shape11.LinePath,
             {
               data: mutableData,
@@ -17966,7 +18077,7 @@ var ThresholdInner = (props) => {
               curve
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(
             import_shape11.LinePath,
             {
               data: mutableData,
@@ -17981,7 +18092,7 @@ var ThresholdInner = (props) => {
           data.map((d, i) => {
             const cx = xScale(toDate5(getDate(d))) ?? 0;
             const midY = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
-            return /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(
               "circle",
               {
                 cx,
@@ -17998,9 +18109,9 @@ var ThresholdInner = (props) => {
           hoveredIndex != null && (() => {
             const d = data[hoveredIndex];
             const cx = xScale(toDate5(getDate(d))) ?? 0;
-            return /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)(import_jsx_runtime109.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 4, fill: colors.line0, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" }),
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 4, fill: colors.line1, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" })
+            return /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)(import_jsx_runtime108.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 4, fill: colors.line0, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" }),
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 4, fill: colors.line1, stroke: "#fff", strokeWidth: 2, pointerEvents: "none" })
             ] });
           })(),
           highlightIndex != null && highlightIndex < data.length && (() => {
@@ -18008,16 +18119,16 @@ var ThresholdInner = (props) => {
             const cx = xScale(toDate5(getDate(d))) ?? 0;
             const cy = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
             const hlColor = colors.above ?? "var(--w3f-primary)";
-            return /* @__PURE__ */ (0, import_jsx_runtime109.jsxs)("g", { pointerEvents: "none", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: hlColor, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 12, fill: colors.line0, opacity: 0.2 }),
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 6, fill: colors.line0, stroke: "#fff", strokeWidth: 2.5 }),
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 12, fill: colors.line1, opacity: 0.2 }),
-              /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 6, fill: colors.line1, stroke: "#fff", strokeWidth: 2.5 })
+            return /* @__PURE__ */ (0, import_jsx_runtime108.jsxs)("g", { pointerEvents: "none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: hlColor, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 12, fill: colors.line0, opacity: 0.2 }),
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue0(d)), r: 6, fill: colors.line0, stroke: "#fff", strokeWidth: 2.5 }),
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 12, fill: colors.line1, opacity: 0.2 }),
+              /* @__PURE__ */ (0, import_jsx_runtime108.jsx)("circle", { cx, cy: yScale(getValue1(d)), r: 6, fill: colors.line1, stroke: "#fff", strokeWidth: 2.5 })
             ] });
           })(),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
       showTooltip && hoveredIndex != null && (() => {
@@ -18027,7 +18138,7 @@ var ThresholdInner = (props) => {
         const v1 = getValue1(d);
         const cx = (xScale(date) ?? 0) + dims.margin.left;
         const cy = (yScale(v0) + yScale(v1)) / 2 + dims.margin.top;
-        return /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}
+        return /* @__PURE__ */ (0, import_jsx_runtime108.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}
 ${label0}: ${v0.toLocaleString()}
 ${label1}: ${v1.toLocaleString()}` });
       })()
@@ -18037,7 +18148,7 @@ ${label1}: ${v1.toLocaleString()}` });
 ThresholdInner.displayName = "ThresholdInner";
 
 // src/DATADISPLAY/Charts/Threshold/Threshold.tsx
-var import_jsx_runtime110 = require("react/jsx-runtime");
+var import_jsx_runtime109 = require("react/jsx-runtime");
 var Threshold = import_react147.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react147.useRef)(null);
@@ -18048,7 +18159,7 @@ var Threshold = import_react147.default.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(ThresholdInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime109.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime109.jsx)(ThresholdInner, { ...rest, width, height }) }) });
   }
 );
 Threshold.displayName = "Threshold";
@@ -18157,7 +18268,7 @@ function useStreamHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Streamgraph/StreamgraphInner.tsx
-var import_jsx_runtime111 = require("react/jsx-runtime");
+var import_jsx_runtime110 = require("react/jsx-runtime");
 var StreamgraphInner = (props) => {
   const {
     data,
@@ -18192,18 +18303,18 @@ var StreamgraphInner = (props) => {
     [keys, data, colorMap]
   );
   if (layers.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty streamgraph" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty streamgraph" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime111.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime111.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Streamgraph", children: [
-      description && /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("desc", { children: description }),
-      /* @__PURE__ */ (0, import_jsx_runtime111.jsxs)(import_group12.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime110.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ (0, import_jsx_runtime110.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Streamgraph", children: [
+      description && /* @__PURE__ */ (0, import_jsx_runtime110.jsx)("desc", { children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime110.jsxs)(import_group12.Group, { top: dims.margin.top, left: dims.margin.left, children: [
         layers.map((layer) => {
           const active = highlightSeriesId ?? hovered;
           const isDimmed = active != null && active !== layer.key;
-          return /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(
             import_shape12.Area,
             {
               data: layer.points,
@@ -18211,7 +18322,7 @@ var StreamgraphInner = (props) => {
               y0: (d) => yScale(d.y0) ?? 0,
               y1: (d) => yScale(d.y1) ?? 0,
               curve,
-              children: ({ path }) => /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(
+              children: ({ path }) => /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(
                 "path",
                 {
                   d: path([...layer.points]) ?? "",
@@ -18228,7 +18339,7 @@ var StreamgraphInner = (props) => {
             layer.key
           );
         }),
-        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
+        showXAxis && /* @__PURE__ */ (0, import_jsx_runtime110.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
       ] })
     ] }) })
   ] });
@@ -18236,7 +18347,7 @@ var StreamgraphInner = (props) => {
 StreamgraphInner.displayName = "StreamgraphInner";
 
 // src/DATADISPLAY/Charts/Streamgraph/Streamgraph.tsx
-var import_jsx_runtime112 = require("react/jsx-runtime");
+var import_jsx_runtime111 = require("react/jsx-runtime");
 var Streamgraph = import_react150.default.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
     const containerRef = (0, import_react150.useRef)(null);
@@ -18247,7 +18358,7 @@ var Streamgraph = import_react150.default.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime112.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime112.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(StreamgraphInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime111.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime111.jsx)(StreamgraphInner, { ...rest, width, height }) }) });
   }
 );
 Streamgraph.displayName = "Streamgraph";
@@ -18338,7 +18449,7 @@ function useScatterInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Scatter/ScatterInner.tsx
-var import_jsx_runtime113 = require("react/jsx-runtime");
+var import_jsx_runtime112 = require("react/jsx-runtime");
 var ScatterInner = (props) => {
   const {
     data,
@@ -18379,15 +18490,15 @@ var ScatterInner = (props) => {
   const xTickFormat = formatX ?? formatTick;
   const yTickFormat = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime113.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime113.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty scatter chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime112.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime112.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty scatter chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime113.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime113.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime113.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Scatter chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime113.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime113.jsxs)(import_group13.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime112.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime112.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime112.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Scatter chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime112.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime112.jsxs)(import_group13.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(
             ChartGrid,
             {
               xScale,
@@ -18401,7 +18512,7 @@ var ScatterInner = (props) => {
             const cx = xScale(getX(d)) ?? 0;
             const cy = yScale(getY(d)) ?? 0;
             const r = getR(d) ?? pointRadius;
-            return /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(
               import_shape13.Circle,
               {
                 cx,
@@ -18419,11 +18530,11 @@ var ScatterInner = (props) => {
               i
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime112.jsx)(
         ChartTooltip,
         {
           left: (xScale(getX(data[hoveredIndex])) ?? 0) + dims.margin.left,
@@ -18439,12 +18550,12 @@ var ScatterInner = (props) => {
 ScatterInner.displayName = "ScatterInner";
 
 // src/DATADISPLAY/Charts/Scatter/Scatter.tsx
-var import_jsx_runtime114 = require("react/jsx-runtime");
+var import_jsx_runtime113 = require("react/jsx-runtime");
 var Scatter = import_react153.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react153.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime114.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime114.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(ScatterInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime113.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime113.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime113.jsx)(ScatterInner, { ...rest, width, height }) }) });
   }
 );
 Scatter.displayName = "Scatter";
@@ -18534,7 +18645,7 @@ function useBubbleInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Bubble/BubbleInner.tsx
-var import_jsx_runtime115 = require("react/jsx-runtime");
+var import_jsx_runtime114 = require("react/jsx-runtime");
 var BubbleInner = (props) => {
   const {
     data,
@@ -18576,16 +18687,16 @@ var BubbleInner = (props) => {
   const xf = formatX ?? formatTick;
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime115.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime115.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bubble chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime114.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime114.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bubble chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime115.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime115.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime115.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Bubble chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime115.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime115.jsxs)(import_group14.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "both" }),
-          data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime114.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime114.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime114.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Bubble chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime114.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime114.jsxs)(import_group14.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "both" }),
+          data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(
             import_shape14.Circle,
             {
               cx: xScale(getX(d)) ?? 0,
@@ -18602,11 +18713,11 @@ var BubbleInner = (props) => {
             },
             i
           )),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime114.jsx)(
         ChartTooltip,
         {
           left: (xScale(getX(data[hoveredIndex])) ?? 0) + dims.margin.left,
@@ -18622,12 +18733,12 @@ var BubbleInner = (props) => {
 BubbleInner.displayName = "BubbleInner";
 
 // src/DATADISPLAY/Charts/Bubble/Bubble.tsx
-var import_jsx_runtime116 = require("react/jsx-runtime");
+var import_jsx_runtime115 = require("react/jsx-runtime");
 var Bubble = import_react156.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react156.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime116.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime116.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(BubbleInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime115.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime115.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime115.jsx)(BubbleInner, { ...rest, width, height }) }) });
   }
 );
 Bubble.displayName = "Bubble";
@@ -18705,7 +18816,7 @@ function useDotPlotInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlotInner.tsx
-var import_jsx_runtime117 = require("react/jsx-runtime");
+var import_jsx_runtime116 = require("react/jsx-runtime");
 var DotPlotInner = (props) => {
   const {
     data,
@@ -18741,21 +18852,21 @@ var DotPlotInner = (props) => {
   const classes = (0, import_react158.useMemo)(() => buildDotPlotClasses(className, unstyled), [className, unstyled]);
   const xf = formatX ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime117.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime117.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty dot plot" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime116.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime116.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty dot plot" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime117.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime117.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime117.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Dot plot", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime117.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime117.jsxs)(import_group15.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime116.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime116.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime116.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Dot plot", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime116.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime116.jsxs)(import_group15.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
           data.map((d, i) => {
             const catIdx = getCategory(d);
             const catName = categories[catIdx] ?? "";
             const cx = xScale(getX(d)) ?? 0;
             const cy = (yScale(catName) ?? 0) + yScale.bandwidth() / 2;
-            return /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(
               import_shape15.Circle,
               {
                 cx,
@@ -18771,8 +18882,8 @@ var DotPlotInner = (props) => {
               i
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
-          showCategoryLabels && categories.map((cat) => /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showCategoryLabels && categories.map((cat) => /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(
             "text",
             {
               x: -8,
@@ -18791,7 +18902,7 @@ var DotPlotInner = (props) => {
         const d = data[hoveredIndex];
         const catIdx = getCategory(d);
         const catName = categories[catIdx] ?? "";
-        return /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime116.jsx)(
           ChartTooltip,
           {
             left: (xScale(getX(d)) ?? 0) + dims.margin.left,
@@ -18808,12 +18919,12 @@ var DotPlotInner = (props) => {
 DotPlotInner.displayName = "DotPlotInner";
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlot.tsx
-var import_jsx_runtime118 = require("react/jsx-runtime");
+var import_jsx_runtime117 = require("react/jsx-runtime");
 var DotPlot = import_react159.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react159.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime118.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime118.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(DotPlotInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime117.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime117.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime117.jsx)(DotPlotInner, { ...rest, width, height }) }) });
   }
 );
 DotPlot.displayName = "DotPlot";
@@ -18913,7 +19024,7 @@ function useHeatmapInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Heatmap/HeatmapInner.tsx
-var import_jsx_runtime119 = require("react/jsx-runtime");
+var import_jsx_runtime118 = require("react/jsx-runtime");
 var HeatmapInner = (props) => {
   const {
     data,
@@ -18944,7 +19055,7 @@ var HeatmapInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useHeatmapInteraction(onHover, onSelect);
   const classes = (0, import_react161.useMemo)(() => buildHeatmapClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime119.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime119.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty heatmap" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime118.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime118.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty heatmap" }) });
   }
   const cellWidth = xScale.bandwidth();
   const cellHeight = yScale.bandwidth();
@@ -18961,13 +19072,13 @@ var HeatmapInner = (props) => {
     }
     return result;
   }, [data, rows, cols, getRow, getCol, getValue2]);
-  return /* @__PURE__ */ (0, import_jsx_runtime119.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime119.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime119.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Heatmap", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime119.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime119.jsxs)(import_group16.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          cells.map((cell, i) => /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime118.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime118.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime118.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Heatmap", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime118.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime118.jsxs)(import_group16.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          cells.map((cell, i) => /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(
             "rect",
             {
               x: xScale(cell.col) ?? 0,
@@ -18984,7 +19095,7 @@ var HeatmapInner = (props) => {
             },
             `${cell.row}-${cell.col}`
           )),
-          showRowLabels && rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(
+          showRowLabels && rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(
             "text",
             {
               x: -6,
@@ -18997,7 +19108,7 @@ var HeatmapInner = (props) => {
             },
             `row-${row}`
           )),
-          showColLabels && cols.map((col) => /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(
+          showColLabels && cols.map((col) => /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(
             "text",
             {
               x: (xScale(col) ?? 0) + cellWidth / 2,
@@ -19011,7 +19122,7 @@ var HeatmapInner = (props) => {
           ))
         ] })
       ] }),
-      showColLabels && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(
+      showColLabels && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime118.jsx)(
         ChartTooltip,
         {
           left: (xScale(cells[hoveredIndex].col) ?? 0) + cellWidth / 2 + dims.margin.left,
@@ -19027,12 +19138,12 @@ var HeatmapInner = (props) => {
 HeatmapInner.displayName = "HeatmapInner";
 
 // src/DATADISPLAY/Charts/Heatmap/Heatmap.tsx
-var import_jsx_runtime120 = require("react/jsx-runtime");
+var import_jsx_runtime119 = require("react/jsx-runtime");
 var Heatmap = import_react162.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react162.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(HeatmapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime119.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime119.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime119.jsx)(HeatmapInner, { ...rest, width, height }) }) });
   }
 );
 Heatmap.displayName = "Heatmap";
@@ -19133,7 +19244,7 @@ function useBoxPlotInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlotInner.tsx
-var import_jsx_runtime121 = require("react/jsx-runtime");
+var import_jsx_runtime120 = require("react/jsx-runtime");
 var BoxPlotInner = (props) => {
   const {
     data,
@@ -19167,22 +19278,22 @@ var BoxPlotInner = (props) => {
   const classes = (0, import_react164.useMemo)(() => buildBoxPlotClasses(className, unstyled), [className, unstyled]);
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty box plot" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty box plot" }) });
   }
   const halfBox = Math.min(boxWidth, xScale.bandwidth()) / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime121.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime121.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime121.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Box plot", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime121.jsxs)(import_group17.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime120.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime120.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime120.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Box plot", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime120.jsxs)(import_group17.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
           stats.map((s, i) => {
             const cx = (xScale(s.group) ?? 0) + xScale.bandwidth() / 2;
             const isHovered = hoveredIndex === i;
             const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
             const fill = colors[i];
-            return /* @__PURE__ */ (0, import_jsx_runtime121.jsxs)(
+            return /* @__PURE__ */ (0, import_jsx_runtime120.jsxs)(
               "g",
               {
                 opacity,
@@ -19191,7 +19302,7 @@ var BoxPlotInner = (props) => {
                 onMouseLeave: handleLeave,
                 onClick: onSelect ? () => handleClick(s, i) : void 0,
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(
                     "line",
                     {
                       x1: cx,
@@ -19202,9 +19313,9 @@ var BoxPlotInner = (props) => {
                       strokeWidth: 1.5
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.max), y2: yScale(s.max), stroke: fill, strokeWidth: 1.5 }),
-                  /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.min), y2: yScale(s.min), stroke: fill, strokeWidth: 1.5 }),
-                  /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.max), y2: yScale(s.max), stroke: fill, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ (0, import_jsx_runtime120.jsx)("line", { x1: cx - halfBox * 0.5, x2: cx + halfBox * 0.5, y1: yScale(s.min), y2: yScale(s.min), stroke: fill, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(
                     "rect",
                     {
                       x: cx - halfBox,
@@ -19218,7 +19329,7 @@ var BoxPlotInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(
                     "line",
                     {
                       x1: cx - halfBox,
@@ -19229,7 +19340,7 @@ var BoxPlotInner = (props) => {
                       strokeWidth: 2.5
                     }
                   ),
-                  showOutliers && s.outliers.map((v, oi) => /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(
+                  showOutliers && s.outliers.map((v, oi) => /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(
                     "circle",
                     {
                       cx,
@@ -19246,15 +19357,15 @@ var BoxPlotInner = (props) => {
               s.group
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
         ] })
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const s = stats[hoveredIndex];
         const cx = (xScale(s.group) ?? 0) + xScale.bandwidth() / 2 + dims.margin.left;
         const cy = yScale(s.median) + dims.margin.top;
-        return /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent7(s) });
+        return /* @__PURE__ */ (0, import_jsx_runtime120.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent7(s) });
       })()
     ] })
   ] });
@@ -19262,12 +19373,12 @@ var BoxPlotInner = (props) => {
 BoxPlotInner.displayName = "BoxPlotInner";
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlot.tsx
-var import_jsx_runtime122 = require("react/jsx-runtime");
+var import_jsx_runtime121 = require("react/jsx-runtime");
 var BoxPlot = import_react165.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react165.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime122.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime122.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(BoxPlotInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime121.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime121.jsx)(BoxPlotInner, { ...rest, width, height }) }) });
   }
 );
 BoxPlot.displayName = "BoxPlot";
@@ -19365,7 +19476,7 @@ function useViolinInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Violin/ViolinInner.tsx
-var import_jsx_runtime123 = require("react/jsx-runtime");
+var import_jsx_runtime122 = require("react/jsx-runtime");
 var ViolinInner = (props) => {
   const {
     data,
@@ -19401,20 +19512,20 @@ var ViolinInner = (props) => {
   const classes = (0, import_react167.useMemo)(() => buildViolinClasses(className, unstyled), [className, unstyled]);
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime123.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime123.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty violin plot" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime122.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime122.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty violin plot" }) });
   }
   const maxDensity = (0, import_react167.useMemo)(() => {
     let m = 0;
     for (const pts of kdeResults) for (const p of pts) if (p.density > m) m = p.density;
     return m || 1;
   }, [kdeResults]);
-  return /* @__PURE__ */ (0, import_jsx_runtime123.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime123.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime123.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Violin plot", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime123.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime123.jsxs)(import_group18.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime122.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime122.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime122.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Violin plot", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime122.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime122.jsxs)(import_group18.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
           data.map((g, i) => {
             const cx = (xScale(g.group) ?? 0) + xScale.bandwidth() / 2;
             const halfW = xScale.bandwidth() / 2 * 0.9;
@@ -19433,7 +19544,7 @@ var ViolinInner = (props) => {
               return `${cx - dx},${y}`;
             });
             const pathD = `M${rightSide.join(" L")} L${leftSide.join(" L")} Z`;
-            return /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(
               "path",
               {
                 d: pathD,
@@ -19450,8 +19561,8 @@ var ViolinInner = (props) => {
               g.group
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
         ] })
       ] }),
       showTooltip && hoveredIndex != null && (() => {
@@ -19460,7 +19571,7 @@ var ViolinInner = (props) => {
         const sorted = [...g.values].sort((a, b) => a - b);
         const medianVal = sorted[Math.floor(sorted.length / 2)];
         const cy = yScale(medianVal) + dims.margin.top;
-        return /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent8(g) });
+        return /* @__PURE__ */ (0, import_jsx_runtime122.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent8(g) });
       })()
     ] })
   ] });
@@ -19468,12 +19579,12 @@ var ViolinInner = (props) => {
 ViolinInner.displayName = "ViolinInner";
 
 // src/DATADISPLAY/Charts/Violin/Violin.tsx
-var import_jsx_runtime124 = require("react/jsx-runtime");
+var import_jsx_runtime123 = require("react/jsx-runtime");
 var Violin = import_react168.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react168.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime124.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime124.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ViolinInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime123.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime123.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime123.jsx)(ViolinInner, { ...rest, width, height }) }) });
   }
 );
 Violin.displayName = "Violin";
@@ -19565,7 +19676,7 @@ function useHistogramInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Histogram/HistogramInner.tsx
-var import_jsx_runtime125 = require("react/jsx-runtime");
+var import_jsx_runtime124 = require("react/jsx-runtime");
 var HistogramInner = (props) => {
   const {
     data,
@@ -19602,22 +19713,22 @@ var HistogramInner = (props) => {
   const xf = formatX ?? formatTick;
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime125.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime125.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty histogram" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime124.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime124.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty histogram" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime125.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime125.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime125.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Histogram", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime125.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime125.jsxs)(import_group19.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime124.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime124.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime124.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Histogram", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime124.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime124.jsxs)(import_group19.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
           bins.map((bin, i) => {
             const barX = xScale(bin.x0) ?? 0;
             const barW = Math.max(0, (xScale(bin.x1) ?? 0) - barX - 1);
             const barY = yScale(bin.count) ?? 0;
             const barH = dims.innerHeight - barY;
             const isHovered = hoveredIndex === i;
-            return /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(
               import_shape16.Bar,
               {
                 x: barX,
@@ -19637,15 +19748,15 @@ var HistogramInner = (props) => {
               i
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight, tickFormat: xf }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yf })
         ] })
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const bin = bins[hoveredIndex];
         const cx = ((xScale(bin.x0) ?? 0) + (xScale(bin.x1) ?? 0)) / 2 + dims.margin.left;
         const cy = (yScale(bin.count) ?? 0) + dims.margin.top;
-        return /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent9(bin) });
+        return /* @__PURE__ */ (0, import_jsx_runtime124.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent9(bin) });
       })()
     ] })
   ] });
@@ -19653,12 +19764,12 @@ var HistogramInner = (props) => {
 HistogramInner.displayName = "HistogramInner";
 
 // src/DATADISPLAY/Charts/Histogram/Histogram.tsx
-var import_jsx_runtime126 = require("react/jsx-runtime");
+var import_jsx_runtime125 = require("react/jsx-runtime");
 var Histogram = import_react171.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react171.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime126.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime126.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(HistogramInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime125.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime125.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime125.jsx)(HistogramInner, { ...rest, width, height }) }) });
   }
 );
 Histogram.displayName = "Histogram";
@@ -19728,7 +19839,7 @@ function usePieInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Pie/PieInner.tsx
-var import_jsx_runtime127 = require("react/jsx-runtime");
+var import_jsx_runtime126 = require("react/jsx-runtime");
 var PieInner = (props) => {
   const {
     data,
@@ -19769,14 +19880,14 @@ var PieInner = (props) => {
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime127.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime127.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pie chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime126.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime126.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pie chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime127.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime127.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime127.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Pie chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime127.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(import_group20.Group, { top: cy, left: cx, children: /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime126.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime126.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime126.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Pie chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime126.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(import_group20.Group, { top: cy, left: cx, children: /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(
           import_shape17.Pie,
           {
             data: [...data],
@@ -19791,7 +19902,7 @@ var PieInner = (props) => {
               const opacity = highlightIndex != null ? isHighlighted ? 1 : 0.3 : hoveredIndex != null && hoveredIndex !== i ? 0.5 : 1;
               const path = pie.path(arc) ?? "";
               const [lx, ly] = pie.path.centroid(arc);
-              return /* @__PURE__ */ (0, import_jsx_runtime127.jsxs)(
+              return /* @__PURE__ */ (0, import_jsx_runtime126.jsxs)(
                 "g",
                 {
                   opacity,
@@ -19800,7 +19911,7 @@ var PieInner = (props) => {
                   onMouseLeave: handleLeave,
                   onClick: onSelect ? () => handleClick(d, i) : void 0,
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(
                       "path",
                       {
                         d: path,
@@ -19809,7 +19920,7 @@ var PieInner = (props) => {
                         strokeWidth: isHighlighted ? 2 : void 0
                       }
                     ),
-                    showLabels && labelFits(arc.startAngle, arc.endAngle) && /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(
+                    showLabels && labelFits(arc.startAngle, arc.endAngle) && /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(
                       "text",
                       {
                         x: lx,
@@ -19833,30 +19944,30 @@ var PieInner = (props) => {
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
-        return /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent10(d, getValue2) });
+        return /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent10(d, getValue2) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime126.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 PieInner.displayName = "PieInner";
 
 // src/DATADISPLAY/Charts/Pie/Pie.tsx
-var import_jsx_runtime128 = require("react/jsx-runtime");
+var import_jsx_runtime127 = require("react/jsx-runtime");
 var Pie = import_react174.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react174.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime128.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime128.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime128.jsx)(PieInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime127.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime127.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime127.jsx)(PieInner, { ...rest, width, height }) }) });
   }
 );
 Pie.displayName = "Pie";
 
 // src/DATADISPLAY/Charts/Donut/Donut.tsx
 var import_react175 = __toESM(require("react"));
-var import_jsx_runtime129 = require("react/jsx-runtime");
+var import_jsx_runtime128 = require("react/jsx-runtime");
 var Donut = import_react175.default.forwardRef(
-  (props, ref) => /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(Pie, { ref, innerRadius: 0.55, ...props })
+  (props, ref) => /* @__PURE__ */ (0, import_jsx_runtime128.jsx)(Pie, { ref, innerRadius: 0.55, ...props })
 );
 Donut.displayName = "Donut";
 
@@ -19954,7 +20065,7 @@ function useRadarInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Radar/RadarInner.tsx
-var import_jsx_runtime130 = require("react/jsx-runtime");
+var import_jsx_runtime129 = require("react/jsx-runtime");
 var RadarInner = (props) => {
   const {
     data,
@@ -19991,18 +20102,18 @@ var RadarInner = (props) => {
   const cy = height / 2;
   const n = data.length;
   if (n === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime130.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty radar chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime129.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty radar chart" }) });
   }
   const polygon = buildPolygon(data, getValue2, rScale);
-  return /* @__PURE__ */ (0, import_jsx_runtime130.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime130.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime130.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Radar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime130.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime130.jsxs)(import_group21.Group, { top: cy, left: cx, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime129.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime129.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime129.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Radar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime129.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime129.jsxs)(import_group21.Group, { top: cy, left: cx, children: [
           showGrid && Array.from({ length: gridLevels }, (_, level) => {
             const r = radius * (level + 1) / gridLevels;
-            return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
               "polygon",
               {
                 points: buildGridPolygon(n, r),
@@ -20016,7 +20127,7 @@ var RadarInner = (props) => {
           }),
           showGrid && data.map((_, i) => {
             const angle = axisAngle(i, n);
-            return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
               "line",
               {
                 x1: 0,
@@ -20029,7 +20140,7 @@ var RadarInner = (props) => {
               i
             );
           }),
-          /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
             "polygon",
             {
               points: polygon,
@@ -20045,7 +20156,7 @@ var RadarInner = (props) => {
             const px = Math.cos(angle) * r;
             const py = Math.sin(angle) * r;
             const isHovered = hoveredIndex === i;
-            return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
               "circle",
               {
                 cx: px,
@@ -20064,7 +20175,7 @@ var RadarInner = (props) => {
           }),
           showLabels && data.map((d, i) => {
             const pos = labelPosition(i, n, radius);
-            return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
               "text",
               {
                 x: pos.x,
@@ -20084,7 +20195,7 @@ var RadarInner = (props) => {
         const d = data[hoveredIndex];
         const angle = axisAngle(hoveredIndex, n);
         const r = rScale(getValue2(d));
-        return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime129.jsx)(
           ChartTooltip,
           {
             left: cx + Math.cos(angle) * r,
@@ -20101,12 +20212,12 @@ var RadarInner = (props) => {
 RadarInner.displayName = "RadarInner";
 
 // src/DATADISPLAY/Charts/Radar/Radar.tsx
-var import_jsx_runtime131 = require("react/jsx-runtime");
+var import_jsx_runtime130 = require("react/jsx-runtime");
 var Radar = import_react178.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react178.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 400, 400);
-    return /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(RadarInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime130.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime130.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime130.jsx)(RadarInner, { ...rest, width, height }) }) });
   }
 );
 Radar.displayName = "Radar";
@@ -20187,7 +20298,7 @@ function useGaugeColor(value, color, thresholds) {
 }
 
 // src/DATADISPLAY/Charts/Gauge/GaugeInner.tsx
-var import_jsx_runtime132 = require("react/jsx-runtime");
+var import_jsx_runtime131 = require("react/jsx-runtime");
 var GaugeInner = (props) => {
   const {
     value,
@@ -20231,13 +20342,13 @@ var GaugeInner = (props) => {
       return { color: t.color, fromAngle: scale(from), toAngle: scale(to) };
     });
   }, [thresholds, min, scale]);
-  return /* @__PURE__ */ (0, import_jsx_runtime132.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("div", { className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime132.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? `Gauge: ${value}`, children: [
-      description && /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("desc", { children: description }),
+  return /* @__PURE__ */ (0, import_jsx_runtime131.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("div", { className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime131.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? `Gauge: ${value}`, children: [
+      description && /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("desc", { children: description }),
       segments ? (
         /* Threshold arcs — each segment colored, highlightIndex dims others */
-        segments.map((seg, i) => /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(
+        segments.map((seg, i) => /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(
           "path",
           {
             d: arcPath(cx, cy, outerR, innerR, seg.fromAngle, seg.toAngle),
@@ -20247,21 +20358,21 @@ var GaugeInner = (props) => {
           },
           i
         ))
-      ) : /* @__PURE__ */ (0, import_jsx_runtime132.jsxs)(import_jsx_runtime132.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, endAngle), fill: "var(--w3f-chart-grid-stroke, #e2e8f0)", opacity: 0.4 }),
-        /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, valueAngle), fill: fillColor })
+      ) : /* @__PURE__ */ (0, import_jsx_runtime131.jsxs)(import_jsx_runtime131.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, endAngle), fill: "var(--w3f-chart-grid-stroke, #e2e8f0)", opacity: 0.4 }),
+        /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, valueAngle), fill: fillColor })
       ] }),
-      segments && /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(
+      segments && /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(
         "path",
         {
           d: arcPath(cx, cy, outerR * 0.96, innerR * 1.04, startAngle, valueAngle),
           fill: "rgba(0,0,0,0.18)"
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("path", { d: needle, fill: "var(--w3f-chart-text-color, #1e293b)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("circle", { cx, cy, r: 6, fill: "var(--w3f-chart-text-color, #1e293b)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("circle", { cx, cy, r: 3, fill: "#fff" }),
-      showValue && /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("path", { d: needle, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("circle", { cx, cy, r: 6, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime131.jsx)("circle", { cx, cy, r: 3, fill: "#fff" }),
+      showValue && /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(
         "text",
         {
           x: cx,
@@ -20273,8 +20384,8 @@ var GaugeInner = (props) => {
           children: fmt(value)
         }
       ),
-      showMinMax && /* @__PURE__ */ (0, import_jsx_runtime132.jsxs)(import_jsx_runtime132.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(
+      showMinMax && /* @__PURE__ */ (0, import_jsx_runtime131.jsxs)(import_jsx_runtime131.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(
           "text",
           {
             x: cx - outerR - 4,
@@ -20285,7 +20396,7 @@ var GaugeInner = (props) => {
             children: min
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime131.jsx)(
           "text",
           {
             x: cx + outerR + 4,
@@ -20303,12 +20414,12 @@ var GaugeInner = (props) => {
 GaugeInner.displayName = "GaugeInner";
 
 // src/DATADISPLAY/Charts/Gauge/Gauge.tsx
-var import_jsx_runtime133 = require("react/jsx-runtime");
+var import_jsx_runtime132 = require("react/jsx-runtime");
 var Gauge = import_react181.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react181.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 300, 200);
-    return /* @__PURE__ */ (0, import_jsx_runtime133.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime133.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(GaugeInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime132.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime132.jsx)(GaugeInner, { ...rest, width, height }) }) });
   }
 );
 Gauge.displayName = "Gauge";
@@ -20374,7 +20485,7 @@ function useTreemapInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Treemap/TreemapInner.tsx
-var import_jsx_runtime134 = require("react/jsx-runtime");
+var import_jsx_runtime133 = require("react/jsx-runtime");
 var TreemapInner = (props) => {
   const {
     data,
@@ -20404,28 +20515,28 @@ var TreemapInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useTreemapInteraction(onHover, onSelect);
   const classes = (0, import_react183.useMemo)(() => buildTreemapClasses(className, unstyled), [className, unstyled]);
   if (leaves.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime134.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime134.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty treemap" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime133.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime133.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty treemap" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime134.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime134.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime134.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Treemap", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime134.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime133.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime133.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime133.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Treemap", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime133.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(
           import_hierarchy.Treemap,
           {
             root,
             size: [width, height],
             tile: import_hierarchy.treemapSquarify,
             padding: tilePadding,
-            children: (treemap) => /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(import_group22.Group, { children: treemap.descendants().filter((n) => !n.children).map((node, i) => {
+            children: (treemap) => /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(import_group22.Group, { children: treemap.descendants().filter((n) => !n.children).map((node, i) => {
               const w = node.x1 - node.x0;
               const h = node.y1 - node.y0;
               const d = node.data;
               const isHovered = hoveredIndex === i;
               const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
               const label = d.label ?? d.id;
-              return /* @__PURE__ */ (0, import_jsx_runtime134.jsxs)(
+              return /* @__PURE__ */ (0, import_jsx_runtime133.jsxs)(
                 "g",
                 {
                   opacity,
@@ -20434,7 +20545,7 @@ var TreemapInner = (props) => {
                   onMouseLeave: handleLeave,
                   onClick: onSelect ? () => handleClick(d, i) : void 0,
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(
                       "rect",
                       {
                         x: node.x0,
@@ -20445,7 +20556,7 @@ var TreemapInner = (props) => {
                         rx: tileRadius
                       }
                     ),
-                    showLabels && textFits(w, h) && /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(
+                    showLabels && textFits(w, h) && /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(
                       "text",
                       {
                         x: node.x0 + 4,
@@ -20469,7 +20580,7 @@ var TreemapInner = (props) => {
         const leafNodes = root.leaves();
         const node = leafNodes[hoveredIndex];
         if (!node) return null;
-        return /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime133.jsx)(
           ChartTooltip,
           {
             left: (node.x0 + node.x1) / 2,
@@ -20486,12 +20597,12 @@ var TreemapInner = (props) => {
 TreemapInner.displayName = "TreemapInner";
 
 // src/DATADISPLAY/Charts/Treemap/Treemap.tsx
-var import_jsx_runtime135 = require("react/jsx-runtime");
+var import_jsx_runtime134 = require("react/jsx-runtime");
 var Treemap = import_react184.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react184.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime135.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime135.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(TreemapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime134.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime134.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime134.jsx)(TreemapInner, { ...rest, width, height }) }) });
   }
 );
 Treemap.displayName = "Treemap";
@@ -20547,7 +20658,7 @@ function usePackInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Pack/PackInner.tsx
-var import_jsx_runtime136 = require("react/jsx-runtime");
+var import_jsx_runtime135 = require("react/jsx-runtime");
 var PackInner = (props) => {
   const {
     data,
@@ -20576,14 +20687,14 @@ var PackInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePackInteraction(onHover, onSelect);
   const classes = (0, import_react186.useMemo)(() => buildPackClasses(className, unstyled), [className, unstyled]);
   if (leaves.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime136.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime136.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pack chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime135.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime135.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pack chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime136.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime136.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime136.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Circle pack chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime136.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime135.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime135.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime135.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Circle pack chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime135.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(
           import_hierarchy2.Pack,
           {
             root,
@@ -20591,8 +20702,8 @@ var PackInner = (props) => {
             padding: circlePadding,
             children: (pack) => {
               const leafNodes = pack.descendants().filter((n) => !n.children);
-              return /* @__PURE__ */ (0, import_jsx_runtime136.jsxs)(import_group23.Group, { children: [
-                pack.descendants().filter((n) => n.children && n.depth > 0).map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime135.jsxs)(import_group23.Group, { children: [
+                pack.descendants().filter((n) => n.children && n.depth > 0).map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(
                   "circle",
                   {
                     cx: node.x,
@@ -20609,7 +20720,7 @@ var PackInner = (props) => {
                   const d = node.data;
                   const isHovered = hoveredIndex === i;
                   const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
-                  return /* @__PURE__ */ (0, import_jsx_runtime136.jsxs)(
+                  return /* @__PURE__ */ (0, import_jsx_runtime135.jsxs)(
                     "g",
                     {
                       opacity,
@@ -20618,7 +20729,7 @@ var PackInner = (props) => {
                       onMouseLeave: handleLeave,
                       onClick: onSelect ? () => handleClick(d, i) : void 0,
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(
                           "circle",
                           {
                             cx: node.x,
@@ -20628,7 +20739,7 @@ var PackInner = (props) => {
                             fillOpacity: 0.75
                           }
                         ),
-                        showLabels && node.r > 14 && /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(
+                        showLabels && node.r > 14 && /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(
                           "text",
                           {
                             x: node.x,
@@ -20656,7 +20767,7 @@ var PackInner = (props) => {
         const leafNodes = root.leaves();
         const node = leafNodes[hoveredIndex];
         if (!node) return null;
-        return /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime135.jsx)(
           ChartTooltip,
           {
             left: node.x ?? 0,
@@ -20673,12 +20784,12 @@ var PackInner = (props) => {
 PackInner.displayName = "PackInner";
 
 // src/DATADISPLAY/Charts/Pack/Pack.tsx
-var import_jsx_runtime137 = require("react/jsx-runtime");
+var import_jsx_runtime136 = require("react/jsx-runtime");
 var Pack = import_react187.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react187.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime137.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime137.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(PackInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime136.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime136.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime136.jsx)(PackInner, { ...rest, width, height }) }) });
   }
 );
 Pack.displayName = "Pack";
@@ -20820,7 +20931,7 @@ function useNetworkInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Network/NetworkInner.tsx
-var import_jsx_runtime138 = require("react/jsx-runtime");
+var import_jsx_runtime137 = require("react/jsx-runtime");
 var NetworkInner = (props) => {
   const {
     data,
@@ -20854,19 +20965,19 @@ var NetworkInner = (props) => {
     return map;
   }, [layout.nodes]);
   if (data.nodes.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime138.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime138.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty network chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime137.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime137.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty network chart" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime138.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime138.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime138.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Network chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime138.jsx)("desc", { children: description }),
+  return /* @__PURE__ */ (0, import_jsx_runtime137.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime137.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime137.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Network chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime137.jsx)("desc", { children: description }),
         layout.links.map((link, i) => {
           const s = nodeMap.get(link.source);
           const t = nodeMap.get(link.target);
           if (!s || !t) return null;
           const isHighlighted = hoveredIndex != null && (data.nodes[hoveredIndex]?.id === link.source || data.nodes[hoveredIndex]?.id === link.target);
-          return /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(
             "line",
             {
               x1: s.x,
@@ -20881,8 +20992,8 @@ var NetworkInner = (props) => {
             `link-${i}`
           );
         }),
-        layout.nodes.map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime138.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(
+        layout.nodes.map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime137.jsxs)("g", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(
             "circle",
             {
               cx: node.x,
@@ -20898,7 +21009,7 @@ var NetworkInner = (props) => {
               style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
             }
           ),
-          showLabels && /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(
+          showLabels && /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(
             "text",
             {
               x: node.x,
@@ -20913,7 +21024,7 @@ var NetworkInner = (props) => {
           )
         ] }, node.id))
       ] }),
-      showTooltip && hoveredIndex != null && layout.nodes[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(
+      showTooltip && hoveredIndex != null && layout.nodes[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime137.jsx)(
         ChartTooltip,
         {
           left: layout.nodes[hoveredIndex].x,
@@ -20929,12 +21040,12 @@ var NetworkInner = (props) => {
 NetworkInner.displayName = "NetworkInner";
 
 // src/DATADISPLAY/Charts/Network/Network.tsx
-var import_jsx_runtime139 = require("react/jsx-runtime");
+var import_jsx_runtime138 = require("react/jsx-runtime");
 var Network = import_react190.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react190.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime139.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime139.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(NetworkInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime138.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime138.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime138.jsx)(NetworkInner, { ...rest, width, height }) }) });
   }
 );
 Network.displayName = "Network";
@@ -21100,7 +21211,7 @@ function useSankeyInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Sankey/SankeyInner.tsx
-var import_jsx_runtime140 = require("react/jsx-runtime");
+var import_jsx_runtime139 = require("react/jsx-runtime");
 var SankeyInner = (props) => {
   const {
     data,
@@ -21126,14 +21237,14 @@ var SankeyInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useSankeyInteraction(onHover, onSelect);
   const classes = (0, import_react192.useMemo)(() => buildSankeyClasses(className, unstyled), [className, unstyled]);
   if (data.nodes.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime140.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime140.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sankey chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime139.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime139.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sankey chart" }) });
   }
   const hoveredNode = hoveredIndex != null ? layout.nodes[hoveredIndex] : null;
-  return /* @__PURE__ */ (0, import_jsx_runtime140.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime140.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime140.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sankey chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime140.jsx)("desc", { children: description }),
+  return /* @__PURE__ */ (0, import_jsx_runtime139.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime139.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime139.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sankey chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime139.jsx)("desc", { children: description }),
         layout.links.map((link, i) => {
           const sNode = layout.nodes.find((n) => n.id === link.source);
           const tNode = layout.nodes.find((n) => n.id === link.target);
@@ -21147,7 +21258,7 @@ var SankeyInner = (props) => {
             link.ty0,
             link.ty1
           );
-          return /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(
             "path",
             {
               d: path,
@@ -21159,8 +21270,8 @@ var SankeyInner = (props) => {
             `link-${i}`
           );
         }),
-        layout.nodes.map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime140.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(
+        layout.nodes.map((node, i) => /* @__PURE__ */ (0, import_jsx_runtime139.jsxs)("g", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(
             "rect",
             {
               x: node.x0,
@@ -21176,7 +21287,7 @@ var SankeyInner = (props) => {
               style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms" }
             }
           ),
-          showLabels && /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(
+          showLabels && /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(
             "text",
             {
               x: node.layer === 0 ? node.x0 - 4 : node.x1 + 4,
@@ -21191,7 +21302,7 @@ var SankeyInner = (props) => {
           )
         ] }, node.id))
       ] }),
-      showTooltip && hoveredNode && /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(
+      showTooltip && hoveredNode && /* @__PURE__ */ (0, import_jsx_runtime139.jsx)(
         ChartTooltip,
         {
           left: (hoveredNode.x0 + hoveredNode.x1) / 2,
@@ -21207,12 +21318,12 @@ var SankeyInner = (props) => {
 SankeyInner.displayName = "SankeyInner";
 
 // src/DATADISPLAY/Charts/Sankey/Sankey.tsx
-var import_jsx_runtime141 = require("react/jsx-runtime");
+var import_jsx_runtime140 = require("react/jsx-runtime");
 var Sankey = import_react193.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react193.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime141.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime141.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime141.jsx)(SankeyInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime140.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime140.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime140.jsx)(SankeyInner, { ...rest, width, height }) }) });
   }
 );
 Sankey.displayName = "Sankey";
@@ -21314,7 +21425,7 @@ function useFunnelInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Funnel/FunnelInner.tsx
-var import_jsx_runtime142 = require("react/jsx-runtime");
+var import_jsx_runtime141 = require("react/jsx-runtime");
 var FunnelInner = (props) => {
   const {
     data,
@@ -21342,16 +21453,16 @@ var FunnelInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useFunnelInteraction(onHover, onSelect);
   const classes = (0, import_react195.useMemo)(() => buildFunnelClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime142.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime142.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty funnel chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime141.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime141.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty funnel chart" }) });
   }
   const centerX = width / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime142.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime142.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime142.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime142.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Funnel chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime142.jsx)("desc", { children: description }),
-        segments.map((seg, i) => /* @__PURE__ */ (0, import_jsx_runtime142.jsxs)("g", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime142.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime141.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime141.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime141.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime141.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Funnel chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime141.jsx)("desc", { children: description }),
+        segments.map((seg, i) => /* @__PURE__ */ (0, import_jsx_runtime141.jsxs)("g", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime141.jsx)(
             "path",
             {
               d: buildSegmentPath(seg),
@@ -21365,7 +21476,7 @@ var FunnelInner = (props) => {
               style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
             }
           ),
-          showLabels && /* @__PURE__ */ (0, import_jsx_runtime142.jsxs)(
+          showLabels && /* @__PURE__ */ (0, import_jsx_runtime141.jsxs)(
             "text",
             {
               x: centerX,
@@ -21384,7 +21495,7 @@ var FunnelInner = (props) => {
           )
         ] }, i))
       ] }),
-      showTooltip && hoveredIndex != null && segments[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime142.jsx)(
+      showTooltip && hoveredIndex != null && segments[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime141.jsx)(
         ChartTooltip,
         {
           left: centerX,
@@ -21400,12 +21511,12 @@ var FunnelInner = (props) => {
 FunnelInner.displayName = "FunnelInner";
 
 // src/DATADISPLAY/Charts/Funnel/Funnel.tsx
-var import_jsx_runtime143 = require("react/jsx-runtime");
+var import_jsx_runtime142 = require("react/jsx-runtime");
 var Funnel = import_react196.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react196.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime143.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime143.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(FunnelInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime142.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime142.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime142.jsx)(FunnelInner, { ...rest, width, height }) }) });
   }
 );
 Funnel.displayName = "Funnel";
@@ -21512,7 +21623,7 @@ function useWaterfallInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Waterfall/WaterfallInner.tsx
-var import_jsx_runtime144 = require("react/jsx-runtime");
+var import_jsx_runtime143 = require("react/jsx-runtime");
 var WaterfallInner = (props) => {
   const {
     data,
@@ -21547,16 +21658,16 @@ var WaterfallInner = (props) => {
   const classes = (0, import_react198.useMemo)(() => buildWaterfallClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime144.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime144.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waterfall chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime143.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime143.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waterfall chart" }) });
   }
   const bandwidth = xScale.bandwidth();
-  return /* @__PURE__ */ (0, import_jsx_runtime144.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime144.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime144.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waterfall chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime144.jsxs)(import_group24.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime143.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime143.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime143.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waterfall chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime143.jsxs)(import_group24.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(
             ChartGrid,
             {
               xScale,
@@ -21572,8 +21683,8 @@ var WaterfallInner = (props) => {
             const yBot = yScale(Math.min(bar.y0, bar.y1)) ?? 0;
             const barHeight = Math.max(yBot - yTop, 1);
             const fill = bar.datum.isTotal ? totalColor : bar.datum.value >= 0 ? positiveColor : negativeColor;
-            return /* @__PURE__ */ (0, import_jsx_runtime144.jsxs)("g", { children: [
-              showConnectors && i > 0 && !bar.datum.isTotal && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime143.jsxs)("g", { children: [
+              showConnectors && i > 0 && !bar.datum.isTotal && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(
                 "line",
                 {
                   x1: xScale(bars[i - 1].datum.label) + bandwidth,
@@ -21585,7 +21696,7 @@ var WaterfallInner = (props) => {
                   strokeDasharray: "3,3"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(
                 "rect",
                 {
                   x,
@@ -21603,7 +21714,7 @@ var WaterfallInner = (props) => {
                   style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
                 }
               ),
-              showLabels && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(
+              showLabels && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(
                 "text",
                 {
                   x: x + bandwidth / 2,
@@ -21617,11 +21728,11 @@ var WaterfallInner = (props) => {
               )
             ] }, i);
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight }),
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && bars[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(
+      showTooltip && hoveredIndex != null && bars[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime143.jsx)(
         ChartTooltip,
         {
           left: (xScale(bars[hoveredIndex].datum.label) ?? 0) + bandwidth / 2 + dims.margin.left,
@@ -21637,12 +21748,12 @@ var WaterfallInner = (props) => {
 WaterfallInner.displayName = "WaterfallInner";
 
 // src/DATADISPLAY/Charts/Waterfall/Waterfall.tsx
-var import_jsx_runtime145 = require("react/jsx-runtime");
+var import_jsx_runtime144 = require("react/jsx-runtime");
 var Waterfall = import_react199.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react199.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(WaterfallInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime144.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime144.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime144.jsx)(WaterfallInner, { ...rest, width, height }) }) });
   }
 );
 Waterfall.displayName = "Waterfall";
@@ -21743,7 +21854,7 @@ function useCandlestickInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Candlestick/CandlestickInner.tsx
-var import_jsx_runtime146 = require("react/jsx-runtime");
+var import_jsx_runtime145 = require("react/jsx-runtime");
 var CandlestickInner = (props) => {
   const {
     data,
@@ -21783,7 +21894,7 @@ var CandlestickInner = (props) => {
   const yTickFormat = formatY ?? formatTick;
   const xTickFormat = formatX ?? defaultFormatX;
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty candlestick chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty candlestick chart" }) });
   }
   const bandwidth = xScale.bandwidth();
   const bodyWidth = bandwidth * candleWidthRatio;
@@ -21792,13 +21903,13 @@ var CandlestickInner = (props) => {
     const idx = Number(v);
     return idx < data.length ? xTickFormat(data[idx].date) : "";
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime146.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime146.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime146.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Candlestick chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime146.jsxs)(import_group25.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: priceChartHeight, axis: "y" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime145.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime145.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime145.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Candlestick chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime145.jsxs)(import_group25.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: priceChartHeight, axis: "y" }),
           data.map((datum, i) => {
             const x = xScale(String(i)) ?? 0;
             const isBullish = datum.close >= datum.open;
@@ -21807,7 +21918,7 @@ var CandlestickInner = (props) => {
             const bodyBottom = yScale(Math.min(datum.open, datum.close)) ?? 0;
             const bodyH = Math.max(bodyBottom - bodyTop, 1);
             const wickX = x + bandwidth / 2;
-            return /* @__PURE__ */ (0, import_jsx_runtime146.jsxs)(
+            return /* @__PURE__ */ (0, import_jsx_runtime145.jsxs)(
               "g",
               {
                 opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
@@ -21817,8 +21928,8 @@ var CandlestickInner = (props) => {
                 onClick: onSelect ? () => handleClick(datum, i) : void 0,
                 cursor: onSelect ? "pointer" : "default",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("line", { x1: wickX, y1: yScale(datum.high) ?? 0, x2: wickX, y2: yScale(datum.low) ?? 0, stroke: color, strokeWidth: 1.5 }),
-                  /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime145.jsx)("line", { x1: wickX, y1: yScale(datum.high) ?? 0, x2: wickX, y2: yScale(datum.low) ?? 0, stroke: color, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(
                     "rect",
                     {
                       x: x + bodyOffset,
@@ -21842,7 +21953,7 @@ var CandlestickInner = (props) => {
             const x = xScale(String(i)) ?? 0;
             const isBullish = datum.close >= datum.open;
             const barH = volumeHeight - (volumeScale(datum.volume) ?? 0);
-            return /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(
               "rect",
               {
                 x: x + bodyOffset,
@@ -21856,7 +21967,7 @@ var CandlestickInner = (props) => {
               "vol-" + i
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(
             ChartAxis,
             {
               scale: xScale,
@@ -21866,10 +21977,10 @@ var CandlestickInner = (props) => {
               numTicks: Math.min(data.length, 10)
             }
           ),
-          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
+          showYAxis && /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(ChartAxis, { scale: yScale, orientation: "left", tickFormat: yTickFormat })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime145.jsx)(
         ChartTooltip,
         {
           left: (xScale(String(hoveredIndex)) ?? 0) + bandwidth / 2 + dims.margin.left,
@@ -21885,12 +21996,12 @@ var CandlestickInner = (props) => {
 CandlestickInner.displayName = "CandlestickInner";
 
 // src/DATADISPLAY/Charts/Candlestick/Candlestick.tsx
-var import_jsx_runtime147 = require("react/jsx-runtime");
+var import_jsx_runtime146 = require("react/jsx-runtime");
 var Candlestick = import_react202.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react202.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(CandlestickInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime146.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime146.jsx)(CandlestickInner, { ...rest, width, height }) }) });
   }
 );
 Candlestick.displayName = "Candlestick";
@@ -21969,7 +22080,7 @@ function useSparklineHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Sparkline/SparklineInner.tsx
-var import_jsx_runtime148 = require("react/jsx-runtime");
+var import_jsx_runtime147 = require("react/jsx-runtime");
 var PADDING = 4;
 var SparklineInner = (props) => {
   const {
@@ -22034,12 +22145,12 @@ var SparklineInner = (props) => {
     if (hoveredIndex != null && onSelect) onSelect(data[hoveredIndex], hoveredIndex);
   }, [hoveredIndex, data, onSelect]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("svg", { width, height, role: "img", "aria-label": ariaLabel ?? "Empty sparkline" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("svg", { width, height, role: "img", "aria-label": ariaLabel ?? "Empty sparkline" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime148.jsxs)("div", { className: classes, "data-bind-id": bindId, style: { display: "inline-block", lineHeight: 0 }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime148.jsxs)("div", { style: { position: "relative", display: "inline-block" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime148.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime147.jsxs)("div", { className: classes, "data-bind-id": bindId, style: { display: "inline-block", lineHeight: 0 }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime147.jsxs)("div", { style: { position: "relative", display: "inline-block" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime147.jsxs)(
         "svg",
         {
           ref: svgRef,
@@ -22052,13 +22163,13 @@ var SparklineInner = (props) => {
           onClick: handleClick,
           style: { cursor: onSelect ? "pointer" : "default" },
           children: [
-            showArea && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("path", { d: areaPath, fill: color, fillOpacity: 0.15 }),
-            /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("path", { d: linePath, fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" }),
-            showEndDot && data.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("circle", { cx: xScale(data.length - 1), cy: yScale(data[data.length - 1]), r: strokeWidth + 1, fill: color }),
-            showMinMax && minIdx >= 0 && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("circle", { cx: xScale(minIdx), cy: yScale(data[minIdx]), r: strokeWidth + 1, fill: "#ef4444" }),
-            showMinMax && maxIdx >= 0 && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("circle", { cx: xScale(maxIdx), cy: yScale(data[maxIdx]), r: strokeWidth + 1, fill: "#22c55e" }),
-            hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime148.jsxs)(import_jsx_runtime148.Fragment, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(
+            showArea && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("path", { d: areaPath, fill: color, fillOpacity: 0.15 }),
+            /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("path", { d: linePath, fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" }),
+            showEndDot && data.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("circle", { cx: xScale(data.length - 1), cy: yScale(data[data.length - 1]), r: strokeWidth + 1, fill: color }),
+            showMinMax && minIdx >= 0 && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("circle", { cx: xScale(minIdx), cy: yScale(data[minIdx]), r: strokeWidth + 1, fill: "#ef4444" }),
+            showMinMax && maxIdx >= 0 && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)("circle", { cx: xScale(maxIdx), cy: yScale(data[maxIdx]), r: strokeWidth + 1, fill: "#22c55e" }),
+            hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime147.jsxs)(import_jsx_runtime147.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(
                 "line",
                 {
                   x1: xScale(hoveredIndex),
@@ -22071,7 +22182,7 @@ var SparklineInner = (props) => {
                   opacity: 0.5
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(
                 "circle",
                 {
                   cx: xScale(hoveredIndex),
@@ -22083,7 +22194,7 @@ var SparklineInner = (props) => {
                 }
               )
             ] }),
-            highlightIndex != null && highlightIndex < data.length && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(
+            highlightIndex != null && highlightIndex < data.length && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(
               "circle",
               {
                 cx: xScale(highlightIndex),
@@ -22098,19 +22209,19 @@ var SparklineInner = (props) => {
           ]
         }
       ),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(ChartTooltip, { left: xScale(hoveredIndex), top: yScale(data[hoveredIndex]), visible: true, offsetY: -12, children: data[hoveredIndex].toLocaleString() })
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ (0, import_jsx_runtime147.jsx)(ChartTooltip, { left: xScale(hoveredIndex), top: yScale(data[hoveredIndex]), visible: true, offsetY: -12, children: data[hoveredIndex].toLocaleString() })
     ] })
   ] });
 };
 SparklineInner.displayName = "SparklineInner";
 
 // src/DATADISPLAY/Charts/Sparkline/Sparkline.tsx
-var import_jsx_runtime149 = require("react/jsx-runtime");
+var import_jsx_runtime148 = require("react/jsx-runtime");
 var Sparkline = import_react205.default.forwardRef(
   ({ width: propWidth, height: propHeight = 40, ...rest }, ref) => {
     const containerRef = (0, import_react205.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 120, 40);
-    return /* @__PURE__ */ (0, import_jsx_runtime149.jsx)("div", { ref, style: { width: propWidth ? void 0 : "100%", display: "inline-block" }, children: /* @__PURE__ */ (0, import_jsx_runtime149.jsx)("div", { ref: containerRef, children: /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(SparklineInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("div", { ref, style: { width: propWidth ? void 0 : "100%", display: "inline-block" }, children: /* @__PURE__ */ (0, import_jsx_runtime148.jsx)("div", { ref: containerRef, children: /* @__PURE__ */ (0, import_jsx_runtime148.jsx)(SparklineInner, { ...rest, width, height }) }) });
   }
 );
 Sparkline.displayName = "Sparkline";
@@ -22181,7 +22292,7 @@ function useBulletInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Bullet/BulletInner.tsx
-var import_jsx_runtime150 = require("react/jsx-runtime");
+var import_jsx_runtime149 = require("react/jsx-runtime");
 var BulletInner = (props) => {
   const {
     data,
@@ -22210,16 +22321,16 @@ var BulletInner = (props) => {
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBulletInteraction(onHover, onSelect);
   const classes = (0, import_react207.useMemo)(() => buildBulletClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime150.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime150.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bullet chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime149.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime149.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bullet chart" }) });
   }
   const leftOffset = showLabels ? labelWidth : 0;
   const barWidth = width - leftOffset - (showValues ? 50 : 0);
   const totalHeight = data.length * barHeight + (data.length - 1) * rowGap;
   const fmt = (n) => n.toLocaleString();
-  return /* @__PURE__ */ (0, import_jsx_runtime150.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime150.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime150.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime149.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime149.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime149.jsxs)(
         "svg",
         {
           width,
@@ -22228,15 +22339,15 @@ var BulletInner = (props) => {
           role: "img",
           "aria-label": ariaLabel ?? "Bullet chart",
           children: [
-            description && /* @__PURE__ */ (0, import_jsx_runtime150.jsx)("desc", { children: description }),
+            description && /* @__PURE__ */ (0, import_jsx_runtime149.jsx)("desc", { children: description }),
             data.map((datum, i) => {
               const scale = buildBulletScale(datum, barWidth);
               const y = i * (barHeight + rowGap);
               const measureH = barHeight * 0.4;
               const measureY = y + (barHeight - measureH) / 2;
               const dimmed = highlightIndex != null && highlightIndex !== i || highlightIndex == null && hoveredIndex != null && hoveredIndex !== i;
-              return /* @__PURE__ */ (0, import_jsx_runtime150.jsxs)("g", { children: [
-                showLabels && /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime149.jsxs)("g", { children: [
+                showLabels && /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                   "text",
                   {
                     x: leftOffset - 8,
@@ -22248,8 +22359,8 @@ var BulletInner = (props) => {
                     children: datum.label
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime150.jsxs)("g", { transform: `translate(${leftOffset}, ${y})`, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime149.jsxs)("g", { transform: `translate(${leftOffset}, ${y})`, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                     "rect",
                     {
                       x: 0,
@@ -22260,7 +22371,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                     "rect",
                     {
                       x: 0,
@@ -22271,7 +22382,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                     "rect",
                     {
                       x: 0,
@@ -22282,7 +22393,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                     "rect",
                     {
                       x: 0,
@@ -22298,7 +22409,7 @@ var BulletInner = (props) => {
                       style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
                     }
                   ),
-                  datum.target !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                  datum.target !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                     "line",
                     {
                       x1: scale(datum.target) ?? 0,
@@ -22310,7 +22421,7 @@ var BulletInner = (props) => {
                     }
                   )
                 ] }),
-                showValues && /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+                showValues && /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
                   "text",
                   {
                     x: leftOffset + barWidth + 8,
@@ -22327,7 +22438,7 @@ var BulletInner = (props) => {
           ]
         }
       ),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime149.jsx)(
         ChartTooltip,
         {
           left: leftOffset + (buildBulletScale(data[hoveredIndex], barWidth)(data[hoveredIndex].value) ?? 0) / 2,
@@ -22343,12 +22454,12 @@ var BulletInner = (props) => {
 BulletInner.displayName = "BulletInner";
 
 // src/DATADISPLAY/Charts/Bullet/Bullet.tsx
-var import_jsx_runtime151 = require("react/jsx-runtime");
+var import_jsx_runtime150 = require("react/jsx-runtime");
 var Bullet = import_react208.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react208.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime151.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime151.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(BulletInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime150.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime150.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime150.jsx)(BulletInner, { ...rest, width, height }) }) });
   }
 );
 Bullet.displayName = "Bullet";
@@ -22470,7 +22581,7 @@ function useCalendarInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmapInner.tsx
-var import_jsx_runtime152 = require("react/jsx-runtime");
+var import_jsx_runtime151 = require("react/jsx-runtime");
 var DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 var CalendarHeatmapInner = (props) => {
   const {
@@ -22503,7 +22614,7 @@ var CalendarHeatmapInner = (props) => {
     return Math.max(...data.map((d) => d.value), 1);
   }, [data]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime152.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime152.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty calendar heatmap" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime151.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime151.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty calendar heatmap" }) });
   }
   const leftPad = showDayLabels ? 30 : 0;
   const topPad = showMonthLabels ? 18 : 0;
@@ -22512,12 +22623,12 @@ var CalendarHeatmapInner = (props) => {
   const svgWidth = leftPad + weeksCount * (cellSize + cellGap) + 8;
   const svgHeight = topPad + 7 * (cellSize + cellGap) + 8;
   const monthBoundaries = (0, import_react210.useMemo)(() => getMonthBoundaries(cells), [cells]);
-  return /* @__PURE__ */ (0, import_jsx_runtime152.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime152.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative", overflowX: "auto" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime152.jsxs)("svg", { width: svgWidth, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Calendar heatmap", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime152.jsx)("desc", { children: description }),
-        showMonthLabels && monthBoundaries.map((mb, i) => /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime151.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime151.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative", overflowX: "auto" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime151.jsxs)("svg", { width: svgWidth, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Calendar heatmap", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime151.jsx)("desc", { children: description }),
+        showMonthLabels && monthBoundaries.map((mb, i) => /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(
           "text",
           {
             x: leftPad + mb.weekIndex * (cellSize + cellGap),
@@ -22529,7 +22640,7 @@ var CalendarHeatmapInner = (props) => {
           },
           i
         )),
-        showDayLabels && DAY_LABELS.map((label, i) => label ? /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(
+        showDayLabels && DAY_LABELS.map((label, i) => label ? /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(
           "text",
           {
             x: leftPad - 6,
@@ -22547,7 +22658,7 @@ var CalendarHeatmapInner = (props) => {
           const x = leftPad + cell.weekIndex * (cellSize + cellGap);
           const y = topPad + cell.dayOfWeek * (cellSize + cellGap);
           const fill = valueToColor(cell.value, maxValue, emptyColor, colorRamp);
-          return /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(
             "rect",
             {
               x,
@@ -22570,7 +22681,7 @@ var CalendarHeatmapInner = (props) => {
           );
         })
       ] }),
-      showTooltip && hoveredIndex != null && cells[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(
+      showTooltip && hoveredIndex != null && cells[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime151.jsx)(
         ChartTooltip,
         {
           left: leftPad + cells[hoveredIndex].weekIndex * (cellSize + cellGap) + cellSize / 2,
@@ -22586,12 +22697,12 @@ var CalendarHeatmapInner = (props) => {
 CalendarHeatmapInner.displayName = "CalendarHeatmapInner";
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.tsx
-var import_jsx_runtime153 = require("react/jsx-runtime");
+var import_jsx_runtime152 = require("react/jsx-runtime");
 var CalendarHeatmap = import_react211.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react211.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 800, 140);
-    return /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime153.jsx)(CalendarHeatmapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime152.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime152.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime152.jsx)(CalendarHeatmapInner, { ...rest, width, height }) }) });
   }
 );
 CalendarHeatmap.displayName = "CalendarHeatmap";
@@ -22655,7 +22766,7 @@ function useSunburstInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Sunburst/SunburstInner.tsx
-var import_jsx_runtime154 = require("react/jsx-runtime");
+var import_jsx_runtime153 = require("react/jsx-runtime");
 var SunburstInner = (props) => {
   const {
     data,
@@ -22694,14 +22805,14 @@ var SunburstInner = (props) => {
   }), [maxDepth2, radius]);
   const arcGen = (0, import_react213.useMemo)(() => (0, import_d3_shape.arc)().cornerRadius(cornerRadius), [cornerRadius]);
   if (nodes.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sunburst" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sunburst" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime154.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime154.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime154.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime154.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sunburst chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime154.jsx)(import_group26.Group, { top: cy, left: cx, children: nodes.map((node, i) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime153.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime153.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime153.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime153.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sunburst chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime153.jsx)(import_group26.Group, { top: cy, left: cx, children: nodes.map((node, i) => {
           const innerR = yScale(node.depth);
           const outerR = yScale(node.depth + 1);
           const isHovered = hoveredIndex === i;
@@ -22716,7 +22827,7 @@ var SunburstInner = (props) => {
             outerRadius: outerR,
             padAngle
           }) ?? "";
-          return /* @__PURE__ */ (0, import_jsx_runtime154.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime153.jsxs)(
             "g",
             {
               opacity,
@@ -22725,14 +22836,14 @@ var SunburstInner = (props) => {
               onMouseLeave: handleLeave,
               onClick: onSelect ? () => handleClick(d, i) : void 0,
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("path", { d: pathStr, fill: colors[i] }),
+                /* @__PURE__ */ (0, import_jsx_runtime153.jsx)("path", { d: pathStr, fill: colors[i] }),
                 showLabels && arcLabelFits(startAngle, endAngle, node.depth) && (() => {
                   const angle = (startAngle + endAngle) / 2;
                   const r = (innerR + outerR) / 2;
                   const x = Math.cos(angle - Math.PI / 2) * r;
                   const y = Math.sin(angle - Math.PI / 2) * r;
                   const rotate = angle > Math.PI ? angle * 180 / Math.PI - 270 : angle * 180 / Math.PI - 90;
-                  return /* @__PURE__ */ (0, import_jsx_runtime154.jsx)(
+                  return /* @__PURE__ */ (0, import_jsx_runtime153.jsx)(
                     "text",
                     {
                       x,
@@ -22757,7 +22868,7 @@ var SunburstInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const node = nodes[hoveredIndex];
         if (!node) return null;
-        return /* @__PURE__ */ (0, import_jsx_runtime154.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent21(node.data) });
+        return /* @__PURE__ */ (0, import_jsx_runtime153.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent21(node.data) });
       })()
     ] })
   ] });
@@ -22765,12 +22876,12 @@ var SunburstInner = (props) => {
 SunburstInner.displayName = "SunburstInner";
 
 // src/DATADISPLAY/Charts/Sunburst/Sunburst.tsx
-var import_jsx_runtime155 = require("react/jsx-runtime");
+var import_jsx_runtime154 = require("react/jsx-runtime");
 var Sunburst = import_react214.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react214.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(SunburstInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime154.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime154.jsx)(SunburstInner, { ...rest, width, height }) }) });
   }
 );
 Sunburst.displayName = "Sunburst";
@@ -22830,7 +22941,7 @@ function useChordInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Chord/ChordInner.tsx
-var import_jsx_runtime156 = require("react/jsx-runtime");
+var import_jsx_runtime155 = require("react/jsx-runtime");
 var ChordInner = (props) => {
   const {
     data,
@@ -22859,14 +22970,14 @@ var ChordInner = (props) => {
   const cy = height / 2;
   const arcGen = (0, import_react216.useMemo)(() => (0, import_d3_shape2.arc)(), []);
   if (labels.length === 0 || matrix.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty chord" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty chord" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime156.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime156.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime156.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Chord diagram", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(import_group27.Group, { top: cy, left: cx, children: /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(import_chord.Chord, { matrix, padAngle, children: ({ chords }) => /* @__PURE__ */ (0, import_jsx_runtime156.jsxs)("g", { children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime155.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime155.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime155.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Chord diagram", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(import_group27.Group, { top: cy, left: cx, children: /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(import_chord.Chord, { matrix, padAngle, children: ({ chords }) => /* @__PURE__ */ (0, import_jsx_runtime155.jsxs)("g", { children: [
           chords.groups.map((group, i) => {
             const pathStr = arcGen({
               startAngle: group.startAngle,
@@ -22874,14 +22985,14 @@ var ChordInner = (props) => {
               innerRadius: radius - 10,
               outerRadius: radius
             }) ?? "";
-            return /* @__PURE__ */ (0, import_jsx_runtime156.jsxs)("g", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("path", { d: pathStr, fill: colors[i], stroke: colors[i] }),
+            return /* @__PURE__ */ (0, import_jsx_runtime155.jsxs)("g", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime155.jsx)("path", { d: pathStr, fill: colors[i], stroke: colors[i] }),
               showLabels && (() => {
                 const angle = (group.startAngle + group.endAngle) / 2;
                 const textR = radius + 14;
                 const x = Math.cos(angle - Math.PI / 2) * textR;
                 const y = Math.sin(angle - Math.PI / 2) * textR;
-                return /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(
+                return /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(
                   "text",
                   {
                     x,
@@ -22905,7 +23016,7 @@ var ChordInner = (props) => {
             const tgt = labels[chord.target.index];
             const val = chord.source.value;
             const datum = { source: src, target: tgt, value: val };
-            return /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(
               import_chord.Ribbon,
               {
                 chord,
@@ -22922,19 +23033,19 @@ var ChordInner = (props) => {
           })
         ] }) }) })
       ] }),
-      showTooltip && hoveredDatum != null && /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(ChartTooltip, { left: cx, top: 10, visible: true, offsetY: 0, children: buildTooltipContent22(hoveredDatum.source, hoveredDatum.target, hoveredDatum.value) })
+      showTooltip && hoveredDatum != null && /* @__PURE__ */ (0, import_jsx_runtime155.jsx)(ChartTooltip, { left: cx, top: 10, visible: true, offsetY: 0, children: buildTooltipContent22(hoveredDatum.source, hoveredDatum.target, hoveredDatum.value) })
     ] })
   ] });
 };
 ChordInner.displayName = "ChordInner";
 
 // src/DATADISPLAY/Charts/Chord/Chord.tsx
-var import_jsx_runtime157 = require("react/jsx-runtime");
+var import_jsx_runtime156 = require("react/jsx-runtime");
 var Chord = import_react217.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react217.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(ChordInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime156.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime156.jsx)(ChordInner, { ...rest, width, height }) }) });
   }
 );
 Chord.displayName = "Chord";
@@ -22994,7 +23105,7 @@ function usePolarBarInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBarInner.tsx
-var import_jsx_runtime158 = require("react/jsx-runtime");
+var import_jsx_runtime157 = require("react/jsx-runtime");
 var PolarBarInner = (props) => {
   const {
     data,
@@ -23038,14 +23149,14 @@ var PolarBarInner = (props) => {
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty polar bar" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty polar bar" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime158.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime158.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime158.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Polar bar chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(import_group28.Group, { top: cy, left: cx, children: data.map((d, i) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime157.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime157.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime157.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Polar bar chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(import_group28.Group, { top: cy, left: cx, children: data.map((d, i) => {
           const startAngle = i * sliceAngle;
           const endAngle = startAngle + sliceAngle - padAngle;
           const outerR = radiusScale(d.value);
@@ -23061,7 +23172,7 @@ var PolarBarInner = (props) => {
           const labelR = radius + 14;
           const lx = Math.cos(midAngle - Math.PI / 2) * labelR;
           const ly = Math.sin(midAngle - Math.PI / 2) * labelR;
-          return /* @__PURE__ */ (0, import_jsx_runtime158.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime157.jsxs)(
             "g",
             {
               opacity,
@@ -23070,8 +23181,8 @@ var PolarBarInner = (props) => {
               onMouseLeave: handleLeave,
               onClick: onSelect ? () => handleClick(d, i) : void 0,
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("path", { d: pathStr, fill: colors[i] }),
-                showLabels && /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime157.jsx)("path", { d: pathStr, fill: colors[i] }),
+                showLabels && /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(
                   "text",
                   {
                     x: lx,
@@ -23093,21 +23204,21 @@ var PolarBarInner = (props) => {
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
-        return /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent23(d) });
+        return /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent23(d) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime157.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 PolarBarInner.displayName = "PolarBarInner";
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBar.tsx
-var import_jsx_runtime159 = require("react/jsx-runtime");
+var import_jsx_runtime158 = require("react/jsx-runtime");
 var PolarBar = import_react220.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react220.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime159.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime159.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime159.jsx)(PolarBarInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime158.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime158.jsx)(PolarBarInner, { ...rest, width, height }) }) });
   }
 );
 PolarBar.displayName = "PolarBar";
@@ -23186,7 +23297,7 @@ function useWaffleInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Waffle/WaffleInner.tsx
-var import_jsx_runtime160 = require("react/jsx-runtime");
+var import_jsx_runtime159 = require("react/jsx-runtime");
 var WaffleInner = (props) => {
   const {
     data,
@@ -23229,13 +23340,13 @@ var WaffleInner = (props) => {
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime160.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime160.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waffle" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime159.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime159.jsx)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waffle" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime160.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime160.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime160.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime160.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waffle chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime160.jsx)("desc", { children: description }),
+  return /* @__PURE__ */ (0, import_jsx_runtime159.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime159.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime159.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime159.jsxs)("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waffle chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime159.jsx)("desc", { children: description }),
         cellMap.map((sliceIdx, cellIdx) => {
           if (sliceIdx < 0) return null;
           const col = cellIdx % columns;
@@ -23245,7 +23356,7 @@ var WaffleInner = (props) => {
           const d = data[sliceIdx];
           const isHovered = hoveredIndex === sliceIdx;
           const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
-          return /* @__PURE__ */ (0, import_jsx_runtime160.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime159.jsx)(
             "rect",
             {
               x,
@@ -23267,21 +23378,21 @@ var WaffleInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
         if (!d) return null;
-        return /* @__PURE__ */ (0, import_jsx_runtime160.jsx)(ChartTooltip, { left: width / 2, top: 0, visible: true, offsetY: -12, children: buildTooltipContent24(d, total) });
+        return /* @__PURE__ */ (0, import_jsx_runtime159.jsx)(ChartTooltip, { left: width / 2, top: 0, visible: true, offsetY: -12, children: buildTooltipContent24(d, total) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ (0, import_jsx_runtime160.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ (0, import_jsx_runtime159.jsx)(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 WaffleInner.displayName = "WaffleInner";
 
 // src/DATADISPLAY/Charts/Waffle/Waffle.tsx
-var import_jsx_runtime161 = require("react/jsx-runtime");
+var import_jsx_runtime160 = require("react/jsx-runtime");
 var Waffle = import_react223.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react223.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime161.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime161.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(WaffleInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime160.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime160.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime160.jsx)(WaffleInner, { ...rest, width, height }) }) });
   }
 );
 Waffle.displayName = "Waffle";
@@ -23368,7 +23479,7 @@ function useGanttInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Gantt/GanttInner.tsx
-var import_jsx_runtime162 = require("react/jsx-runtime");
+var import_jsx_runtime161 = require("react/jsx-runtime");
 var DEFAULT_MARGIN = { top: 20, right: 20, bottom: 40, left: 120 };
 var GanttInner = (props) => {
   const {
@@ -23433,25 +23544,25 @@ var GanttInner = (props) => {
     return { xScale: xs, yScale: ys };
   }, [data, dims.innerWidth, dims.innerHeight]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime162.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime162.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty Gantt chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime161.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime161.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty Gantt chart" }) });
   }
   const bandwidth = yScale.bandwidth();
   const taskBarHeight = Math.min(barHeight, bandwidth);
   const barY = (bandwidth - taskBarHeight) / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime162.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime162.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime162.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Gantt chart", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime162.jsxs)(import_group29.Group, { top: dims.margin.top, left: dims.margin.left, children: [
-          showGrid && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "x" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime161.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime161.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime161.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Gantt chart", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime161.jsxs)(import_group29.Group, { top: dims.margin.top, left: dims.margin.left, children: [
+          showGrid && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "x" }),
           data.map((task, i) => {
             const startX = xScale(toDate9(task.start)) ?? 0;
             const endX = xScale(toDate9(task.end)) ?? 0;
             const taskWidth = Math.max(endX - startX, 2);
             const y = (yScale(task.label) ?? 0) + barY;
             const color = colorMap[task.group ?? task.id] ?? colorMap[groups[i % groups.length]];
-            return /* @__PURE__ */ (0, import_jsx_runtime162.jsxs)(
+            return /* @__PURE__ */ (0, import_jsx_runtime161.jsxs)(
               "g",
               {
                 opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
@@ -23461,7 +23572,7 @@ var GanttInner = (props) => {
                 onClick: onSelect ? () => handleClick(task, i) : void 0,
                 cursor: onSelect ? "pointer" : "default",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(
                     "rect",
                     {
                       x: startX,
@@ -23474,7 +23585,7 @@ var GanttInner = (props) => {
                       ry: barRadius
                     }
                   ),
-                  task.progress != null && task.progress > 0 && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(
+                  task.progress != null && task.progress > 0 && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(
                     "rect",
                     {
                       x: startX,
@@ -23487,7 +23598,7 @@ var GanttInner = (props) => {
                       ry: barRadius
                     }
                   ),
-                  task.progress == null && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(
+                  task.progress == null && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(
                     "rect",
                     {
                       x: startX,
@@ -23507,7 +23618,7 @@ var GanttInner = (props) => {
           }),
           showLabels && data.map((task, i) => {
             const y = (yScale(task.label) ?? 0) + barY + taskBarHeight / 2;
-            return /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(
               "text",
               {
                 x: -8,
@@ -23523,10 +23634,10 @@ var GanttInner = (props) => {
               `label-${task.id}`
             );
           }),
-          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
+          showXAxis && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(ChartAxis, { scale: xScale, orientation: "bottom", top: dims.innerHeight })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ (0, import_jsx_runtime161.jsx)(
         ChartTooltip,
         {
           left: (xScale(toDate9(data[hoveredIndex].start)) ?? 0) + dims.margin.left,
@@ -23542,12 +23653,12 @@ var GanttInner = (props) => {
 GanttInner.displayName = "GanttInner";
 
 // src/DATADISPLAY/Charts/Gantt/Gantt.tsx
-var import_jsx_runtime163 = require("react/jsx-runtime");
+var import_jsx_runtime162 = require("react/jsx-runtime");
 var Gantt = import_react226.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react226.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime163.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime163.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(GanttInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime162.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime162.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime162.jsx)(GanttInner, { ...rest, width, height }) }) });
   }
 );
 Gantt.displayName = "Gantt";
@@ -23605,7 +23716,7 @@ function useTreeDiagramInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
-var import_jsx_runtime164 = require("react/jsx-runtime");
+var import_jsx_runtime163 = require("react/jsx-runtime");
 var MARGIN = { top: 40, right: 40, bottom: 40, left: 40 };
 function polarToCartesian(angle, radius) {
   return [
@@ -23664,18 +23775,18 @@ var TreeDiagramInner = (props) => {
   const centerX = layout === "radial" ? innerWidth / 2 : 0;
   const centerY = layout === "radial" ? innerHeight / 2 : 0;
   if (allNodes.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime164.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime164.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty tree diagram" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime163.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime163.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty tree diagram" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime164.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime164.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime164.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime164.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(import_hierarchy4.Tree, { root, size: treeSize, children: (tree) => /* @__PURE__ */ (0, import_jsx_runtime164.jsxs)(import_group30.Group, { top: MARGIN.top + centerY, left: MARGIN.left + centerX, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime163.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime163.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime163.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime163.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(import_hierarchy4.Tree, { root, size: treeSize, children: (tree) => /* @__PURE__ */ (0, import_jsx_runtime163.jsxs)(import_group30.Group, { top: MARGIN.top + centerY, left: MARGIN.left + centerX, children: [
           tree.links().map((link, i) => {
             const [sx, sy] = getNodePosition(link.source, layout);
             const [tx, ty] = getNodePosition(link.target, layout);
-            return /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(
               "line",
               {
                 x1: sx,
@@ -23717,7 +23828,7 @@ var TreeDiagramInner = (props) => {
               const degrees = angle * 180 / Math.PI - 90;
               labelRotation = isRight ? degrees : degrees + 180;
             }
-            return /* @__PURE__ */ (0, import_jsx_runtime164.jsxs)(
+            return /* @__PURE__ */ (0, import_jsx_runtime163.jsxs)(
               "g",
               {
                 opacity,
@@ -23726,7 +23837,7 @@ var TreeDiagramInner = (props) => {
                 onMouseLeave: handleLeave,
                 onClick: onSelect ? () => handleClick(d, i) : void 0,
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(
                     "circle",
                     {
                       cx: nx,
@@ -23738,7 +23849,7 @@ var TreeDiagramInner = (props) => {
                       style: { transition: "r 120ms ease-out" }
                     }
                   ),
-                  showLabels && /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(
+                  showLabels && /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(
                     "text",
                     {
                       x: nx,
@@ -23766,7 +23877,7 @@ var TreeDiagramInner = (props) => {
         const node = nodes[hoveredIndex];
         if (!node) return null;
         const [nx, ny] = getNodePosition(node, layout);
-        return /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime163.jsx)(
           ChartTooltip,
           {
             left: nx + MARGIN.left + centerX,
@@ -23783,12 +23894,12 @@ var TreeDiagramInner = (props) => {
 TreeDiagramInner.displayName = "TreeDiagramInner";
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.tsx
-var import_jsx_runtime165 = require("react/jsx-runtime");
+var import_jsx_runtime164 = require("react/jsx-runtime");
 var TreeDiagram = import_react229.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react229.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime165.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime165.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(TreeDiagramInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime164.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime164.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(TreeDiagramInner, { ...rest, width, height }) }) });
   }
 );
 TreeDiagram.displayName = "TreeDiagram";
@@ -23848,7 +23959,7 @@ function useWordCloudInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloudInner.tsx
-var import_jsx_runtime166 = require("react/jsx-runtime");
+var import_jsx_runtime165 = require("react/jsx-runtime");
 var WordCloudInner = (props) => {
   const {
     data,
@@ -23894,14 +24005,14 @@ var WordCloudInner = (props) => {
     return map;
   }, [data]);
   if (data.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime166.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime166.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty word cloud" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime165.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime165.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty word cloud" }) });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime166.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime166.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime166.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Word cloud", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime166.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime165.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime165.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime165.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Word cloud", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime165.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(
           import_wordcloud.Wordcloud,
           {
             width,
@@ -23912,12 +24023,12 @@ var WordCloudInner = (props) => {
             padding,
             spiral,
             rotate: (d) => rotateFn(d),
-            children: (cloud) => /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(import_group31.Group, { top: height / 2, left: width / 2, children: cloud.map((word, i) => {
+            children: (cloud) => /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(import_group31.Group, { top: height / 2, left: width / 2, children: cloud.map((word, i) => {
               const originalIndex = wordIndexMap.get(word.text) ?? i;
               const datum = data[originalIndex];
               const isHovered = hoveredIndex === originalIndex;
               const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
-              return /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(
+              return /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(
                 "text",
                 {
                   transform: `translate(${word.x}, ${word.y}) rotate(${word.rotate})`,
@@ -23941,7 +24052,7 @@ var WordCloudInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const datum = data[hoveredIndex];
         if (!datum) return null;
-        return /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime165.jsx)(
           ChartTooltip,
           {
             left: width / 2,
@@ -23958,12 +24069,12 @@ var WordCloudInner = (props) => {
 WordCloudInner.displayName = "WordCloudInner";
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloud.tsx
-var import_jsx_runtime167 = require("react/jsx-runtime");
+var import_jsx_runtime166 = require("react/jsx-runtime");
 var WordCloud = import_react232.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react232.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime167.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime167.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(WordCloudInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime166.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime166.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime166.jsx)(WordCloudInner, { ...rest, width, height }) }) });
   }
 );
 WordCloud.displayName = "WordCloud";
@@ -24076,7 +24187,7 @@ function useGeoInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Geo/GeoInner.tsx
-var import_jsx_runtime168 = require("react/jsx-runtime");
+var import_jsx_runtime167 = require("react/jsx-runtime");
 var GeoInner = (props) => {
   const {
     data,
@@ -24114,22 +24225,22 @@ var GeoInner = (props) => {
   const classes = (0, import_react234.useMemo)(() => buildGeoClasses(className, unstyled), [className, unstyled]);
   const geojsonFeatures = data.geojson?.features;
   if (!geojsonFeatures || geojsonFeatures.length === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty geo chart" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime167.jsx)("div", { className: classes, children: /* @__PURE__ */ (0, import_jsx_runtime167.jsx)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty geo chart" }) });
   }
   const centerX = width / 2;
   const centerY = height / 2;
-  return /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Choropleth map", children: [
-        description && /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("desc", { children: description }),
-        /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Choropleth map", children: [
+        description && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)("desc", { children: description }),
+        /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(
           import_geo.Mercator,
           {
             data: geojsonFeatures,
             fitSize: [[width, height], data.geojson],
-            children: (mercator) => /* @__PURE__ */ (0, import_jsx_runtime168.jsxs)(import_group32.Group, { children: [
-              showGraticule && /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+            children: (mercator) => /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)(import_group32.Group, { children: [
+              showGraticule && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(
                 import_geo.Graticule,
                 {
                   graticule: (g) => mercator.path(g) || "",
@@ -24149,7 +24260,7 @@ var GeoInner = (props) => {
                   value: 0,
                   label: feature.properties?.name ?? String(featureId)
                 };
-                return /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+                return /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(
                   "path",
                   {
                     d: path || "",
@@ -24179,7 +24290,7 @@ var GeoInner = (props) => {
           value: 0,
           label: feature.properties?.name ?? String(featureId)
         };
-        return /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(
           ChartTooltip,
           {
             left: centerX,
@@ -24196,12 +24307,12 @@ var GeoInner = (props) => {
 GeoInner.displayName = "GeoInner";
 
 // src/DATADISPLAY/Charts/Geo/Geo.tsx
-var import_jsx_runtime169 = require("react/jsx-runtime");
+var import_jsx_runtime168 = require("react/jsx-runtime");
 var Geo = import_react235.default.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
     const containerRef = (0, import_react235.useRef)(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ (0, import_jsx_runtime169.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime169.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime169.jsx)(GeoInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime168.jsx)("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ (0, import_jsx_runtime168.jsx)(GeoInner, { ...rest, width, height }) }) });
   }
 );
 Geo.displayName = "Geo";
@@ -24312,7 +24423,7 @@ function useHoveredIndex2() {
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-var import_jsx_runtime170 = require("react/jsx-runtime");
+var import_jsx_runtime169 = require("react/jsx-runtime");
 var BarChart = import_react237.default.forwardRef(
   ({
     data,
@@ -24346,7 +24457,7 @@ var BarChart = import_react237.default.forwardRef(
       () => buildBarChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime170.jsxs)(import_group33.Group, { top: margin.top, left: margin.left, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime169.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime169.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime169.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime169.jsxs)(import_group33.Group, { top: margin.top, left: margin.left, children: [
       data.map((d, i) => {
         if (horizontal) {
           const bandScale2 = yScale;
@@ -24354,7 +24465,7 @@ var BarChart = import_react237.default.forwardRef(
           const barHeight2 = bandScale2.bandwidth?.() ?? 0;
           const barWidth2 = linearScale2(d.value) ?? 0;
           const barY2 = bandScale2(d.label) ?? 0;
-          return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime169.jsx)(
             import_shape18.Bar,
             {
               x: 0,
@@ -24376,7 +24487,7 @@ var BarChart = import_react237.default.forwardRef(
         const barHeight = innerHeight - (linearScale(d.value) ?? 0);
         const barX = bandScale(d.label) ?? 0;
         const barY = linearScale(d.value) ?? 0;
-        return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime169.jsx)(
           import_shape18.Bar,
           {
             x: barX,
@@ -24392,7 +24503,7 @@ var BarChart = import_react237.default.forwardRef(
           d.label
         );
       }),
-      /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime169.jsx)(
         import_axis2.AxisBottom,
         {
           top: innerHeight,
@@ -24403,7 +24514,7 @@ var BarChart = import_react237.default.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime169.jsx)(
         import_axis2.AxisLeft,
         {
           scale: horizontal ? yScale : yScale,
@@ -24475,7 +24586,7 @@ function formatTick3(value) {
 }
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-var import_jsx_runtime171 = require("react/jsx-runtime");
+var import_jsx_runtime170 = require("react/jsx-runtime");
 var LineChart = import_react238.default.forwardRef(
   ({
     data,
@@ -24511,8 +24622,8 @@ var LineChart = import_react238.default.forwardRef(
     );
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
-    return /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime171.jsxs)(import_group34.Group, { top: margin.top, left: margin.left, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime170.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime170.jsxs)(import_group34.Group, { top: margin.top, left: margin.left, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
         import_shape19.LinePath,
         {
           data,
@@ -24523,7 +24634,7 @@ var LineChart = import_react238.default.forwardRef(
           curve: curved ? import_curve7.curveMonotoneX : import_curve7.curveLinear
         }
       ),
-      showDots && data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
+      showDots && data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
         "circle",
         {
           cx: getX(d),
@@ -24535,7 +24646,7 @@ var LineChart = import_react238.default.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
         import_axis3.AxisBottom,
         {
           top: innerHeight,
@@ -24546,7 +24657,7 @@ var LineChart = import_react238.default.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(
         import_axis3.AxisLeft,
         {
           scale: yScale,
@@ -24602,7 +24713,7 @@ function getSliceValue(d) {
 }
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-var import_jsx_runtime172 = require("react/jsx-runtime");
+var import_jsx_runtime171 = require("react/jsx-runtime");
 var PieChart = import_react239.default.forwardRef(
   ({
     data,
@@ -24632,7 +24743,7 @@ var PieChart = import_react239.default.forwardRef(
       () => buildPieChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime172.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime172.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime172.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(import_group35.Group, { top: centerY, left: centerX, children: /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(import_group35.Group, { top: centerY, left: centerX, children: /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
       import_shape20.Pie,
       {
         data,
@@ -24642,8 +24753,8 @@ var PieChart = import_react239.default.forwardRef(
         padAngle: 0.01,
         children: (pie) => pie.arcs.map((arc, i) => {
           const pathD = pie.path(arc) ?? "";
-          return /* @__PURE__ */ (0, import_jsx_runtime172.jsxs)("g", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
+          return /* @__PURE__ */ (0, import_jsx_runtime171.jsxs)("g", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
               "path",
               {
                 d: pathD,
@@ -24654,7 +24765,7 @@ var PieChart = import_react239.default.forwardRef(
                 style: { cursor: "pointer", transition: "opacity 0.15s" }
               }
             ),
-            radius > 60 && /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
+            radius > 60 && /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
               "text",
               {
                 x: pie.path.centroid(arc)[0],
@@ -24733,7 +24844,7 @@ function formatTick4(value) {
 }
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-var import_jsx_runtime173 = require("react/jsx-runtime");
+var import_jsx_runtime172 = require("react/jsx-runtime");
 var AreaChart = import_react240.default.forwardRef(
   ({
     data,
@@ -24770,8 +24881,8 @@ var AreaChart = import_react240.default.forwardRef(
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
     const safeGradientId = gradientId.replace(/:/g, "_");
-    return /* @__PURE__ */ (0, import_jsx_runtime173.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime173.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime173.jsxs)("svg", { width, height, children: [
-      gradient && /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime172.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime172.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime172.jsxs)("svg", { width, height, children: [
+      gradient && /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
         import_gradient.LinearGradient,
         {
           id: safeGradientId,
@@ -24781,8 +24892,8 @@ var AreaChart = import_react240.default.forwardRef(
           toOpacity: 0.05
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime173.jsxs)(import_group36.Group, { top: margin.top, left: margin.left, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime172.jsxs)(import_group36.Group, { top: margin.top, left: margin.left, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
           import_shape21.AreaClosed,
           {
             data,
@@ -24794,7 +24905,7 @@ var AreaChart = import_react240.default.forwardRef(
             fillOpacity: gradient ? 1 : 0.3
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
           import_shape21.LinePath,
           {
             data,
@@ -24805,7 +24916,7 @@ var AreaChart = import_react240.default.forwardRef(
             curve: import_curve8.curveMonotoneX
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
           import_axis4.AxisBottom,
           {
             top: innerHeight,
@@ -24816,7 +24927,7 @@ var AreaChart = import_react240.default.forwardRef(
             tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime172.jsx)(
           import_axis4.AxisLeft,
           {
             scale: yScale,
@@ -24887,7 +24998,7 @@ function formatTick5(value) {
 }
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-var import_jsx_runtime174 = require("react/jsx-runtime");
+var import_jsx_runtime173 = require("react/jsx-runtime");
 var ScatterPlot = import_react241.default.forwardRef(
   ({
     data,
@@ -24920,8 +25031,8 @@ var ScatterPlot = import_react241.default.forwardRef(
       () => buildScatterPlotClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime174.jsxs)(import_group37.Group, { top: margin.top, left: margin.left, children: [
-      data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime173.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime173.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime173.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime173.jsxs)(import_group37.Group, { top: margin.top, left: margin.left, children: [
+      data.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
         import_shape22.Circle,
         {
           cx: xScale(d.x) ?? 0,
@@ -24935,7 +25046,7 @@ var ScatterPlot = import_react241.default.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
         import_axis5.AxisBottom,
         {
           top: innerHeight,
@@ -24946,7 +25057,7 @@ var ScatterPlot = import_react241.default.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime173.jsx)(
         import_axis5.AxisLeft,
         {
           scale: yScale,
@@ -25069,7 +25180,7 @@ function useHoveredIndex3() {
 }
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.tsx
-var import_jsx_runtime175 = require("react/jsx-runtime");
+var import_jsx_runtime174 = require("react/jsx-runtime");
 var GRID_LEVELS = 5;
 var RadarChart = import_react243.default.forwardRef(
   ({
@@ -25117,8 +25228,8 @@ var RadarChart = import_react243.default.forwardRef(
       () => data.map((d, i) => ({ ...labelPosition2(i, data.length, radius), label: d.axis })),
       [data, radius]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime175.jsxs)(import_group38.Group, { top: cy, left: cx, children: [
-      gridPolygons.map((points, i) => /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime174.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime174.jsxs)(import_group38.Group, { top: cy, left: cx, children: [
+      gridPolygons.map((points, i) => /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
         "polygon",
         {
           points,
@@ -25131,7 +25242,7 @@ var RadarChart = import_react243.default.forwardRef(
       )),
       data.map((_, i) => {
         const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
-        return /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
           "line",
           {
             x1: 0,
@@ -25145,7 +25256,7 @@ var RadarChart = import_react243.default.forwardRef(
           `axis-${i}`
         );
       }),
-      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
         "polygon",
         {
           points: polygonPoints,
@@ -25159,7 +25270,7 @@ var RadarChart = import_react243.default.forwardRef(
         const maxVal = Math.max(...data.map((dd) => dd.value), 1);
         const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
         const r = d.value / maxVal * radius;
-        return /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
           "circle",
           {
             cx: r * Math.cos(angle),
@@ -25175,7 +25286,7 @@ var RadarChart = import_react243.default.forwardRef(
           `point-${i}`
         );
       }),
-      labels.map((lbl, i) => /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
+      labels.map((lbl, i) => /* @__PURE__ */ (0, import_jsx_runtime174.jsx)(
         "text",
         {
           x: lbl.x,
@@ -25297,7 +25408,7 @@ function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth =
 }
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.tsx
-var import_jsx_runtime176 = require("react/jsx-runtime");
+var import_jsx_runtime175 = require("react/jsx-runtime");
 var GaugeChart = import_react245.default.forwardRef(
   ({
     value,
@@ -25345,12 +25456,12 @@ var GaugeChart = import_react245.default.forwardRef(
       [cx, cy, outerRadius, needleAngle]
     );
     const pct = Math.round((value - min) / (max - min) * 100);
-    return /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime176.jsxs)("svg", { width, height, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("path", { d: bgArc, fill: "var(--w3f-surface-variant, #334155)", opacity: 0.3 }),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("path", { d: filledArc, fill: fillColor }),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("path", { d: needle, fill: "var(--w3f-text-primary, #e2e8f0)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("circle", { cx, cy, r: 5, fill: "var(--w3f-text-primary, #e2e8f0)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime175.jsxs)("svg", { width, height, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("path", { d: bgArc, fill: "var(--w3f-surface-variant, #334155)", opacity: 0.3 }),
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("path", { d: filledArc, fill: fillColor }),
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("path", { d: needle, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)("circle", { cx, cy, r: 5, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
         "text",
         {
           x: cx,
@@ -25363,7 +25474,7 @@ var GaugeChart = import_react245.default.forwardRef(
           children: value
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
         "text",
         {
           x: cx - outerRadius,
@@ -25374,7 +25485,7 @@ var GaugeChart = import_react245.default.forwardRef(
           children: min
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime175.jsx)(
         "text",
         {
           x: cx + outerRadius,
@@ -25489,7 +25600,7 @@ function useHoveredIndex4() {
 }
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.tsx
-var import_jsx_runtime177 = require("react/jsx-runtime");
+var import_jsx_runtime176 = require("react/jsx-runtime");
 var HeatmapChart = import_react247.default.forwardRef(
   ({
     data,
@@ -25546,8 +25657,8 @@ var HeatmapChart = import_react247.default.forwardRef(
       }
       return result;
     }, [data, rows, cols, xScale, yScale, colorScale]);
-    return /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime177.jsxs)(import_group39.Group, { top: margin.top, left: margin.left, children: [
-      cells.map((cell) => /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime176.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime176.jsxs)(import_group39.Group, { top: margin.top, left: margin.left, children: [
+      cells.map((cell) => /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
         "rect",
         {
           x: cell.x,
@@ -25563,7 +25674,7 @@ var HeatmapChart = import_react247.default.forwardRef(
         },
         `${cell.row}-${cell.col}`
       )),
-      cols.map((col) => /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
+      cols.map((col) => /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
         "text",
         {
           x: (xScale(col) ?? 0) + xScale.bandwidth() / 2,
@@ -25575,7 +25686,7 @@ var HeatmapChart = import_react247.default.forwardRef(
         },
         `col-${col}`
       )),
-      rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
+      rows.map((row) => /* @__PURE__ */ (0, import_jsx_runtime176.jsx)(
         "text",
         {
           x: -8,
@@ -25679,7 +25790,7 @@ function useHoveredIndex5() {
 }
 
 // src/DATADISPLAY/Charts/TreemapChart/TreemapChart.tsx
-var import_jsx_runtime178 = require("react/jsx-runtime");
+var import_jsx_runtime177 = require("react/jsx-runtime");
 var TREEMAP_MARGIN = { top: 4, right: 4, bottom: 4, left: 4 };
 var TreemapChart = import_react249.default.forwardRef(
   ({
@@ -25712,7 +25823,7 @@ var TreemapChart = import_react249.default.forwardRef(
       const h = (0, import_hierarchy5.hierarchy)(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
       return h;
     }, [data]);
-    return /* @__PURE__ */ (0, import_jsx_runtime178.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime178.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime178.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(import_group40.Group, { top: TREEMAP_MARGIN.top, left: TREEMAP_MARGIN.left, children: /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)("svg", { width, height, children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(import_group40.Group, { top: TREEMAP_MARGIN.top, left: TREEMAP_MARGIN.left, children: /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
       import_hierarchy5.Treemap,
       {
         root,
@@ -25721,11 +25832,11 @@ var TreemapChart = import_react249.default.forwardRef(
         round: true,
         children: (treemap) => {
           const leaves = treemap.descendants().filter((n) => !n.children);
-          return /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(import_group40.Group, { children: leaves.map((node, i) => {
+          return /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(import_group40.Group, { children: leaves.map((node, i) => {
             const w = (node.x1 ?? 0) - (node.x0 ?? 0);
             const h = (node.y1 ?? 0) - (node.y0 ?? 0);
-            return /* @__PURE__ */ (0, import_jsx_runtime178.jsxs)(import_group40.Group, { top: node.y0, left: node.x0, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime177.jsxs)(import_group40.Group, { top: node.y0, left: node.x0, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
                 "rect",
                 {
                   width: w,
@@ -25740,7 +25851,7 @@ var TreemapChart = import_react249.default.forwardRef(
                   style: { cursor: "pointer" }
                 }
               ),
-              textFits2(w, h) && /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(
+              textFits2(w, h) && /* @__PURE__ */ (0, import_jsx_runtime177.jsx)(
                 "text",
                 {
                   x: w / 2,
@@ -25806,7 +25917,7 @@ var useScrollLock2 = (locked) => {
 };
 
 // src/FEEDBACK/Backdrop/Backdrop.tsx
-var import_jsx_runtime179 = require("react/jsx-runtime");
+var import_jsx_runtime178 = require("react/jsx-runtime");
 var Backdrop = import_react251.default.forwardRef(({
   open = false,
   children,
@@ -25831,7 +25942,7 @@ var Backdrop = import_react251.default.forwardRef(({
     ...sx
   }), [transitionDuration, sx]);
   if (!open) return null;
-  const content = /* @__PURE__ */ (0, import_jsx_runtime179.jsx)(
+  const content = /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(
     Component,
     {
       ref,
@@ -25840,7 +25951,7 @@ var Backdrop = import_react251.default.forwardRef(({
       role: "presentation",
       style: inlineStyles,
       ...rest,
-      children: children || showSpinner && /* @__PURE__ */ (0, import_jsx_runtime179.jsx)(
+      children: children || showSpinner && /* @__PURE__ */ (0, import_jsx_runtime178.jsx)(
         ProgressSpinner_default,
         {
           mode: "indeterminate",
@@ -25947,7 +26058,7 @@ var useRipple = (options = {}) => {
 };
 
 // src/FEEDBACK/Ripples/Ripple.tsx
-var import_jsx_runtime180 = require("react/jsx-runtime");
+var import_jsx_runtime179 = require("react/jsx-runtime");
 var Ripple = import_react253.default.forwardRef(({
   children,
   className = "",
@@ -26003,7 +26114,7 @@ var Ripple = import_react253.default.forwardRef(({
     () => buildRippleClasses(flat, disabled, className),
     [flat, disabled, className]
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime180.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime179.jsx)(
     "div",
     {
       ref: containerRef,
@@ -26015,7 +26126,7 @@ var Ripple = import_react253.default.forwardRef(({
       "aria-disabled": disabled,
       "data-ripple-color": color,
       ...rest,
-      children: /* @__PURE__ */ (0, import_jsx_runtime180.jsx)("div", { className: "w3f-ripple-content", children })
+      children: /* @__PURE__ */ (0, import_jsx_runtime179.jsx)("div", { className: "w3f-ripple-content", children })
     }
   );
 });
@@ -26057,7 +26168,7 @@ function buildSnackbarClasses(variant, isExiting, className) {
 }
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-var import_jsx_runtime181 = require("react/jsx-runtime");
+var import_jsx_runtime180 = require("react/jsx-runtime");
 var Snackbar = import_react254.default.forwardRef(({
   open,
   message,
@@ -26119,7 +26230,7 @@ var Snackbar = import_react254.default.forwardRef(({
     [variant, isExiting, className]
   );
   if (!isVisible) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime181.jsx)("div", { className: anchorClasses, children: /* @__PURE__ */ (0, import_jsx_runtime181.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime180.jsx)("div", { className: anchorClasses, children: /* @__PURE__ */ (0, import_jsx_runtime180.jsxs)(
     "div",
     {
       ref,
@@ -26131,8 +26242,8 @@ var Snackbar = import_react254.default.forwardRef(({
       onMouseLeave: () => setIsPaused(false),
       ...rest,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime181.jsx)("p", { className: "w3f-snackbar__message", children: message }),
-        action ? /* @__PURE__ */ (0, import_jsx_runtime181.jsx)("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ (0, import_jsx_runtime181.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime180.jsx)("p", { className: "w3f-snackbar__message", children: message }),
+        action ? /* @__PURE__ */ (0, import_jsx_runtime180.jsx)("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ (0, import_jsx_runtime180.jsx)(
           "button",
           {
             className: "w3f-snackbar__close",
@@ -26179,7 +26290,7 @@ function buildButtonGridClasses(align = "start", className) {
 }
 
 // src/LAYOUT/ButtonGrid/ButtonGrid.tsx
-var import_jsx_runtime182 = require("react/jsx-runtime");
+var import_jsx_runtime181 = require("react/jsx-runtime");
 var ButtonGrid = ({
   children,
   align = BUTTON_GRID_DEFAULTS.align,
@@ -26189,7 +26300,7 @@ var ButtonGrid = ({
   ...rest
 }) => {
   const classes = buildButtonGridClasses(align, className);
-  return /* @__PURE__ */ (0, import_jsx_runtime182.jsx)(Element, { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime181.jsx)(Element, { className: classes, style, ...rest, children });
 };
 ButtonGrid.displayName = "ButtonGrid";
 
@@ -26217,9 +26328,9 @@ var buildCellClassNames = ({
 };
 
 // src/LAYOUT/Cell/Cell.tsx
-var import_jsx_runtime183 = require("react/jsx-runtime");
+var import_jsx_runtime182 = require("react/jsx-runtime");
 var CellRow = ({ children, className = "", style, ...props }) => {
-  return /* @__PURE__ */ (0, import_jsx_runtime183.jsx)("div", { className, style, ...props, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime182.jsx)("div", { className, style, ...props, children });
 };
 CellRow.displayName = "CellRow";
 var Cell = ({
@@ -26232,7 +26343,7 @@ var Cell = ({
   ...props
 }) => {
   const classes = buildCellClassNames({ content, center, vCenter, className });
-  return /* @__PURE__ */ (0, import_jsx_runtime183.jsx)("div", { className: classes, style, ...props, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime182.jsx)("div", { className: classes, style, ...props, children });
 };
 Cell.displayName = "Cell";
 
@@ -26405,7 +26516,7 @@ var buildFlexItemInlineStyles = ({
 };
 
 // src/LAYOUT/Flexbox/Flexbox.tsx
-var import_jsx_runtime184 = require("react/jsx-runtime");
+var import_jsx_runtime183 = require("react/jsx-runtime");
 var FlexContainer = ({
   children,
   direction = FLEX_CONTAINER_DEFAULTS.direction,
@@ -26449,7 +26560,7 @@ var FlexContainer = ({
     margin,
     style
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime184.jsx)("div", { className: classNames, style: flexStyle, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime183.jsx)("div", { className: classNames, style: flexStyle, ...rest, children });
 };
 FlexContainer.displayName = "FlexContainer";
 var FlexItem = ({
@@ -26481,7 +26592,7 @@ var FlexItem = ({
     alignSelf,
     style
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime184.jsx)("div", { className: classNames, style: itemStyle, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime183.jsx)("div", { className: classNames, style: itemStyle, ...rest, children });
 };
 FlexItem.displayName = "FlexItem";
 var FlexBoxItem = ({
@@ -26505,9 +26616,165 @@ var FlexBoxItem = ({
     justifyContent: "center",
     ...style
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime184.jsx)(FlexItem, { style: boxStyles, className, ...rest, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime183.jsx)(FlexItem, { style: boxStyles, className, ...rest, children });
 };
 FlexBoxItem.displayName = "FlexBoxItem";
+
+// src/LAYOUT/Grid/Grid.constants.ts
+var VALID_COL_SPANS = ["full", "1", "2", "3", "4", "6"];
+
+// src/LAYOUT/Grid/Grid.utils.ts
+var buildGridItemClassNames = ({
+  colSpan,
+  className
+}) => {
+  const classes = [];
+  if (colSpan) {
+    const spanStr = String(colSpan);
+    if (VALID_COL_SPANS.includes(spanStr)) {
+      classes.push(`w3f-col-span-${spanStr}`);
+    }
+  }
+  if (className) classes.push(className);
+  return classes.filter(Boolean).join(" ");
+};
+var buildGridInlineStyles = (props) => {
+  const {
+    grid,
+    gridTemplate,
+    templateColumns,
+    templateRows,
+    templateAreas,
+    gap,
+    rowGap,
+    columnGap,
+    autoColumns,
+    autoRows,
+    autoFlow,
+    justifyContent,
+    alignContent,
+    placeContent,
+    justifyItems,
+    alignItems,
+    placeItems,
+    justifySelf,
+    alignSelf,
+    placeSelf,
+    gridRow,
+    gridColumn,
+    gridArea,
+    width,
+    height,
+    minWidth,
+    minHeight,
+    maxWidth,
+    maxHeight,
+    padding,
+    margin,
+    style
+  } = props;
+  const gridStyle = {
+    display: "grid",
+    grid,
+    gridTemplate,
+    gridTemplateColumns: templateColumns,
+    gridTemplateRows: templateRows,
+    gridTemplateAreas: templateAreas ? templateAreas.trim().split("\n").map((row) => `"${row.trim()}"`).join(" ") : void 0,
+    gap,
+    rowGap,
+    columnGap,
+    gridAutoColumns: autoColumns,
+    gridAutoRows: autoRows,
+    gridAutoFlow: autoFlow,
+    justifyContent,
+    alignContent,
+    placeContent,
+    justifyItems,
+    alignItems,
+    placeItems,
+    justifySelf,
+    alignSelf,
+    placeSelf,
+    gridRow,
+    gridColumn,
+    gridArea,
+    width,
+    height,
+    minWidth,
+    minHeight,
+    maxWidth,
+    maxHeight,
+    padding,
+    margin,
+    ...style
+  };
+  Object.keys(gridStyle).forEach((key) => {
+    if (gridStyle[key] === void 0) delete gridStyle[key];
+  });
+  return gridStyle;
+};
+var buildGridItemInlineStyles = ({
+  gridArea,
+  gridRow,
+  gridColumn,
+  justifySelf,
+  alignSelf,
+  placeSelf,
+  style
+}) => {
+  const itemStyle = {
+    gridArea,
+    gridRow,
+    gridColumn,
+    justifySelf,
+    alignSelf,
+    placeSelf,
+    ...style
+  };
+  Object.keys(itemStyle).forEach((key) => {
+    if (itemStyle[key] === void 0) delete itemStyle[key];
+  });
+  return itemStyle;
+};
+
+// src/LAYOUT/Grid/Grid.tsx
+var import_jsx_runtime184 = require("react/jsx-runtime");
+var Grid = ({
+  children,
+  className,
+  style,
+  ...props
+}) => {
+  const gridStyle = buildGridInlineStyles({ ...props, style });
+  return /* @__PURE__ */ (0, import_jsx_runtime184.jsx)("div", { style: gridStyle, className, ...{}, children });
+};
+Grid.displayName = "Grid";
+var GridAreaItem = ({
+  children,
+  colSpan,
+  gridArea,
+  gridRow,
+  gridColumn,
+  justifySelf,
+  alignSelf,
+  placeSelf,
+  style,
+  className,
+  ...rest
+}) => {
+  const classNames = buildGridItemClassNames({ colSpan, className });
+  const itemStyle = buildGridItemInlineStyles({
+    gridArea,
+    gridRow,
+    gridColumn,
+    justifySelf,
+    alignSelf,
+    placeSelf,
+    style
+  });
+  return /* @__PURE__ */ (0, import_jsx_runtime184.jsx)("div", { style: itemStyle, className: classNames, ...rest, children });
+};
+GridAreaItem.displayName = "GridAreaItem";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
 var import_react256 = __toESM(require("react"));

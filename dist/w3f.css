@@ -10516,6 +10516,106 @@
   }
 }
 
+/* src/SURFACES/Desktop/css/Desktop.structural.css */
+@layer w3f-structural {
+  .w3f-desktop {
+    --w3f-desktop-tb-bg: rgba(15, 23, 42, 0.85);
+    --w3f-desktop-tb-border: rgba(255, 255, 255, 0.10);
+    --w3f-desktop-tb-color: #cbd5e1;
+    --w3f-desktop-tb-height: 44px;
+    --w3f-desktop-tb-btn-hover-bg: rgba(255, 255, 255, 0.08);
+    --w3f-desktop-tb-radius: 0 0 8px 8px;
+    --w3f-desktop-tb-pct-min-w: 52px;
+  }
+  .w3f-desktop {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  .w3f-desktop-viewport {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+  .w3f-desktop-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+  .w3f-desktop--pannable .w3f-desktop-canvas {
+    cursor: grab;
+  }
+  .w3f-desktop--panning .w3f-desktop-canvas {
+    cursor: grabbing;
+    user-select: none;
+  }
+  .w3f-desktop-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--w3f-desktop-tb-height);
+    padding: 0 16px;
+    background: var(--w3f-desktop-tb-bg);
+    border-top: 1px solid var(--w3f-desktop-tb-border);
+    border-radius: var(--w3f-desktop-tb-radius);
+    backdrop-filter: blur(8px);
+    user-select: none;
+  }
+  .w3f-desktop-toolbar-slider {
+    flex: 1;
+    min-width: 80px;
+    max-width: 240px;
+    display: flex;
+    align-items: center;
+  }
+  .w3f-desktop-toolbar-slider .w3f-slider {
+    width: 100%;
+    margin: 0;
+  }
+  .w3f-desktop-toolbar-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 4px;
+    border: none;
+    background: transparent;
+    color: var(--w3f-desktop-tb-color);
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    transition: background 0.12s ease, transform 0.1s ease;
+    outline: none;
+    white-space: nowrap;
+  }
+  .w3f-desktop-toolbar-label:hover {
+    background: var(--w3f-desktop-tb-btn-hover-bg);
+  }
+  .w3f-desktop-toolbar-label:active {
+    transform: scale(0.92);
+  }
+  .w3f-desktop-toolbar-pct {
+    min-width: var(--w3f-desktop-tb-pct-min-w);
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  .w3f-desktop-toolbar-pct:hover {
+    opacity: 1;
+  }
+  .w3f-desktop--light-toolbar {
+    --w3f-desktop-tb-bg: rgba(255, 255, 255, 0.90);
+    --w3f-desktop-tb-border: rgba(0, 0, 0, 0.10);
+    --w3f-desktop-tb-color: #374151;
+    --w3f-desktop-tb-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  }
+}
+
 /* src/SURFACES/PopUp/css/PopUp.structural.css */
 @layer w3f-structural {
   .w3f-popup-overlay {

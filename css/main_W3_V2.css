@@ -71,6 +71,7 @@
 @import url('../../components/src/SURFACES/Sidenav/css/Sidenav.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Window/css/Window.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/WindowGrid/css/WindowGrid.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/Desktop/css/Desktop.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/PopUp/css/PopUp.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Masonry/css/Masonry.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Tabs/css/Tabs.structural.css') layer(w3f-structural);
