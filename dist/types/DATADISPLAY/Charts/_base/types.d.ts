@@ -43,6 +43,30 @@ export interface BaseChartProps {
     title?: string;
     /** Subtitle rendered below the title. */
     subtitle?: string;
+    /** Title font size in px. */
+    titleSize?: number;
+    /** Title text color. */
+    titleColor?: string;
+    /** Subtitle font size in px. */
+    subtitleSize?: number;
+    /** Subtitle text color. */
+    subtitleColor?: string;
+    /** Title text alignment. */
+    titleAlign?: 'left' | 'center' | 'right';
+    /** Subtitle text alignment. */
+    subtitleAlign?: 'left' | 'center' | 'right';
+    /** Title bold. */
+    titleBold?: boolean;
+    /** Title italic. */
+    titleItalic?: boolean;
+    /** Title underline. */
+    titleUnderline?: boolean;
+    /** Subtitle bold. */
+    subtitleBold?: boolean;
+    /** Subtitle italic. */
+    subtitleItalic?: boolean;
+    /** Subtitle underline. */
+    subtitleUnderline?: boolean;
 }
 /**
  * Event callbacks that most charts support. Concrete charts narrow the

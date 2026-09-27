@@ -24,6 +24,8 @@ export interface ChartAxisProps {
     hideTickLabels?: boolean;
     /** Rotate tick labels by N degrees. Useful for dense X axes. -45 or -90 are common values. */
     tickRotate?: number;
+    /** Font size for tick labels in px. Defaults to 11. */
+    tickFontSize?: number;
     /** Extra className for styling hooks. */
     className?: string;
 }

@@ -70,8 +70,9 @@
 @import url('../../components/src/SURFACES/Menu/css/Menu.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Sidenav/css/Sidenav.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Window/css/Window.structural.css') layer(w3f-structural);
-@import url('../../components/src/SURFACES/WindowGrid/css/WindowGrid.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/WindowGroup/css/WindowGroup.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Desktop/css/Desktop.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/WindowGrid/css/WindowGrid.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/PopUp/css/PopUp.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Masonry/css/Masonry.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Tabs/css/Tabs.structural.css') layer(w3f-structural);
@@ -120,6 +121,8 @@
 @import url('./W3STUDIO/_animation-builder.css')       layer(w3f-structural);
 @import url('./W3STUDIO/_collaboration.css')           layer(w3f-structural);
 @import url('./W3STUDIO/_css-customizer.css')          layer(w3f-structural);
+@import url('./W3STUDIO/_layout-data-builder.css')     layer(w3f-structural);
+@import url('./W3STUDIO/_data-studio.css')             layer(w3f-structural);
 
 /* ── Layer: Traits — composable utility classes ─────────────────────── */
 /* NOTE: Each trait file is imported directly (not via _traits.css barrel)

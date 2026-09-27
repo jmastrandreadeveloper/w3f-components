@@ -17,5 +17,7 @@ export interface SidenavProps {
     /** If true, removes all visual/preset styles — only structural CSS remains. */
     unstyled?: boolean;
     className?: string;
+    /** If true, all expandable nodes start expanded. Default: false. */
+    defaultExpandAll?: boolean;
 }
 //# sourceMappingURL=Sidenav.types.d.ts.map

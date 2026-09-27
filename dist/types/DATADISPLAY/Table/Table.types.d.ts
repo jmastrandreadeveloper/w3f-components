@@ -6,6 +6,19 @@ export interface SortState {
     key: string | null;
     direction: SortDirection | null;
 }
+/** Consulta de la tabla en modo manual (datos paginados/ordenados/filtrados en el servidor) */
+export interface TableQuery {
+    /** Página pedida (empieza en 1) */
+    page: number;
+    /** Filas por página */
+    pageSize: number;
+    /** Columna de orden (null = sin orden) */
+    sortKey: string | null;
+    /** Dirección de orden (null = sin orden) */
+    sortDirection: SortDirection | null;
+    /** Texto de búsqueda global (sin espacios al borde) */
+    filter: string;
+}
 /** Variantes visuales de la tabla */
 export type TableVariant = 'default' | 'striped' | 'bordered';
 /** Tamaños de la tabla */
@@ -61,6 +74,15 @@ export interface TableProps<T extends Record<string, unknown>> extends Omit<Reac
     selectedRowKey?: string;
     /** Valor del campo `selectedRowKey` que corresponde a la fila actualmente seleccionada. */
     selectedRowValue?: unknown;
+    /**
+     * Modo manual: `data` ya es la página visible (el servidor filtra, ordena y pagina).
+     * La tabla no transforma `data`: muestra el total con `rowCount` y avisa cada cambio con `onQueryChange`.
+     */
+    manual?: boolean;
+    /** Total de filas (modo manual). Por defecto, `data.length`. */
+    rowCount?: number;
+    /** Modo manual: se llama al cambiar página, filas por página, orden o búsqueda (la búsqueda, con retardo). */
+    onQueryChange?: (query: TableQuery) => void;
 }
 /** Borde de drop para reordenamiento */
 export interface DropEdge {

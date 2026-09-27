@@ -20,6 +20,8 @@ export interface BarStackedHInnerProps extends BaseChartProps, ChartEventProps<B
     /** Key of the specific stacked segment to highlight. If null, highlights entire group. */
     highlightKey?: string | null;
     margin?: ChartMargin;
+    /** Font size for axis tick labels in px. Defaults to 11. */
+    axisFontSize?: number;
 }
 export type BarStackedHProps = Omit<BarStackedHInnerProps, 'width' | 'height'> & {
     width?: number;

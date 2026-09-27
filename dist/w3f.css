@@ -3456,7 +3456,7 @@
     height: var(--w3f-slider-thumb-size);
     width: var(--w3f-slider-thumb-size);
     cursor: grab;
-    margin-top: -7px;
+    margin-top: calc((var(--w3f-slider-thumb-size) - var(--w3f-slider-track-height)) / -2);
   }
   .w3f-range-input:active::-webkit-slider-thumb {
     cursor: grabbing;
@@ -3703,7 +3703,7 @@
 
 /* src/INPUTS/RadioButton/css/RadioButton.structural.css */
 @layer w3f-structural {
-  .w3f-radio-group {
+  .radio-material {
     --w3f-radio-size: var(--w3f-space-5);
     --w3f-radio-bg: var(--w3f-gray-200);
     --w3f-radio-border-color: var(--w3f-gray-400);
@@ -3720,8 +3720,6 @@
     --w3f-radio-checked-border-color: var(--w3f-primary-600);
     --w3f-radio-dot-color: var(--w3f-on-primary);
     --w3f-radio-disabled-opacity: 0.5;
-  }
-  .radio-material {
     position: relative;
     padding-left: 1.75rem;
     cursor: pointer;
@@ -7136,6 +7134,8 @@
     overflow: hidden;
     border-style: solid;
     border-width: 1px;
+    display: flex;
+    flex-direction: column;
   }
   .w3f-theme-dark .w3f-table-container {
     --w3f-table-bg: var(--w3f-surface, #1f2937);
@@ -7178,133 +7178,6 @@
     --w3f-table-drag-ghost-color: var(--w3f-gray-200);
     --w3f-table-drop-indicator-color: var(--w3f-primary-400);
   }
-  .w3f-table-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: var(--w3f-table-toolbar-padding-top);
-    padding-right: var(--w3f-table-toolbar-padding-right);
-    padding-bottom: var(--w3f-table-toolbar-padding-bottom);
-    padding-left: var(--w3f-table-toolbar-padding-left);
-    border-bottom: 1px solid transparent;
-    gap: var(--w3f-space-3);
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .w3f-table-controls-title {
-    font-size: var(--w3f-table-th-font-size);
-    font-weight: 600;
-    color: var(--w3f-table-th-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-  }
-  .w3f-table-controls-buttons {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-  .w3f-table-ctrl-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    border-radius: var(--w3f-radius, 4px);
-    color: var(--w3f-table-th-color);
-    transition: background-color 0.12s, color 0.12s;
-  }
-  .w3f-table-ctrl-btn:hover {
-    background-color: var(--w3f-table-th-hover-bg);
-    color: var(--w3f-table-th-hover-color);
-  }
-  .w3f-table-ctrl-btn:active {
-    transform: scale(0.9);
-  }
-  .w3f-table-container--maximized {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999;
-    border-radius: 0 !important;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  .w3f-table-container--maximized .w3f-table-wrapper {
-    flex: 1;
-    overflow: auto;
-    max-height: none !important;
-  }
-  .w3f-table-container--minimized .w3f-table-toolbar,
-  .w3f-table-container--minimized .w3f-table-wrapper,
-  .w3f-table-container--minimized .w3f-table-pagination {
-    display: none;
-  }
-  .w3f-table-container--resized {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .w3f-table-container--resized .w3f-table-wrapper {
-    flex: 1;
-    overflow: auto;
-    max-height: none !important;
-  }
-  .w3f-table-resizable {
-    position: relative;
-  }
-  .w3f-table-edge-handle {
-    position: absolute;
-    z-index: 20;
-    background: transparent;
-    transition: background-color 0.15s;
-  }
-  .w3f-table-edge-handle--e {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 5px;
-    cursor: ew-resize;
-  }
-  .w3f-table-edge-handle--s {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    cursor: ns-resize;
-  }
-  .w3f-table-edge-handle--se {
-    bottom: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    cursor: nwse-resize;
-  }
-  .w3f-table-edge-handle:hover {
-    background-color: var(--w3f-table-resize-color, #3b82f6);
-    opacity: 0.4;
-  }
-  .w3f-table-edge-handle--se::after {
-    content: "";
-    position: absolute;
-    right: 3px;
-    bottom: 3px;
-    width: 8px;
-    height: 8px;
-    background-image:
-      radial-gradient(
-        circle,
-        var(--w3f-table-resize-color, #3b82f6) 1.5px,
-        transparent 1.5px);
-    background-size: 4px 4px;
-    opacity: 0.5;
-  }
   .w3f-table-toolbar {
     display: flex;
     align-items: center;
@@ -7338,11 +7211,16 @@
   }
   .w3f-table-wrapper {
     width: 100%;
-    overflow-x: auto;
+    overflow: auto;
+    flex: 1 1 0%;
+    min-height: 0;
   }
   .w3f-table-wrapper-scrollable {
     overflow: auto;
+    flex: 1 1 0%;
+    min-height: 0;
   }
+  .w3f-table-wrapper thead,
   .w3f-table-wrapper-scrollable thead {
     position: sticky;
     top: 0;
@@ -7421,6 +7299,7 @@
     border-top: 1px solid transparent;
     flex-wrap: wrap;
     gap: var(--w3f-space-3);
+    flex-shrink: 0;
   }
   .w3f-table-pagination-info {
     display: flex;
@@ -10480,39 +10359,65 @@
   }
 }
 
-/* src/SURFACES/WindowGrid/css/WindowGrid.structural.css */
+/* src/SURFACES/WindowGroup/css/WindowGroup.structural.css */
 @layer w3f-structural {
-  .w3f-window {
-    --w3f-wgrid-body-pad: var(--w3f-space-4);
-    --w3f-wgrid-bg: var(--w3f-surface);
-    --w3f-wgrid-color: var(--w3f-on-surface);
-    --w3f-wgrid-shadow: var(--w3f-shadow-xl);
-    --w3f-wgrid-radius: var(--w3f-radius-lg);
-    --w3f-wgrid-border-color: var(--w3f-outline-variant);
-    --w3f-wgrid-tb-bg: var(--w3f-surface-variant);
-    --w3f-wgrid-tb-border-color: var(--w3f-outline-variant);
-    --w3f-wgrid-tb-pad: var(--w3f-space-3) var(--w3f-space-4);
-    --w3f-wgrid-tb-min-h: 40px;
-    --w3f-wgrid-ctrl-size: 32px;
-    --w3f-wgrid-ctrl-color: var(--w3f-on-surface);
-    --w3f-wgrid-ctrl-radius: var(--w3f-radius);
-    --w3f-wgrid-ctrl-hover-bg: var(--w3f-gray-200);
-    --w3f-wgrid-ctrl-transition: var(--w3f-transition-fast);
-    --w3f-wgrid-ctrl-close-hover-bg: var(--w3f-danger);
-    --w3f-wgrid-ctrl-close-hover-color: white;
-    --w3f-wgrid-body-bg: var(--w3f-surface);
-    --w3f-wgrid-body-pad-main: var(--w3f-space-6);
-    --w3f-wgrid-md-w: 600px;
-    --w3f-wgrid-md-max-w: 90vw;
-    --w3f-wgrid-min-w: 300px;
-    --w3f-wgrid-min-h: 200px;
+  .w3f-window-group {
+    overflow: visible;
+    z-index: 1;
   }
-  .w3f-window-grid-body {
-    padding: var(--w3f-wgrid-body-pad);
+  .w3f-window-group__handle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 10px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    border-radius: 5px 5px 0 0;
+    cursor: grab;
+    user-select: none;
+    width: max-content;
+    min-width: 140px;
+    box-sizing: border-box;
   }
-  .w3f-window {
-    min-width: var(--w3f-wgrid-min-w);
-    min-height: var(--w3f-wgrid-min-h);
+  .w3f-window-group__handle:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.45);
+  }
+  .w3f-window-group__handle:active {
+    cursor: grabbing;
+  }
+  .w3f-window-group__title {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(148, 163, 184, 0.75);
+    font-family: inherit;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    flex: 1;
+  }
+  .w3f-window-group__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    color: rgba(148, 163, 184, 0.5);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .w3f-window-group__close:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: rgba(239, 68, 68, 0.9);
+  }
+  .w3f-window-group__content {
+    position: relative;
+    overflow: visible;
   }
 }
 
@@ -10541,7 +10446,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    will-change: transform;
   }
   .w3f-desktop--pannable .w3f-desktop-canvas {
     cursor: grab;
@@ -10570,9 +10474,28 @@
     display: flex;
     align-items: center;
   }
-  .w3f-desktop-toolbar-slider .w3f-slider {
+  .w3f-desktop-toolbar-slider .w3f-slider-component {
     width: 100%;
     margin: 0;
+  }
+  .w3f-desktop-toolbar-slider .w3f-range-input::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+  }
+  .w3f-desktop-toolbar-slider .w3f-range-input::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+  }
+  .w3f-desktop-toolbar-slider .w3f-slider-wrapper {
+    --w3f-slider-track-height: 3px;
+  }
+  .w3f-desktop-toolbar-slider .w3f-slider-container {
+    height: 3px;
+  }
+  .w3f-desktop-toolbar-slider .w3f-range-input {
+    height: 20px;
+    top: 50%;
+    transform: translateY(-50%);
   }
   .w3f-desktop-toolbar-label {
     display: inline-flex;
@@ -10613,6 +10536,42 @@
     --w3f-desktop-tb-border: rgba(0, 0, 0, 0.10);
     --w3f-desktop-tb-color: #374151;
     --w3f-desktop-tb-btn-hover-bg: rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* src/SURFACES/WindowGrid/css/WindowGrid.structural.css */
+@layer w3f-structural {
+  .w3f-window {
+    --w3f-wgrid-body-pad: var(--w3f-space-4);
+    --w3f-wgrid-bg: var(--w3f-surface);
+    --w3f-wgrid-color: var(--w3f-on-surface);
+    --w3f-wgrid-shadow: var(--w3f-shadow-xl);
+    --w3f-wgrid-radius: var(--w3f-radius-lg);
+    --w3f-wgrid-border-color: var(--w3f-outline-variant);
+    --w3f-wgrid-tb-bg: var(--w3f-surface-variant);
+    --w3f-wgrid-tb-border-color: var(--w3f-outline-variant);
+    --w3f-wgrid-tb-pad: var(--w3f-space-3) var(--w3f-space-4);
+    --w3f-wgrid-tb-min-h: 40px;
+    --w3f-wgrid-ctrl-size: 32px;
+    --w3f-wgrid-ctrl-color: var(--w3f-on-surface);
+    --w3f-wgrid-ctrl-radius: var(--w3f-radius);
+    --w3f-wgrid-ctrl-hover-bg: var(--w3f-gray-200);
+    --w3f-wgrid-ctrl-transition: var(--w3f-transition-fast);
+    --w3f-wgrid-ctrl-close-hover-bg: var(--w3f-danger);
+    --w3f-wgrid-ctrl-close-hover-color: white;
+    --w3f-wgrid-body-bg: var(--w3f-surface);
+    --w3f-wgrid-body-pad-main: var(--w3f-space-6);
+    --w3f-wgrid-md-w: 600px;
+    --w3f-wgrid-md-max-w: 90vw;
+    --w3f-wgrid-min-w: 300px;
+    --w3f-wgrid-min-h: 200px;
+  }
+  .w3f-window-grid-body {
+    padding: var(--w3f-wgrid-body-pad);
+  }
+  .w3f-window {
+    min-width: var(--w3f-wgrid-min-w);
+    min-height: var(--w3f-wgrid-min-h);
   }
 }
 
@@ -16487,7 +16446,7 @@
 
 /* src/INPUTS/RadioButton/css/RadioButton.defaults.css */
 @layer w3f-presets {
-  .w3f-radio-group {
+  .radio-material {
     --w3f-radio-size: 20px;
     --w3f-radio-transition: 0.2s ease;
     --w3f-radio-bg: #ffffff;

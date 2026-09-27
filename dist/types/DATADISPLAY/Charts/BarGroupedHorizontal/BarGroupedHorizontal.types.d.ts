@@ -21,6 +21,8 @@ export interface BarGroupedHInnerProps extends BaseChartProps, ChartEventProps<B
     /** Key of the specific sub-bar to highlight within the group. */
     highlightKey?: string | null;
     margin?: ChartMargin;
+    /** Font size for axis tick labels in px. Defaults to 11. */
+    axisFontSize?: number;
 }
 export type BarGroupedHProps = Omit<BarGroupedHInnerProps, 'width' | 'height'> & {
     width?: number;

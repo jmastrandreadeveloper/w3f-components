@@ -38,6 +38,14 @@ export interface BarInnerProps extends BaseChartProps, ChartEventProps<BarDatum>
     margin?: ChartMargin;
     /** Show color legend below the chart. Defaults to `false`. */
     showLegend?: boolean;
+    /** Show value labels on bars. 'number' = raw value, 'percent' = % of total. Defaults to 'none'. */
+    barLabels?: 'none' | 'number' | 'percent';
+    /** Font size for bar category labels (below bars) in px. Defaults to 10. */
+    categoryLabelSize?: number;
+    /** Font size for bar value labels (on bars) in px. Defaults to 10. */
+    valueLabelSize?: number;
+    /** Font size for axis tick labels in px. Defaults to 11. */
+    axisFontSize?: number;
 }
 /**
  * Props for `Bar` — the responsive wrapper.

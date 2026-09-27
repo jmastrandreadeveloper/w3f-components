@@ -19,6 +19,8 @@ export interface TreeProviderProps {
     children: React.ReactNode;
     data: TreeNodeData[];
     onNodeSelect?: (node: TreeNodeData) => void;
+    /** If true, all expandable nodes start expanded. Default: false. */
+    defaultExpandAll?: boolean;
 }
 /** Valor del contexto del Tree */
 export interface TreeContextValue {

@@ -13,5 +13,5 @@ export declare function syncWindowOrder(prevOrder: string[], currentKeys: string
 /**
  * Construye las clases del contenedor Desktop.
  */
-export declare function buildDesktopClasses(className: string, unstyled?: boolean): string;
+export declare function buildDesktopClasses(className: string, unstyled?: boolean, pannable?: boolean, isPanning?: boolean): string;
 //# sourceMappingURL=Desktop.utils.d.ts.map

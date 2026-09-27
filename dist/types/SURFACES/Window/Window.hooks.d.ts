@@ -17,5 +17,5 @@ export interface UseWindowStateReturn {
     handleMaximize: () => void;
     handleWindowClick: () => void;
 }
-export declare function useWindowState(open: boolean, draggable: boolean, resizable: boolean, onClose?: () => void, onMinimize?: (minimized: boolean) => void, onMaximize?: (maximized: boolean) => void, onFocus?: () => void, initialPosition?: WindowPosition | null, initialSize?: WindowDimensions | null): UseWindowStateReturn;
+export declare function useWindowState(open: boolean, draggable: boolean, resizable: boolean, onClose?: () => void, onMinimize?: (minimized: boolean) => void, onMaximize?: (maximized: boolean) => void, onFocus?: () => void, initialPosition?: WindowPosition | null, initialSize?: WindowDimensions | null, scale?: number): UseWindowStateReturn;
 //# sourceMappingURL=Window.hooks.d.ts.map

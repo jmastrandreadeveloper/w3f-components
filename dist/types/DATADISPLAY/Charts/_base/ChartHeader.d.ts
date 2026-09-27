@@ -2,6 +2,8 @@ import React from 'react';
 interface ChartHeaderProps {
     title?: string;
     subtitle?: string;
+    titleStyle?: React.CSSProperties;
+    subtitleStyle?: React.CSSProperties;
 }
 /**
  * ChartHeader — renders title + subtitle above a chart.

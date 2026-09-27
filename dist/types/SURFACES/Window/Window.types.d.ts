@@ -45,5 +45,11 @@ export interface WindowProps {
     noPadding?: boolean;
     /** When true, strips visual styles — compose appearance via trait classes. */
     unstyled?: boolean;
+    /** Scale factor of the parent canvas (e.g. Desktop zoom). Used to correct drag/resize coords. Default: 1. */
+    scale?: number;
+    /** Unique ID for this window inside its WindowGroup. Sets data-wid attribute for Bezier connector lines. */
+    windowId?: string;
+    /** ID of the window this one was derived from. Sets data-wid-source for automatic Bezier connectors. */
+    windowSource?: string;
 }
 //# sourceMappingURL=Window.types.d.ts.map

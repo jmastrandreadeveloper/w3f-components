@@ -1,4 +1,4 @@
-import type { SortState, TableColumn } from './Table.types';
+import type { SortState, TableColumn, TableQuery } from './Table.types';
 export declare const useTableSort: () => {
     sortState: SortState;
     handleSort: (columnKey: string) => void;
@@ -16,6 +16,15 @@ export declare const useTablePagination: (totalItems: number, initialPageSize: n
     handlePageSizeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     resetPage: () => void;
 };
+/**
+ * Modo manual: avisa con `onQueryChange` cada cambio de página, filas por página, orden o búsqueda.
+ * - Al montar pide su página una vez: si la tabla se remonta (recarga en caliente, ventana que se vuelve
+ *   a montar) su estado vuelve a página 1 / sin búsqueda y el servidor tiene que mandar esa página.
+ * - La búsqueda espera FILTER_DEBOUNCE_MS después de la última tecla.
+ * - Si cambian el orden o la búsqueda estando en otra página, vuelve a la 1 y avisa una sola vez.
+ * - Nunca repite la última consulta enviada (React.StrictMode corre los efectos dos veces en desarrollo).
+ */
+export declare const useManualQuery: (manual: boolean, currentPage: number, pageSize: number, sortState: SortState, globalFilter: string, setCurrentPage: (page: number) => void, onQueryChange?: (query: TableQuery) => void) => void;
 export declare const useColumnResize: () => {
     columnWidths: Record<string, number>;
     initWidths: (headerRow: HTMLTableRowElement | null) => void;

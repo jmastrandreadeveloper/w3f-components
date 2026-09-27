@@ -11,7 +11,10 @@ export declare const TABLE_DEFAULTS: {
     readonly color: "default";
     readonly className: "";
     readonly unstyled: false;
+    readonly manual: false;
 };
+/** Modo manual: espera (ms) después de la última tecla antes de avisar la búsqueda */
+export declare const FILTER_DEBOUNCE_MS = 300;
 /** Mapa de clases de color */
 export declare const TABLE_COLORS: Record<TableColor, string>;
 /** Mapa de clases de tamaño */
