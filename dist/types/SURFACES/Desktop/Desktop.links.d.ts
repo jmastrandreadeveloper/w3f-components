@@ -1,4 +1,6 @@
 import { type MutableRefObject, type RefObject } from 'react';
+/** Forma de las líneas: curva directa (pasa por debajo de las ventanas) o en ángulo recto rodeándolas. */
+export type LinkRouting = 'curve' | 'orthogonal';
 export interface DesktopLink {
     id: string;
     label?: string;
@@ -43,9 +45,9 @@ export declare function linkPath(s: LinkRect, t: LinkRect, offset?: number): Lin
  * Redibuja todas las líneas del canvas (una pasada): la curva en `svg` (debajo de las ventanas) y los puntos con
  * rótulo en `top` (encima). Exportada para los tests.
  */
-export declare function drawDesktopLinks(canvas: HTMLElement, svg: SVGSVGElement, top?: SVGSVGElement): void;
+export declare function drawDesktopLinks(canvas: HTMLElement, svg: SVGSVGElement, top?: SVGSVGElement, routing?: LinkRouting): void;
 /** Un solo bucle de animación por Desktop: sigue a las ventanas mientras se arrastran. */
-export declare function useDesktopLinks(canvasRef: RefObject<HTMLElement | null>, svgRef: RefObject<SVGSVGElement | null>, topRef?: RefObject<SVGSVGElement | null>): void;
+export declare function useDesktopLinks(canvasRef: RefObject<HTMLElement | null>, svgRef: RefObject<SVGSVGElement | null>, topRef?: RefObject<SVGSVGElement | null>, routingRef?: RefObject<LinkRouting | undefined>): void;
 /** La ventana (data-link-id) más de arriba bajo el punto, salvo las de `exclude`; null si no hay. */
 export declare function linkTargetAt(x: number, y: number, exclude?: string[]): HTMLElement | null;
 /**

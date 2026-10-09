@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { LinkChange } from './Desktop.links';
+import type { LinkChange, LinkRouting } from './Desktop.links';
 /** Zoom y desplazamiento del Desktop (onViewChange / view). */
 export interface DesktopView {
     zoom: number;
@@ -42,6 +42,9 @@ export interface DesktopProps {
     onViewChange?: (view: DesktopView) => void;
     /** Se soltó el punto de una línea `draggable` (Window `links`) sobre otra ventana con `linkId`. */
     onLinkChange?: (change: LinkChange) => void;
+    /** Forma de las líneas `links`: 'curve' (curva directa, por debajo de las ventanas; default) u
+     *  'orthogonal' (en ángulo recto, rodeando las ventanas; si no hay camino libre, la curva). */
+    linkRouting?: LinkRouting;
     /** Vista a aplicar (ej. al volver a abrir un proyecto): se aplica cada vez que cambia su valor. */
     view?: DesktopView | null;
     /** Width of the inner canvas (scrollable/zoomable area). Default: 3000. */

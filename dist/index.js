@@ -8810,6 +8810,203 @@ function useCanvasTransform({
 
 // src/SURFACES/Desktop/Desktop.links.ts
 import { useEffect as useEffect16 } from "react";
+
+// src/SURFACES/Desktop/Desktop.route.ts
+var MARGIN = 16;
+var BEND = 40;
+var RADIUS = 10;
+var LABEL = 24;
+var EDGE_INSET = 12;
+var NX = [1, 0, -1, 0];
+var NY = [0, 1, 0, -1];
+var grow = (o, m) => ({ l: o.left - m, t: o.top - m, r: o.left + o.width + m, b: o.top + o.height + m });
+var inside = (x, y, k) => x > k.l && x < k.r && y > k.t && y < k.b;
+function port(w, side, offset) {
+  const clamp = (v, lo, hi) => lo > hi ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v));
+  const cx = w.left + w.width / 2, cy = w.top + w.height / 2;
+  if (side === 0 || side === 2) {
+    const y = clamp(cy + offset, w.top + EDGE_INSET, w.top + w.height - EDGE_INSET);
+    return [side === 0 ? w.left + w.width : w.left, y];
+  }
+  const x = clamp(cx + offset, w.left + EDGE_INSET, w.left + w.width - EDGE_INSET);
+  return [x, side === 1 ? w.top + w.height : w.top];
+}
+function sidePenalty(side, dx, dy) {
+  const len = Math.hypot(dx, dy) || 1;
+  return (1 - (NX[side] * dx + NY[side] * dy) / len) * 60;
+}
+var Heap = class {
+  constructor(f) {
+    this.f = f;
+    this.a = [];
+  }
+  get size() {
+    return this.a.length;
+  }
+  push(i) {
+    const a = this.a, f = this.f;
+    a.push(i);
+    let c = a.length - 1;
+    while (c > 0) {
+      const p = c - 1 >> 1;
+      if (f[a[p]] <= f[a[c]]) break;
+      [a[p], a[c]] = [a[c], a[p]];
+      c = p;
+    }
+  }
+  pop() {
+    const a = this.a, f = this.f, top = a[0], last = a.pop();
+    if (a.length) {
+      a[0] = last;
+      let p = 0;
+      for (; ; ) {
+        const l = 2 * p + 1, r = l + 1;
+        let m = p;
+        if (l < a.length && f[a[l]] < f[a[m]]) m = l;
+        if (r < a.length && f[a[r]] < f[a[m]]) m = r;
+        if (m === p) break;
+        [a[p], a[m]] = [a[m], a[p]];
+        p = m;
+      }
+    }
+    return top;
+  }
+};
+function roundedPath(pts, radius = RADIUS) {
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1], [x, y] = pts[i], [nx, ny] = pts[i + 1];
+    const r = Math.min(radius, Math.hypot(x - px, y - py) / 2, Math.hypot(nx - x, ny - y) / 2);
+    const ax = x - Math.sign(x - px) * r, ay = y - Math.sign(y - py) * r;
+    const bx = x + Math.sign(nx - x) * r, by = y + Math.sign(ny - y) * r;
+    d += ` L ${ax} ${ay} Q ${x} ${y} ${bx} ${by}`;
+  }
+  const [lx, ly] = pts[pts.length - 1];
+  return `${d} L ${lx} ${ly}`;
+}
+function simplify(pts) {
+  const out = [];
+  for (const p of pts) {
+    if (out.length && out[out.length - 1][0] === p[0] && out[out.length - 1][1] === p[1]) continue;
+    while (out.length >= 2) {
+      const [ax, ay] = out[out.length - 2], [bx, by] = out[out.length - 1];
+      if (ax === bx && bx === p[0] || ay === by && by === p[1]) out.pop();
+      else break;
+    }
+    out.push(p);
+  }
+  return out;
+}
+function routeOrthogonal(s, t, obstacles, offset = 0) {
+  const boxes = obstacles.map((o) => grow(o, MARGIN));
+  const sCx = s.left + s.width / 2, sCy = s.top + s.height / 2;
+  const tCx = t.left + t.width / 2, tCy = t.top + t.height / 2;
+  const ends = (w, ox, oy) => [0, 1, 2, 3].map((side) => {
+    const [px, py] = port(w, side, offset);
+    return { side, px, py, x: px + NX[side] * MARGIN, y: py + NY[side] * MARGIN, pen: sidePenalty(side, ox, oy) };
+  });
+  const free = (x, y) => !boxes.some((k) => inside(x, y, k));
+  const starts = ends(s, tCx - sCx, tCy - sCy).filter((e) => free(e.x, e.y));
+  const goals = ends(t, sCx - tCx, sCy - tCy).filter((e) => free(e.x, e.y));
+  if (!starts.length || !goals.length) return null;
+  const uniq = (v) => Array.from(new Set(v.map((n) => Math.round(n * 100) / 100))).sort((a2, b) => a2 - b);
+  const xs = uniq([...boxes.flatMap((k) => [k.l, k.r]), ...starts.map((e) => e.x), ...goals.map((e) => e.x)]);
+  const ys = uniq([...boxes.flatMap((k) => [k.t, k.b]), ...starts.map((e) => e.y), ...goals.map((e) => e.y)]);
+  const W = xs.length, H = ys.length;
+  const xi = new Map(xs.map((v, i) => [v, i])), yi = new Map(ys.map((v, i) => [v, i]));
+  const key = (v) => Math.round(v * 100) / 100;
+  const nodeFree = new Uint8Array(W * H);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) nodeFree[j * W + i] = free(xs[i], ys[j]) ? 1 : 0;
+  const N = W * H * 4;
+  const g = new Float64Array(N).fill(Infinity), f = new Float64Array(N).fill(Infinity);
+  const prev = new Int32Array(N).fill(-1);
+  const goalAt = /* @__PURE__ */ new Map();
+  for (const e of goals) goalAt.set(yi.get(key(e.y)) * W + xi.get(key(e.x)), { side: e.side });
+  const h = (i, j) => Math.min(...goals.map((e) => Math.abs(xs[i] - e.x) + Math.abs(ys[j] - e.y)));
+  const heap = new Heap(f);
+  for (const e of starts) {
+    const n = yi.get(key(e.y)) * W + xi.get(key(e.x));
+    const st2 = n * 4 + e.side;
+    if (e.pen < g[st2]) {
+      g[st2] = e.pen;
+      f[st2] = e.pen + h(n % W, n / W | 0);
+      prev[st2] = -1 - starts.indexOf(e);
+      heap.push(st2);
+    }
+  }
+  let found = -1;
+  const closed = new Uint8Array(N);
+  while (heap.size) {
+    const st2 = heap.pop();
+    if (closed[st2]) continue;
+    closed[st2] = 1;
+    const n = st2 >> 2, dir = st2 & 3, i = n % W, j = n / W | 0;
+    const goal = goalAt.get(n);
+    if (goal && dir === (goal.side + 2 & 3)) {
+      found = st2;
+      break;
+    }
+    for (let nd = 0; nd < 4; nd++) {
+      if (nd === (dir + 2 & 3)) continue;
+      const ni = i + NX[nd], nj = j + NY[nd];
+      if (ni < 0 || nj < 0 || ni >= W || nj >= H) {
+        continue;
+      }
+      const nn = nj * W + ni;
+      if (!nodeFree[nn]) continue;
+      const mx = (xs[i] + xs[ni]) / 2, my = (ys[j] + ys[nj]) / 2;
+      if (!free(mx, my)) continue;
+      const ns = nn * 4 + nd;
+      const cost = g[st2] + Math.abs(xs[ni] - xs[i]) + Math.abs(ys[nj] - ys[j]) + (nd === dir ? 0 : BEND);
+      if (cost < g[ns]) {
+        g[ns] = cost;
+        f[ns] = cost + h(ni, nj);
+        prev[ns] = st2;
+        heap.push(ns);
+      }
+    }
+    if (goal && dir !== (goal.side + 2 & 3)) {
+      const ns = n * 4 + (goal.side + 2 & 3);
+      const cost = g[st2] + BEND;
+      if (cost < g[ns]) {
+        g[ns] = cost;
+        f[ns] = cost;
+        prev[ns] = st2;
+        heap.push(ns);
+      }
+    }
+  }
+  if (found < 0) return null;
+  const pts = [];
+  let st = found, startIdx = 0;
+  while (st >= 0) {
+    const n = st >> 2;
+    pts.push([xs[n % W], ys[n / W | 0]]);
+    const p = prev[st];
+    if (p < 0) {
+      startIdx = -1 - p;
+      break;
+    }
+    st = p;
+  }
+  pts.reverse();
+  const a = starts[startIdx];
+  const z = goals.find((e) => e.x === pts[pts.length - 1][0] && e.y === pts[pts.length - 1][1]) ?? goals.reduce((m, e) => Math.hypot(e.x - pts[pts.length - 1][0], e.y - pts[pts.length - 1][1]) < Math.hypot(m.x - pts[pts.length - 1][0], m.y - pts[pts.length - 1][1]) ? e : m);
+  const all = simplify([[a.px, a.py], ...pts, [z.px, z.py]]);
+  return {
+    d: roundedPath(all),
+    x1: a.px,
+    y1: a.py,
+    x2: z.px,
+    y2: z.py,
+    sx: a.px + NX[a.side] * LABEL,
+    sy: a.py + NY[a.side] * LABEL,
+    tx: z.px + NX[z.side] * LABEL,
+    ty: z.py + NY[z.side] * LABEL
+  };
+}
+
+// src/SURFACES/Desktop/Desktop.links.ts
 var LINK_DEFAULT_COLOR = "#f59e0b";
 var SVG_NS = "http://www.w3.org/2000/svg";
 var CTRL = 90;
@@ -8873,6 +9070,11 @@ function linkPath(s, t, offset = 0) {
   };
 }
 var attrEsc = (v) => v.replace(/["\\]/g, "\\$&");
+var routeCache = /* @__PURE__ */ new WeakMap();
+function obstaclesOf(canvas) {
+  const rects = Array.from(canvas.querySelectorAll(".w3f-window")).filter((w) => w.offsetWidth > 0 && w.offsetHeight > 0).map((w) => relPos(w, canvas));
+  return { rects, sig: rects.map((r) => `${r.left},${r.top},${r.width},${r.height}`).join(";") };
+}
 function svgEl(tag, attrs) {
   const el = document.createElementNS(SVG_NS, tag);
   for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
@@ -8909,8 +9111,14 @@ function groupFor(svg, key, make) {
   g.style.display = "";
   return g;
 }
-function drawDesktopLinks(canvas, svg, top = svg) {
+function drawDesktopLinks(canvas, svg, top = svg, routing = "curve") {
   const used = /* @__PURE__ */ new Set();
+  const obstacles = routing === "orthogonal" ? obstaclesOf(canvas) : null;
+  let cache = routeCache.get(canvas);
+  if (!cache) {
+    cache = /* @__PURE__ */ new Map();
+    routeCache.set(canvas, cache);
+  }
   const targets = Array.from(canvas.querySelectorAll("[data-links]"));
   targets.forEach((target, ti) => {
     const links = parseLinks(target.getAttribute("data-links"));
@@ -8924,7 +9132,19 @@ function drawDesktopLinks(canvas, svg, top = svg) {
       used.add(badgeKey);
       const color = link.color || LINK_DEFAULT_COLOR;
       const label = link.label ?? "";
-      const geo = linkPath(relPos(src, canvas), tPos, (i - (links.length - 1) / 2) * SPREAD);
+      const sPos = relPos(src, canvas), offset = (i - (links.length - 1) / 2) * SPREAD;
+      let geo = null;
+      if (obstacles) {
+        const sig = `${obstacles.sig}|${sPos.left},${sPos.top},${sPos.width},${sPos.height}|${tPos.left},${tPos.top},${tPos.width},${tPos.height}|${offset}`;
+        const hit = cache.get(key);
+        if (hit && hit.sig === sig) geo = hit.geo;
+        else {
+          geo = routeOrthogonal(sPos, tPos, obstacles.rects, offset);
+          if (geo) cache.set(key, { sig, geo });
+          else cache.delete(key);
+        }
+      }
+      geo = geo ?? linkPath(sPos, tPos, offset);
       const path = groupFor(svg, key, makeLine).querySelector("path");
       path.setAttribute("d", geo.d);
       path.setAttribute("stroke", color);
@@ -8967,18 +9187,23 @@ function drawDesktopLinks(canvas, svg, top = svg) {
     });
   }
 }
-function useDesktopLinks(canvasRef, svgRef, topRef) {
+function useDesktopLinks(canvasRef, svgRef, topRef, routingRef) {
   useEffect16(() => {
     let raf = 0;
     const loop = () => {
       if (canvasRef.current && svgRef.current) {
-        drawDesktopLinks(canvasRef.current, svgRef.current, topRef?.current ?? svgRef.current);
+        drawDesktopLinks(
+          canvasRef.current,
+          svgRef.current,
+          topRef?.current ?? svgRef.current,
+          routingRef?.current ?? "curve"
+        );
       }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [canvasRef, svgRef, topRef]);
+  }, [canvasRef, svgRef, topRef, routingRef]);
 }
 function linkTargetAt(x, y, exclude = []) {
   const hits = typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(x, y) : [];
@@ -9090,13 +9315,16 @@ var Desktop = forwardRef30(({
   canvasHeight = DESKTOP_DEFAULTS.canvasHeight,
   onViewChange,
   onLinkChange,
+  linkRouting = "curve",
   view
 }, forwardedRef) => {
   const containerRef = useRef17(null);
   const canvasRef = useRef17(null);
   const linksRef = useRef17(null);
   const badgesRef = useRef17(null);
-  useDesktopLinks(canvasRef, linksRef, badgesRef);
+  const routingRef = useRef17(linkRouting);
+  routingRef.current = linkRouting;
+  useDesktopLinks(canvasRef, linksRef, badgesRef, routingRef);
   const zoomRef = useRef17(1);
   const onLinkChangeRef = useRef17(onLinkChange);
   useEffect17(() => {
@@ -24543,7 +24771,7 @@ function useTreeDiagramInteraction(onHover, onSelect) {
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
 import { jsx as jsx163, jsxs as jsxs102 } from "react/jsx-runtime";
-var MARGIN = { top: 40, right: 40, bottom: 40, left: 40 };
+var MARGIN2 = { top: 40, right: 40, bottom: 40, left: 40 };
 function polarToCartesian(angle, radius) {
   return [
     radius * Math.cos(angle - Math.PI / 2),
@@ -24579,8 +24807,8 @@ var TreeDiagramInner = (props) => {
     onHover,
     onSelect
   } = props;
-  const innerWidth = Math.max(width - MARGIN.left - MARGIN.right, 0);
-  const innerHeight = Math.max(height - MARGIN.top - MARGIN.bottom, 0);
+  const innerWidth = Math.max(width - MARGIN2.left - MARGIN2.right, 0);
+  const innerHeight = Math.max(height - MARGIN2.top - MARGIN2.bottom, 0);
   const root = useMemo92(
     () => hierarchy4(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
     [data]
@@ -24608,7 +24836,7 @@ var TreeDiagramInner = (props) => {
     /* @__PURE__ */ jsxs102("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
       /* @__PURE__ */ jsxs102("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
         description && /* @__PURE__ */ jsx163("desc", { children: description }),
-        /* @__PURE__ */ jsx163(Tree2, { root, size: treeSize, children: (tree) => /* @__PURE__ */ jsxs102(Group31, { top: MARGIN.top + centerY, left: MARGIN.left + centerX, children: [
+        /* @__PURE__ */ jsx163(Tree2, { root, size: treeSize, children: (tree) => /* @__PURE__ */ jsxs102(Group31, { top: MARGIN2.top + centerY, left: MARGIN2.left + centerX, children: [
           tree.links().map((link, i) => {
             const [sx, sy] = getNodePosition(link.source, layout);
             const [tx, ty] = getNodePosition(link.target, layout);
@@ -24706,8 +24934,8 @@ var TreeDiagramInner = (props) => {
         return /* @__PURE__ */ jsx163(
           ChartTooltip,
           {
-            left: nx + MARGIN.left + centerX,
-            top: ny + MARGIN.top + centerY,
+            left: nx + MARGIN2.left + centerX,
+            top: ny + MARGIN2.top + centerY,
             visible: true,
             offsetY: -(nodeRadius + 12),
             children: buildTooltipContent26(node.data)
@@ -27191,9 +27419,9 @@ var STANDARD_ALIGN = ["start", "end", "center", "baseline", "stretch"];
 var STANDARD_ALIGN_CONTENT = ["start", "end", "center", "between", "around", "stretch"];
 
 // src/LAYOUT/Flexbox/Flexbox.utils.ts
-var mapGrowToClass = (grow) => {
-  if (grow === true || grow === 1) return "w3f-flex-grow";
-  if (grow === false || grow === 0) return "w3f-flex-grow-0";
+var mapGrowToClass = (grow2) => {
+  if (grow2 === true || grow2 === 1) return "w3f-flex-grow";
+  if (grow2 === false || grow2 === 0) return "w3f-flex-grow-0";
   return "";
 };
 var mapShrinkToClass = (shrink) => {
@@ -27216,7 +27444,7 @@ var mapAutoMarginsToClass = ({ mlAuto, mrAuto }) => {
   return classes.join(" ");
 };
 var buildFlexItemClassNames = ({
-  grow,
+  grow: grow2,
   shrink,
   order,
   mlAuto,
@@ -27224,7 +27452,7 @@ var buildFlexItemClassNames = ({
   className
 }) => {
   return [
-    mapGrowToClass(grow),
+    mapGrowToClass(grow2),
     mapShrinkToClass(shrink),
     mapOrderToClass(order),
     mapAutoMarginsToClass({ mlAuto, mrAuto }),
@@ -27320,7 +27548,7 @@ var buildFlexContainerInlineStyles = ({
   return flexStyle;
 };
 var buildFlexItemInlineStyles = ({
-  grow,
+  grow: grow2,
   shrink,
   order,
   basis,
@@ -27328,7 +27556,7 @@ var buildFlexItemInlineStyles = ({
   style
 }) => {
   const itemStyle = {
-    flexGrow: typeof grow === "number" && grow !== 0 && grow !== 1 ? grow : void 0,
+    flexGrow: typeof grow2 === "number" && grow2 !== 0 && grow2 !== 1 ? grow2 : void 0,
     flexShrink: typeof shrink === "number" && shrink !== 0 && shrink !== 1 ? shrink : void 0,
     order: typeof order === "number" && ![0, 1, 2, 3].includes(order) ? order : void 0,
     flexBasis: basis,
@@ -27391,7 +27619,7 @@ var FlexContainer = ({
 FlexContainer.displayName = "FlexContainer";
 var FlexItem = ({
   children,
-  grow,
+  grow: grow2,
   shrink,
   order,
   mlAuto,
@@ -27403,7 +27631,7 @@ var FlexItem = ({
   ...rest
 }) => {
   const classNames = buildFlexItemClassNames({
-    grow,
+    grow: grow2,
     shrink,
     order,
     mlAuto,
@@ -27411,7 +27639,7 @@ var FlexItem = ({
     className
   });
   const itemStyle = buildFlexItemInlineStyles({
-    grow,
+    grow: grow2,
     shrink,
     order,
     basis,
