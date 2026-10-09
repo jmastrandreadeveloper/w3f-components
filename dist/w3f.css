@@ -20352,7 +20352,7 @@
     color: var(--w3f-table-th-color);
     font-weight: 600;
     font-size: var(--w3f-table-th-font-size);
-    text-transform: uppercase;
+    text-transform: var(--w3f-table-th-text-transform, uppercase);
     letter-spacing: 0.05em;
     border-bottom: 2px solid var(--w3f-table-th-border-color);
   }
@@ -20568,7 +20568,7 @@
     opacity: 0.9;
     font-weight: 600;
     font-size: var(--w3f-table-th-font-size);
-    text-transform: uppercase;
+    text-transform: var(--w3f-table-th-text-transform, uppercase);
     letter-spacing: 0.05em;
   }
   .w3f-table-container:not(.w3f-table--unstyled) .w3f-table-drop-indicator {

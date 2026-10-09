@@ -11555,6 +11555,7 @@ var WINDOW_DEFAULTS = {
   resizable: true,
   minimizable: true,
   maximizable: true,
+  fitWidth: false,
   closable: true,
   className: "",
   bodyClassName: "",
@@ -11588,6 +11589,7 @@ var WINDOW_CLASSES = {
   controlClose: "w3f-window-control-btn--close",
   controlMinimize: "w3f-window-control-btn--minimize",
   controlMaximize: "w3f-window-control-btn--maximize",
+  controlFitWidth: "w3f-window-control-btn--fit-width",
   resizeHandle: "w3f-window-resize-handle"
 };
 var WINDOW_MIN_WIDTH = 300;
@@ -11810,6 +11812,8 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     if (!resizable || isMaximized) return;
     e.stopPropagation();
     resizeDirection.current = direction;
+    fitPrevRef.current = null;
+    setIsFitWidth(false);
     const el = windowRef.current;
     let _node = el.offsetParent;
     let s = 1;
@@ -11861,6 +11865,38 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       return !prev;
     });
   }, [isMaximized, position, dimensions, onMaximize]);
+  const [isFitWidth, setIsFitWidth] = useState38(false);
+  const fitPrevRef = useRef19(null);
+  const handleFitWidth = useCallback27(() => {
+    const el = windowRef.current;
+    if (!el || isMaximized) return;
+    const cur = dimensionsRef.current ?? { width: el.offsetWidth, height: el.offsetHeight };
+    let next;
+    if (fitPrevRef.current) {
+      next = fitPrevRef.current;
+      fitPrevRef.current = null;
+      setIsFitWidth(false);
+    } else {
+      let extra = 0;
+      const body = el.querySelector(`.${WINDOW_CLASSES.body}`);
+      if (body) {
+        for (const node of [body, ...Array.from(body.querySelectorAll("*"))]) {
+          const over = node.scrollWidth - node.clientWidth;
+          if (over > extra && node.clientWidth > 0) {
+            const ox = window.getComputedStyle(node).overflowX;
+            if (ox === "auto" || ox === "scroll") extra = over;
+          }
+        }
+      }
+      if (extra <= 0) return;
+      fitPrevRef.current = { ...cur };
+      setIsFitWidth(true);
+      next = { width: cur.width + extra + 2, height: cur.height };
+    }
+    dimensionsRef.current = next;
+    setDimensions(next);
+    reportLayout(positionRef.current, false, isMinimized);
+  }, [isMaximized, isMinimized, reportLayout]);
   const handleWindowClick = useCallback27(() => {
     setIsFocused(true);
     setZIndex(++windowZIndexCounter);
@@ -11882,7 +11918,9 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     handleClose,
     handleMinimize,
     handleMaximize,
-    handleWindowClick
+    handleWindowClick,
+    isFitWidth,
+    handleFitWidth
   };
 }
 
@@ -11919,7 +11957,7 @@ function buildWindowStyle(style, position, dimensions, isMaximized, zIndex) {
     ...style,
     zIndex,
     ...!isMaximized && position ? { left: `${position.x}px`, top: `${position.y}px` } : {},
-    ...!isMaximized && dimensions ? { width: `${dimensions.width}px`, height: `${dimensions.height}px`, maxHeight: "none" } : {}
+    ...!isMaximized && dimensions ? { width: `${dimensions.width}px`, height: `${dimensions.height}px`, maxHeight: "none", maxWidth: "none" } : {}
   };
 }
 
@@ -11928,6 +11966,20 @@ import { Fragment as Fragment9, jsx as jsx56, jsxs as jsxs42 } from "react/jsx-r
 var MinimizeIcon = () => /* @__PURE__ */ jsx56("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ jsx56("rect", { x: "2", y: "5", width: "8", height: "2" }) });
 var MaximizeIcon = () => /* @__PURE__ */ jsx56("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ jsx56("rect", { x: "2", y: "2", width: "8", height: "8", fill: "none", stroke: "currentColor", strokeWidth: "1.5" }) });
 var RestoreIcon = () => /* @__PURE__ */ jsx56("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ jsx56("path", { d: "M3,3 L3,9 L9,9 L9,3 Z M4,4 L8,4 L8,8 L4,8 Z M5,1 L11,1 L11,7 L10,7 L10,2 L5,2 Z" }) });
+var FitWidthIcon = () => /* @__PURE__ */ jsx56(
+  "svg",
+  {
+    width: "12",
+    height: "12",
+    viewBox: "0 0 12 12",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    children: /* @__PURE__ */ jsx56("path", { d: "M1,6 L11,6 M3.5,3.5 L1,6 L3.5,8.5 M8.5,3.5 L11,6 L8.5,8.5" })
+  }
+);
 var CloseIcon2 = () => /* @__PURE__ */ jsx56("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "currentColor", children: /* @__PURE__ */ jsx56("path", { d: "M2,2 L10,10 M10,2 L2,10", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" }) });
 var Window = forwardRef41(({
   title = WINDOW_DEFAULTS.title,
@@ -11942,6 +11994,7 @@ var Window = forwardRef41(({
   resizable = WINDOW_DEFAULTS.resizable,
   minimizable = WINDOW_DEFAULTS.minimizable,
   maximizable = WINDOW_DEFAULTS.maximizable,
+  fitWidth = WINDOW_DEFAULTS.fitWidth,
   closable = WINDOW_DEFAULTS.closable,
   onClose,
   onMinimize,
@@ -11982,7 +12035,9 @@ var Window = forwardRef41(({
     handleClose,
     handleMinimize,
     handleMaximize,
-    handleWindowClick
+    handleWindowClick,
+    isFitWidth,
+    handleFitWidth
   } = useWindowState(
     open,
     draggable,
@@ -12050,13 +12105,43 @@ var Window = forwardRef41(({
         children: /* @__PURE__ */ jsx56("span", { children: "+" })
       }
     ),
+    fitWidth && resizable && !isMaximized && /* @__PURE__ */ jsx56(
+      "button",
+      {
+        className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlFitWidth}`,
+        onClick: (e) => {
+          e.stopPropagation();
+          handleFitWidth();
+        },
+        "aria-label": isFitWidth ? "Volver al ancho anterior" : "Ancho de todo el contenido",
+        title: isFitWidth ? "Volver al ancho anterior" : "Ancho de todo el contenido",
+        "aria-pressed": isFitWidth,
+        type: "button",
+        children: /* @__PURE__ */ jsx56(FitWidthIcon, {})
+      }
+    ),
     icon && /* @__PURE__ */ jsx56("div", { className: WINDOW_CLASSES.icon, children: icon }),
     /* @__PURE__ */ jsx56("h2", { className: WINDOW_CLASSES.title, children: title })
   ] });
   const renderWindowsButtons = () => /* @__PURE__ */ jsxs42(Fragment9, { children: [
     /* @__PURE__ */ jsxs42("div", { className: WINDOW_CLASSES.titlebarLeft, children: [
       icon && /* @__PURE__ */ jsx56("div", { className: WINDOW_CLASSES.icon, children: icon }),
-      /* @__PURE__ */ jsx56("h2", { className: WINDOW_CLASSES.title, children: title })
+      /* @__PURE__ */ jsx56("h2", { className: WINDOW_CLASSES.title, children: title }),
+      fitWidth && resizable && !isMaximized && /* @__PURE__ */ jsx56(
+        "button",
+        {
+          className: `${WINDOW_CLASSES.controlBtn} ${WINDOW_CLASSES.controlFitWidth}`,
+          onClick: (e) => {
+            e.stopPropagation();
+            handleFitWidth();
+          },
+          "aria-label": isFitWidth ? "Volver al ancho anterior" : "Ancho de todo el contenido",
+          title: isFitWidth ? "Volver al ancho anterior" : "Ancho de todo el contenido",
+          "aria-pressed": isFitWidth,
+          type: "button",
+          children: /* @__PURE__ */ jsx56(FitWidthIcon, {})
+        }
+      )
     ] }),
     /* @__PURE__ */ jsxs42("div", { className: WINDOW_CLASSES.titlebarRight, children: [
       minimizable && /* @__PURE__ */ jsx56(

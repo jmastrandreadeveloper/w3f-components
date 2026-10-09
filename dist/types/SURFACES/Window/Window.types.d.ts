@@ -65,6 +65,9 @@ export interface WindowProps {
     footerAlign?: WindowFooterAlign;
     open?: boolean;
     noPadding?: boolean;
+    /** Botón ↔ en la barra de título: estira la ventana hasta que se vea todo el ancho del contenido (sin
+     *  barra horizontal; ej. todas las columnas de una tabla). Otro clic vuelve al ancho anterior. */
+    fitWidth?: boolean;
     /** When true, strips visual styles — compose appearance via trait classes. */
     unstyled?: boolean;
     /** Scale factor of the parent canvas (e.g. Desktop zoom). Used to correct drag/resize coords. Default: 1. */

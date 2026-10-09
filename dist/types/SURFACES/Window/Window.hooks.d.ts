@@ -22,6 +22,8 @@ export interface UseWindowStateReturn {
     handleClose: () => void;
     handleMinimize: () => void;
     handleMaximize: () => void;
+    isFitWidth: boolean;
+    handleFitWidth: () => void;
     handleWindowClick: () => void;
 }
 export declare function useWindowState(open: boolean, draggable: boolean, resizable: boolean, onClose?: () => void, onMinimize?: (minimized: boolean) => void, onMaximize?: (maximized: boolean) => void, onFocus?: () => void, initialPosition?: WindowPosition | null, initialSize?: WindowDimensions | null, scale?: number, onLayoutChange?: (layout: WindowLayout) => void, initialMaximized?: boolean, initialMinimized?: boolean, windowId?: string, windowSource?: string): UseWindowStateReturn;
