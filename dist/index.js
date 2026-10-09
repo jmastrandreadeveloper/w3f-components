@@ -8638,7 +8638,7 @@ var ContextMenu = forwardRef29(({
 ContextMenu.displayName = "ContextMenu";
 
 // src/SURFACES/Desktop/Desktop.tsx
-import React33, { forwardRef as forwardRef30, useRef as useRef17, useCallback as useCallback21 } from "react";
+import React33, { forwardRef as forwardRef30, useRef as useRef17, useCallback as useCallback21, useEffect as useEffect17 } from "react";
 
 // src/SURFACES/Desktop/Desktop.constants.ts
 var DESKTOP_CLASSES = {
@@ -8671,6 +8671,7 @@ var DESKTOP_DEFAULTS = {
   canvasHeight: 2e3
 };
 var BASE_Z_INDEX = 100;
+var WHEEL_SCROLL_SELECTOR = ".w3f-window";
 
 // src/SURFACES/Desktop/Desktop.utils.ts
 function getWindowZIndex(windowOrder, key) {
@@ -8738,6 +8739,8 @@ function useCanvasTransform({
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e) => {
+      const target = e.target;
+      if (!e.ctrlKey && target?.closest?.(WHEEL_SCROLL_SELECTOR)) return;
       e.preventDefault();
       const { zoom: currentZoom, pan: currentPan } = stateRef.current;
       const delta = e.deltaY < 0 ? zoomStep : -zoomStep;
@@ -8798,7 +8801,269 @@ function useCanvasTransform({
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   }, [panEnabled]);
-  return { zoom, pan, isPanning, zoomIn, zoomOut, resetZoom, setZoomLevel, handlePanStart };
+  const setView = useCallback20((v) => {
+    setZoom(clamp(v.zoom));
+    setPan({ x: v.x, y: v.y });
+  }, [clamp]);
+  return { zoom, pan, isPanning, zoomIn, zoomOut, resetZoom, setZoomLevel, setView, handlePanStart };
+}
+
+// src/SURFACES/Desktop/Desktop.links.ts
+import { useEffect as useEffect16 } from "react";
+var LINK_DEFAULT_COLOR = "#f59e0b";
+var SVG_NS = "http://www.w3.org/2000/svg";
+var CTRL = 90;
+var SPREAD = 26;
+var BADGE = 0.28;
+function parseLinks(attr) {
+  if (!attr) return [];
+  try {
+    const v = JSON.parse(attr);
+    return Array.isArray(v) ? v.filter((l) => l && typeof l.id === "string" && l.id) : [];
+  } catch {
+    return [];
+  }
+}
+function relPos(el, ancestor) {
+  let left = 0, top = 0;
+  let cur = el;
+  while (cur && cur !== ancestor) {
+    left += cur.offsetLeft;
+    top += cur.offsetTop;
+    cur = cur.offsetParent;
+  }
+  return { left, top, width: el.offsetWidth, height: el.offsetHeight };
+}
+function linkPath(s, t, offset = 0) {
+  const sCx = s.left + s.width / 2, sCy = s.top + s.height / 2;
+  const tCx = t.left + t.width / 2, tCy = t.top + t.height / 2;
+  const dx = tCx - sCx, dy = tCy - sCy;
+  let x1, y1, x2, y2, c1x, c1y, c2x, c2y;
+  if (Math.abs(dx) >= Math.abs(dy) || dx === 0 && dy === 0) {
+    const dir = dx >= 0 ? 1 : -1;
+    x1 = dir > 0 ? s.left + s.width : s.left;
+    y1 = sCy + offset;
+    x2 = dir > 0 ? t.left : t.left + t.width;
+    y2 = tCy + offset;
+    c1x = x1 + dir * CTRL;
+    c1y = y1;
+    c2x = x2 - dir * CTRL;
+    c2y = y2;
+  } else {
+    const dir = dy >= 0 ? 1 : -1;
+    x1 = sCx + offset;
+    y1 = dir > 0 ? s.top + s.height : s.top;
+    x2 = tCx + offset;
+    y2 = dir > 0 ? t.top : t.top + t.height;
+    c1x = x1;
+    c1y = y1 + dir * CTRL;
+    c2x = x2;
+    c2y = y2 - dir * CTRL;
+  }
+  return {
+    d: `M ${x1} ${y1} C ${c1x} ${c1y} ${c2x} ${c2y} ${x2} ${y2}`,
+    x1,
+    y1,
+    x2,
+    y2,
+    sx: x1 + (c1x - x1) * BADGE,
+    sy: y1 + (c1y - y1) * BADGE,
+    tx: x2 + (c2x - x2) * BADGE,
+    ty: y2 + (c2y - y2) * BADGE
+  };
+}
+var attrEsc = (v) => v.replace(/["\\]/g, "\\$&");
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+function makeLine(key) {
+  const g = svgEl("g", { "data-link": key });
+  g.appendChild(svgEl("path", { fill: "none", "stroke-width": "2.5", opacity: "0.8" }));
+  return g;
+}
+function makeBadges(key) {
+  const g = svgEl("g", { "data-link": key });
+  for (const role of ["src", "dst"]) {
+    g.appendChild(svgEl("circle", { r: "5", "data-role": role }));
+    g.appendChild(svgEl("rect", { rx: "4", height: "18", "data-role": `${role}-box` }));
+    g.appendChild(svgEl("text", {
+      fill: "#0f172a",
+      "font-size": "12",
+      "font-weight": "700",
+      "font-family": "system-ui, sans-serif",
+      "text-anchor": "middle",
+      "dominant-baseline": "central",
+      "data-role": `${role}-text`
+    }));
+  }
+  return g;
+}
+function groupFor(svg, key, make) {
+  let g = svg.querySelector(`[data-link="${attrEsc(key)}"]`);
+  if (!g) {
+    g = make(key);
+    svg.appendChild(g);
+  }
+  g.style.display = "";
+  return g;
+}
+function drawDesktopLinks(canvas, svg, top = svg) {
+  const used = /* @__PURE__ */ new Set();
+  const targets = Array.from(canvas.querySelectorAll("[data-links]"));
+  targets.forEach((target, ti) => {
+    const links = parseLinks(target.getAttribute("data-links"));
+    const tPos = relPos(target, canvas);
+    links.forEach((link, i) => {
+      const src = canvas.querySelector(`[data-link-id="${attrEsc(link.id)}"]`);
+      if (!src || src === target) return;
+      const key = `${target.getAttribute("data-link-id") || ti}|${i}`;
+      const badgeKey = top === svg ? `${key}|b` : key;
+      used.add(key);
+      used.add(badgeKey);
+      const color = link.color || LINK_DEFAULT_COLOR;
+      const label = link.label ?? "";
+      const geo = linkPath(relPos(src, canvas), tPos, (i - (links.length - 1) / 2) * SPREAD);
+      const path = groupFor(svg, key, makeLine).querySelector("path");
+      path.setAttribute("d", geo.d);
+      path.setAttribute("stroke", color);
+      const badges = groupFor(top, badgeKey, makeBadges);
+      badges.setAttribute("data-target", target.getAttribute("data-link-id") ?? "");
+      badges.setAttribute("data-index", String(i));
+      badges.setAttribute("data-src", link.id);
+      badges.setAttribute("data-label", label);
+      badges.setAttribute("data-draggable", link.draggable ? "1" : "");
+      const w = Math.max(18, 8 * label.length + 8);
+      for (const [role, x, y, lx, ly] of [
+        ["src", geo.x1, geo.y1, geo.sx, geo.sy],
+        ["dst", geo.x2, geo.y2, geo.tx, geo.ty]
+      ]) {
+        const dot = badges.querySelector(`[data-role="${role}"]`);
+        dot.setAttribute("cx", String(x));
+        dot.setAttribute("cy", String(y));
+        dot.setAttribute("fill", color);
+        const box = badges.querySelector(`[data-role="${role}-box"]`);
+        const text = badges.querySelector(`[data-role="${role}-text"]`);
+        box.style.display = text.style.display = label ? "" : "none";
+        box.setAttribute("x", String(lx - w / 2));
+        box.setAttribute("y", String(ly - 9));
+        box.setAttribute("width", String(w));
+        box.setAttribute("fill", color);
+        text.setAttribute("x", String(lx));
+        text.setAttribute("y", String(ly));
+        if (text.textContent !== label) text.textContent = label;
+        const grab = role === "src" && link.draggable;
+        for (const el of [dot, box, text]) {
+          el.style.pointerEvents = grab ? "all" : "none";
+          el.style.cursor = grab ? "grab" : "";
+        }
+      }
+    });
+  });
+  for (const layer of /* @__PURE__ */ new Set([svg, top])) {
+    Array.from(layer.querySelectorAll("[data-link]")).forEach((g) => {
+      if (!used.has(g.getAttribute("data-link") ?? "")) g.style.display = "none";
+    });
+  }
+}
+function useDesktopLinks(canvasRef, svgRef, topRef) {
+  useEffect16(() => {
+    let raf = 0;
+    const loop = () => {
+      if (canvasRef.current && svgRef.current) {
+        drawDesktopLinks(canvasRef.current, svgRef.current, topRef?.current ?? svgRef.current);
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [canvasRef, svgRef, topRef]);
+}
+function linkTargetAt(x, y, exclude = []) {
+  const hits = typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(x, y) : [];
+  for (const el of hits) {
+    const win = el.closest?.("[data-link-id]");
+    if (win) return exclude.includes(win.getAttribute("data-link-id") ?? "") ? null : win;
+  }
+  return null;
+}
+function useLinkDrag(canvasRef, topRef, zoomRef, onChangeRef) {
+  useEffect16(() => {
+    const top = topRef.current;
+    if (!top) return;
+    const isGrip = (el) => !!el?.getAttribute?.("data-role")?.startsWith("src") && el.closest("g[data-link]")?.getAttribute("data-draggable") === "1";
+    const toCanvas = (e) => {
+      const r = canvasRef.current.getBoundingClientRect();
+      const z = zoomRef.current || 1;
+      return { x: (e.clientX - r.left) / z, y: (e.clientY - r.top) / z };
+    };
+    const onDown = (e) => {
+      if (!isGrip(e.target) || !canvasRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const g = e.target.closest("g[data-link]");
+      const dst = g.querySelector('[data-role="dst"]');
+      const x0 = dst.getAttribute("cx"), y0 = dst.getAttribute("cy");
+      const color = dst.getAttribute("fill") || LINK_DEFAULT_COLOR;
+      const ghost = svgEl("path", {
+        fill: "none",
+        stroke: color,
+        "stroke-width": "2.5",
+        "stroke-dasharray": "6 5",
+        "data-role": "drag"
+      });
+      top.appendChild(ghost);
+      g.style.opacity = "0.35";
+      const target = g.getAttribute("data-target") ?? "";
+      const from = g.getAttribute("data-src") ?? "";
+      let over = null;
+      let outline = "";
+      const mark = (win) => {
+        if (win === over) return;
+        if (over) over.style.outline = outline;
+        over = win;
+        if (over) {
+          outline = over.style.outline;
+          over.style.outline = `2px dashed ${color}`;
+        }
+      };
+      const onMove = (ev) => {
+        const p = toCanvas(ev);
+        ghost.setAttribute("d", `M ${x0} ${y0} L ${p.x} ${p.y}`);
+        mark(linkTargetAt(ev.clientX, ev.clientY, [target]));
+      };
+      const onUp = (ev) => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        const win = linkTargetAt(ev.clientX, ev.clientY, [target]);
+        mark(null);
+        ghost.remove();
+        g.style.opacity = "";
+        const to = win?.getAttribute("data-link-id") ?? "";
+        if (to && to !== from) {
+          onChangeRef.current?.({
+            target,
+            index: Number(g.getAttribute("data-index")) || 0,
+            label: g.getAttribute("data-label") ?? "",
+            from,
+            to
+          });
+        }
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    };
+    const onMouseDown = (e) => {
+      if (isGrip(e.target)) e.stopPropagation();
+    };
+    top.addEventListener("pointerdown", onDown);
+    top.addEventListener("mousedown", onMouseDown);
+    return () => {
+      top.removeEventListener("pointerdown", onDown);
+      top.removeEventListener("mousedown", onMouseDown);
+    };
+  }, [canvasRef, topRef, zoomRef, onChangeRef]);
 }
 
 // src/SURFACES/Desktop/Desktop.tsx
@@ -8822,9 +9087,22 @@ var Desktop = forwardRef30(({
   defaultPan = DESKTOP_DEFAULTS.defaultPan,
   // canvas
   canvasWidth = DESKTOP_DEFAULTS.canvasWidth,
-  canvasHeight = DESKTOP_DEFAULTS.canvasHeight
+  canvasHeight = DESKTOP_DEFAULTS.canvasHeight,
+  onViewChange,
+  onLinkChange,
+  view
 }, forwardedRef) => {
   const containerRef = useRef17(null);
+  const canvasRef = useRef17(null);
+  const linksRef = useRef17(null);
+  const badgesRef = useRef17(null);
+  useDesktopLinks(canvasRef, linksRef, badgesRef);
+  const zoomRef = useRef17(1);
+  const onLinkChangeRef = useRef17(onLinkChange);
+  useEffect17(() => {
+    onLinkChangeRef.current = onLinkChange;
+  }, [onLinkChange]);
+  useLinkDrag(canvasRef, badgesRef, zoomRef, onLinkChangeRef);
   const setRef = useCallback21((node) => {
     containerRef.current = node;
     if (typeof forwardedRef === "function") {
@@ -8842,6 +9120,7 @@ var Desktop = forwardRef30(({
     zoomOut,
     resetZoom,
     setZoomLevel,
+    setView,
     handlePanStart
   } = useCanvasTransform({
     zoomEnabled: zoomable,
@@ -8853,6 +9132,31 @@ var Desktop = forwardRef30(({
     defaultPan,
     containerRef
   });
+  zoomRef.current = zoom;
+  const viewOk = !!view && [view.zoom, view.x, view.y].every((v) => typeof v === "number" && isFinite(v));
+  const viewKey = viewOk ? `${view.zoom}|${view.x}|${view.y}|${view.n ?? ""}` : "";
+  const appliedView = useRef17("");
+  useEffect17(() => {
+    if (!viewOk || !view || viewKey === appliedView.current) return;
+    appliedView.current = viewKey;
+    setView(view);
+  }, [viewKey]);
+  const onViewChangeRef = useRef17(onViewChange);
+  useEffect17(() => {
+    onViewChangeRef.current = onViewChange;
+  }, [onViewChange]);
+  const firstView = useRef17(true);
+  useEffect17(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    if (isPanning || !onViewChangeRef.current) return;
+    const id = setTimeout(() => onViewChangeRef.current?.(
+      { zoom: Math.round(zoom * 100) / 100, x: Math.round(pan.x), y: Math.round(pan.y) }
+    ), 400);
+    return () => clearTimeout(id);
+  }, [zoom, pan.x, pan.y, isPanning]);
   const containerHeight = typeof height === "number" ? `${height}px` : height;
   const cssCanvasWidth = typeof canvasWidth === "number" ? `${canvasWidth}px` : canvasWidth;
   const cssCanvasHeight = typeof canvasHeight === "number" ? `${canvasHeight}px` : canvasHeight;
@@ -8871,6 +9175,7 @@ var Desktop = forwardRef30(({
   }
   const mappedChildren = React33.Children.map(children, (child) => {
     if (!React33.isValidElement(child)) return child;
+    if (child.type === React33.Fragment) return child;
     const key = child.key;
     if (!key) {
       console.warn('Desktop: Window sin "key" prop. El z-index management requiere keys \xFAnicas.');
@@ -8928,12 +9233,49 @@ var Desktop = forwardRef30(({
             className: DESKTOP_CLASSES.viewport,
             style: viewportStyle,
             onMouseDown: pannable ? handlePanStart : void 0,
-            children: /* @__PURE__ */ jsx35(
+            children: /* @__PURE__ */ jsxs29(
               "div",
               {
+                ref: canvasRef,
                 className: DESKTOP_CLASSES.canvas,
                 style: canvasStyle,
-                children: mappedChildren
+                children: [
+                  /* @__PURE__ */ jsx35(
+                    "svg",
+                    {
+                      ref: linksRef,
+                      className: "w3f-desktop-links",
+                      style: {
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: 1,
+                        height: 1,
+                        overflow: "visible",
+                        pointerEvents: "none",
+                        zIndex: 1
+                      }
+                    }
+                  ),
+                  mappedChildren,
+                  /* @__PURE__ */ jsx35(
+                    "svg",
+                    {
+                      ref: badgesRef,
+                      className: "w3f-desktop-links-badges",
+                      style: {
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: 1,
+                        height: 1,
+                        overflow: "visible",
+                        pointerEvents: "none",
+                        zIndex: 1e5
+                      }
+                    }
+                  )
+                ]
               }
             )
           }
@@ -9248,11 +9590,11 @@ function buildGridStyle(layout, columns, gap) {
 }
 
 // src/SURFACES/ImageGallery/ImageGallery.hooks.ts
-import { useState as useState33, useEffect as useEffect16, useCallback as useCallback22 } from "react";
+import { useState as useState33, useEffect as useEffect18, useCallback as useCallback22 } from "react";
 function useImageGallery(images, enabled) {
   const [selectedImage, setSelectedImage] = useState33(null);
   const [currentIndex, setCurrentIndex] = useState33(0);
-  useEffect16(() => {
+  useEffect18(() => {
     document.body.style.overflow = selectedImage ? "hidden" : "unset";
     return () => {
       document.body.style.overflow = "unset";
@@ -9287,7 +9629,7 @@ function useImageGallery(images, enabled) {
     },
     [currentIndex, images]
   );
-  useEffect16(() => {
+  useEffect18(() => {
     if (!selectedImage) return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") closeLightbox();
@@ -9665,7 +10007,7 @@ var Masonry = forwardRef33(({
 Masonry.displayName = "Masonry";
 
 // src/SURFACES/Menu/Menu.tsx
-import { forwardRef as forwardRef34, useState as useState35, useEffect as useEffect18 } from "react";
+import { forwardRef as forwardRef34, useState as useState35, useEffect as useEffect20 } from "react";
 
 // src/SURFACES/Menu/Menu.constants.ts
 var MENU_BAR_CATEGORY_DEFAULTS = {
@@ -9708,13 +10050,13 @@ function buildMenuClasses(position, className, unstyled) {
 }
 
 // src/SURFACES/Menu/Menu.hooks.ts
-import { useState as useState34, useCallback as useCallback23, useRef as useRef18, useEffect as useEffect17 } from "react";
+import { useState as useState34, useCallback as useCallback23, useRef as useRef18, useEffect as useEffect19 } from "react";
 function useMenuOpen() {
   const [isOpen, setIsOpen] = useState34(false);
   const containerRef = useRef18(null);
   const toggle = useCallback23(() => setIsOpen((prev) => !prev), []);
   const close = useCallback23(() => setIsOpen(false), []);
-  useEffect17(() => {
+  useEffect19(() => {
     if (!isOpen) return;
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -9815,7 +10157,7 @@ var MenuBarCategory = forwardRef34(({
   const dropdownCls = buildDropdownClasses(position);
   const containerCls = buildMenuClasses(position, void 0, unstyled);
   const [anchorRect, setAnchorRect] = useState35(null);
-  useEffect18(() => {
+  useEffect20(() => {
     if (isOpen && containerRef.current) {
       setAnchorRect(containerRef.current.getBoundingClientRect());
     }
@@ -10412,7 +10754,7 @@ var POPUP_CLASSES = {
 };
 
 // src/SURFACES/PopUp/PopUp.hooks.ts
-import { useEffect as useEffect19, useCallback as useCallback24 } from "react";
+import { useEffect as useEffect21, useCallback as useCallback24 } from "react";
 function usePopUpKeyboard(isOpen, onClose) {
   const handleKeyDown = useCallback24(
     (e) => {
@@ -10420,7 +10762,7 @@ function usePopUpKeyboard(isOpen, onClose) {
     },
     [onClose]
   );
-  useEffect19(() => {
+  useEffect21(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", handleKeyDown);
@@ -10954,14 +11296,14 @@ var TABS_CLOSE_BTN_STYLE = {
 };
 
 // src/SURFACES/Tabs/Tabs.hooks.ts
-import { useState as useState37, useEffect as useEffect20 } from "react";
+import { useState as useState37, useEffect as useEffect22 } from "react";
 function useTabsState(initialTabsContent, currentTabId, onTabChange) {
   const [tabs, setTabs] = useState37(initialTabsContent);
   const [internalActiveTab, setInternalActiveTab] = useState37(
     initialTabsContent[0]?.id ?? null
   );
   const activeTabId = currentTabId !== void 0 ? currentTabId : internalActiveTab;
-  useEffect20(() => {
+  useEffect22(() => {
     setTabs(initialTabsContent);
     if (currentTabId === void 0 && initialTabsContent.length > 0) {
       setInternalActiveTab(initialTabsContent[0]?.id ?? null);
@@ -11253,12 +11595,38 @@ var WINDOW_MIN_HEIGHT = 200;
 var RESIZE_DIRECTIONS = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
 
 // src/SURFACES/Window/Window.hooks.ts
-import { useState as useState38, useRef as useRef19, useEffect as useEffect21, useCallback as useCallback27 } from "react";
+import { useState as useState38, useRef as useRef19, useEffect as useEffect23, useCallback as useCallback27 } from "react";
 var windowZIndexCounter = 100;
-function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaximize, onFocus, initialPosition = null, initialSize = null, scale = 1) {
+var windowRegistries = /* @__PURE__ */ new WeakMap();
+function registryFor(el) {
+  const scope = el.parentElement?.closest(".w3f-window-group") ?? el.ownerDocument.body;
+  let reg = windowRegistries.get(scope);
+  if (!reg) {
+    reg = /* @__PURE__ */ new Map();
+    windowRegistries.set(scope, reg);
+  }
+  return reg;
+}
+function descendantWindows(reg, windowId) {
+  const seen = /* @__PURE__ */ new Set([windowId]);
+  const out = [];
+  for (let frontier = [windowId]; frontier.length; ) {
+    const next = [];
+    reg.forEach((entry, id) => {
+      if (!seen.has(id) && entry.source && frontier.includes(entry.source)) {
+        seen.add(id);
+        out.push(entry);
+        next.push(id);
+      }
+    });
+    frontier = next;
+  }
+  return out;
+}
+function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaximize, onFocus, initialPosition = null, initialSize = null, scale = 1, onLayoutChange, initialMaximized = false, initialMinimized = false, windowId, windowSource) {
   const [isOpen, setIsOpen] = useState38(open);
-  const [isMinimized, setIsMinimized] = useState38(false);
-  const [isMaximized, setIsMaximized] = useState38(false);
+  const [isMinimized, setIsMinimized] = useState38(initialMinimized);
+  const [isMaximized, setIsMaximized] = useState38(initialMaximized);
   const [isFocused, setIsFocused] = useState38(false);
   const [isDragging, setIsDragging] = useState38(false);
   const [isResizing, setIsResizing] = useState38(false);
@@ -11267,33 +11635,95 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
   const [dimensions, setDimensions] = useState38(initialSize ?? null);
   const windowRef = useRef19(null);
   const positionRef = useRef19(position);
-  useEffect21(() => {
+  useEffect23(() => {
     positionRef.current = position;
   }, [position]);
   const dimensionsRef = useRef19(dimensions);
-  useEffect21(() => {
+  useEffect23(() => {
     dimensionsRef.current = dimensions;
   }, [dimensions]);
   const dragStartRef = useRef19({ mouseX: 0, mouseY: 0, posX: 0, posY: 0, scale: 1 });
+  const dragChildrenRef = useRef19([]);
   const resizeStartRef = useRef19({ x: 0, y: 0, width: 0, height: 0, startX: 0, startY: 0, scale: 1 });
   const resizeDirection = useRef19(null);
   const previousState = useRef19({
     position: null,
     dimensions: null
   });
-  useEffect21(() => {
+  useEffect23(() => {
     setIsOpen(open);
   }, [open]);
-  useEffect21(() => {
-    if (!isDragging) return;
-    const onMouseMove = (e) => {
-      const { mouseX, mouseY, posX, posY, scale: s } = dragStartRef.current;
-      setPosition({
-        x: posX + (e.clientX - mouseX) / s,
-        y: posY + (e.clientY - mouseY) / s
-      });
+  const onLayoutChangeRef = useRef19(onLayoutChange);
+  useEffect23(() => {
+    onLayoutChangeRef.current = onLayoutChange;
+  }, [onLayoutChange]);
+  const layoutKey = `${isDragging || isResizing ? "moving" : "still"}|${isMaximized}|${isMinimized}`;
+  const lastLayoutKey = useRef19(layoutKey);
+  const reportLayout = useCallback27((pos, maximized, minimized) => {
+    if (!onLayoutChangeRef.current) return;
+    let { width, height } = dimensionsRef.current ?? { width: 0, height: 0 };
+    if (!dimensionsRef.current && windowRef.current) {
+      width = windowRef.current.offsetWidth;
+      height = windowRef.current.offsetHeight;
+    }
+    onLayoutChangeRef.current({
+      x: Math.round(pos.x),
+      y: Math.round(pos.y),
+      width: Math.round(width),
+      height: Math.round(height),
+      maximized,
+      minimized
+    });
+  }, []);
+  useEffect23(() => {
+    if (layoutKey === lastLayoutKey.current) return;
+    lastLayoutKey.current = layoutKey;
+    if (isDragging || isResizing) return;
+    const pos = isMaximized && previousState.current.position ? previousState.current.position : positionRef.current;
+    reportLayout(pos, isMaximized, isMinimized);
+  }, [layoutKey, isDragging, isResizing, isMaximized, isMinimized, reportLayout]);
+  const stateFlagsRef = useRef19({ isMaximized, isMinimized });
+  useEffect23(() => {
+    stateFlagsRef.current = { isMaximized, isMinimized };
+  }, [isMaximized, isMinimized]);
+  useEffect23(() => {
+    const el = windowRef.current;
+    if (!windowId || !el || !isOpen) return;
+    const reg = registryFor(el);
+    const entry = {
+      source: windowSource,
+      getPosition: () => positionRef.current,
+      moveTo: (pos, final) => {
+        if (stateFlagsRef.current.isMaximized) return;
+        positionRef.current = pos;
+        setPosition(pos);
+        if (final) reportLayout(pos, false, stateFlagsRef.current.isMinimized);
+      }
     };
-    const onMouseUp = () => {
+    reg.set(windowId, entry);
+    return () => {
+      if (reg.get(windowId) === entry) reg.delete(windowId);
+    };
+  }, [windowId, windowSource, isOpen, reportLayout]);
+  useEffect23(() => {
+    if (!isDragging) return;
+    const delta = (e) => {
+      const { mouseX, mouseY, scale: s } = dragStartRef.current;
+      return { dx: (e.clientX - mouseX) / s, dy: (e.clientY - mouseY) / s };
+    };
+    const moveChildren = (dx, dy, final) => {
+      for (const c of dragChildrenRef.current) c.entry.moveTo({ x: c.x + dx, y: c.y + dy }, final);
+    };
+    const onMouseMove = (e) => {
+      const { posX, posY } = dragStartRef.current;
+      const { dx, dy } = delta(e);
+      setPosition({ x: posX + dx, y: posY + dy });
+      moveChildren(dx, dy, false);
+    };
+    const onMouseUp = (e) => {
+      const { dx, dy } = delta(e);
+      if (dx || dy) moveChildren(dx, dy, true);
+      dragChildrenRef.current = [];
       setIsDragging(false);
     };
     window.addEventListener("mousemove", onMouseMove);
@@ -11326,12 +11756,13 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       posY: positionRef.current.y,
       scale: getCanvasScale()
     };
+    dragChildrenRef.current = windowId ? descendantWindows(registryFor(windowRef.current), windowId).map((entry) => ({ entry, ...entry.getPosition() })) : [];
     setIsDragging(true);
     setIsFocused(true);
     setZIndex(++windowZIndexCounter);
     if (onFocus) onFocus();
-  }, [draggable, isMaximized, isMinimized, onFocus]);
-  useEffect21(() => {
+  }, [draggable, isMaximized, isMinimized, onFocus, windowId]);
+  useEffect23(() => {
     if (!isResizing) return;
     const onMouseMove = (e) => {
       if (!resizeDirection.current) return;
@@ -11404,7 +11835,8 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     };
     setIsResizing(true);
   }, [resizable, isMaximized]);
-  const handleClose = useCallback27(() => {
+  const handleClose = useCallback27((e) => {
+    if (e && typeof e.detail === "number" && e.detail > 1) return;
     setIsOpen(false);
     if (onClose) onClose();
   }, [onClose]);
@@ -11515,6 +11947,9 @@ var Window = forwardRef41(({
   onMinimize,
   onMaximize,
   onFocus,
+  onLayoutChange,
+  initialMaximized = false,
+  initialMinimized = false,
   className = WINDOW_DEFAULTS.className,
   bodyClassName = WINDOW_DEFAULTS.bodyClassName,
   footerClassName = WINDOW_DEFAULTS.footerClassName,
@@ -11527,7 +11962,9 @@ var Window = forwardRef41(({
   unstyled = WINDOW_DEFAULTS.unstyled,
   scale = 1,
   windowId,
-  windowSource
+  windowSource,
+  linkId,
+  links
 }, ref) => {
   const {
     isOpen,
@@ -11556,7 +11993,12 @@ var Window = forwardRef41(({
     onFocus,
     initialPosition,
     initialSize,
-    scale
+    scale,
+    onLayoutChange,
+    initialMaximized,
+    initialMinimized,
+    windowId,
+    windowSource
   );
   if (!isOpen) return null;
   const windowCls = buildWindowClasses(
@@ -11680,6 +12122,8 @@ var Window = forwardRef41(({
       onClick: handleWindowClick,
       ...windowId ? { "data-wid": windowId } : {},
       ...windowSource ? { "data-wid-source": windowSource } : {},
+      ...linkId ? { "data-link-id": linkId } : {},
+      ...links?.length ? { "data-links": JSON.stringify(links) } : {},
       children: [
         /* @__PURE__ */ jsx56(
           "div",
@@ -11730,7 +12174,7 @@ var WINDOW_GRID_CLASSES = {
 };
 
 // src/SURFACES/WindowGrid/WindowGrid.hooks.ts
-import { useState as useState39, useRef as useRef20, useEffect as useEffect22, useCallback as useCallback28 } from "react";
+import { useState as useState39, useRef as useRef20, useEffect as useEffect24, useCallback as useCallback28 } from "react";
 function useResponsiveGrid(autoResponsive, responsiveBreakpoints, responsiveColumns, gridTemplateColumns, deps) {
   const [currentBreakpoint, setCurrentBreakpoint] = useState39("md");
   const [gridColumns, setGridColumns] = useState39(gridTemplateColumns ?? "");
@@ -11750,7 +12194,7 @@ function useResponsiveGrid(autoResponsive, responsiveBreakpoints, responsiveColu
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [autoResponsive, responsiveBreakpoints, responsiveColumns]
   );
-  useEffect22(() => {
+  useEffect24(() => {
     if (!bodyRef.current || !autoResponsive) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -11760,7 +12204,7 @@ function useResponsiveGrid(autoResponsive, responsiveBreakpoints, responsiveColu
     observer.observe(bodyRef.current);
     return () => observer.disconnect();
   }, [calculateGridColumns, autoResponsive]);
-  useEffect22(() => {
+  useEffect24(() => {
     if (bodyRef.current && autoResponsive) {
       calculateGridColumns(bodyRef.current.offsetWidth);
     }
@@ -12253,15 +12697,15 @@ var BadgeWrapper = React50.forwardRef(({
 BadgeWrapper.displayName = "BadgeWrapper";
 
 // src/DATADISPLAY/BottomSheetPanel/BottomSheetPanel.tsx
-import { forwardRef as forwardRef44, useRef as useRef23, useEffect as useEffect24 } from "react";
+import { forwardRef as forwardRef44, useRef as useRef23, useEffect as useEffect26 } from "react";
 
 // src/DATADISPLAY/BottomSheetPanel/BottomSheetPanel.hooks.ts
-import { useState as useState40, useEffect as useEffect23, useCallback as useCallback30, useRef as useRef22 } from "react";
+import { useState as useState40, useEffect as useEffect25, useCallback as useCallback30, useRef as useRef22 } from "react";
 function useBottomSheetAnimation(isOpen) {
   const [isAnimating, setIsAnimating] = useState40(false);
   const [shouldRender, setShouldRender] = useState40(false);
   const previousFocusRef = useRef22(null);
-  useEffect23(() => {
+  useEffect25(() => {
     if (isOpen) {
       setShouldRender(true);
       previousFocusRef.current = document.activeElement;
@@ -12282,7 +12726,7 @@ function useBottomSheetAnimation(isOpen) {
   return { isAnimating, shouldRender };
 }
 function useScrollLock(isOpen) {
-  useEffect23(() => {
+  useEffect25(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -12299,7 +12743,7 @@ function useEscapeKey(isOpen, onClose, enabled) {
       onClose();
     }
   }, [isOpen, onClose, enabled]);
-  useEffect23(() => {
+  useEffect25(() => {
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [handleEscape]);
@@ -12348,7 +12792,7 @@ var BottomSheetPanel = forwardRef44(({
   const { isAnimating, shouldRender } = useBottomSheetAnimation(isOpen);
   useScrollLock(isOpen);
   useEscapeKey(isOpen, onClose, closeOnEscape);
-  useEffect24(() => {
+  useEffect26(() => {
     if (isOpen && panelRef.current) {
       panelRef.current.focus();
     }
@@ -12704,7 +13148,7 @@ Chip.displayName = "Chip";
 var Chip_default = Chip;
 
 // src/DATADISPLAY/Chip/InputChipContainer.tsx
-import { useRef as useRef24, useEffect as useEffect25, useCallback as useCallback32 } from "react";
+import { useRef as useRef24, useEffect as useEffect27, useCallback as useCallback32 } from "react";
 
 // src/DATADISPLAY/Chip/Chip.hooks.ts
 import { useState as useState41, useCallback as useCallback31 } from "react";
@@ -12822,12 +13266,12 @@ var InputChipContainer = () => {
     handleAddChip,
     handleRemoveChip
   );
-  useEffect25(() => {
+  useEffect27(() => {
     if (focusedChipIndex !== null && chipRefs.current[focusedChipIndex]) {
       chipRefs.current[focusedChipIndex].focus();
     }
   }, [focusedChipIndex]);
-  useEffect25(() => {
+  useEffect27(() => {
     chipRefs.current = chipRefs.current.slice(0, chips.length);
   }, [chips.length]);
   return /* @__PURE__ */ jsxs49(
@@ -13051,7 +13495,7 @@ function exportMessagesAsLog(messages) {
 }
 
 // src/DATADISPLAY/Console/Console.hooks.ts
-import { useState as useState42, useCallback as useCallback33, useRef as useRef25, useEffect as useEffect26, useContext as useContext24 } from "react";
+import { useState as useState42, useCallback as useCallback33, useRef as useRef25, useEffect as useEffect28, useContext as useContext24 } from "react";
 
 // src/DATADISPLAY/Console/Console.context.ts
 import { createContext as createContext6 } from "react";
@@ -13100,7 +13544,7 @@ function useConsoleFilter(defaultLevel) {
 }
 function useAutoScroll(messages) {
   const bodyRef = useRef25(null);
-  useEffect26(() => {
+  useEffect28(() => {
     if (bodyRef.current) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
@@ -13259,9 +13703,9 @@ var MODAL_CONFIRM_DEFAULTS = {
 };
 
 // src/DATADISPLAY/Dialog/Modal.hooks.ts
-import { useEffect as useEffect27, useCallback as useCallback34 } from "react";
+import { useEffect as useEffect29, useCallback as useCallback34 } from "react";
 function useModal(isOpen) {
-  useEffect27(() => {
+  useEffect29(() => {
     if (isOpen) {
       document.body.classList.add("w3f-modal-open");
       const focusableElements = document.querySelectorAll(
@@ -13284,7 +13728,7 @@ function useEscapeKey2(isOpen, onClose) {
       onClose();
     }
   }, [isOpen, onClose]);
-  useEffect27(() => {
+  useEffect29(() => {
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [handleEscape]);
@@ -14437,10 +14881,10 @@ var RELOJ_DEFAULTS = {
 };
 
 // src/DATADISPLAY/Reloj/RelojAnalogico.hooks.ts
-import { useState as useState44, useEffect as useEffect28 } from "react";
+import { useState as useState44, useEffect as useEffect30 } from "react";
 var useClock = () => {
   const [date, setDate] = useState44(/* @__PURE__ */ new Date());
-  useEffect28(() => {
+  useEffect30(() => {
     const timerID = setInterval(() => setDate(/* @__PURE__ */ new Date()), 1e3);
     return () => clearInterval(timerID);
   }, []);
@@ -14560,8 +15004,12 @@ var RelojAnalogico = ({
 RelojAnalogico.displayName = "RelojAnalogico";
 
 // src/DATADISPLAY/Table/Table.tsx
-import React64, { useMemo as useMemo15, useRef as useRef28, useEffect as useEffect30 } from "react";
+import React64, { useMemo as useMemo15, useRef as useRef28, useEffect as useEffect32 } from "react";
 import { ArrowUp as ArrowUp2, ArrowDown as ArrowDown2, ArrowUpDown as ArrowUpDown2, Search as Search4 } from "lucide-react";
+
+// src/DATADISPLAY/Table/Table.types.ts
+var ROW_STYLE_KEY = "__style";
+var ROW_PREFIX_KEY = "__prefix";
 
 // src/DATADISPLAY/Table/Table.constants.ts
 var TABLE_DEFAULTS = {
@@ -14619,9 +15067,25 @@ var buildTableClasses = (size, variant, color, enableColumnResize, unstyled) => 
     enableColumnResize ? "w3f-table-fixed" : ""
   ].filter(Boolean).join(" ");
 };
+var formatters = /* @__PURE__ */ new Map();
+var formatNumber = (value, format, decimals, locale = "es-AR") => {
+  if (!format || typeof value !== "number" || !Number.isFinite(value)) return null;
+  const digits = decimals ?? (format === "percent" ? 1 : 2);
+  const key = `${locale}|${format}|${digits}`;
+  let fmt = formatters.get(key);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, {
+      style: format === "percent" ? "percent" : "decimal",
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    });
+    formatters.set(key, fmt);
+  }
+  return fmt.format(value);
+};
 
 // src/DATADISPLAY/Table/Table.hooks.ts
-import { useState as useState45, useMemo as useMemo14, useCallback as useCallback37, useRef as useRef27, useEffect as useEffect29 } from "react";
+import { useState as useState45, useMemo as useMemo14, useCallback as useCallback37, useRef as useRef27, useEffect as useEffect31 } from "react";
 var useTableSort = () => {
   const [sortState, setSortState] = useState45({ key: null, direction: null });
   const handleSort = useCallback37((columnKey) => {
@@ -14668,7 +15132,7 @@ var useTablePagination = (totalItems, initialPageSize) => {
 };
 var useManualQuery = (manual, currentPage, pageSize, sortState, globalFilter, setCurrentPage, onQueryChange) => {
   const [filter, setFilter] = useState45(globalFilter.trim());
-  useEffect29(() => {
+  useEffect31(() => {
     if (!manual) return;
     const id = setTimeout(() => setFilter(globalFilter.trim()), FILTER_DEBOUNCE_MS);
     return () => clearTimeout(id);
@@ -14678,7 +15142,7 @@ var useManualQuery = (manual, currentPage, pageSize, sortState, globalFilter, se
   const keyRef = useRef27(null);
   const sentRef = useRef27(null);
   const resettingRef = useRef27(false);
-  useEffect29(() => {
+  useEffect31(() => {
     if (!manual) return;
     const query = {
       page: currentPage,
@@ -14753,13 +15217,13 @@ var useColumnReorder = (columns) => {
   const dragRef = useRef27(null);
   const ghostRef = useRef27(null);
   const indicatorRef = useRef27(null);
-  useEffect29(() => {
-    setColumnOrder((prev) => {
-      const currentKeys = columns.map((c) => c.accessorKey);
-      const filtered = prev.filter((key) => currentKeys.includes(key));
-      const newKeys = currentKeys.filter((key) => !filtered.includes(key));
-      return [...filtered, ...newKeys];
-    });
+  const propKeysRef = useRef27(columns.map((c) => c.accessorKey).join("\0"));
+  useEffect31(() => {
+    const currentKeys = columns.map((c) => c.accessorKey);
+    const joined = currentKeys.join("\0");
+    if (joined === propKeysRef.current) return;
+    propKeysRef.current = joined;
+    setColumnOrder(currentKeys);
   }, [columns]);
   const orderedColumns = useMemo14(() => {
     const columnMap = {};
@@ -14868,6 +15332,13 @@ var useColumnReorder = (columns) => {
 
 // src/DATADISPLAY/Table/Table.tsx
 import { jsx as jsx80, jsxs as jsxs60 } from "react/jsx-runtime";
+var cellContent = (value) => typeof value === "boolean" ? String(value) : value;
+var cellExtra = (row, key) => {
+  const styles = row[ROW_STYLE_KEY];
+  const prefixes = row[ROW_PREFIX_KEY];
+  return { style: styles?.[key], prefix: prefixes?.[key] };
+};
+var renderValue = (col, value) => formatNumber(value, col.format, col.decimals, col.locale) ?? cellContent(value);
 var Table = React64.forwardRef(({
   data = [],
   columns = [],
@@ -14885,6 +15356,7 @@ var Table = React64.forwardRef(({
   paginationProps = {},
   unstyled = TABLE_DEFAULTS.unstyled,
   onRowClick,
+  onCellDoubleClick,
   selectedRowKey,
   selectedRowValue,
   manual = TABLE_DEFAULTS.manual,
@@ -14924,7 +15396,7 @@ var Table = React64.forwardRef(({
     handlePageSizeChange,
     resetPage
   } = useTablePagination(totalRows, initialPageSize);
-  useEffect30(() => {
+  useEffect32(() => {
     if (!manual) resetPage();
   }, [manual, sortState, globalFilter, resetPage]);
   useManualQuery(manual, currentPage, pageSize, sortState, globalFilter, setCurrentPage, onQueryChange);
@@ -14933,7 +15405,7 @@ var Table = React64.forwardRef(({
     const start = (currentPage - 1) * pageSize;
     return sortedData.slice(start, start + pageSize);
   }, [sortedData, currentPage, pageSize, enablePagination, manual]);
-  useEffect30(() => {
+  useEffect32(() => {
     if (enableColumnResize && !widthsInitializedRef.current) {
       initWidths(headerRowRef.current);
     }
@@ -15015,9 +15487,24 @@ var Table = React64.forwardRef(({
                   outline: isSelected2 ? "2px solid var(--w3f-primary, #3b82f6)" : void 0,
                   outlineOffset: "-2px"
                 },
-                children: displayColumns.map((col) => /* @__PURE__ */ jsx80("td", { children: col.cell ? col.cell(row) : row[col.accessorKey] }, col.accessorKey))
+                children: displayColumns.map((col) => {
+                  const extra = cellExtra(row, col.accessorKey);
+                  const style = col.format ? { textAlign: "right", fontVariantNumeric: "tabular-nums", ...extra.style } : extra.style;
+                  return /* @__PURE__ */ jsxs60(
+                    "td",
+                    {
+                      style,
+                      onDoubleClick: onCellDoubleClick ? () => onCellDoubleClick({ row, column: col.accessorKey, value: row[col.accessorKey], rowIndex }) : void 0,
+                      children: [
+                        extra.prefix ? `${extra.prefix} ` : null,
+                        col.cell ? col.cell(row) : renderValue(col, row[col.accessorKey])
+                      ]
+                    },
+                    col.accessorKey
+                  );
+                })
               },
-              row.id ?? rowIndex
+              `${rowIndex}:${String(row.id ?? "")}`
             );
           }) })
         ] })
@@ -15146,7 +15633,7 @@ var buildArrowClasses = (position) => {
 };
 
 // src/DATADISPLAY/Tooltip/Tooltip.hooks.ts
-import { useState as useState46, useCallback as useCallback38, useEffect as useEffect31, useRef as useRef29 } from "react";
+import { useState as useState46, useCallback as useCallback38, useEffect as useEffect33, useRef as useRef29 } from "react";
 var useTooltipVisibility = (showDelay, hideDelay) => {
   const [isVisible, setIsVisible] = useState46(false);
   const showTimerRef = useRef29(null);
@@ -15163,7 +15650,7 @@ var useTooltipVisibility = (showDelay, hideDelay) => {
       setIsVisible(false);
     }, hideDelay);
   }, [hideDelay]);
-  useEffect31(() => {
+  useEffect33(() => {
     return () => {
       if (showTimerRef.current) clearTimeout(showTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -15429,7 +15916,7 @@ function buildTooltipContent(datum, getLabel, getValue2) {
 import { useMemo as useMemo17, useCallback as useCallback40 } from "react";
 
 // src/DATADISPLAY/Charts/_base/hooks.ts
-import { useCallback as useCallback39, useEffect as useEffect32, useMemo as useMemo16, useRef as useRef30, useState as useState47 } from "react";
+import { useCallback as useCallback39, useEffect as useEffect34, useMemo as useMemo16, useRef as useRef30, useState as useState47 } from "react";
 function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = DEFAULT_CHART_WIDTH, defaultHeight = DEFAULT_CHART_HEIGHT) {
   const [dims, setDims] = useState47(() => ({
     width: propWidth ?? defaultWidth,
@@ -15445,7 +15932,7 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultHeight, containerRef]);
-  useEffect32(() => {
+  useEffect34(() => {
     if (propWidth && propHeight) {
       setDims({ width: propWidth, height: propHeight });
       return;
@@ -24639,7 +25126,7 @@ function formatTick2(value) {
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.hooks.ts
-import { useState as useState58, useEffect as useEffect33, useCallback as useCallback80 } from "react";
+import { useState as useState58, useEffect as useEffect35, useCallback as useCallback80 } from "react";
 function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
   const [dimensions, setDimensions] = useState58({
     width: propWidth ?? defaultWidth,
@@ -24655,7 +25142,7 @@ function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect33(() => {
+  useEffect35(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -25396,7 +25883,7 @@ function labelPosition2(index, total, radius, offset = 16) {
 }
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.hooks.ts
-import { useState as useState59, useEffect as useEffect34, useCallback as useCallback81 } from "react";
+import { useState as useState59, useEffect as useEffect36, useCallback as useCallback81 } from "react";
 function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 400) {
   const [dimensions, setDimensions] = useState59({
     width: propWidth ?? defaultWidth,
@@ -25412,7 +25899,7 @@ function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect34(() => {
+  useEffect36(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -25630,7 +26117,7 @@ function needlePath2(cx, cy, length, angle, baseWidth = 4) {
 }
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.hooks.ts
-import { useState as useState60, useEffect as useEffect35, useCallback as useCallback82 } from "react";
+import { useState as useState60, useEffect as useEffect37, useCallback as useCallback82 } from "react";
 function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth = 300, defaultHeight = 200) {
   const [dimensions, setDimensions] = useState60({
     width: propWidth ?? defaultWidth,
@@ -25646,7 +26133,7 @@ function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect35(() => {
+  useEffect37(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -25816,7 +26303,7 @@ function getValue(data, row, col) {
 }
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.hooks.ts
-import { useState as useState61, useEffect as useEffect36, useCallback as useCallback83 } from "react";
+import { useState as useState61, useEffect as useEffect38, useCallback as useCallback83 } from "react";
 function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
   const [dimensions, setDimensions] = useState61({
     width: propWidth ?? defaultWidth,
@@ -25832,7 +26319,7 @@ function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect36(() => {
+  useEffect38(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -26006,7 +26493,7 @@ function truncateLabel2(label, availableWidth, fontSize = 11) {
 }
 
 // src/DATADISPLAY/Charts/TreemapChart/TreemapChart.hooks.ts
-import { useState as useState62, useEffect as useEffect37, useCallback as useCallback84 } from "react";
+import { useState as useState62, useEffect as useEffect39, useCallback as useCallback84 } from "react";
 function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
   const [dimensions, setDimensions] = useState62({
     width: propWidth ?? defaultWidth,
@@ -26022,7 +26509,7 @@ function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect37(() => {
+  useEffect39(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -26152,9 +26639,9 @@ function buildBackdropClasses(open, invisible, className) {
 }
 
 // src/FEEDBACK/Backdrop/Backdrop.hooks.ts
-import { useState as useState63, useCallback as useCallback85, useEffect as useEffect38 } from "react";
+import { useState as useState63, useCallback as useCallback85, useEffect as useEffect40 } from "react";
 var useScrollLock2 = (locked) => {
-  useEffect38(() => {
+  useEffect40(() => {
     if (!locked) return;
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
@@ -26387,7 +26874,7 @@ var Ripple = React158.forwardRef(({
 Ripple.displayName = "Ripple";
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-import React159, { useState as useState64, useEffect as useEffect39, useCallback as useCallback88, useMemo as useMemo108 } from "react";
+import React159, { useState as useState64, useEffect as useEffect41, useCallback as useCallback88, useMemo as useMemo108 } from "react";
 
 // src/FEEDBACK/Snackbar/Snackbar.constants.ts
 var SNACKBAR_DEFAULTS = {
@@ -26451,13 +26938,13 @@ var Snackbar = React159.forwardRef(({
       onClose?.(null, reason);
     }, SNACKBAR_DEFAULTS.exitAnimationDuration);
   }, [onClose]);
-  useEffect39(() => {
+  useEffect41(() => {
     if (isOpen) {
       setIsVisible(true);
       setIsExiting(false);
     }
   }, [isOpen]);
-  useEffect39(() => {
+  useEffect41(() => {
     if (!isOpen || hideDuration === null || hideDuration <= 0 || isPaused) return;
     const effectiveDuration = isPaused && resumeHideDuration != null ? resumeHideDuration : hideDuration;
     const timer = setTimeout(() => {
@@ -26465,7 +26952,7 @@ var Snackbar = React159.forwardRef(({
     }, effectiveDuration);
     return () => clearTimeout(timer);
   }, [isOpen, hideDuration, isPaused, resumeHideDuration, handleClose]);
-  useEffect39(() => {
+  useEffect41(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -27057,7 +27544,7 @@ function buildDrawerWrapperClasses(isDrawerArea, isDrawerOpen) {
 }
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
-import { useState as useState65, useRef as useRef83, useCallback as useCallback89, useEffect as useEffect40 } from "react";
+import { useState as useState65, useRef as useRef83, useCallback as useCallback89, useEffect as useEffect42 } from "react";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.constants.ts
 var GRID_DIVIDER_DEFAULTS = {
@@ -27102,7 +27589,7 @@ var useGridDividers = (configs) => {
     setDraggingIdx(-1);
     invertedRef.current = false;
   }, []);
-  useEffect40(() => {
+  useEffect42(() => {
     if (draggingIdx >= 0) {
       const config = configsRef.current[draggingIdx];
       const orientation = config.orientation ?? GRID_DIVIDER_DEFAULTS.orientation;
@@ -27877,7 +28364,7 @@ var AUDIO_DEFAULTS = {
 };
 
 // src/MEDIA/AudioPlayer/AudioPlayer.hooks.ts
-import { useState as useState67, useCallback as useCallback90, useEffect as useEffect41 } from "react";
+import { useState as useState67, useCallback as useCallback90, useEffect as useEffect43 } from "react";
 function useAudioPlayer(audioRef, callbacks) {
   const [state, setState] = useState67({
     isPlaying: false,
@@ -27934,7 +28421,7 @@ function useAudioPlayer(audioRef, callbacks) {
   const toggleSpeedMenu = useCallback90(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect41(() => {
+  useEffect43(() => {
     const audio = audioRef.current;
     if (!audio) return;
     const onPlay = () => {
@@ -28272,7 +28759,7 @@ var VIDEO_DEFAULTS = {
 var CONTROLS_HIDE_DELAY = 3e3;
 
 // src/MEDIA/VideoPlayer/VideoPlayer.hooks.ts
-import { useState as useState68, useCallback as useCallback92, useRef as useRef85, useEffect as useEffect42 } from "react";
+import { useState as useState68, useCallback as useCallback92, useRef as useRef85, useEffect as useEffect44 } from "react";
 function useVideoPlayer(videoRef, containerRef, callbacks) {
   const [state, setState] = useState68({
     isPlaying: false,
@@ -28356,7 +28843,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
   const toggleSpeedMenu = useCallback92(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect42(() => {
+  useEffect44(() => {
     const video = videoRef.current;
     if (!video) return;
     const onPlay = () => {
@@ -28395,14 +28882,14 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [videoRef, callbacks]);
-  useEffect42(() => {
+  useEffect44(() => {
     const onFsChange = () => {
       setState((s) => ({ ...s, isFullscreen: !!document.fullscreenElement }));
     };
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
-  useEffect42(() => {
+  useEffect44(() => {
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
@@ -30292,7 +30779,7 @@ var ShoppingCart2 = forwardRef56(
 ShoppingCart2.displayName = "ShoppingCart";
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { memo as memo2, useRef as useRef88, useState as useState73, useEffect as useEffect44 } from "react";
+import { memo as memo2, useRef as useRef88, useState as useState73, useEffect as useEffect46 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.constants.ts
 var DP_WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mi\xE9", "Jue", "Vie", "S\xE1b"];
@@ -30369,7 +30856,7 @@ var DP_CLASSES = {
 };
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
-import { useState as useState72, useCallback as useCallback100, useRef as useRef87, useEffect as useEffect43 } from "react";
+import { useState as useState72, useCallback as useCallback100, useRef as useRef87, useEffect as useEffect45 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.utils.ts
 function toDateValue(date) {
@@ -30499,7 +30986,7 @@ function useDropdown() {
   const open = useCallback100(() => setIsOpen(true), []);
   const close = useCallback100(() => setIsOpen(false), []);
   const toggle = useCallback100(() => setIsOpen((p) => !p), []);
-  useEffect43(() => {
+  useEffect45(() => {
     const onClickOutside = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         close();
@@ -30599,7 +31086,7 @@ var MonthYearPicker = ({ year, month, onSelect }) => {
   const selectedYearRef = useRef88(null);
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
   const years = Array.from({ length: 151 }, (_, i) => currentYear - 100 + i);
-  useEffect44(() => {
+  useEffect46(() => {
     selectedYearRef.current?.scrollIntoView({ block: "center", behavior: "auto" });
   }, []);
   return /* @__PURE__ */ jsxs125("div", { className: DP_CLASSES.ymPicker, children: [
@@ -30956,7 +31443,7 @@ var ALL_MINUTES = Array.from({ length: 60 }, (_, i) => i);
 var ALL_SECONDS = Array.from({ length: 60 }, (_, i) => i);
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
-import { useState as useState74, useCallback as useCallback101, useRef as useRef89, useEffect as useEffect45 } from "react";
+import { useState as useState74, useCallback as useCallback101, useRef as useRef89, useEffect as useEffect47 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.utils.ts
 function buildTimeValue(hours24, minutes, seconds, format) {
@@ -31012,7 +31499,7 @@ function useTPDropdown() {
   const open = useCallback101(() => setIsOpen(true), []);
   const close = useCallback101(() => setIsOpen(false), []);
   const toggle = useCallback101(() => setIsOpen((p) => !p), []);
-  useEffect45(() => {
+  useEffect47(() => {
     const onOut = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) close();
     };
@@ -31098,7 +31585,7 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
   const isProgrammatic = useRef89(false);
   const programmaticTimer = useRef89(null);
   const snapTimer = useRef89(null);
-  useEffect45(() => {
+  useEffect47(() => {
     const el = containerRef.current;
     if (!el) return;
     const idx = values.indexOf(selected);

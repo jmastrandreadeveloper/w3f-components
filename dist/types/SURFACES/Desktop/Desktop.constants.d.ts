@@ -28,4 +28,6 @@ export declare const DESKTOP_DEFAULTS: {
     readonly canvasHeight: 2000;
 };
 export declare const BASE_Z_INDEX = 100;
+/** La rueda sobre estos elementos desplaza su contenido (no hace zoom); con Ctrl hace zoom igual. */
+export declare const WHEEL_SCROLL_SELECTOR = ".w3f-window";
 //# sourceMappingURL=Desktop.constants.d.ts.map

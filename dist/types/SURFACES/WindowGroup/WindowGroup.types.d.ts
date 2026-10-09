@@ -14,5 +14,11 @@ export interface WindowGroupProps {
     style?: React.CSSProperties;
     /** Clase extra para el contenedor raíz. */
     className?: string;
+    /** Al soltar el grupo después de arrastrarlo: su posición nueva (para guardarla). */
+    onMove?: (position: WindowGroupPosition) => void;
+    /** Paneles (PanelWindow) abiertos al montar (ej. al volver a abrir un proyecto). */
+    initialOpenPanels?: string[];
+    /** Cada vez que se abre o se cierra un panel: la lista de paneles abiertos. */
+    onPanelsChange?: (openPanels: string[]) => void;
 }
 //# sourceMappingURL=WindowGroup.types.d.ts.map

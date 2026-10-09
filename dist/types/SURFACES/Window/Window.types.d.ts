@@ -6,6 +6,15 @@ export interface WindowPosition {
     x: number;
     y: number;
 }
+/** Posición, tamaño y estado de una ventana (onLayoutChange). Coordenadas del contenedor (sin zoom). */
+export interface WindowLayout {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    maximized: boolean;
+    minimized: boolean;
+}
 export interface WindowDimensions {
     width: number;
     height: number;
@@ -15,6 +24,14 @@ export interface WindowButtonConfig {
     children?: React.ReactNode;
     key?: string;
     [key: string]: unknown;
+}
+/** Una línea desde otra ventana del Desktop (la que tiene `linkId === id`) hasta esta, con rótulo y color. */
+export interface WindowLink {
+    id: string;
+    label?: string;
+    color?: string;
+    /** El punto de su origen se arrastra a otra ventana (Desktop onLinkChange). */
+    draggable?: boolean;
 }
 export interface WindowProps {
     title?: string;
@@ -34,6 +51,11 @@ export interface WindowProps {
     onMinimize?: (minimized: boolean) => void;
     onMaximize?: (maximized: boolean) => void;
     onFocus?: () => void;
+    /** Al soltar un arrastre o un cambio de tamaño, y al maximizar / minimizar (para guardar dónde quedó). */
+    onLayoutChange?: (layout: WindowLayout) => void;
+    /** La ventana nace maximizada / minimizada (ej. al volver a abrir un proyecto). */
+    initialMaximized?: boolean;
+    initialMinimized?: boolean;
     className?: string;
     bodyClassName?: string;
     footerClassName?: string;
@@ -51,5 +73,9 @@ export interface WindowProps {
     windowId?: string;
     /** ID of the window this one was derived from. Sets data-wid-source for automatic Bezier connectors. */
     windowSource?: string;
+    /** ID único en todo el Desktop (data-link-id): otras ventanas pueden pedir una línea desde esta con `links`. */
+    linkId?: string;
+    /** Líneas rotuladas desde otras ventanas del Desktop (por su `linkId`), aunque estén en otro WindowGroup. */
+    links?: WindowLink[];
 }
 //# sourceMappingURL=Window.types.d.ts.map

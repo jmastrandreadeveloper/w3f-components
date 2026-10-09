@@ -1,5 +1,5 @@
 import type { WindowGroupPosition } from './WindowGroup.types';
-export declare function useGroupDrag(initialPosition?: WindowGroupPosition): {
+export declare function useGroupDrag(initialPosition?: WindowGroupPosition, onMove?: (position: WindowGroupPosition) => void): {
     position: WindowGroupPosition;
     isDragging: boolean;
     groupRef: import("react").RefObject<HTMLDivElement | null>;

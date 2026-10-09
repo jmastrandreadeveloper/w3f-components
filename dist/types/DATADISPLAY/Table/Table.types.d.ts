@@ -19,12 +19,33 @@ export interface TableQuery {
     /** Texto de búsqueda global (sin espacios al borde) */
     filter: string;
 }
+/** Celda sobre la que se hizo doble clic */
+export interface TableCellEvent<T> {
+    /** La fila completa */
+    row: T;
+    /** Clave de la columna (`accessorKey`) */
+    column: string;
+    /** Valor de la celda (`row[column]`) */
+    value: unknown;
+    /** Índice de la fila en la página visible */
+    rowIndex: number;
+}
 /** Variantes visuales de la tabla */
 export type TableVariant = 'default' | 'striped' | 'bordered';
 /** Tamaños de la tabla */
 export type TableSize = 'sm' | 'md' | 'lg';
 /** Colores disponibles para la tabla */
 export type TableColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'gray';
+/** Formato numérico de una columna (solo cambia lo que se ve: el orden sigue siendo por el número) */
+export type TableNumberFormat = 'number' | 'percent';
+/**
+ * Claves reservadas de una fila (0022 B1, formato condicional). Viajan con la fila, así siguen bien
+ * con orden, búsqueda y paginación:
+ * - `__style`: `{ columna: { cssProp: valor } }` → estilo de esa celda (p. ej. escala de color, barra).
+ * - `__prefix`: `{ columna: texto }` → texto antes del valor (p. ej. el ícono del semáforo).
+ */
+export declare const ROW_STYLE_KEY = "__style";
+export declare const ROW_PREFIX_KEY = "__prefix";
 /** Definición de columna */
 export interface TableColumn<T> {
     /** Clave del campo en el objeto de datos */
@@ -35,6 +56,12 @@ export interface TableColumn<T> {
     sortable?: boolean;
     /** Función de renderizado personalizado para la celda */
     cell?: (row: T) => React.ReactNode;
+    /** Formato de los números de la columna: 'number' (separador de miles) o 'percent' (0.25 → 25 %) */
+    format?: TableNumberFormat;
+    /** Decimales del formato (por defecto 2 para 'number' y 1 para 'percent') */
+    decimals?: number;
+    /** Idioma del formato (por defecto 'es-AR') */
+    locale?: string;
 }
 /** Props del componente Table */
 export interface TableProps<T extends Record<string, unknown>> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color'> {
@@ -70,6 +97,8 @@ export interface TableProps<T extends Record<string, unknown>> extends Omit<Reac
     unstyled?: boolean;
     /** Callback al hacer click en una fila. Recibe el row y su índice en el array paginado/filtrado. */
     onRowClick?: (row: T, index: number) => void;
+    /** Callback al hacer doble clic en una celda. Recibe un solo objeto (fila, columna, valor, índice). */
+    onCellDoubleClick?: (cell: TableCellEvent<T>) => void;
     /** Clave del campo a usar como identificador de fila seleccionada (para resaltado visual). */
     selectedRowKey?: string;
     /** Valor del campo `selectedRowKey` que corresponde a la fila actualmente seleccionada. */

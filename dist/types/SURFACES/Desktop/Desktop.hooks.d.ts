@@ -40,6 +40,11 @@ export declare function useCanvasTransform({ zoomEnabled, panEnabled, defaultZoo
     zoomOut: () => void;
     resetZoom: () => void;
     setZoomLevel: (v: number) => void;
+    setView: (v: {
+        zoom: number;
+        x: number;
+        y: number;
+    }) => void;
     handlePanStart: (e: React.MouseEvent<HTMLDivElement>) => void;
 };
 export {};
