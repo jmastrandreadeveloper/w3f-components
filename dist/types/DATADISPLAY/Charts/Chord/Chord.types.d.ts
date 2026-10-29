@@ -17,6 +17,10 @@ export interface ChordInnerProps extends BaseChartProps, ChartEventProps<ChordRi
     showTooltip?: boolean;
     /** Padding between groups in radians. Default: 0.05 */
     padAngle?: number;
+    /** 0022 B53.5: opacidad de las cuerdas (0 a 1). Default 0.65. */
+    ribbonOpacity?: number;
+    /** 0022 B53.5: tamaño de los nombres de los nodos (px). */
+    labelSize?: number;
 }
 export type ChordProps = Omit<ChordInnerProps, 'width' | 'height'> & {
     width?: number;

@@ -41,6 +41,13 @@ export declare function relPos(el: HTMLElement, ancestor: HTMLElement): LinkRect
  * líneas que llegan a la misma ventana (o salen dos veces de la misma, A = B) no se encimen.
  */
 export declare function linkPath(s: LinkRect, t: LinkRect, offset?: number): LinkGeometry;
+/** Atributo del canvas con el `linkRouting` del Desktop: lo leen también las líneas propias de WindowGroup. */
+export declare const LINK_ROUTING_ATTR = "data-link-routing";
+/** Ventanas visibles del canvas (obstáculos del recorrido en ángulo recto) y una firma de sus posiciones. */
+export declare function obstaclesOf(canvas: HTMLElement): {
+    rects: LinkRect[];
+    sig: string;
+};
 /**
  * Redibuja todas las líneas del canvas (una pasada): la curva en `svg` (debajo de las ventanas) y los puntos con
  * rótulo en `top` (encima). Exportada para los tests.

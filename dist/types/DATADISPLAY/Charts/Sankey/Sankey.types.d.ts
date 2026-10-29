@@ -35,6 +35,12 @@ export interface SankeyInnerProps extends BaseChartProps, ChartEventProps<Sankey
     /** Show tooltip on hover. */
     showTooltip?: boolean;
     margin?: ChartMargin;
+    /** 0022 B53.5: opacidad de los flujos (0 a 1). Default 0.3. */
+    linkOpacity?: number;
+    /** 0022 B53.5: color de cada flujo: el de su origen, el de su destino o gris. Default 'source'. */
+    linkColor?: 'source' | 'target' | 'gray';
+    /** 0022 B53.5: tamaño de los nombres de los nodos (px). */
+    labelSize?: number;
 }
 export type SankeyProps = Omit<SankeyInnerProps, 'width' | 'height'> & {
     width?: number;

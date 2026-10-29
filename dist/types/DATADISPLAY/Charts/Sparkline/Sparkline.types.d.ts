@@ -1,4 +1,5 @@
 import type { BaseChartProps, ChartEventProps } from '../_base/types';
+import type { ChartLineStyle } from '../primitives/ChartLineMarks';
 /** Sparkline supports simple numeric arrays. */
 export type SparklineDatum = number;
 export type SparklineData = readonly SparklineDatum[];
@@ -21,6 +22,8 @@ export interface SparklineInnerProps extends BaseChartProps, ChartEventProps<Spa
     /** Show tooltip on hover. */
     showTooltip?: boolean;
     highlightIndex?: number | null;
+    /** 0022 B53.1: cómo se dibuja la línea: continua, a rayas o de puntos. Default 'solid'. */
+    lineStyle?: ChartLineStyle;
 }
 export type SparklineProps = Omit<SparklineInnerProps, 'width' | 'height'> & {
     width?: number;

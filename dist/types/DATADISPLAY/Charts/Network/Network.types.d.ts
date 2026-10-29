@@ -21,6 +21,8 @@ export interface NetworkInnerProps extends BaseChartProps, ChartEventProps<Netwo
     /** Simulation iterations (higher = more stable but slower initial render). */
     iterations?: number;
     margin?: ChartMargin;
+    /** 0022 B53.5: tamaño de los nombres de los nodos (px). */
+    labelSize?: number;
 }
 export type NetworkProps = Omit<NetworkInnerProps, 'width' | 'height'> & {
     width?: number;

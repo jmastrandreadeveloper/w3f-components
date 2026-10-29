@@ -1,5 +1,6 @@
 import type { BoxPlotGroup, BoxPlotStats } from './BoxPlot.types';
-export declare function useBoxPlotStats(data: readonly BoxPlotGroup[]): BoxPlotStats[];
+import type { BoxWhisker } from './BoxPlot.utils';
+export declare function useBoxPlotStats(data: readonly BoxPlotGroup[], whis?: BoxWhisker): BoxPlotStats[];
 export declare function useBoxPlotScales(stats: readonly BoxPlotStats[], innerWidth: number, innerHeight: number, yDomain?: [number, number]): {
     xScale: import("d3-scale").ScaleBand<string>;
     yScale: import("d3-scale").ScaleLinear<number, number, never>;

@@ -8,14 +8,14 @@ export declare function useBarGHScales(data: readonly BarGroupedHDatum[], keys: 
     xScale: import("d3-scale").ScaleLinear<number, number, never>;
 };
 export declare function useBarGHColors(keys: readonly string[], colorScheme: BarGroupedHInnerProps['colorScheme']): Record<string, string>;
-export declare function useBarGHInteraction(onHover?: (datum: BarGroupedHDatum | null, index: number | null) => void, onSelect?: (datum: BarGroupedHDatum, index: number) => void): {
+export declare function useBarGHInteraction(onHover?: (datum: BarGroupedHDatum | null, index: number | null) => void, onSelect?: (datum: BarGroupedHDatum, index: number, key?: string) => void): {
     hovered: {
         groupIdx: number;
         keyIdx: number;
     } | null;
     handleEnter: (datum: BarGroupedHDatum, groupIdx: number, keyIdx: number) => void;
     handleLeave: () => void;
-    handleClick: (datum: BarGroupedHDatum, groupIdx: number) => void;
+    handleClick: (datum: BarGroupedHDatum, groupIdx: number, key?: string) => void;
 };
 export { useChartDimensions, useInnerDims } from '../_base/hooks';
 //# sourceMappingURL=BarGroupedHorizontal.hooks.d.ts.map

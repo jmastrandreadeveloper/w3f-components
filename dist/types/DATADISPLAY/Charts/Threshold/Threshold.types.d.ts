@@ -1,4 +1,5 @@
 import type { BaseChartProps, ChartMargin } from '../_base/types';
+import type { ChartDateFormat, ChartLineStyle } from '../primitives/ChartLineMarks';
 /** Each datum has a date and two values to compare. */
 export type ThresholdDatum = {
     date: Date | number | string;
@@ -34,7 +35,13 @@ export interface ThresholdInnerProps extends BaseChartProps {
     formatY?: (n: number) => string;
     margin?: ChartMargin;
     onHover?: (datum: ThresholdDatum | null, index: number | null) => void;
+    /** Click on a point (drill-down, 0022 M4-drill2). */
+    onSelect?: (datum: ThresholdDatum, index: number) => void;
     highlightIndex?: number | null;
+    /** 0022 B53.1: cómo se dibuja la línea: continua, a rayas o de puntos. Default 'solid'. */
+    lineStyle?: ChartLineStyle;
+    /** 0022 B53.1: cómo se escriben las fechas del eje X ('auto' = las de siempre). */
+    xDateFormat?: ChartDateFormat;
 }
 export type ThresholdProps = Omit<ThresholdInnerProps, 'width' | 'height'> & {
     width?: number;

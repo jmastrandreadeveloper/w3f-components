@@ -5,6 +5,7 @@ export declare const TABLE_DEFAULTS: {
     readonly enablePagination: true;
     readonly enableColumnResize: false;
     readonly enableColumnReorder: false;
+    readonly enableRowReorder: false;
     readonly pageSize: 10;
     readonly variant: "default";
     readonly size: "md";

@@ -1,4 +1,8 @@
 import type { ChartMargin, ColorSchemeName, InnerDims } from './types';
+/** 0022 B47 (w3f-data-analysis): un gráfico dentro de una caja con esta clase usa todo el alto que la caja le deja
+ *  (descontando la leyenda, los títulos de los ejes y lo demás que haya adentro): nunca desborda ni deja barra de
+ *  desplazamiento (las tarjetas del tablero). Sin la clase, el alto es el de siempre (`height` o 300). */
+export declare const CHART_FILL_CLASS = "w3f-chart-fill";
 /**
  * Observe a ref'd element's box and return its current width.
  * Falls back to an explicit `propWidth` if provided.
@@ -12,7 +16,14 @@ export declare function useChartDimensions(containerRef: React.RefObject<HTMLDiv
 /**
  * Memoize the `InnerDims` (outer size minus margin) for a chart.
  */
-export declare function useInnerDims(width: number, height: number, margin: ChartMargin | undefined): InnerDims;
+export declare function useInnerDims(width: number, height: number, margin: ChartMargin | undefined, axis?: {
+    xLabelRotate?: number;
+    plotAspect?: number;
+    secondaryYFactor?: number;
+    secondaryXFactor?: number;
+    twinSeries?: string;
+    labelWrap?: boolean;
+}): InnerDims;
 /**
  * Returns a color scale that maps an ordered list of keys to a palette.
  */

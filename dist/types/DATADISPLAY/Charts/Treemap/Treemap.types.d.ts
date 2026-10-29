@@ -11,6 +11,10 @@ export interface TreemapInnerProps extends BaseChartProps, ChartEventProps<Datum
     tilePadding?: number;
     /** Corner radius on tiles. Default: 2 */
     tileRadius?: number;
+    /** 0022 B53.4: tamaño de los nombres de los rectángulos (px). Default 11. */
+    tileLabelSize?: number;
+    /** 0022 B53.4: el valor debajo del nombre. Default false. */
+    showTileValues?: boolean;
 }
 export type TreemapProps = Omit<TreemapInnerProps, 'width' | 'height'> & {
     width?: number;

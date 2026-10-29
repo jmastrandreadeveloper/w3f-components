@@ -1,3 +1,5 @@
+import type { ChartBarExtrasProps } from '../primitives/ChartSegmentLabel';
+import type { ChartTooltipChartProps } from '../primitives/ChartTooltipMini';
 import type { BaseChartProps, ChartEventProps, ChartMargin, Datum1D } from '../_base/types';
 export type BarDatum = Datum1D;
 export type BarData = readonly BarDatum[];
@@ -5,7 +7,7 @@ export type BarData = readonly BarDatum[];
  * Props for `BarInner` — requires explicit width/height.
  * This is the low-level component rendered inside the SVG.
  */
-export interface BarInnerProps extends BaseChartProps, ChartEventProps<BarDatum> {
+export interface BarInnerProps extends BaseChartProps, ChartTooltipChartProps, ChartEventProps<BarDatum>, Pick<ChartBarExtrasProps, 'mutedBars' | 'mutedOpacity'> {
     /** Fixed width in px (required — no responsive wrapper). */
     width: number;
     /** Fixed height in px (required). */
@@ -40,6 +42,9 @@ export interface BarInnerProps extends BaseChartProps, ChartEventProps<BarDatum>
     showLegend?: boolean;
     /** Show value labels on bars. 'number' = raw value, 'percent' = % of total. Defaults to 'none'. */
     barLabels?: 'none' | 'number' | 'percent';
+    /** Where the value labels go: 'top' (outside, past the end of the bar), 'inside' (inside, near the end),
+     *  'center' (middle of the bar) or 'base' (inside, at the start). Defaults to 'top'. (0022 B47) */
+    barLabelPosition?: 'top' | 'inside' | 'center' | 'base';
     /** Font size for bar category labels (below bars) in px. Defaults to 10. */
     categoryLabelSize?: number;
     /** Font size for bar value labels (on bars) in px. Defaults to 10. */

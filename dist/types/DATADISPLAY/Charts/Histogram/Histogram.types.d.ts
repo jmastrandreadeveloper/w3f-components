@@ -8,6 +8,9 @@ export interface HistogramInnerProps extends BaseChartProps, ChartEventProps<His
     width: number;
     height: number;
     data: readonly number[];
+    /** Bins already computed (e.g. on the server for large data): when given, `data` / `binCount` / `xDomain`
+     *  are not used for binning. */
+    bins?: readonly HistogramBin[];
     /** Number of bins. Default: 20 */
     binCount?: number;
     showXAxis?: boolean;
@@ -20,6 +23,13 @@ export interface HistogramInnerProps extends BaseChartProps, ChartEventProps<His
     formatY?: (n: number) => string;
     margin?: ChartMargin;
     highlightIndex?: number | null;
+    /** VX6 (lo que trae matplotlib en hist): acumulado, densidad, el rango que se cuenta, tipo y orientación. */
+    histCumulative?: boolean;
+    histDensity?: boolean;
+    histRangeMin?: number;
+    histRangeMax?: number;
+    histType?: 'bar' | 'step' | 'stepfilled';
+    histOrientation?: 'vertical' | 'horizontal';
 }
 export type HistogramProps = Omit<HistogramInnerProps, 'width' | 'height'> & {
     width?: number;

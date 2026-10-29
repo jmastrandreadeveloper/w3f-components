@@ -1,7 +1,9 @@
 import type { BaseChartProps, ChartEventProps, ChartMargin, DatumGroup } from '../_base/types';
 export type BarGroupedDatum = DatumGroup;
 export type BarGroupedData = readonly BarGroupedDatum[];
-export interface BarGroupedInnerProps extends BaseChartProps, ChartEventProps<BarGroupedDatum> {
+export interface BarGroupedInnerProps extends BaseChartProps, Omit<ChartEventProps<BarGroupedDatum>, 'onSelect'> {
+    /** Clic en un segmento: el grupo, su índice y la serie (key) clickeada (0022 M4: drill-down). */
+    onSelect?: (datum: BarGroupedDatum, index: number, key?: string) => void;
     width: number;
     height: number;
     data: BarGroupedData;

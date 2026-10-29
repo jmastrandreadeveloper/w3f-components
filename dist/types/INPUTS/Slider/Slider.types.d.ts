@@ -7,6 +7,8 @@ export interface SliderProps {
     value?: number;
     defaultValue?: number;
     label?: string;
+    /** Nombre para lectores de pantalla cuando no hay `label` visible (p. ej. «Zoom»). */
+    ariaLabel?: string;
     showValue?: boolean;
     onChange?: (value: number) => void;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;

@@ -32,6 +32,8 @@ export interface WaterfallInnerProps extends BaseChartProps, ChartEventProps<Wat
     formatY?: (n: number) => string;
     margin?: ChartMargin;
     highlightIndex?: number | null;
+    /** 0022 B53.6: tamaño de la letra de los números de cada paso (px). Default 10. */
+    labelSize?: number;
 }
 export type WaterfallProps = Omit<WaterfallInnerProps, 'width' | 'height'> & {
     width?: number;

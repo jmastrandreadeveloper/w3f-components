@@ -31,6 +31,8 @@ export interface DesktopProps {
     zoomStep?: number;
     /** Show zoom HUD (−/% /+) when zoomable=true. Default: true. */
     showZoomControls?: boolean;
+    /** Botón «Ver todo» en la barra del zoom: zoom y desplazamiento para que entren todas las ventanas. Default: true. */
+    showFitAll?: boolean;
     /** Enable drag-to-pan on the canvas background. Default: false. */
     pannable?: boolean;
     /** Initial pan offset in pixels. Default: { x: 0, y: 0 }. */
@@ -45,6 +47,9 @@ export interface DesktopProps {
     /** Forma de las líneas `links`: 'curve' (curva directa, por debajo de las ventanas; default) u
      *  'orthogonal' (en ángulo recto, rodeando las ventanas; si no hay camino libre, la curva). */
     linkRouting?: LinkRouting;
+    /** 'free' (default: las ventanas pueden taparse) o 'avoid' (sin taparse: una ventana que se abre, se suelta o
+     *  cambia de tamaño encima de otra se corre al lugar libre más cercano; al activarlo se acomodan todas). */
+    windowLayout?: 'free' | 'avoid';
     /** Vista a aplicar (ej. al volver a abrir un proyecto): se aplica cada vez que cambia su valor. */
     view?: DesktopView | null;
     /** Width of the inner canvas (scrollable/zoomable area). Default: 3000. */

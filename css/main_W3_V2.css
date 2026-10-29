@@ -3,7 +3,7 @@
    Layer order: reset → structural → traits → presets → overrides
    ===================================================================== */
 
-@layer w3f-reset, w3f-structural, w3f-traits, w3f-presets, w3f-overrides;
+@layer w3f-reset, w3f-structural, w3f-traits, w3f-presets, w3f-overrides, w3f-user;   /* w3f-user: CSS escrito por el usuario (gana sobre todo) */
 
 /* ── Layer: Reset + Variables ────────────────────────────────────────── */
 
@@ -57,6 +57,48 @@
 @import url('../../components/src/DATADISPLAY/Console/css/Console.structural.css') layer(w3f-structural);
 @import url('../../components/src/DATADISPLAY/Marquee/css/Marquee.structural.css') layer(w3f-structural);
 @import url('../../components/src/DATADISPLAY/Charts/css/Charts.structural.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/_theme/chartTheme.css') layer(w3f-presets);
+@import url('../../components/src/DATADISPLAY/Charts/_base/_base.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Area/Area.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/AreaStacked/AreaStacked.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Bar/Bar.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BarGrouped/BarGrouped.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BarStacked/BarStacked.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/BoxPlot/BoxPlot.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Bubble/Bubble.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Bullet/Bullet.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Candlestick/Candlestick.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Chord/Chord.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/DotPlot/DotPlot.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Funnel/Funnel.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Gantt/Gantt.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Gauge/Gauge.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Geo/Geo.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Heatmap/Heatmap.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Histogram/Histogram.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Line/Line.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/LineMulti/LineMulti.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Network/Network.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Pack/Pack.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Pie/Pie.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/PolarBar/PolarBar.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Radar/Radar.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Sankey/Sankey.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Scatter/Scatter.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Sparkline/Sparkline.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Streamgraph/Streamgraph.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Sunburst/Sunburst.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Threshold/Threshold.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Treemap/Treemap.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Violin/Violin.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Waffle/Waffle.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/Waterfall/Waterfall.css') layer(w3f-structural);
+@import url('../../components/src/DATADISPLAY/Charts/WordCloud/WordCloud.css') layer(w3f-structural);
 @import url('../../components/src/FEEDBACK/Alert/css/Alert.structural.css') layer(w3f-structural);
 @import url('../../components/src/FEEDBACK/Backdrop/css/Backdrop.structural.css') layer(w3f-structural);
 @import url('../../components/src/FEEDBACK/Ripples/css/Ripple.structural.css') layer(w3f-structural);
@@ -72,6 +114,8 @@
 @import url('../../components/src/SURFACES/Window/css/Window.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/WindowGroup/css/WindowGroup.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Desktop/css/Desktop.structural.css') layer(w3f-structural);
+@import url('../../components/src/SURFACES/DesktopTree/css/DesktopTree.structural.css') layer(w3f-structural);
+@import url('../../components/src/LAYOUT/Dashboard/css/Dashboard.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/WindowGrid/css/WindowGrid.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/PopUp/css/PopUp.structural.css') layer(w3f-structural);
 @import url('../../components/src/SURFACES/Masonry/css/Masonry.structural.css') layer(w3f-structural);

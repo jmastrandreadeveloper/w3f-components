@@ -1,10 +1,11 @@
-import type { GeoFeatureDatum } from './Geo.types';
+import type { GeoFeatureDatum, GeoColorScale } from './Geo.types';
 import type { ColorSchemeName } from '../_base/types';
 /**
  * Returns a color scale function that maps a numeric value to a color,
  * interpolating sequentially between the first and last palette colors.
  */
-export declare function useGeoColorScale(values: readonly number[], colorScheme: ColorSchemeName | readonly string[] | undefined): (value: number) => string;
+export declare function useGeoColorScale(values: readonly number[], colorScheme: ColorSchemeName | readonly string[] | undefined, scale?: GeoColorScale, colorMin?: number, // VX4 (vmin / vmax): los extremos elegidos
+colorMax?: number): (value: number) => string;
 /**
  * Hover/select interaction for geo features.
  */

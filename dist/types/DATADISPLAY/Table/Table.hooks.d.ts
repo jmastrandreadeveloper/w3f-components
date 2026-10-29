@@ -25,15 +25,18 @@ export declare const useTablePagination: (totalItems: number, initialPageSize: n
  * - Nunca repite la última consulta enviada (React.StrictMode corre los efectos dos veces en desarrollo).
  */
 export declare const useManualQuery: (manual: boolean, currentPage: number, pageSize: number, sortState: SortState, globalFilter: string, setCurrentPage: (page: number) => void, onQueryChange?: (query: TableQuery) => void) => void;
-export declare const useColumnResize: () => {
+export declare const useColumnResize: (initial?: Record<string, number>, onChange?: (widths: Record<string, number>) => void, fit?: boolean) => {
     columnWidths: Record<string, number>;
     initWidths: (headerRow: HTMLTableRowElement | null) => void;
     handleResizeMouseDown: (e: React.MouseEvent, columnKey: string) => void;
     widthsInitializedRef: import("react").RefObject<boolean>;
 };
-export declare const useColumnReorder: <T extends Record<string, unknown>>(columns: TableColumn<T>[]) => {
+export declare const useColumnReorder: <T extends Record<string, unknown>>(columns: TableColumn<T>[], onColumnOrderChange?: (order: string[]) => void) => {
     columnOrder: string[];
     orderedColumns: TableColumn<T>[];
     handleDragMouseDown: (e: React.MouseEvent<HTMLTableCellElement>, columnKey: string, headerRowRef: React.RefObject<HTMLTableRowElement | null>) => void;
+};
+export declare const useRowReorder: (onDrop?: (fromIndex: number, toIndex: number, position: "before" | "after") => void) => {
+    handleRowDragMouseDown: (e: React.MouseEvent<HTMLTableCellElement>, rowIndex: number, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) => void;
 };
 //# sourceMappingURL=Table.hooks.d.ts.map

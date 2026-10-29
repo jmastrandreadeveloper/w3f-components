@@ -21,6 +21,8 @@ export interface GanttInnerProps extends BaseChartProps, ChartEventProps<GanttTa
     barGap?: number;
     barRadius?: number;
     margin?: ChartMargin;
+    /** 0022 B53.6: tamaño de la letra de los nombres de las tareas (px). Default 12. */
+    labelSize?: number;
 }
 export type GanttProps = Omit<GanttInnerProps, 'width' | 'height'> & {
     width?: number;

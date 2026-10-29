@@ -1,5 +1,5 @@
 import type { HistogramBin } from './Histogram.types';
-export declare function useHistogramBins(data: readonly number[], binCount: number, xDomain?: [number, number]): HistogramBin[];
+export declare function useHistogramBins(data: readonly number[], binCount: number, xDomain?: [number, number], given?: readonly HistogramBin[]): readonly HistogramBin[];
 export declare function useHistogramScales(bins: readonly HistogramBin[], innerWidth: number, innerHeight: number): {
     xScale: import("d3-scale").ScaleLinear<number, number, never>;
     yScale: import("d3-scale").ScaleLinear<number, number, never>;

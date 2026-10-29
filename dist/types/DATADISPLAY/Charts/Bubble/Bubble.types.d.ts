@@ -1,3 +1,4 @@
+import type { ChartPointShapeName } from '../primitives/ChartPointShape';
 import type { BaseChartProps, ChartEventProps, ChartMargin, DatumXY } from '../_base/types';
 export type BubbleDatum = DatumXY;
 export type BubbleData = readonly BubbleDatum[];
@@ -21,6 +22,8 @@ export interface BubbleInnerProps extends BaseChartProps, ChartEventProps<Bubble
     formatY?: (n: number) => string;
     margin?: ChartMargin;
     highlightIndex?: number | null;
+    /** 0026 X8: forma de los puntos. Default 'circle'. */
+    pointShape?: ChartPointShapeName;
 }
 export type BubbleProps = Omit<BubbleInnerProps, 'width' | 'height'> & {
     width?: number;

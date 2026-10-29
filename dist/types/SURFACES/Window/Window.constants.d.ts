@@ -43,6 +43,7 @@ export declare const WINDOW_CLASSES: {
     readonly controlMinimize: "w3f-window-control-btn--minimize";
     readonly controlMaximize: "w3f-window-control-btn--maximize";
     readonly controlFitWidth: "w3f-window-control-btn--fit-width";
+    readonly controlHelp: "w3f-window-control-btn--help";
     readonly resizeHandle: "w3f-window-resize-handle";
 };
 export declare const WINDOW_MIN_WIDTH = 300;

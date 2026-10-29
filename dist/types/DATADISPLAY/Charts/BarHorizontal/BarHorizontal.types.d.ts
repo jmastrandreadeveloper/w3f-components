@@ -1,7 +1,8 @@
+import type { ChartTooltipChartProps } from '../primitives/ChartTooltipMini';
 import type { BaseChartProps, ChartEventProps, ChartMargin, Datum1D } from '../_base/types';
 export type BarHorizontalDatum = Datum1D;
 export type BarHorizontalData = readonly BarHorizontalDatum[];
-export interface BarHorizontalInnerProps extends BaseChartProps, ChartEventProps<BarHorizontalDatum> {
+export interface BarHorizontalInnerProps extends BaseChartProps, ChartTooltipChartProps, ChartEventProps<BarHorizontalDatum> {
     width: number;
     height: number;
     data: BarHorizontalData;
@@ -20,6 +21,9 @@ export interface BarHorizontalInnerProps extends BaseChartProps, ChartEventProps
     margin?: ChartMargin;
     /** Show value labels on bars. 'number' = raw value, 'percent' = % of total. Defaults to 'none'. */
     barLabels?: 'none' | 'number' | 'percent';
+    /** Where the value labels go: 'top' (outside, past the end of the bar), 'inside' (inside, near the end),
+     *  'center' (middle of the bar) or 'base' (inside, at the start). Defaults to 'top'. (0022 B47) */
+    barLabelPosition?: 'top' | 'inside' | 'center' | 'base';
     /** Font size for bar category labels (left of bars) in px. Defaults to 10. */
     categoryLabelSize?: number;
     /** Font size for bar value labels (on bars) in px. Defaults to 10. */

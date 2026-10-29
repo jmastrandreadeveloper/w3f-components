@@ -8,14 +8,14 @@ export declare function useBarSHScales(data: readonly BarStackedHDatum[], keys: 
 };
 export declare function useStackHData(data: readonly BarStackedHDatum[], keys: readonly string[], getLabel: (d: BarStackedHDatum) => string | number): import("./BarStackedHorizontal.utils").StackedHRow[];
 export declare function useBarSHColors(keys: readonly string[], colorScheme: BarStackedHInnerProps['colorScheme']): Record<string, string>;
-export declare function useBarSHInteraction(onHover?: (datum: BarStackedHDatum | null, index: number | null) => void, onSelect?: (datum: BarStackedHDatum, index: number) => void): {
+export declare function useBarSHInteraction(onHover?: (datum: BarStackedHDatum | null, index: number | null) => void, onSelect?: (datum: BarStackedHDatum, index: number, key?: string) => void): {
     hovered: {
         groupIdx: number;
         keyIdx: number;
     } | null;
     handleEnter: (datum: BarStackedHDatum, groupIdx: number, keyIdx: number) => void;
     handleLeave: () => void;
-    handleClick: (datum: BarStackedHDatum, groupIdx: number) => void;
+    handleClick: (datum: BarStackedHDatum, groupIdx: number, key?: string) => void;
 };
 export { useChartDimensions, useInnerDims } from '../_base/hooks';
 //# sourceMappingURL=BarStackedHorizontal.hooks.d.ts.map

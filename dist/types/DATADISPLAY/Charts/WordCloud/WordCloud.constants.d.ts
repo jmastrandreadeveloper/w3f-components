@@ -1,7 +1,7 @@
 export declare const WORDCLOUD_ROOT_CLASS = "w3f-chart-wordcloud";
 export declare const WORDCLOUD_DEFAULTS: {
     readonly showTooltip: true;
-    readonly fontFamily: "inherit";
+    readonly fontFamily: "Arial, Helvetica, sans-serif";
     readonly fontMinSize: 12;
     readonly fontMaxSize: 64;
     readonly spiral: "archimedean";

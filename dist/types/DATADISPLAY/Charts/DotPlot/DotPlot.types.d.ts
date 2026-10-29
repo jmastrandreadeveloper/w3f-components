@@ -1,3 +1,4 @@
+import type { ChartPointShapeName } from '../primitives/ChartPointShape';
 import type { BaseChartProps, ChartEventProps, ChartMargin, DatumXY } from '../_base/types';
 export type DotPlotDatum = DatumXY;
 export type DotPlotData = readonly DotPlotDatum[];
@@ -18,6 +19,8 @@ export interface DotPlotInnerProps extends BaseChartProps, ChartEventProps<DotPl
     margin?: ChartMargin;
     /** Externally highlight a specific dot by index. */
     highlightIndex?: number | null;
+    /** 0022 B53.3: forma de los puntos. Default 'circle'. */
+    pointShape?: ChartPointShapeName;
 }
 export type DotPlotProps = Omit<DotPlotInnerProps, 'width' | 'height'> & {
     width?: number;

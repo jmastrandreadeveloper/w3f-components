@@ -1,7 +1,10 @@
+import type { ChartBarExtrasProps } from '../primitives/ChartSegmentLabel';
 import type { BaseChartProps, ChartEventProps, ChartMargin, DatumGroup } from '../_base/types';
 export type BarStackedHDatum = DatumGroup;
 export type BarStackedHData = readonly BarStackedHDatum[];
-export interface BarStackedHInnerProps extends BaseChartProps, ChartEventProps<BarStackedHDatum> {
+export interface BarStackedHInnerProps extends BaseChartProps, ChartBarExtrasProps, Omit<ChartEventProps<BarStackedHDatum>, 'onSelect'> {
+    /** Clic en un segmento: el grupo, su índice y la serie (key) clickeada (0022 M4: drill-down). */
+    onSelect?: (datum: BarStackedHDatum, index: number, key?: string) => void;
     width: number;
     height: number;
     data: BarStackedHData;

@@ -20,6 +20,16 @@ export interface ViolinInnerProps extends BaseChartProps, ChartEventProps<Violin
     formatY?: (n: number) => string;
     margin?: ChartMargin;
     highlightIndex?: number | null;
+    /** VX6 (lo que trae matplotlib en violinplot): orientación, un solo lado, ancho, promedio, mediana, extremos,
+     *  cuantiles y color del contorno. */
+    violinOrientation?: 'vertical' | 'horizontal';
+    violinSide?: 'both' | 'low' | 'high';
+    violinWidth?: number;
+    violinShowMeans?: boolean;
+    violinShowMedians?: boolean;
+    violinShowExtrema?: boolean;
+    violinQuantiles?: 'none' | 'quartiles' | 'deciles';
+    violinLineColor?: string;
 }
 export type ViolinProps = Omit<ViolinInnerProps, 'width' | 'height'> & {
     width?: number;

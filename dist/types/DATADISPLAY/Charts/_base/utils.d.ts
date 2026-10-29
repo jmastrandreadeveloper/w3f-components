@@ -32,7 +32,19 @@ export declare function buildLinearScale(domainMin: number, domainMax: number, r
  */
 export declare function buildColorScale<T extends string>(domain: readonly T[], palette: readonly string[]): import("d3-scale").ScaleOrdinal<T, string, never>;
 /**
- * Format a tick value. Handles Dates (short locale), numbers (k/M), strings.
+ * A date from the data. `"2024-01-31"` (ISO date only) is that day at LOCAL midnight: `new Date("2024-01-31")`
+ * reads it as UTC, which west of Greenwich is the previous day (in UTC-3, 30 Jan 21:00): every point drawn 3 h
+ * early and the tooltip one day off.
+ */
+export declare function parseDate(v: Date | number | string): Date;
+/**
+ * Date tick, as d3's multi-scale time format: 1 January → the year ("2024"), the 1st of another month → the month
+ * ("feb"), any other day → day and month ("15 feb"). A yearly axis reads 2022 · 2023 · 2024 (not "1 ene" three
+ * times) and a daily one marks where each month starts.
+ */
+export declare function formatDateTick(d: Date): string;
+/**
+ * Format a tick value. Handles Dates (formatDateTick), numbers (k/M), strings.
  */
 export declare function formatTick(value: unknown): string;
 /**
