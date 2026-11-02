@@ -65,6 +65,10 @@ export interface TableColumn<T> {
     decimals?: number;
     /** Idioma del formato (por defecto 'es-AR') */
     locale?: string;
+    /** Separador de miles en los números con `format` (por defecto sí; false = «1234.5», como Python) */
+    grouping?: boolean;
+    /** Texto pegado después de cada número de la columna (por ejemplo '%' para «94.4%»; sin formato, después del valor) */
+    suffix?: string;
     /** Alineación horizontal de los datos de la columna (sin esto: --w3f-table-td-text-align; con `format`,
      *  --w3f-table-num-text-align, derecha por defecto) */
     align?: TableAlign;
@@ -137,6 +141,9 @@ export interface TableProps<T extends Record<string, unknown>> extends Omit<Reac
     /** 0022 B44: los anchos de columna (columnWidths / resize) como proporciones; la tabla ocupa el 100 % de su caja
      *  y nunca se sale de ella (tarjetas del tablero, PDF). */
     fitWidth?: boolean;
+    /** w3f-data-analysis (0027 v3): renglones por celda como máximo (los datos; la cabecera no): el texto que no entra
+     *  se corta con «…» y la fila no crece. Sin esto (o 0), todos los renglones. */
+    maxLines?: number;
     /** 0026 X14: cómo se combinan los valores repetidos de las columnas con `merge` (por defecto 'span'). */
     mergeMode?: TableMergeMode;
     /** 0026 X14: false = sin las filas de grupos (`groups` de las columnas) arriba de los encabezados. */

@@ -11,5 +11,11 @@ export declare function computeForceLayout(data: NetworkData, width: number, hei
     })[];
     links: NetworkLink[];
 };
+/** Agranda (o achica) el dibujo para que ocupe el área, dejando lugar a los rótulos: con pocos nodos muy conectados
+ *  la fuerza los juntaba en el centro y el gráfico quedaba diminuto. */
+export declare function fitToArea(nodes: {
+    x: number;
+    y: number;
+}[], width: number, height: number, marginX?: number, marginY?: number): void;
 export declare function buildTooltipContent(node: NetworkNode): string;
 //# sourceMappingURL=Network.utils.d.ts.map

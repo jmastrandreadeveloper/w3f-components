@@ -1,6 +1,9 @@
 import type { LinkRect } from './Desktop.links';
-export type WindowLayoutMode = 'free' | 'avoid';
-/** Atributo del canvas del Desktop con el modo ('free' | 'avoid'); cada Window lo lee al abrirse / soltarse. */
+export type WindowLayoutMode = 'free' | 'avoid' | 'avoid-open';
+/** Por qué se acomoda una ventana: se abrió, se soltó (arrastre o tamaño a mano), otra creció y la tapa, o el
+ *  Desktop acomoda todas al activar la opción. */
+export type SettleReason = 'open' | 'drop' | 'grow' | 'sweep';
+/** Atributo del canvas del Desktop con el modo ('free' | 'avoid' | 'avoid-open'); cada Window lo lee al abrirse / soltarse. */
 export declare const WINDOW_LAYOUT_ATTR = "data-window-layout";
 /** Evento que el Desktop manda a su canvas al activar 'avoid': cada ventana se acomoda (detail.placed). */
 export declare const SETTLE_EVENT = "w3f:settle-windows";
@@ -9,11 +12,17 @@ export declare const SETTLE_EVENT = "w3f:settle-windows";
 export declare const GREW_EVENT = "w3f:window-grew";
 /** Separación mínima entre ventanas. */
 export declare const GAP = 16;
+/** Qué va con una ventana cuando se la arrastra (B60): 'together' (default) lleva a las que salieron de ella
+ *  (hijas, nietas…); 'alone' la mueve sola. Alt mientras se arrastra hace lo contrario de lo elegido. */
+export type DragChildrenMode = 'together' | 'alone';
+/** Atributo del canvas del Desktop con `dragChildren`; cada Window lo lee al empezar a arrastrar. */
+export declare const DRAG_CHILDREN_ATTR = "data-drag-children";
 export declare const overlaps: (a: LinkRect, b: LinkRect, gap: number) => boolean;
 /**
  * Cuánto mover `me` (dx, dy) para que no toque ninguna de `others` (con `gap` de separación), lo menos posible.
  * {0, 0} si ya está libre. Prueba quedarse donde está y las posiciones pegadas a cada lado de cada ventana (y sus
- * esquinas); se queda con la libre más cercana. No sale de x, y ≥ 0. Si ninguna sirve, a la derecha de todas.
+ * esquinas); se queda con la libre más cercana, también a la izquierda o arriba del origen (el escritorio no tiene
+ * borde: B60). Si ninguna sirve, a la derecha de todas.
  */
 export declare function freeSpot(me: LinkRect, others: LinkRect[], gap?: number): {
     dx: number;
@@ -21,6 +30,14 @@ export declare function freeSpot(me: LinkRect, others: LinkRect[], gap?: number)
 };
 /** Rectángulos (en el canvas) de las ventanas visibles del canvas, menos `except`. */
 export declare function windowRects(canvas: HTMLElement, except?: Element | null): LinkRect[];
-/** El canvas del Desktop con la opción activada que contiene a `el`, o null. */
-export declare function avoidCanvas(el: Element | null): HTMLElement | null;
+/** El modo del canvas del Desktop que contiene a `el` ('free' si no está en uno). */
+export declare function windowLayoutOf(el: Element | null): WindowLayoutMode;
+/**
+ * El canvas del Desktop que contiene a `el` si, con su modo, la ventana tiene que acomodarse por `why`; si no, null.
+ * 'avoid': siempre. 'avoid-open': al abrirse y al activar la opción; nunca al soltarla, y si otra creció solo la corre
+ * cuando el usuario no la puso a mano (`handMoved`).
+ */
+export declare function avoidCanvas(el: Element | null, why?: SettleReason, handMoved?: boolean): HTMLElement | null;
+/** Si `el` se arrastra con sus ventanas hijas, según el Desktop (`dragChildren`) y la tecla Alt (hace lo contrario). */
+export declare function dragsChildren(el: Element | null, altKey?: boolean): boolean;
 //# sourceMappingURL=Desktop.overlap.d.ts.map

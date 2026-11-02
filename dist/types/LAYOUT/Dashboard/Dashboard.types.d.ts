@@ -35,6 +35,14 @@ export interface DashboardPageBackground {
     pages?: 'all' | 'first';
 }
 export interface DashboardProps {
+    /** Flechas libres encima de la hoja (coordenadas en unidades de la grilla): ver DashboardArrows */
+    arrows?: import('./DashboardArrows').DashboardArrow[];
+    /** La flecha elegida (muestra sus manijas: inicio, punta, curva) */
+    selectedArrowId?: string | null;
+    /** Clic en una flecha (null = ninguna) */
+    onArrowSelect?: (id: string | null) => void;
+    /** Al soltar una manija o el cuerpo de una flecha (o Supr): la lista nueva */
+    onArrowsChange?: (arrows: import('./DashboardArrows').DashboardArrow[]) => void;
     /** Las tarjetas que se ven y dónde (una por id; los hijos sin lugar no se muestran) */
     layout?: DashboardTileLayout[];
     /** Columnas de la grilla */

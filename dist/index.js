@@ -9710,11 +9710,11 @@ var WINDOW_LAYOUT_ATTR = "data-window-layout";
 var SETTLE_EVENT = "w3f:settle-windows";
 var GREW_EVENT = "w3f:window-grew";
 var GAP = 16;
+var DRAG_CHILDREN_ATTR = "data-drag-children";
 var overlaps = (a, b, gap) => a.left < b.left + b.width + gap && b.left < a.left + a.width + gap && a.top < b.top + b.height + gap && b.top < a.top + a.height + gap;
 function freeSpot(me, others, gap = GAP) {
   const blockers = others.filter((o) => o.width > 0 && o.height > 0);
   const free = (x, y) => {
-    if (x < 0 || y < 0) return false;
     const r = { left: x, top: y, width: me.width, height: me.height };
     return blockers.every((o) => !overlaps(r, o, gap));
   };
@@ -9745,9 +9745,20 @@ function freeSpot(me, others, gap = GAP) {
 function windowRects(canvas, except) {
   return Array.from(canvas.querySelectorAll(".w3f-window")).filter((w) => w !== except && w.offsetWidth > 0 && w.offsetHeight > 0).map((w) => relPos(w, canvas));
 }
-function avoidCanvas(el2) {
+function avoidCanvas(el2, why = "open", handMoved = false) {
   const canvas = el2?.closest(`[${WINDOW_LAYOUT_ATTR}]`);
-  return canvas && canvas.getAttribute(WINDOW_LAYOUT_ATTR) === "avoid" ? canvas : null;
+  if (!canvas) return null;
+  const mode = canvas.getAttribute(WINDOW_LAYOUT_ATTR);
+  if (mode === "avoid") return canvas;
+  if (mode !== "avoid-open") return null;
+  if (why === "drop") return null;
+  if (why === "grow" && handMoved) return null;
+  return canvas;
+}
+function dragsChildren(el2, altKey = false) {
+  const mode = el2?.closest(`[${DRAG_CHILDREN_ATTR}]`)?.getAttribute(DRAG_CHILDREN_ATTR);
+  const together = mode !== "alone";
+  return altKey ? !together : together;
 }
 
 // src/SURFACES/Desktop/Desktop.tsx
@@ -9777,6 +9788,7 @@ var Desktop = forwardRef31(({
   onLinkChange,
   linkRouting = "curve",
   windowLayout = "free",
+  dragChildren = "together",
   view
 }, forwardedRef) => {
   const containerRef = useRef18(null);
@@ -9794,7 +9806,7 @@ var Desktop = forwardRef31(({
   useLinkDrag(canvasRef, badgesRef, zoomRef, onLinkChangeRef);
   useEffect18(() => {
     const canvas = canvasRef.current;
-    if (windowLayout !== "avoid" || !canvas) return;
+    if (windowLayout !== "avoid" && windowLayout !== "avoid-open" || !canvas) return;
     const id = setTimeout(() => {
       const placed = Array.from(canvas.querySelectorAll(".w3f-window[data-fixed]")).filter((w) => w.offsetWidth > 0).map((w) => relPos(w, canvas));
       canvas.dispatchEvent(new CustomEvent(SETTLE_EVENT, { detail: { placed } }));
@@ -9934,7 +9946,6 @@ var Desktop = forwardRef31(({
     border: "none",
     background: "transparent",
     color: "var(--w3f-desktop-tb-color, #94a3b8)",
-    fontSize: 15,
     cursor: "pointer",
     borderRadius: 5,
     fontSize: 18,
@@ -9970,6 +9981,7 @@ var Desktop = forwardRef31(({
                 style: canvasStyle,
                 ...{ [LINK_ROUTING_ATTR]: linkRouting },
                 ...{ [WINDOW_LAYOUT_ATTR]: windowLayout },
+                ...{ [DRAG_CHILDREN_ATTR]: dragChildren },
                 children: [
                   /* @__PURE__ */ jsx36(
                     "svg",
@@ -12464,11 +12476,12 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
   }, [isMaximized, isMinimized]);
   const draggableRef = useRef20(draggable);
   const movingRef = useRef20(false);
+  const handMovedRef = useRef20(false);
   draggableRef.current = draggable;
   movingRef.current = isDragging || isResizing;
-  const settle = useCallback28((placed) => {
+  const settle = useCallback28((placed, why = "open") => {
     const el2 = windowRef.current;
-    const canvas = avoidCanvas(el2);
+    const canvas = avoidCanvas(el2, why, handMovedRef.current);
     if (!el2 || !canvas || !draggableRef.current || stateFlagsRef.current.isMaximized) return null;
     const me = relPos(el2, canvas);
     if (!me.width || !me.height) return null;
@@ -12488,11 +12501,14 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     if (isDragging || isResizing) return;
     const pos = isMaximized && previousState.current.position ? previousState.current.position : positionRef.current;
     reportLayout(pos, isMaximized, isMinimized);
-    if (wasMoving) settle();
+    if (wasMoving) {
+      handMovedRef.current = true;
+      settle(void 0, "drop");
+    }
   }, [layoutKey, isDragging, isResizing, isMaximized, isMinimized, reportLayout, settle]);
   useEffect24(() => {
     if (!isOpen) return;
-    const id = setTimeout(() => settle(), SETTLE_DELAY);
+    const id = setTimeout(() => settle(void 0, "open"), SETTLE_DELAY);
     return () => clearTimeout(id);
   }, [isOpen, settle]);
   const canvasScaleOf = useCallback28(() => {
@@ -12547,7 +12563,7 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       const { el: grown, rect } = e.detail;
       const el2 = windowRef.current;
       if (!el2 || el2 === grown || !avoidCanvas(el2)) return;
-      if (overlaps(relPos(el2, canvas), rect, GAP)) settle();
+      if (overlaps(relPos(el2, canvas), rect, GAP)) settle(void 0, "grow");
     };
     canvas.addEventListener(GREW_EVENT, onGrew);
     return () => canvas.removeEventListener(GREW_EVENT, onGrew);
@@ -12580,7 +12596,7 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     if (!canvas || !isOpen) return;
     const onSettle = (e) => {
       const placed = e.detail.placed;
-      const r = settle(placed);
+      const r = settle(placed, "sweep");
       if (r) placed.push(r);
     };
     canvas.addEventListener(SETTLE_EVENT, onSettle);
@@ -12656,7 +12672,7 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       posY: positionRef.current.y,
       scale: getCanvasScale()
     };
-    dragChildrenRef.current = windowId ? descendantWindows(registryFor(windowRef.current), windowId).map((entry) => ({ entry, ...entry.getPosition() })) : [];
+    dragChildrenRef.current = windowId && dragsChildren(windowRef.current, e.altKey) ? descendantWindows(registryFor(windowRef.current), windowId).map((entry) => ({ entry, ...entry.getPosition() })) : [];
     setIsDragging(true);
     setIsFocused(true);
     setZIndex(++windowZIndexCounter);
@@ -12829,7 +12845,8 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       const pos = { x: positionRef.current.x + dx, y: positionRef.current.y + dy };
       positionRef.current = pos;
       setPosition(pos);
-      if (windowId && windowRef.current) {
+      handMovedRef.current = true;
+      if (windowId && windowRef.current && dragsChildren(windowRef.current)) {
         for (const c of descendantWindows(registryFor(windowRef.current), windowId)) {
           const p = c.getPosition();
           c.moveTo({ x: p.x + dx, y: p.y + dy }, true);
@@ -16190,16 +16207,17 @@ var buildTableClasses = (size, variant, color, enableColumnResize, unstyled) => 
   ].filter(Boolean).join(" ");
 };
 var formatters = /* @__PURE__ */ new Map();
-var formatNumber = (value, format, decimals, locale = "es-AR") => {
+var formatNumber = (value, format, decimals, locale = "es-AR", grouping = true) => {
   if (!format || typeof value !== "number" || !Number.isFinite(value)) return null;
   const digits = decimals ?? (format === "percent" ? 1 : 2);
-  const key = `${locale}|${format}|${digits}`;
+  const key = `${locale}|${format}|${digits}|${grouping}`;
   let fmt5 = formatters.get(key);
   if (!fmt5) {
     fmt5 = new Intl.NumberFormat(locale, {
       style: format === "percent" ? "percent" : "decimal",
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
+      useGrouping: grouping,
       // 0027 (w3f-data-analysis): sin «-0» (un −0 de los datos, o −0,004 redondeado a 0): signo solo si es < 0
       signDisplay: "negative"
     });
@@ -16650,7 +16668,19 @@ var headerAlignStyle = (col, width) => {
     ...col.lineRight ? { borderRight: col.lineRight } : {}
   };
 };
-var renderValue = (col, value) => formatNumber(value, col.format, col.decimals, col.locale) ?? cellContent(value);
+var clampStyle = (n) => ({
+  display: "-webkit-box",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: n,
+  overflow: "hidden",
+  overflowWrap: "anywhere"
+});
+var renderValue = (col, value) => {
+  const text = formatNumber(value, col.format, col.decimals, col.locale, col.grouping ?? true);
+  if (text != null) return col.suffix ? text + col.suffix : text;
+  const empty = value == null || value === "" || typeof value === "number" && !Number.isFinite(value);
+  return col.suffix && !empty && typeof value !== "object" ? String(value) + col.suffix : cellContent(value);
+};
 var Table = React65.forwardRef(({
   data = [],
   columns = [],
@@ -16666,6 +16696,8 @@ var Table = React65.forwardRef(({
   fitRows = false,
   fitMoreLabel = "\u2026 y {n} filas m\xE1s (no entran en la tarjeta)",
   fitWidth = false,
+  maxLines,
+  // 0027 v3
   style,
   pageSize: initialPageSize = TABLE_DEFAULTS.pageSize,
   variant = TABLE_DEFAULTS.variant,
@@ -16904,7 +16936,10 @@ var Table = React65.forwardRef(({
                             className: classes || void 0,
                             onMouseDown: isHandle ? (e) => handleRowDragMouseDown(e, rowIndex, tbodyRef) : void 0,
                             onDoubleClick: onCellDoubleClick ? () => onCellDoubleClick({ row, column: col.accessorKey, value: row[col.accessorKey], rowIndex }) : void 0,
-                            children: repeated ? null : /* @__PURE__ */ jsxs61(Fragment15, { children: [
+                            children: repeated ? null : maxLines && maxLines > 0 ? /* @__PURE__ */ jsxs61("span", { className: "w3f-table-clamp", style: clampStyle(maxLines), children: [
+                              extra.prefix ? `${extra.prefix} ` : null,
+                              col.cell ? col.cell(row) : renderValue(col, row[col.accessorKey])
+                            ] }) : /* @__PURE__ */ jsxs61(Fragment15, { children: [
                               extra.prefix ? `${extra.prefix} ` : null,
                               col.cell ? col.cell(row) : renderValue(col, row[col.accessorKey])
                             ] })
@@ -18283,14 +18318,17 @@ ChartTooltip.displayName = "ChartTooltip";
 
 // src/DATADISPLAY/Charts/primitives/ChartSegmentLabel/ChartSegmentLabel.tsx
 import { jsx as jsx91 } from "react/jsx-runtime";
-var fmt3 = (n, decimals) => n.toLocaleString("es-AR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-function segmentText(value, total, mode = "none", min = 4, decimals = 1) {
+var fmt3 = (n, decimals, format = "es") => format === "python" ? n.toFixed(decimals) : n.toLocaleString("es-AR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+function segmentText(value, total, mode = "none", min = 4, decimals = 1, format = "es") {
   if (mode === "none" || !Number.isFinite(value) || value === 0 || !total) return "";
   const pct = value / total * 100;
   if (Math.abs(pct) < min) return "";
-  return mode === "percent" ? `${fmt3(pct, decimals)} %` : fmt3(value, Number.isInteger(value) ? 0 : decimals);
+  if (mode === "percent") return `${fmt3(pct, decimals, format)}${format === "python" ? "%" : " %"}`;
+  return fmt3(value, Number.isInteger(value) ? 0 : decimals, format);
 }
-var barOpacity = (label, muted, opacity = 0.45) => muted && muted.some((m) => String(m).trim() === String(label).trim()) ? opacity : 1;
+var isMuted = (label, muted) => !!muted && muted.some((m) => String(m).trim() === String(label).trim());
+var barOpacity = (label, muted, opacity = 0.45, mutedColors) => isMuted(label, muted) && !(mutedColors && mutedColors.length) ? opacity : 1;
+var barFill = (label, keyIdx, fill, muted, mutedColors) => isMuted(label, muted) && mutedColors && mutedColors.length ? mutedColors[keyIdx % mutedColors.length] : fill;
 function labelColor(fill) {
   const f = String(fill ?? "").trim();
   let rgb = null;
@@ -19850,7 +19888,10 @@ var BarStackedInner = (props) => {
     segmentLabelSize,
     // FL15
     mutedBars,
-    mutedOpacity = 0.45
+    mutedOpacity = 0.45,
+    mutedColors,
+    segmentLabelFormat = "es"
+    // 0027 v3
   } = props;
   const { getLabel } = useBarStackedAccessors(gL);
   const dims = useInnerDims(width, height, margin, props);
@@ -19909,7 +19950,7 @@ var BarStackedInner = (props) => {
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
               const total = row.segments.reduce((a, s) => a + (s.value || 0), 0);
-              const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals);
+              const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals, segmentLabelFormat);
               return /* @__PURE__ */ jsxs77(React77.Fragment, { children: [
                 /* @__PURE__ */ jsx104(
                   VisxBar5,
@@ -19918,8 +19959,8 @@ var BarStackedInner = (props) => {
                     y: barY,
                     width: bw,
                     height: Math.max(barH, 0),
-                    fill: colorMap[seg.key],
-                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity),
+                    fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors),
+                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors),
                     stroke: isHighlightedBar ? "var(--w3f-chart-mark-outline, #fff)" : void 0,
                     strokeWidth: isHighlightedBar ? 2 : void 0,
                     rx: barRadius,
@@ -19938,7 +19979,7 @@ var BarStackedInner = (props) => {
                     height: Math.max(barH, 0),
                     text: label,
                     size: segmentLabelSize ?? axisFontSize ?? 11,
-                    fill: colorMap[seg.key]
+                    fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors)
                   }
                 )
               ] }, seg.key);
@@ -20134,7 +20175,10 @@ var BarStackedHorizontalInner = (props) => {
     segmentLabelSize,
     // FL15
     mutedBars,
-    mutedOpacity = 0.45
+    mutedOpacity = 0.45,
+    mutedColors,
+    segmentLabelFormat = "es"
+    // 0027 v3
   } = props;
   const { getLabel } = useBarSHAccessors(gL);
   const dims = useInnerDims(width, height, margin, props);
@@ -20193,7 +20237,7 @@ var BarStackedHorizontalInner = (props) => {
               const isHighlightedBar = isHighlightedGroup && (highlightKey == null || highlightKey === seg.key);
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
               const total = row.segments.reduce((a, s) => a + (s.value || 0), 0);
-              const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals);
+              const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals, segmentLabelFormat);
               return /* @__PURE__ */ jsxs78(React79.Fragment, { children: [
                 /* @__PURE__ */ jsx106(
                   VisxBar6,
@@ -20202,8 +20246,8 @@ var BarStackedHorizontalInner = (props) => {
                     y: barY,
                     width: Math.max(barW, 0),
                     height: bh,
-                    fill: colorMap[seg.key],
-                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity),
+                    fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors),
+                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors),
                     stroke: isHighlightedBar ? "var(--w3f-chart-mark-outline, #fff)" : void 0,
                     strokeWidth: isHighlightedBar ? 2 : void 0,
                     rx: barRadius,
@@ -20222,7 +20266,7 @@ var BarStackedHorizontalInner = (props) => {
                     height: bh,
                     text: label,
                     size: segmentLabelSize ?? axisFontSize ?? 11,
-                    fill: colorMap[seg.key]
+                    fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors)
                   }
                 )
               ] }, seg.key);
@@ -24885,15 +24929,17 @@ function buildNetworkClasses(className, unstyled) {
 }
 function computeForceLayout(data, width, height, iterations) {
   const nodeMap = /* @__PURE__ */ new Map();
-  for (const n of data.nodes) {
+  const count = Math.max(1, data.nodes.length);
+  data.nodes.forEach((n, i) => {
+    const a = 2 * Math.PI * i / count;
     nodeMap.set(n.id, {
       ...n,
-      x: width / 2 + (Math.random() - 0.5) * width * 0.6,
-      y: height / 2 + (Math.random() - 0.5) * height * 0.6,
+      x: width / 2 + Math.cos(a) * width * 0.3,
+      y: height / 2 + Math.sin(a) * height * 0.3,
       vx: 0,
       vy: 0
     });
-  }
+  });
   const nodes = [...nodeMap.values()];
   const links = [...data.links];
   const linkPairs = links.map((l) => ({
@@ -24951,10 +24997,26 @@ function computeForceLayout(data, width, height, iterations) {
       n.y = Math.max(20, Math.min(height - 20, n.y));
     }
   }
+  fitToArea(nodes, width, height);
   return {
     nodes: nodes.map(({ vx, vy, ...rest }) => rest),
     links
   };
+}
+function fitToArea(nodes, width, height, marginX = 70, marginY = 30) {
+  if (nodes.length < 2) return;
+  const xs = nodes.map((n) => n.x), ys = nodes.map((n) => n.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const bw = maxX - minX, bh = maxY - minY;
+  const availW = Math.max(1, width - 2 * marginX), availH = Math.max(1, height - 2 * marginY);
+  const sx = bw > 0 ? availW / bw : Infinity, sy = bh > 0 ? availH / bh : Infinity;
+  const k = Math.min(sx, sy);
+  if (!isFinite(k) || k <= 0) return;
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  for (const n of nodes) {
+    n.x = width / 2 + (n.x - cx) * k;
+    n.y = height / 2 + (n.y - cy) * k;
+  }
 }
 function buildTooltipContent14(node) {
   return node.label ?? node.id;
@@ -28302,7 +28364,7 @@ function geoPointStyle(points, groups, palette, maxRadius, color) {
     const v = Math.abs(Number(p.value) || 0);
     const r = top > 0 ? Math.max(2, maxRadius * Math.sqrt(v / top)) : Math.max(2, maxRadius / 3);
     const gi = p.group != null ? groups.indexOf(p.group) : -1;
-    const fill = gi >= 0 ? palette[gi % palette.length] : color || palette[0];
+    const fill = gi >= 0 ? palette[gi % palette.length] : color || palette[palette.length - 1] || palette[0];
     return { r, fill };
   });
 }
@@ -30602,7 +30664,212 @@ var Cell = ({
 Cell.displayName = "Cell";
 
 // src/LAYOUT/Dashboard/Dashboard.tsx
-import React162, { useCallback as useCallback90, useEffect as useEffect43, useLayoutEffect as useLayoutEffect3, useMemo as useMemo110, useRef as useRef85, useState as useState67 } from "react";
+import React163, { useCallback as useCallback91, useEffect as useEffect44, useLayoutEffect as useLayoutEffect4, useMemo as useMemo110, useRef as useRef86, useState as useState68 } from "react";
+
+// src/LAYOUT/Dashboard/DashboardArrows.tsx
+import { useCallback as useCallback90, useEffect as useEffect43, useLayoutEffect as useLayoutEffect3, useRef as useRef85, useState as useState67 } from "react";
+import { jsx as jsx192, jsxs as jsxs123 } from "react/jsx-runtime";
+function controlPoint(a, b, bend) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { x: mx - dy / len * bend * len, y: my + dx / len * bend * len };
+}
+function bendFor(a, b, p) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const off = ((p.x - mx) * -dy + (p.y - my) * dx) / len;
+  return Math.max(-1, Math.min(1, 2 * off / len));
+}
+var DASH2 = { dashed: "8 5", dotted: "1 5" };
+var DashboardArrows = ({
+  arrows,
+  gridRef,
+  columns,
+  rowHeight,
+  gap,
+  editable = false,
+  selectedId = null,
+  onSelect,
+  onChange
+}) => {
+  const svgRef = useRef85(null);
+  const [width, setWidth] = useState67(0);
+  useLayoutEffect3(() => {
+    const host = svgRef.current?.parentElement ?? gridRef.current;
+    if (!host) return void 0;
+    const measure = () => setWidth(host.offsetWidth || 0);
+    measure();
+    if (typeof ResizeObserver === "undefined") return void 0;
+    const ro = new ResizeObserver(measure);
+    ro.observe(host);
+    return () => ro.disconnect();
+  }, [gridRef]);
+  const cell = width > 0 ? (width - gap * (columns - 1)) / columns : 0;
+  const sx = cell + gap, sy = rowHeight + gap;
+  const toPx = (x, y) => ({ x: x * sx, y: y * sy });
+  const [live, setLive] = useState67(null);
+  const shown = live ?? arrows;
+  const dragRef = useRef85(null);
+  const changeRef = useRef85(onChange);
+  changeRef.current = onChange;
+  const startDrag = useCallback90((e, a, what) => {
+    if (!editable || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    onSelect?.(a.id);
+    dragRef.current = { id: a.id, what, start: { x: e.clientX, y: e.clientY }, origin: a };
+    const base = arrows;
+    let last = base;
+    const onMove = (ev) => {
+      const d = dragRef.current;
+      const grid = gridRef.current;
+      if (!d || !grid || sx <= 0) return;
+      const rect = grid.getBoundingClientRect();
+      const scale = grid.offsetWidth > 0 ? rect.width / grid.offsetWidth : 1;
+      const dx = (ev.clientX - d.start.x) / scale / sx;
+      const dy = (ev.clientY - d.start.y) / scale / sy;
+      const o = d.origin;
+      let n;
+      if (d.what === "start") n = { ...o, x1: o.x1 + dx, y1: o.y1 + dy };
+      else if (d.what === "end") n = { ...o, x2: o.x2 + dx, y2: o.y2 + dy };
+      else if (d.what === "body") n = { ...o, x1: o.x1 + dx, y1: o.y1 + dy, x2: o.x2 + dx, y2: o.y2 + dy };
+      else {
+        const a1 = toPx(o.x1, o.y1), b1 = toPx(o.x2, o.y2);
+        const mid = controlPoint(a1, b1, (o.bend ?? 0) / 2);
+        const p = { x: mid.x + (ev.clientX - d.start.x) / scale, y: mid.y + (ev.clientY - d.start.y) / scale };
+        n = { ...o, bend: Math.round(bendFor(a1, b1, p) * 100) / 100 };
+      }
+      const round = (v) => Math.round(v * 100) / 100;
+      n = { ...n, x1: round(n.x1), y1: round(n.y1), x2: round(n.x2), y2: round(n.y2) };
+      last = base.map((x) => x.id === d.id ? n : x);
+      setLive(last);
+    };
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      dragRef.current = null;
+      setLive(null);
+      if (last !== base) changeRef.current?.(last);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }, [editable, arrows, sx, sy, onSelect, gridRef]);
+  useEffect43(() => {
+    if (!editable || !selectedId || typeof window === "undefined") return void 0;
+    const onKey = (e) => {
+      const tag = e.target?.tagName || "";
+      if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+      if (e.key === "Delete" && arrows.some((a) => a.id === selectedId)) {
+        changeRef.current?.(arrows.filter((a) => a.id !== selectedId));
+        onSelect?.(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editable, selectedId, arrows, onSelect]);
+  if (!shown.length) return null;
+  return /* @__PURE__ */ jsxs123(
+    "svg",
+    {
+      ref: svgRef,
+      className: "w3f-dashboard-arrows",
+      "aria-hidden": !editable,
+      style: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: "100%",
+        height: "100%",
+        overflow: "visible",
+        pointerEvents: "none",
+        zIndex: 5
+      },
+      children: [
+        /* @__PURE__ */ jsx192("defs", { children: shown.map((a) => /* @__PURE__ */ jsx192(
+          "marker",
+          {
+            id: `w3fah-${a.id.replace(/[^\w-]/g, "_")}`,
+            viewBox: "0 0 10 10",
+            refX: "8",
+            refY: "5",
+            markerWidth: "5",
+            markerHeight: "5",
+            orient: "auto-start-reverse",
+            children: /* @__PURE__ */ jsx192("path", { d: "M0,0 L10,5 L0,10 z", fill: a.color || "#0e7490" })
+          },
+          a.id
+        )) }),
+        sx > 0 && shown.map((a) => {
+          const p1 = toPx(a.x1, a.y1), p2 = toPx(a.x2, a.y2);
+          const c = controlPoint(p1, p2, a.bend ?? 0);
+          const d = `M${p1.x},${p1.y} Q${c.x},${c.y} ${p2.x},${p2.y}`;
+          const mark = `url(#w3fah-${a.id.replace(/[^\w-]/g, "_")})`;
+          const heads = a.heads ?? "end";
+          const mid = controlPoint(p1, p2, (a.bend ?? 0) / 2);
+          const sel = editable && a.id === selectedId;
+          return /* @__PURE__ */ jsxs123("g", { "data-arrow": a.id, children: [
+            /* @__PURE__ */ jsx192(
+              "path",
+              {
+                d,
+                fill: "none",
+                stroke: a.color || "#0e7490",
+                strokeWidth: a.width ?? 3,
+                strokeDasharray: DASH2[a.dash ?? "solid"],
+                strokeLinecap: "round",
+                markerEnd: heads !== "none" ? mark : void 0,
+                markerStart: heads === "both" ? mark : void 0
+              }
+            ),
+            a.label ? /* @__PURE__ */ jsx192(
+              "text",
+              {
+                x: mid.x,
+                y: mid.y - 6,
+                textAnchor: "middle",
+                fontSize: "12",
+                fill: a.color || "#0e7490",
+                style: { paintOrder: "stroke", stroke: "var(--w3f-dashboard-page-bg, #fff)", strokeWidth: 3 },
+                children: a.label
+              }
+            ) : null,
+            editable && // el área de clic (más ancha que la línea)
+            /* @__PURE__ */ jsx192(
+              "path",
+              {
+                d,
+                fill: "none",
+                stroke: "transparent",
+                strokeWidth: Math.max(14, (a.width ?? 3) + 10),
+                style: { pointerEvents: "stroke", cursor: "move" },
+                onMouseDown: (e) => startDrag(e, a, "body")
+              }
+            ),
+            sel && [["start", p1], ["end", p2], ["bend", mid]].map(([what, p]) => /* @__PURE__ */ jsx192(
+              "circle",
+              {
+                cx: p.x,
+                cy: p.y,
+                r: what === "bend" ? 6 : 7,
+                fill: what === "bend" ? "#f59e0b" : "#ffffff",
+                stroke: "#f59e0b",
+                strokeWidth: 2,
+                style: { pointerEvents: "all", cursor: what === "bend" ? "grab" : "crosshair" },
+                "aria-label": what === "bend" ? "Curvar la flecha" : what === "start" ? "Inicio de la flecha" : "Punta de la flecha",
+                onMouseDown: (e) => startDrag(e, a, what)
+              },
+              what
+            ))
+          ] }, a.id);
+        })
+      ]
+    }
+  );
+};
+
+// src/LAYOUT/Dashboard/Dashboard.tsx
 import { createPortal as createPortal3 } from "react-dom";
 
 // src/LAYOUT/Dashboard/Dashboard.constants.ts
@@ -30824,14 +31091,14 @@ ${opts.pageCss}` : "") + "</style>",
 }
 
 // src/LAYOUT/Dashboard/Dashboard.tsx
-import { Fragment as Fragment22, jsx as jsx192, jsxs as jsxs123 } from "react/jsx-runtime";
-var DashboardTile = ({ children }) => /* @__PURE__ */ jsx192(Fragment22, { children });
+import { Fragment as Fragment22, jsx as jsx193, jsxs as jsxs124 } from "react/jsx-runtime";
+var DashboardTile = ({ children }) => /* @__PURE__ */ jsx193(Fragment22, { children });
 function collectTiles(children, out) {
-  React162.Children.forEach(children, (child) => {
-    if (!React162.isValidElement(child)) return;
+  React163.Children.forEach(children, (child) => {
+    if (!React163.isValidElement(child)) return;
     const props = child.props;
     if (props.tileId != null) out.set(String(props.tileId), child);
-    else if (child.type === React162.Fragment) collectTiles(props.children, out);
+    else if (child.type === React163.Fragment) collectTiles(props.children, out);
   });
 }
 function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
@@ -30845,9 +31112,9 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
       const mm = offsetMm + k;
       const pos = base + k * pxPerMm;
       const len = mm % 10 === 0 ? RULER_SIZE * 0.55 : mm % 5 === 0 ? RULER_SIZE * 0.35 : RULER_SIZE * 0.2;
-      ticks.push(side === "top" ? /* @__PURE__ */ jsx192("line", { x1: pos, x2: pos, y1: RULER_SIZE, y2: RULER_SIZE - len }, `${p}-${k}`) : /* @__PURE__ */ jsx192("line", { y1: pos, y2: pos, x1: RULER_SIZE, x2: RULER_SIZE - len }, `${p}-${k}`));
+      ticks.push(side === "top" ? /* @__PURE__ */ jsx193("line", { x1: pos, x2: pos, y1: RULER_SIZE, y2: RULER_SIZE - len }, `${p}-${k}`) : /* @__PURE__ */ jsx193("line", { y1: pos, y2: pos, x1: RULER_SIZE, x2: RULER_SIZE - len }, `${p}-${k}`));
       if (mm % 10 === 0 && k > 0 && k < mmCount) {
-        ticks.push(side === "top" ? /* @__PURE__ */ jsx192("text", { x: pos + 2, y: 8, children: mm }, `t${p}-${k}`) : /* @__PURE__ */ jsx192(
+        ticks.push(side === "top" ? /* @__PURE__ */ jsx193("text", { x: pos + 2, y: 8, children: mm }, `t${p}-${k}`) : /* @__PURE__ */ jsx193(
           "text",
           {
             x: 8,
@@ -30862,7 +31129,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
     }
   }
   const top = side === "top";
-  return /* @__PURE__ */ jsxs123(
+  return /* @__PURE__ */ jsxs124(
     "svg",
     {
       className: `${DASHBOARD_CLASSES.ruler} ${top ? DASHBOARD_CLASSES.rulerTop : DASHBOARD_CLASSES.rulerLeft}`,
@@ -30870,7 +31137,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
       width: top ? lengthPx : RULER_SIZE,
       height: top ? RULER_SIZE : lengthPx,
       children: [
-        mark && (top ? /* @__PURE__ */ jsx192(
+        mark && (top ? /* @__PURE__ */ jsx193(
           "rect",
           {
             className: DASHBOARD_CLASSES.rulerMark,
@@ -30879,7 +31146,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
             width: Math.max(1, mark.to - mark.from),
             height: RULER_SIZE
           }
-        ) : /* @__PURE__ */ jsx192(
+        ) : /* @__PURE__ */ jsx193(
           "rect",
           {
             className: DASHBOARD_CLASSES.rulerMark,
@@ -30942,6 +31209,10 @@ var Dashboard = ({
   onExitFullscreen,
   pageRows = 0,
   pageBackground = null,
+  arrows = [],
+  selectedArrowId = null,
+  onArrowSelect,
+  onArrowsChange,
   snapshotRequest,
   snapshotTitle,
   snapshotBackground,
@@ -30962,17 +31233,17 @@ var Dashboard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(layout), columns, pageRows, gravity]
   );
-  const [items, setItems] = useState67(fromProps);
-  useEffect43(() => {
+  const [items, setItems] = useState68(fromProps);
+  useEffect44(() => {
     setItems(fromProps);
   }, [fromProps]);
-  const gridRef = useRef85(null);
-  const dragRef = useRef85(null);
-  const [active, setActive] = useState67(null);
-  const [live, setLive] = useState67(null);
-  const selectRef = useRef85(onSelect);
+  const gridRef = useRef86(null);
+  const dragRef = useRef86(null);
+  const [active, setActive] = useState68(null);
+  const [live, setLive] = useState68(null);
+  const selectRef = useRef86(onSelect);
   selectRef.current = onSelect;
-  const selectedRef = useRef85(selectedId);
+  const selectedRef = useRef86(selectedId);
   selectedRef.current = selectedId;
   const select = (id, el2) => {
     if (!editable || !selectRef.current || id === selectedRef.current) return;
@@ -30983,7 +31254,7 @@ var Dashboard = ({
     const r = el2.getBoundingClientRect();
     selectRef.current(id, { left: r.left, top: r.top, right: r.right, bottom: r.bottom });
   };
-  useEffect43(() => {
+  useEffect44(() => {
     if (!editable || !onSelect || typeof window === "undefined") return void 0;
     const onKey = (e) => {
       const tag = e.target?.tagName || "";
@@ -30992,8 +31263,8 @@ var Dashboard = ({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [editable, onSelect]);
-  const [viewH, setViewH] = useState67(() => typeof window !== "undefined" ? window.innerHeight : 800);
-  useEffect43(() => {
+  const [viewH, setViewH] = useState68(() => typeof window !== "undefined" ? window.innerHeight : 800);
+  useEffect44(() => {
     if (!fullscreen || typeof window === "undefined") return;
     const onKey = (e) => {
       if (e.key === "Escape") onExitFullscreen?.();
@@ -31007,9 +31278,9 @@ var Dashboard = ({
       window.removeEventListener("resize", onResize);
     };
   }, [fullscreen, onExitFullscreen]);
-  const exitRef = useRef85(onExitFullscreen);
+  const exitRef = useRef86(onExitFullscreen);
   exitRef.current = onExitFullscreen;
-  useEffect43(() => {
+  useEffect44(() => {
     if (!fullscreen || !fullscreenScreen || typeof document === "undefined") return;
     const root = document.documentElement;
     let entered = false;
@@ -31032,7 +31303,7 @@ var Dashboard = ({
   }, [fullscreen, fullscreenScreen]);
   const rows = layoutRows(items);
   const rowH = fullscreen && rows > 0 ? Math.max(rowHeight, Math.floor((viewH - FULLSCREEN_BAR - 2 * FULLSCREEN_PAD - gap * (rows - 1)) / rows)) : rowHeight;
-  const startDrag = useCallback90((e, id, mode) => {
+  const startDrag = useCallback91((e, id, mode) => {
     if (!editable || e.button !== 0) return;
     const origin = items.find((t) => t.id === id);
     if (!origin) return;
@@ -31077,11 +31348,11 @@ var Dashboard = ({
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   }, [editable, items, gap, columns, rowH, pageRows, gravity, onLayoutChange]);
-  const rootRef = useRef85(null);
-  const seenRequest = useRef85(snapshotRequest);
-  const snap = useRef85({ onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss });
+  const rootRef = useRef86(null);
+  const seenRequest = useRef86(snapshotRequest);
+  const snap = useRef86({ onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss });
   snap.current = { onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss };
-  useEffect43(() => {
+  useEffect44(() => {
     if (snapshotRequest === seenRequest.current) return;
     seenRequest.current = snapshotRequest;
     if (!snapshotRequest) return;
@@ -31102,8 +31373,8 @@ var Dashboard = ({
   const pages = pageRows > 0 ? Math.max(1, Math.ceil(rows / pageRows)) : 0;
   const breaks = Array.from({ length: pages }, (_, k) => k + 1);
   const rulers = rulerMm > 0 && !fullscreen && items.length > 0;
-  const [box, setBox] = useState67({ w: 0, h: 0 });
-  useLayoutEffect3(() => {
+  const [box, setBox] = useState68({ w: 0, h: 0 });
+  useLayoutEffect4(() => {
     if (!rulers) return void 0;
     const el2 = gridRef.current;
     if (!el2) return void 0;
@@ -31116,10 +31387,10 @@ var Dashboard = ({
   }, [rulers, items, rowH]);
   const pagePx = pageRows > 0 ? pageRows * (rowH + gap) : 0;
   const rulerPx = rulers ? RULER_SIZE + RULER_GAP : 0;
-  const [fitZoom, setFitZoom] = useState67(1);
-  const zoomRef = useRef85(onZoomChange);
+  const [fitZoom, setFitZoom] = useState68(1);
+  const zoomRef = useRef86(onZoomChange);
   zoomRef.current = onZoomChange;
-  useLayoutEffect3(() => {
+  useLayoutEffect4(() => {
     if (zoom !== "fit" || fullscreen) return void 0;
     const root = rootRef.current;
     const scroller = scrollerOf(root);
@@ -31141,11 +31412,11 @@ var Dashboard = ({
     return () => ro.disconnect();
   }, [zoom, fullscreen, pageWidth, rulerPx]);
   const z = fullscreen ? 1 : zoom === "fit" ? fitZoom : Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Number.isFinite(Number(zoom)) && Number(zoom) > 0 ? Number(zoom) : 1));
-  const userZoom = useCallback90((next) => {
+  const userZoom = useCallback91((next) => {
     const v = next === "fit" ? "fit" : Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)) * 100) / 100;
     zoomRef.current?.(v, "user");
   }, []);
-  const onWheel = useCallback90((e) => {
+  const onWheel = useCallback91((e) => {
     if (!zoomControls || !e.ctrlKey) return;
     e.preventDefault();
     userZoom(z + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
@@ -31164,25 +31435,32 @@ var Dashboard = ({
       text: `x ${mm(x0) + rulerOffsetMm} mm \xB7 y ${mm(yPage) + rulerOffsetMm} mm \xB7 ${mm(w)} \xD7 ${mm(h)} mm` + (pagePx > 0 ? ` \xB7 p\xE1gina ${Math.floor(y0 / pagePx) + 1}` : "")
     };
   })() : null;
-  const grid = items.length === 0 ? /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.empty, children: emptyText }) : /* @__PURE__ */ jsxs123(
+  const grid = items.length === 0 && !(arrows && arrows.length) ? /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.empty, children: emptyText }) : /* @__PURE__ */ jsxs124(
     "div",
     {
       ref: gridRef,
       className: DASHBOARD_CLASSES.grid,
       onClick: (e) => {
-        if (!e.target.closest(`.${DASHBOARD_CLASSES.tile}`)) select(null);
+        const t = e.target;
+        if (t.closest(".w3f-dashboard-arrows")) return;
+        if (!t.closest(`.${DASHBOARD_CLASSES.tile}`)) {
+          select(null);
+          onArrowSelect?.(null);
+        }
       },
       style: {
         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
         gridAutoRows: `${rowH}px`,
         gap: `${gap}px`,
-        ...pages ? { minHeight: `${pages * pageRows * (rowH + gap) - gap}px` } : {}
+        ...pages ? { minHeight: `${pages * pageRows * (rowH + gap) - gap}px` } : {},
         // sin pasarse a otra hoja
+        // las flechas libres pueden ir más abajo que la última tarjeta: la grilla crece hasta ellas
+        ...!pages && arrows && arrows.length ? { minHeight: `${Math.ceil(Math.max(...arrows.map((r) => Math.max(r.y1, r.y2))) + 1) * (rowH + gap)}px` } : {}
       },
       children: [
         pageBackground?.url && (pages ? breaks : [1]).map((k) => (
           // 0026 X2: una capa por página (Web: una)
-          ((pageBackground.pages ?? "all") === "all" || k === 1) && /* @__PURE__ */ jsx192(
+          ((pageBackground.pages ?? "all") === "all" || k === 1) && /* @__PURE__ */ jsx193(
             "div",
             {
               className: DASHBOARD_CLASSES.pageBg,
@@ -31199,20 +31477,34 @@ var Dashboard = ({
             `bg${k}`
           )
         )),
-        breaks.map((k) => /* @__PURE__ */ jsx192(
+        arrows && arrows.length > 0 && /* @__PURE__ */ jsx193(
+          DashboardArrows,
+          {
+            arrows,
+            gridRef,
+            columns,
+            rowHeight: rowH,
+            gap,
+            editable,
+            selectedId: selectedArrowId,
+            onSelect: onArrowSelect,
+            onChange: onArrowsChange
+          }
+        ),
+        breaks.map((k) => /* @__PURE__ */ jsx193(
           "div",
           {
             className: DASHBOARD_CLASSES.pageBreak,
             "aria-hidden": true,
             style: { top: `${k * pageRows * (rowH + gap) - gap / 2}px` },
-            children: /* @__PURE__ */ jsxs123("span", { children: [
+            children: /* @__PURE__ */ jsxs124("span", { children: [
               "fin de la p\xE1gina ",
               k
             ] })
           },
           `pb${k}`
         )),
-        live && liveTile && /* @__PURE__ */ jsx192(
+        live && liveTile && /* @__PURE__ */ jsx193(
           "div",
           {
             className: DASHBOARD_CLASSES.drop,
@@ -31241,7 +31533,7 @@ var Dashboard = ({
             place.alignSelf = "start";
             place.justifySelf = "start";
           }
-          return /* @__PURE__ */ jsxs123(
+          return /* @__PURE__ */ jsxs124(
             "div",
             {
               className: `${DASHBOARD_CLASSES.tile}${active === t.id ? ` ${DASHBOARD_CLASSES.tileActive}` : ""}${selectedId === t.id ? ` ${DASHBOARD_CLASSES.tileSelected}` : ""}${t.hideBorder ? ` ${DASHBOARD_CLASSES.tileBorderless}` : ""}`,
@@ -31249,7 +31541,7 @@ var Dashboard = ({
               style: t.radius != null ? { ...place, borderRadius: `${t.radius}px` } : place,
               onClickCapture: (e) => select(t.id, e.currentTarget),
               children: [
-                !(t.hideTitle && !editable) && /* @__PURE__ */ jsxs123(
+                !(t.hideTitle && !editable) && /* @__PURE__ */ jsxs124(
                   "div",
                   {
                     className: t.hideTitle ? `${DASHBOARD_CLASSES.head} w3f-dashboard-tile-head--bare` : DASHBOARD_CLASSES.head,
@@ -31259,7 +31551,7 @@ var Dashboard = ({
                       ...t.headBackground ? { background: t.headBackground } : {}
                     },
                     children: [
-                      !t.hideTitle && /* @__PURE__ */ jsx192(
+                      !t.hideTitle && /* @__PURE__ */ jsx193(
                         "span",
                         {
                           className: DASHBOARD_CLASSES.title,
@@ -31267,7 +31559,7 @@ var Dashboard = ({
                           children: t.title ?? t.id
                         }
                       ),
-                      editable && onRemove && /* @__PURE__ */ jsx192(
+                      editable && onRemove && /* @__PURE__ */ jsx193(
                         "button",
                         {
                           type: "button",
@@ -31281,8 +31573,8 @@ var Dashboard = ({
                     ]
                   }
                 ),
-                /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.body, children: content.get(t.id) ?? null }),
-                editable && /* @__PURE__ */ jsx192(
+                /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.body, children: content.get(t.id) ?? null }),
+                editable && /* @__PURE__ */ jsx193(
                   "div",
                   {
                     className: DASHBOARD_CLASSES.resize,
@@ -31298,13 +31590,13 @@ var Dashboard = ({
       ]
     }
   );
-  const ruled = rulers ? /* @__PURE__ */ jsxs123("div", { className: DASHBOARD_CLASSES.ruled, style: {
+  const ruled = rulers ? /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.ruled, style: {
     gridTemplateColumns: `${rulerPx}px minmax(0, 1fr)`,
     gridTemplateRows: `${rulerPx}px auto`
   }, children: [
-    /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.rulerCorner, "aria-hidden": true }),
-    /* @__PURE__ */ jsxs123("div", { className: DASHBOARD_CLASSES.rulerWrapTop, children: [
-      /* @__PURE__ */ jsx192(
+    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerCorner, "aria-hidden": true }),
+    /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.rulerWrapTop, children: [
+      /* @__PURE__ */ jsx193(
         Ruler2,
         {
           side: "top",
@@ -31315,9 +31607,9 @@ var Dashboard = ({
           mark: mark?.top
         }
       ),
-      mark && /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.rulerInfo, children: mark.text })
+      mark && /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerInfo, children: mark.text })
     ] }),
-    /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.rulerWrapLeft, children: /* @__PURE__ */ jsx192(
+    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerWrapLeft, children: /* @__PURE__ */ jsx193(
       Ruler2,
       {
         side: "left",
@@ -31328,15 +31620,15 @@ var Dashboard = ({
         mark: mark?.left
       }
     ) }),
-    /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.page, children: grid })
-  ] }) : /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.page, children: grid });
+    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.page, children: grid })
+  ] }) : /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.page, children: grid });
   const rootCls = [DASHBOARD_CLASSES.root, className].filter(Boolean).join(" ");
   const zoomedStyle = {
     ...pageWidth > 0 && !fullscreen ? { width: `${pageWidth + rulerPx}px`, margin: "0 auto" } : {},
     ...z !== 1 ? { zoom: z } : {}
   };
-  const zoomBar = zoomControls && !fullscreen ? /* @__PURE__ */ jsxs123("div", { className: DASHBOARD_CLASSES.zoomBar, role: "toolbar", "aria-label": "Zoom de la hoja", children: [
-    /* @__PURE__ */ jsx192(
+  const zoomBar = zoomControls && !fullscreen ? /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.zoomBar, role: "toolbar", "aria-label": "Zoom de la hoja", children: [
+    /* @__PURE__ */ jsx193(
       "button",
       {
         type: "button",
@@ -31347,8 +31639,8 @@ var Dashboard = ({
         children: "\u2212"
       }
     ),
-    /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.zoomSlider, children: /* @__PURE__ */ jsx192(Slider_default, { value: z, min: ZOOM_MIN, max: ZOOM_MAX, step: 0.01, showValue: false, ariaLabel: "Zoom", onChange: userZoom }) }),
-    /* @__PURE__ */ jsx192(
+    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.zoomSlider, children: /* @__PURE__ */ jsx193(Slider_default, { value: z, min: ZOOM_MIN, max: ZOOM_MAX, step: 0.01, showValue: false, ariaLabel: "Zoom", onChange: userZoom }) }),
+    /* @__PURE__ */ jsx193(
       "button",
       {
         type: "button",
@@ -31359,7 +31651,7 @@ var Dashboard = ({
         children: "+"
       }
     ),
-    /* @__PURE__ */ jsxs123(
+    /* @__PURE__ */ jsxs124(
       "button",
       {
         type: "button",
@@ -31373,7 +31665,7 @@ var Dashboard = ({
         ]
       }
     ),
-    /* @__PURE__ */ jsx192(
+    /* @__PURE__ */ jsx193(
       "button",
       {
         type: "button",
@@ -31386,10 +31678,10 @@ var Dashboard = ({
     )
   ] }) : null;
   if (fullscreen && typeof document !== "undefined") {
-    return /* @__PURE__ */ jsxs123("div", { className: rootCls, style, children: [
-      /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.placeholder, children: fullscreenPlaceholder }),
+    return /* @__PURE__ */ jsxs124("div", { className: rootCls, style, children: [
+      /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.placeholder, children: fullscreenPlaceholder }),
       createPortal3(
-        /* @__PURE__ */ jsxs123(
+        /* @__PURE__ */ jsxs124(
           "div",
           {
             className: `${DASHBOARD_CLASSES.root} ${DASHBOARD_CLASSES.fullscreen}`,
@@ -31397,9 +31689,9 @@ var Dashboard = ({
             "aria-label": fullscreenTitle || "Tablero",
             style: { ...style, padding: `0 ${FULLSCREEN_PAD}px ${FULLSCREEN_PAD}px` },
             children: [
-              /* @__PURE__ */ jsxs123("div", { className: DASHBOARD_CLASSES.fullscreenBar, style: { height: `${FULLSCREEN_BAR}px` }, children: [
-                /* @__PURE__ */ jsx192("span", { children: fullscreenTitle }),
-                /* @__PURE__ */ jsx192("button", { type: "button", className: DASHBOARD_CLASSES.fullscreenExit, onClick: () => onExitFullscreen?.(), children: "Salir (Esc)" })
+              /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.fullscreenBar, style: { height: `${FULLSCREEN_BAR}px` }, children: [
+                /* @__PURE__ */ jsx193("span", { children: fullscreenTitle }),
+                /* @__PURE__ */ jsx193("button", { type: "button", className: DASHBOARD_CLASSES.fullscreenExit, onClick: () => onExitFullscreen?.(), children: "Salir (Esc)" })
               ] }),
               grid
             ]
@@ -31410,8 +31702,8 @@ var Dashboard = ({
     ] });
   }
   const cls = zoomBar ? `${rootCls} ${DASHBOARD_CLASSES.rootZoomBar}` : rootCls;
-  return /* @__PURE__ */ jsxs123("div", { ref: rootRef, className: cls, style, "data-zoom": z, onWheel, children: [
-    /* @__PURE__ */ jsx192("div", { className: DASHBOARD_CLASSES.zoomed, style: zoomedStyle, children: ruled }),
+  return /* @__PURE__ */ jsxs124("div", { ref: rootRef, className: cls, style, "data-zoom": z, onWheel, children: [
+    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.zoomed, style: zoomedStyle, children: ruled }),
     zoomBar
   ] });
 };
@@ -31585,7 +31877,7 @@ var buildFlexItemInlineStyles = ({
 };
 
 // src/LAYOUT/Flexbox/Flexbox.tsx
-import { jsx as jsx193 } from "react/jsx-runtime";
+import { jsx as jsx194 } from "react/jsx-runtime";
 var FlexContainer = ({
   children,
   direction = FLEX_CONTAINER_DEFAULTS.direction,
@@ -31629,7 +31921,7 @@ var FlexContainer = ({
     margin,
     style
   });
-  return /* @__PURE__ */ jsx193("div", { className: classNames, style: flexStyle, ...rest, children });
+  return /* @__PURE__ */ jsx194("div", { className: classNames, style: flexStyle, ...rest, children });
 };
 FlexContainer.displayName = "FlexContainer";
 var FlexItem = ({
@@ -31661,7 +31953,7 @@ var FlexItem = ({
     alignSelf,
     style
   });
-  return /* @__PURE__ */ jsx193("div", { className: classNames, style: itemStyle, ...rest, children });
+  return /* @__PURE__ */ jsx194("div", { className: classNames, style: itemStyle, ...rest, children });
 };
 FlexItem.displayName = "FlexItem";
 var FlexBoxItem = ({
@@ -31685,7 +31977,7 @@ var FlexBoxItem = ({
     justifyContent: "center",
     ...style
   };
-  return /* @__PURE__ */ jsx193(FlexItem, { style: boxStyles, className, ...rest, children });
+  return /* @__PURE__ */ jsx194(FlexItem, { style: boxStyles, className, ...rest, children });
 };
 FlexBoxItem.displayName = "FlexBoxItem";
 
@@ -31807,7 +32099,7 @@ var buildGridItemInlineStyles = ({
 };
 
 // src/LAYOUT/Grid/Grid.tsx
-import { jsx as jsx194 } from "react/jsx-runtime";
+import { jsx as jsx195 } from "react/jsx-runtime";
 var Grid = ({
   children,
   className,
@@ -31815,7 +32107,7 @@ var Grid = ({
   ...props
 }) => {
   const gridStyle = buildGridInlineStyles({ ...props, style });
-  return /* @__PURE__ */ jsx194("div", { style: gridStyle, className, ...{}, children });
+  return /* @__PURE__ */ jsx195("div", { style: gridStyle, className, ...{}, children });
 };
 Grid.displayName = "Grid";
 var GridAreaItem = ({
@@ -31841,12 +32133,12 @@ var GridAreaItem = ({
     placeSelf,
     style
   });
-  return /* @__PURE__ */ jsx194("div", { style: itemStyle, className: classNames, ...rest, children });
+  return /* @__PURE__ */ jsx195("div", { style: itemStyle, className: classNames, ...rest, children });
 };
 GridAreaItem.displayName = "GridAreaItem";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import React163, { useState as useState69 } from "react";
+import React164, { useState as useState70 } from "react";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.constants.ts
 var GRID_DRAWER_DEFAULTS = {
@@ -31872,7 +32164,7 @@ function buildDrawerWrapperClasses(isDrawerArea, isDrawerOpen) {
 }
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
-import { useState as useState68, useRef as useRef86, useCallback as useCallback91, useEffect as useEffect44 } from "react";
+import { useState as useState69, useRef as useRef87, useCallback as useCallback92, useEffect as useEffect45 } from "react";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.constants.ts
 var GRID_DIVIDER_DEFAULTS = {
@@ -31885,18 +32177,18 @@ var GRID_DIVIDER_DEFAULTS = {
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
 var useGridDividers = (configs) => {
-  const [sizes, setSizes] = useState68(
+  const [sizes, setSizes] = useState69(
     () => configs.map((c) => c.initialSize ?? GRID_DIVIDER_DEFAULTS.initialSize)
   );
-  const [draggingIdx, setDraggingIdx] = useState68(-1);
-  const startPosRef = useRef86(0);
-  const startSizeRef = useRef86(0);
-  const invertedRef = useRef86(false);
-  const configsRef = useRef86(configs);
-  const sizesRef = useRef86(sizes);
+  const [draggingIdx, setDraggingIdx] = useState69(-1);
+  const startPosRef = useRef87(0);
+  const startSizeRef = useRef87(0);
+  const invertedRef = useRef87(false);
+  const configsRef = useRef87(configs);
+  const sizesRef = useRef87(sizes);
   configsRef.current = configs;
   sizesRef.current = sizes;
-  const handleMouseMove = useCallback91((e) => {
+  const handleMouseMove = useCallback92((e) => {
     const idx = draggingIdx;
     if (idx < 0) return;
     const config = configsRef.current[idx];
@@ -31913,11 +32205,11 @@ var useGridDividers = (configs) => {
       return next;
     });
   }, [draggingIdx]);
-  const handleMouseUp = useCallback91(() => {
+  const handleMouseUp = useCallback92(() => {
     setDraggingIdx(-1);
     invertedRef.current = false;
   }, []);
-  useEffect44(() => {
+  useEffect45(() => {
     if (draggingIdx >= 0) {
       const config = configsRef.current[draggingIdx];
       const orientation = config.orientation ?? GRID_DIVIDER_DEFAULTS.orientation;
@@ -31991,14 +32283,14 @@ var gridDividerUtils = {
 var GridWithDividers_utils_default = gridDividerUtils;
 
 // src/LAYOUT/GridWithDividers/Divider.tsx
-import { jsx as jsx195 } from "react/jsx-runtime";
+import { jsx as jsx196 } from "react/jsx-runtime";
 var Divider = ({
   onMouseDown,
   isDragging,
   orientation = "vertical",
   className
 }) => {
-  return /* @__PURE__ */ jsx195(
+  return /* @__PURE__ */ jsx196(
     "div",
     {
       className,
@@ -32009,13 +32301,13 @@ var Divider = ({
 Divider.displayName = "Divider";
 
 // src/LAYOUT/GridWiithDrawers/ToggleButton.tsx
-import { jsx as jsx196 } from "react/jsx-runtime";
+import { jsx as jsx197 } from "react/jsx-runtime";
 var ToggleButton2 = ({
   isDrawerOpen,
   onToggle,
   className = ""
 }) => {
-  return /* @__PURE__ */ jsx196("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx196(
+  return /* @__PURE__ */ jsx197("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx197(
     "button",
     {
       className: GRID_DRAWER_CLASSES.toggleBtn,
@@ -32029,7 +32321,7 @@ var ToggleButton2 = ({
 ToggleButton2.displayName = "ToggleButton";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import { jsx as jsx197, jsxs as jsxs124 } from "react/jsx-runtime";
+import { jsx as jsx198, jsxs as jsxs125 } from "react/jsx-runtime";
 var GridWithDrawer = ({
   templateColumns,
   templateRows,
@@ -32040,7 +32332,7 @@ var GridWithDrawer = ({
   children,
   style = {}
 }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState69(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState70(true);
   const dividerStates = GridWithDividers_hooks_default(dividers);
   let adjustedTemplateColumns = templateColumns;
   let adjustedTemplateRows = templateRows;
@@ -32062,14 +32354,14 @@ var GridWithDrawer = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React163.Children.map(childNodes, (child) => {
-      if (!React163.isValidElement(child)) return child;
+    return React164.Children.map(childNodes, (child) => {
+      if (!React164.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const isDrawerArea = gridArea === drawerAreaName;
       const childStyle = childProps.style || {};
       const { overflow, overflowX, overflowY } = childStyle;
-      const childContent = React163.cloneElement(child, {
+      const childContent = React164.cloneElement(child, {
         ...childProps,
         gridArea: void 0,
         style: {
@@ -32087,7 +32379,7 @@ var GridWithDrawer = ({
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(
         ({ config }) => config.between && config.between[0] === gridArea || config.area === gridArea
       );
-      return /* @__PURE__ */ jsxs124(
+      return /* @__PURE__ */ jsxs125(
         GridAreaItem,
         {
           gridArea,
@@ -32099,7 +32391,7 @@ var GridWithDrawer = ({
             overflowY: isDrawerArea && !isDrawerOpen ? "hidden" : overflowY
           },
           children: [
-            isDrawerArea && /* @__PURE__ */ jsx197(
+            isDrawerArea && /* @__PURE__ */ jsx198(
               ToggleButton2,
               {
                 isDrawerOpen,
@@ -32122,7 +32414,7 @@ var GridWithDrawer = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx197(
+              return /* @__PURE__ */ jsx198(
                 Divider,
                 {
                   className: dividerClass,
@@ -32138,7 +32430,7 @@ var GridWithDrawer = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx197(
+  return /* @__PURE__ */ jsx198(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -32153,8 +32445,8 @@ var GridWithDrawer = ({
 GridWithDrawer.displayName = "GridWithDrawer";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.tsx
-import React164 from "react";
-import { jsx as jsx198, jsxs as jsxs125 } from "react/jsx-runtime";
+import React165 from "react";
+import { jsx as jsx199, jsxs as jsxs126 } from "react/jsx-runtime";
 var normalizeAreas = (areas) => {
   if (!areas) return void 0;
   return areas.trim().split("\n").map((row) => row.trim().replace(/^["']|["']$/g, "")).join("\n");
@@ -32185,15 +32477,15 @@ var GridWithDividers = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React164.Children.map(childNodes, (child) => {
-      if (!child || !React164.isValidElement(child)) return child;
+    return React165.Children.map(childNodes, (child) => {
+      if (!child || !React165.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const childStyle = childProps.style || {};
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(({ config }) => config.between && config.between[0] === gridArea);
       if (applicableDividers.length === 0) return child;
       const { gridArea: _areaProp, style: childRestyle, ...restProps } = childProps;
-      const childWithoutGridArea = React164.cloneElement(child, {
+      const childWithoutGridArea = React165.cloneElement(child, {
         ...restProps,
         gridArea: void 0,
         style: {
@@ -32207,7 +32499,7 @@ var GridWithDividers = ({
           height: "100%"
         }
       });
-      return /* @__PURE__ */ jsxs125(
+      return /* @__PURE__ */ jsxs126(
         GridAreaItem,
         {
           gridArea,
@@ -32231,7 +32523,7 @@ var GridWithDividers = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx198(
+              return /* @__PURE__ */ jsx199(
                 Divider,
                 {
                   className: dividerClass,
@@ -32247,7 +32539,7 @@ var GridWithDividers = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx198(
+  return /* @__PURE__ */ jsx199(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -32279,9 +32571,9 @@ function getTemplateColumns(variant, cols) {
 }
 
 // src/LAYOUT/ImageList/ImageCard.tsx
-import { Fragment as Fragment23, jsx as jsx199, jsxs as jsxs126 } from "react/jsx-runtime";
-var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs126(Fragment23, { children: [
-  /* @__PURE__ */ jsx199(
+import { Fragment as Fragment23, jsx as jsx200, jsxs as jsxs127 } from "react/jsx-runtime";
+var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs127(Fragment23, { children: [
+  /* @__PURE__ */ jsx200(
     "img",
     {
       src: item.src,
@@ -32295,7 +32587,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs126(Fragment23, { chil
       }
     }
   ),
-  item.title && /* @__PURE__ */ jsx199("div", { style: {
+  item.title && /* @__PURE__ */ jsx200("div", { style: {
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -32309,7 +32601,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs126(Fragment23, { chil
 ImageCard.displayName = "ImageCard";
 
 // src/LAYOUT/ImageList/ImageList.tsx
-import { jsx as jsx200 } from "react/jsx-runtime";
+import { jsx as jsx201 } from "react/jsx-runtime";
 var ImageList = ({
   items,
   variant = IMAGE_LIST_DEFAULTS.variant,
@@ -32320,7 +32612,7 @@ var ImageList = ({
   style
 }) => {
   const templateColumns = getTemplateColumns(variant, cols);
-  return /* @__PURE__ */ jsx200(
+  return /* @__PURE__ */ jsx201(
     Grid,
     {
       templateColumns,
@@ -32333,22 +32625,22 @@ var ImageList = ({
       justifyItems: "stretch",
       children: items.map((item) => {
         if (variant === "quilted" && (item.cols || item.rows)) {
-          return /* @__PURE__ */ jsx200(
+          return /* @__PURE__ */ jsx201(
             GridAreaItem,
             {
               gridColumn: item.cols ? `span ${item.cols}` : void 0,
               gridRow: item.rows ? `span ${item.rows}` : void 0,
               style: { position: "relative", overflow: "hidden", borderRadius: "8px" },
-              children: /* @__PURE__ */ jsx200(ImageCard, { item, height: rowHeight })
+              children: /* @__PURE__ */ jsx201(ImageCard, { item, height: rowHeight })
             },
             item.id
           );
         }
-        return /* @__PURE__ */ jsx200(
+        return /* @__PURE__ */ jsx201(
           "div",
           {
             style: { position: "relative", overflow: "hidden", borderRadius: "8px", minHeight: "200px" },
-            children: /* @__PURE__ */ jsx200(ImageCard, { item, height: rowHeight })
+            children: /* @__PURE__ */ jsx201(ImageCard, { item, height: rowHeight })
           },
           item.id
         );
@@ -32387,7 +32679,7 @@ function buildColClasses({
 }
 
 // src/LAYOUT/Row/Row.tsx
-import { jsx as jsx201 } from "react/jsx-runtime";
+import { jsx as jsx202 } from "react/jsx-runtime";
 var Row = ({
   children,
   className,
@@ -32395,12 +32687,12 @@ var Row = ({
   ...rest
 }) => {
   const classes = buildRowClasses(className);
-  return /* @__PURE__ */ jsx201("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx202("div", { className: classes, style, ...rest, children });
 };
 Row.displayName = "Row";
 
 // src/LAYOUT/Row/Col.tsx
-import { jsx as jsx202 } from "react/jsx-runtime";
+import { jsx as jsx203 } from "react/jsx-runtime";
 var Col = ({
   children,
   className,
@@ -32412,7 +32704,7 @@ var Col = ({
   ...rest
 }) => {
   const classes = buildColClasses({ col, sm, md, lg, className });
-  return /* @__PURE__ */ jsx202("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx203("div", { className: classes, style, ...rest, children });
 };
 Col.displayName = "Col";
 
@@ -32435,7 +32727,7 @@ function buildSubSectionClasses(className) {
 }
 
 // src/LAYOUT/Section/Section.tsx
-import { jsx as jsx203, jsxs as jsxs127 } from "react/jsx-runtime";
+import { jsx as jsx204, jsxs as jsxs128 } from "react/jsx-runtime";
 var Section2 = ({
   children,
   title,
@@ -32445,15 +32737,15 @@ var Section2 = ({
   ...rest
 }) => {
   const classes = buildSectionClasses(className);
-  return /* @__PURE__ */ jsxs127(Element, { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx203("h2", { className: SECTION_CLASSES2.title, children: title }),
+  return /* @__PURE__ */ jsxs128(Element, { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx204("h2", { className: SECTION_CLASSES2.title, children: title }),
     children
   ] });
 };
 Section2.displayName = "Section";
 
 // src/LAYOUT/Section/SubSection.tsx
-import { jsx as jsx204, jsxs as jsxs128 } from "react/jsx-runtime";
+import { jsx as jsx205, jsxs as jsxs129 } from "react/jsx-runtime";
 var SubSection = ({
   children,
   title,
@@ -32462,8 +32754,8 @@ var SubSection = ({
   ...rest
 }) => {
   const classes = buildSubSectionClasses(className);
-  return /* @__PURE__ */ jsxs128("div", { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx204("h3", { className: SUBSECTION_CLASSES.title, children: title }),
+  return /* @__PURE__ */ jsxs129("div", { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx205("h3", { className: SUBSECTION_CLASSES.title, children: title }),
     children
   ] });
 };
@@ -32518,7 +32810,7 @@ function buildStackStyles(gap, align, justify, style) {
 }
 
 // src/LAYOUT/Stack/Stack.tsx
-import { jsx as jsx205 } from "react/jsx-runtime";
+import { jsx as jsx206 } from "react/jsx-runtime";
 var Stack = ({
   as: Tag3 = "div",
   children,
@@ -32592,7 +32884,7 @@ var Stack = ({
     ...cursor !== void 0 && { cursor },
     ...style
   });
-  return /* @__PURE__ */ jsx205(Tag3, { className: classes, style: inlineStyle, ...rest, children });
+  return /* @__PURE__ */ jsx206(Tag3, { className: classes, style: inlineStyle, ...rest, children });
 };
 Stack.displayName = "Stack";
 
@@ -32638,7 +32930,7 @@ var buildVerticalPaddingClassNames = ({
 };
 
 // src/LAYOUT/VerticalPadding/VerticalPadding.tsx
-import { jsx as jsx206 } from "react/jsx-runtime";
+import { jsx as jsx207 } from "react/jsx-runtime";
 var VerticalPadding = ({
   children,
   size = VERTICAL_PADDING_DEFAULTS.size,
@@ -32651,12 +32943,12 @@ var VerticalPadding = ({
     utilityClass,
     className
   });
-  return /* @__PURE__ */ jsx206("div", { className: classNames, ...rest, children });
+  return /* @__PURE__ */ jsx207("div", { className: classNames, ...rest, children });
 };
 VerticalPadding.displayName = "VerticalPadding";
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import React165, { useRef as useRef87, useCallback as useCallback93, useMemo as useMemo111 } from "react";
+import React166, { useRef as useRef88, useCallback as useCallback94, useMemo as useMemo111 } from "react";
 import {
   Play as Play2,
   Pause as Pause2,
@@ -32692,9 +32984,9 @@ var AUDIO_DEFAULTS = {
 };
 
 // src/MEDIA/AudioPlayer/AudioPlayer.hooks.ts
-import { useState as useState70, useCallback as useCallback92, useEffect as useEffect45 } from "react";
+import { useState as useState71, useCallback as useCallback93, useEffect as useEffect46 } from "react";
 function useAudioPlayer(audioRef, callbacks) {
-  const [state, setState] = useState70({
+  const [state, setState] = useState71({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -32703,7 +32995,7 @@ function useAudioPlayer(audioRef, callbacks) {
     playbackSpeed: 1,
     speedMenuOpen: false
   });
-  const togglePlay = useCallback92(() => {
+  const togglePlay = useCallback93(() => {
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
@@ -32712,7 +33004,7 @@ function useAudioPlayer(audioRef, callbacks) {
       audio.pause();
     }
   }, [audioRef]);
-  const seek = useCallback92(
+  const seek = useCallback93(
     (time) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -32720,7 +33012,7 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const setVolume = useCallback92(
+  const setVolume = useCallback93(
     (vol) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -32731,13 +33023,13 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleMute = useCallback92(() => {
+  const toggleMute = useCallback93(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = !audio.muted;
     setState((s) => ({ ...s, isMuted: audio.muted }));
   }, [audioRef]);
-  const setPlaybackSpeed = useCallback92(
+  const setPlaybackSpeed = useCallback93(
     (speed) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -32746,10 +33038,10 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleSpeedMenu = useCallback92(() => {
+  const toggleSpeedMenu = useCallback93(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect45(() => {
+  useEffect46(() => {
     const audio = audioRef.current;
     if (!audio) return;
     const onPlay = () => {
@@ -32820,8 +33112,8 @@ function getProgressPercent(currentTime, duration) {
 }
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import { jsx as jsx207, jsxs as jsxs129 } from "react/jsx-runtime";
-var AudioPlayer = React165.forwardRef(
+import { jsx as jsx208, jsxs as jsxs130 } from "react/jsx-runtime";
+var AudioPlayer = React166.forwardRef(
   ({
     src,
     title,
@@ -32842,8 +33134,8 @@ var AudioPlayer = React165.forwardRef(
     className = AUDIO_DEFAULTS.className,
     ...rest
   }, ref) => {
-    const audioRef = useRef87(null);
-    const progressRef = useRef87(null);
+    const audioRef = useRef88(null);
+    const progressRef = useRef88(null);
     const callbacks = useMemo111(
       () => ({ onPlay, onPause, onEnded, onTimeUpdate }),
       [onPlay, onPause, onEnded, onTimeUpdate]
@@ -32862,7 +33154,7 @@ var AudioPlayer = React165.forwardRef(
       [variant, color, className]
     );
     const progressPercent = getProgressPercent(state.currentTime, state.duration);
-    const handleProgressClick = useCallback93(
+    const handleProgressClick = useCallback94(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -32872,7 +33164,7 @@ var AudioPlayer = React165.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback93(
+    const handleKeyDown = useCallback94(
       (e) => {
         switch (e.key) {
           case " ":
@@ -32887,7 +33179,7 @@ var AudioPlayer = React165.forwardRef(
       },
       [togglePlay, toggleMute]
     );
-    const handleVolumeChange = useCallback93(
+    const handleVolumeChange = useCallback94(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -32897,7 +33189,7 @@ var AudioPlayer = React165.forwardRef(
     const isCompact = variant === "compact";
     const isCard = variant === "card";
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs129(
+    return /* @__PURE__ */ jsxs130(
       "div",
       {
         ref,
@@ -32908,7 +33200,7 @@ var AudioPlayer = React165.forwardRef(
         "aria-label": title ? `Audio player: ${title}` : "Audio player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx207(
+          /* @__PURE__ */ jsx208(
             "audio",
             {
               ref: audioRef,
@@ -32918,7 +33210,7 @@ var AudioPlayer = React165.forwardRef(
               preload: "metadata"
             }
           ),
-          isCard && cover && /* @__PURE__ */ jsx207("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx207(
+          isCard && cover && /* @__PURE__ */ jsx208("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx208(
             "img",
             {
               src: sanitizeUrl(cover),
@@ -32926,14 +33218,14 @@ var AudioPlayer = React165.forwardRef(
               className: "w3f-audio-player__cover-img"
             }
           ) }),
-          /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__body", children: [
-            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__info", children: [
-              title && /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__title", children: title }),
-              artist && /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__artist", children: artist })
+          /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__body", children: [
+            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__info", children: [
+              title && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__title", children: title }),
+              artist && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__artist", children: artist })
             ] }),
-            showProgress && /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__progress-row", children: [
-              !isCompact && /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
-              /* @__PURE__ */ jsx207(
+            showProgress && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__progress-row", children: [
+              !isCompact && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
+              /* @__PURE__ */ jsx208(
                 "div",
                 {
                   ref: progressRef,
@@ -32944,7 +33236,7 @@ var AudioPlayer = React165.forwardRef(
                   "aria-valuemin": 0,
                   "aria-valuemax": 100,
                   "aria-valuenow": Math.round(progressPercent),
-                  children: /* @__PURE__ */ jsx207(
+                  children: /* @__PURE__ */ jsx208(
                     "div",
                     {
                       className: "w3f-audio-player__progress-fill",
@@ -32953,38 +33245,38 @@ var AudioPlayer = React165.forwardRef(
                   )
                 }
               ),
-              !isCompact && /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
+              !isCompact && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
             ] }),
-            /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__controls", children: [
-              /* @__PURE__ */ jsx207(
+            /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__controls", children: [
+              /* @__PURE__ */ jsx208(
                 "button",
                 {
                   className: "w3f-audio-player__btn w3f-audio-player__play-btn",
                   onClick: togglePlay,
                   "aria-label": state.isPlaying ? "Pause" : "Play",
                   type: "button",
-                  children: state.isPlaying ? /* @__PURE__ */ jsx207(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx207(Play2, { size: isCompact ? 16 : 20 })
+                  children: state.isPlaying ? /* @__PURE__ */ jsx208(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx208(Play2, { size: isCompact ? 16 : 20 })
                 }
               ),
-              isCompact && /* @__PURE__ */ jsxs129("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
+              isCompact && /* @__PURE__ */ jsxs130("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
                 formatTime(state.currentTime),
                 " / ",
                 formatTime(state.duration)
               ] }),
-              isCompact && title && /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
-              /* @__PURE__ */ jsx207("span", { className: "w3f-audio-player__spacer" }),
-              showVolume && !isMinimal && /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__volume", children: [
-                /* @__PURE__ */ jsx207(
+              isCompact && title && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
+              /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__spacer" }),
+              showVolume && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__volume", children: [
+                /* @__PURE__ */ jsx208(
                   "button",
                   {
                     className: "w3f-audio-player__btn",
                     onClick: toggleMute,
                     "aria-label": state.isMuted ? "Unmute" : "Mute",
                     type: "button",
-                    children: /* @__PURE__ */ jsx207(VolumeIcon, { size: isCompact ? 14 : 18 })
+                    children: /* @__PURE__ */ jsx208(VolumeIcon, { size: isCompact ? 14 : 18 })
                   }
                 ),
-                !isCompact && /* @__PURE__ */ jsx207(
+                !isCompact && /* @__PURE__ */ jsx208(
                   "input",
                   {
                     className: "w3f-audio-player__volume-slider",
@@ -32998,8 +33290,8 @@ var AudioPlayer = React165.forwardRef(
                   }
                 )
               ] }),
-              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs129("div", { className: "w3f-audio-player__speed", children: [
-                /* @__PURE__ */ jsxs129(
+              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__speed", children: [
+                /* @__PURE__ */ jsxs130(
                   "button",
                   {
                     className: "w3f-audio-player__btn w3f-audio-player__speed-btn",
@@ -33012,7 +33304,7 @@ var AudioPlayer = React165.forwardRef(
                     ]
                   }
                 ),
-                state.speedMenuOpen && /* @__PURE__ */ jsx207("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs129(
+                state.speedMenuOpen && /* @__PURE__ */ jsx208("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs130(
                   "button",
                   {
                     className: [
@@ -33039,7 +33331,7 @@ var AudioPlayer = React165.forwardRef(
 AudioPlayer.displayName = "AudioPlayer";
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import React166, { useRef as useRef89, useCallback as useCallback95, useMemo as useMemo112 } from "react";
+import React167, { useRef as useRef90, useCallback as useCallback96, useMemo as useMemo112 } from "react";
 import {
   Play as Play3,
   Pause as Pause3,
@@ -33087,9 +33379,9 @@ var VIDEO_DEFAULTS = {
 var CONTROLS_HIDE_DELAY = 3e3;
 
 // src/MEDIA/VideoPlayer/VideoPlayer.hooks.ts
-import { useState as useState71, useCallback as useCallback94, useRef as useRef88, useEffect as useEffect46 } from "react";
+import { useState as useState72, useCallback as useCallback95, useRef as useRef89, useEffect as useEffect47 } from "react";
 function useVideoPlayer(videoRef, containerRef, callbacks) {
-  const [state, setState] = useState71({
+  const [state, setState] = useState72({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -33100,15 +33392,15 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     controlsVisible: true,
     speedMenuOpen: false
   });
-  const hideTimerRef = useRef88(null);
-  const resetHideTimer = useCallback94(() => {
+  const hideTimerRef = useRef89(null);
+  const resetHideTimer = useCallback95(() => {
     setState((s) => ({ ...s, controlsVisible: true }));
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       setState((s) => s.isPlaying ? { ...s, controlsVisible: false, speedMenuOpen: false } : s);
     }, CONTROLS_HIDE_DELAY);
   }, []);
-  const togglePlay = useCallback94(() => {
+  const togglePlay = useCallback95(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
@@ -33117,7 +33409,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.pause();
     }
   }, [videoRef]);
-  const seek = useCallback94(
+  const seek = useCallback95(
     (time) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33125,7 +33417,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const seekRelative = useCallback94(
+  const seekRelative = useCallback95(
     (delta) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33133,7 +33425,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const setVolume = useCallback94(
+  const setVolume = useCallback95(
     (vol) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33144,13 +33436,13 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleMute = useCallback94(() => {
+  const toggleMute = useCallback95(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = !video.muted;
     setState((s) => ({ ...s, isMuted: video.muted }));
   }, [videoRef]);
-  const toggleFullscreen = useCallback94(() => {
+  const toggleFullscreen = useCallback95(() => {
     const container = containerRef.current;
     if (!container) return;
     if (document.fullscreenElement) {
@@ -33159,7 +33451,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       container.requestFullscreen();
     }
   }, [containerRef]);
-  const setPlaybackSpeed = useCallback94(
+  const setPlaybackSpeed = useCallback95(
     (speed) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33168,10 +33460,10 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleSpeedMenu = useCallback94(() => {
+  const toggleSpeedMenu = useCallback95(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect46(() => {
+  useEffect47(() => {
     const video = videoRef.current;
     if (!video) return;
     const onPlay = () => {
@@ -33210,14 +33502,14 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [videoRef, callbacks]);
-  useEffect46(() => {
+  useEffect47(() => {
     const onFsChange = () => {
       setState((s) => ({ ...s, isFullscreen: !!document.fullscreenElement }));
     };
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
-  useEffect46(() => {
+  useEffect47(() => {
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
@@ -33259,8 +33551,8 @@ function getProgressPercent2(currentTime, duration) {
 }
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import { jsx as jsx208, jsxs as jsxs130 } from "react/jsx-runtime";
-var VideoPlayer = React166.forwardRef(
+import { jsx as jsx209, jsxs as jsxs131 } from "react/jsx-runtime";
+var VideoPlayer = React167.forwardRef(
   ({
     src,
     poster,
@@ -33286,10 +33578,10 @@ var VideoPlayer = React166.forwardRef(
     style,
     ...rest
   }, ref) => {
-    const videoRef = useRef89(null);
-    const containerRef = useRef89(null);
-    const progressRef = useRef89(null);
-    const setRefs = useCallback95(
+    const videoRef = useRef90(null);
+    const containerRef = useRef90(null);
+    const progressRef = useRef90(null);
+    const setRefs = useCallback96(
       (node) => {
         containerRef.current = node;
         if (typeof ref === "function") ref(node);
@@ -33318,7 +33610,7 @@ var VideoPlayer = React166.forwardRef(
       [aspectRatio, variant, color, state.isFullscreen, className]
     );
     const progressPercent = getProgressPercent2(state.currentTime, state.duration);
-    const handleProgressClick = useCallback95(
+    const handleProgressClick = useCallback96(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -33328,7 +33620,7 @@ var VideoPlayer = React166.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback95(
+    const handleKeyDown = useCallback96(
       (e) => {
         switch (e.key) {
           case " ":
@@ -33356,7 +33648,7 @@ var VideoPlayer = React166.forwardRef(
       },
       [togglePlay, toggleMute, toggleFullscreen, seekRelative, resetHideTimer]
     );
-    const handleVolumeChange = useCallback95(
+    const handleVolumeChange = useCallback96(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -33369,7 +33661,7 @@ var VideoPlayer = React166.forwardRef(
       ...height ? { height } : {}
     };
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs130(
+    return /* @__PURE__ */ jsxs131(
       "div",
       {
         ref: setRefs,
@@ -33382,7 +33674,7 @@ var VideoPlayer = React166.forwardRef(
         "aria-label": "Video player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx208(
+          /* @__PURE__ */ jsx209(
             "video",
             {
               ref: videoRef,
@@ -33396,17 +33688,17 @@ var VideoPlayer = React166.forwardRef(
               onClick: togglePlay
             }
           ),
-          controls && !state.isPlaying && /* @__PURE__ */ jsx208(
+          controls && !state.isPlaying && /* @__PURE__ */ jsx209(
             "button",
             {
               className: "w3f-video-player__overlay-btn",
               onClick: togglePlay,
               "aria-label": "Play",
               type: "button",
-              children: /* @__PURE__ */ jsx208(Play3, { size: 48 })
+              children: /* @__PURE__ */ jsx209(Play3, { size: 48 })
             }
           ),
-          controls && /* @__PURE__ */ jsxs130(
+          controls && /* @__PURE__ */ jsxs131(
             "div",
             {
               className: [
@@ -33414,7 +33706,7 @@ var VideoPlayer = React166.forwardRef(
                 state.controlsVisible ? "w3f-video-player__controls--visible" : ""
               ].filter(Boolean).join(" "),
               children: [
-                showProgress && /* @__PURE__ */ jsx208(
+                showProgress && /* @__PURE__ */ jsx209(
                   "div",
                   {
                     ref: progressRef,
@@ -33425,7 +33717,7 @@ var VideoPlayer = React166.forwardRef(
                     "aria-valuemin": 0,
                     "aria-valuemax": 100,
                     "aria-valuenow": Math.round(progressPercent),
-                    children: /* @__PURE__ */ jsx208(
+                    children: /* @__PURE__ */ jsx209(
                       "div",
                       {
                         className: "w3f-video-player__progress-fill",
@@ -33434,35 +33726,35 @@ var VideoPlayer = React166.forwardRef(
                     )
                   }
                 ),
-                /* @__PURE__ */ jsxs130("div", { className: "w3f-video-player__controls-row", children: [
-                  /* @__PURE__ */ jsx208(
+                /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__controls-row", children: [
+                  /* @__PURE__ */ jsx209(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: togglePlay,
                       "aria-label": state.isPlaying ? "Pause" : "Play",
                       type: "button",
-                      children: state.isPlaying ? /* @__PURE__ */ jsx208(Pause3, { size: 18 }) : /* @__PURE__ */ jsx208(Play3, { size: 18 })
+                      children: state.isPlaying ? /* @__PURE__ */ jsx209(Pause3, { size: 18 }) : /* @__PURE__ */ jsx209(Play3, { size: 18 })
                     }
                   ),
-                  !isMinimal && /* @__PURE__ */ jsxs130("span", { className: "w3f-video-player__time", children: [
+                  !isMinimal && /* @__PURE__ */ jsxs131("span", { className: "w3f-video-player__time", children: [
                     formatTime2(state.currentTime),
                     " / ",
                     formatTime2(state.duration)
                   ] }),
-                  /* @__PURE__ */ jsx208("span", { className: "w3f-video-player__spacer" }),
-                  showVolume && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-video-player__volume", children: [
-                    /* @__PURE__ */ jsx208(
+                  /* @__PURE__ */ jsx209("span", { className: "w3f-video-player__spacer" }),
+                  showVolume && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__volume", children: [
+                    /* @__PURE__ */ jsx209(
                       "button",
                       {
                         className: "w3f-video-player__btn",
                         onClick: toggleMute,
                         "aria-label": state.isMuted ? "Unmute" : "Mute",
                         type: "button",
-                        children: /* @__PURE__ */ jsx208(VolumeIcon, { size: 18 })
+                        children: /* @__PURE__ */ jsx209(VolumeIcon, { size: 18 })
                       }
                     ),
-                    /* @__PURE__ */ jsx208(
+                    /* @__PURE__ */ jsx209(
                       "input",
                       {
                         className: "w3f-video-player__volume-slider",
@@ -33476,8 +33768,8 @@ var VideoPlayer = React166.forwardRef(
                       }
                     )
                   ] }),
-                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-video-player__speed", children: [
-                    /* @__PURE__ */ jsxs130(
+                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__speed", children: [
+                    /* @__PURE__ */ jsxs131(
                       "button",
                       {
                         className: "w3f-video-player__btn w3f-video-player__speed-btn",
@@ -33490,7 +33782,7 @@ var VideoPlayer = React166.forwardRef(
                         ]
                       }
                     ),
-                    state.speedMenuOpen && /* @__PURE__ */ jsx208("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs130(
+                    state.speedMenuOpen && /* @__PURE__ */ jsx209("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs131(
                       "button",
                       {
                         className: [
@@ -33507,14 +33799,14 @@ var VideoPlayer = React166.forwardRef(
                       speed
                     )) })
                   ] }),
-                  showFullscreen && /* @__PURE__ */ jsx208(
+                  showFullscreen && /* @__PURE__ */ jsx209(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: toggleFullscreen,
                       "aria-label": state.isFullscreen ? "Exit fullscreen" : "Fullscreen",
                       type: "button",
-                      children: state.isFullscreen ? /* @__PURE__ */ jsx208(Minimize, { size: 18 }) : /* @__PURE__ */ jsx208(Maximize, { size: 18 })
+                      children: state.isFullscreen ? /* @__PURE__ */ jsx209(Minimize, { size: 18 }) : /* @__PURE__ */ jsx209(Maximize, { size: 18 })
                     }
                   )
                 ] })
@@ -33529,7 +33821,7 @@ var VideoPlayer = React166.forwardRef(
 VideoPlayer.displayName = "VideoPlayer";
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { forwardRef as forwardRef55, useCallback as useCallback97 } from "react";
+import { forwardRef as forwardRef55, useCallback as useCallback98 } from "react";
 import { Eye as Eye3, EyeOff as EyeOff3, Mail as Mail3, Lock as Lock3, User as User2, ArrowLeft as ArrowLeft2, Loader2 as Loader23, Chrome, Github as Github2, Facebook as Facebook2 } from "lucide-react";
 
 // src/AUTH/AuthLogin/AuthLogin.constants.ts
@@ -33672,13 +33964,13 @@ function hasErrors(errors) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.hooks.ts
-import { useState as useState72, useCallback as useCallback96 } from "react";
+import { useState as useState73, useCallback as useCallback97 } from "react";
 function useAuthForm(initialView = "login", onViewChange) {
-  const [state, setState] = useState72({
+  const [state, setState] = useState73({
     ...INITIAL_FORM_STATE,
     view: initialView
   });
-  const setField = useCallback96(
+  const setField = useCallback97(
     (key, value) => {
       setState((prev) => ({
         ...prev,
@@ -33689,22 +33981,22 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     []
   );
-  const setEmail = useCallback96((v) => setField("email", v), [setField]);
-  const setPassword = useCallback96((v) => setField("password", v), [setField]);
-  const setConfirmPassword = useCallback96(
+  const setEmail = useCallback97((v) => setField("email", v), [setField]);
+  const setPassword = useCallback97((v) => setField("password", v), [setField]);
+  const setConfirmPassword = useCallback97(
     (v) => setField("confirmPassword", v),
     [setField]
   );
-  const setName = useCallback96((v) => setField("name", v), [setField]);
-  const setRememberMe = useCallback96((v) => setField("rememberMe", v), [setField]);
-  const setAcceptTerms = useCallback96((v) => setField("acceptTerms", v), [setField]);
-  const toggleShowPassword = useCallback96(() => {
+  const setName = useCallback97((v) => setField("name", v), [setField]);
+  const setRememberMe = useCallback97((v) => setField("rememberMe", v), [setField]);
+  const setAcceptTerms = useCallback97((v) => setField("acceptTerms", v), [setField]);
+  const toggleShowPassword = useCallback97(() => {
     setState((prev) => ({ ...prev, showPassword: !prev.showPassword }));
   }, []);
-  const toggleShowConfirmPassword = useCallback96(() => {
+  const toggleShowConfirmPassword = useCallback97(() => {
     setState((prev) => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }));
   }, []);
-  const switchView = useCallback96(
+  const switchView = useCallback97(
     (view) => {
       setState((prev) => ({
         ...prev,
@@ -33719,12 +34011,12 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     [onViewChange]
   );
-  const validateLogin = useCallback96(() => {
+  const validateLogin = useCallback97(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email, state.password]);
-  const validateRegister = useCallback96(() => {
+  const validateRegister = useCallback97(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -33735,17 +34027,17 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const validateForgot = useCallback96(() => {
+  const validateForgot = useCallback97(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email]);
-  const tryLogin = useCallback96(() => {
+  const tryLogin = useCallback97(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.email, state.password]);
-  const tryRegister = useCallback96(() => {
+  const tryRegister = useCallback97(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -33756,7 +34048,7 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const tryForgot = useCallback96(() => {
+  const tryForgot = useCallback97(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
@@ -33782,18 +34074,18 @@ function useAuthForm(initialView = "login", onViewChange) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { Fragment as Fragment24, jsx as jsx209, jsxs as jsxs131 } from "react/jsx-runtime";
+import { Fragment as Fragment24, jsx as jsx210, jsxs as jsxs132 } from "react/jsx-runtime";
 var DEFAULT_SOCIAL_PROVIDERS = [
-  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx209(Chrome, { size: 18 }), color: "#DB4437" },
-  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx209(Facebook2, { size: 18 }), color: "#4267B2" },
-  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx209(Github2, { size: 18 }), color: "#333333" }
+  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx210(Chrome, { size: 18 }), color: "#DB4437" },
+  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx210(Facebook2, { size: 18 }), color: "#4267B2" },
+  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx210(Github2, { size: 18 }), color: "#333333" }
 ];
 function PasswordStrengthBar({ password }) {
   if (!password) return null;
   const { strength, score } = validatePassword(password);
   const colors = ["#ef4444", "#f59e0b", "#22c55e", "#16a34a"];
-  return /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.strengthBar, children: [
-    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx209(
+  return /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.strengthBar, children: [
+    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx210(
       "div",
       {
         className: AUTH_CLASSES.strengthSegment,
@@ -33801,7 +34093,7 @@ function PasswordStrengthBar({ password }) {
       },
       i
     )),
-    /* @__PURE__ */ jsx209("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
+    /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
   ] });
 }
 var AuthLogin = forwardRef55(
@@ -33846,7 +34138,7 @@ var AuthLogin = forwardRef55(
     const displayTitle = title ?? viewTitles.title;
     const displaySubtitle = subtitle ?? viewTitles.subtitle;
     const rootClasses = buildAuthClasses(variant, color, className);
-    const handleLoginSubmit = useCallback97(
+    const handleLoginSubmit = useCallback98(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -33860,7 +34152,7 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryLogin, onLogin, state.email, state.password, state.rememberMe]
     );
-    const handleRegisterSubmit = useCallback97(
+    const handleRegisterSubmit = useCallback98(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -33875,7 +34167,7 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryRegister, onRegister, state.name, state.email, state.password, state.confirmPassword]
     );
-    const handleForgotSubmit = useCallback97(
+    const handleForgotSubmit = useCallback98(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -33885,17 +34177,17 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryForgot, onForgotPassword, state.email]
     );
-    const renderHeader = () => /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.header, children: [
-      logo && /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.logo, children: logo }),
-      /* @__PURE__ */ jsx209("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
-      /* @__PURE__ */ jsx209("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
+    const renderHeader = () => /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.header, children: [
+      logo && /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.logo, children: logo }),
+      /* @__PURE__ */ jsx210("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
+      /* @__PURE__ */ jsx210("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
     ] });
-    const renderError = () => error ? /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.error, children: error }) : null;
+    const renderError = () => error ? /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.error, children: error }) : null;
     const renderSocial = () => {
       if (!showSocialLogin || providers.length === 0) return null;
-      return /* @__PURE__ */ jsxs131(Fragment24, { children: [
-        /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx209("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
-        /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs131(
+      return /* @__PURE__ */ jsxs132(Fragment24, { children: [
+        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
+        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs132(
           "button",
           {
             type: "button",
@@ -33905,44 +34197,44 @@ var AuthLogin = forwardRef55(
             disabled: loading,
             children: [
               p.icon,
-              /* @__PURE__ */ jsx209("span", { children: p.name })
+              /* @__PURE__ */ jsx210("span", { children: p.name })
             ]
           },
           p.id
         )) })
       ] });
     };
-    const renderLoginForm = () => /* @__PURE__ */ jsxs131("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+    const renderLoginForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Password",
           type: state.showPassword ? "text" : "password",
           value: state.password,
           onChange: (e) => setPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(Lock3, { size: 18 }),
-          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx209(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx209(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
+          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
           onIconClick: toggleShowPassword,
           error: state.fieldErrors.password,
           autoComplete: "current-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.rememberRow, children: [
-        showRememberMe && /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.rememberRow, children: [
+        showRememberMe && /* @__PURE__ */ jsx210(
           Checkbox_default,
           {
             label: "Remember me",
@@ -33950,7 +34242,7 @@ var AuthLogin = forwardRef55(
             onChange: setRememberMe
           }
         ),
-        showForgotPassword && /* @__PURE__ */ jsx209(
+        showForgotPassword && /* @__PURE__ */ jsx210(
           "button",
           {
             type: "button",
@@ -33960,7 +34252,7 @@ var AuthLogin = forwardRef55(
           }
         )
       ] }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
         Button_default,
         {
           type: "submit",
@@ -33968,14 +34260,14 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx209(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Signing in..." : "Sign in"
         }
       ) }),
       renderSocial(),
-      showRegister && /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx209("span", { children: "Don't have an account?" }),
-        /* @__PURE__ */ jsx209(
+      showRegister && /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx210("span", { children: "Don't have an account?" }),
+        /* @__PURE__ */ jsx210(
           "button",
           {
             type: "button",
@@ -33986,68 +34278,68 @@ var AuthLogin = forwardRef55(
         )
       ] })
     ] });
-    const renderRegisterForm = () => /* @__PURE__ */ jsxs131("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+    const renderRegisterForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Full name",
           type: "text",
           value: state.name,
           onChange: (e) => setName(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(User2, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(User2, { size: 18 }),
           error: state.fieldErrors.name,
           autoComplete: "name",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx210(
           Input_default,
           {
             label: "Password",
             type: state.showPassword ? "text" : "password",
             value: state.password,
             onChange: (e) => setPassword(e.target.value),
-            leadingIcon: /* @__PURE__ */ jsx209(Lock3, { size: 18 }),
-            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx209(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx209(Eye3, { size: 18 }),
+            leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
+            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
             onIconClick: toggleShowPassword,
             error: state.fieldErrors.password,
             autoComplete: "new-password",
             required: true
           }
         ),
-        /* @__PURE__ */ jsx209(PasswordStrengthBar, { password: state.password })
+        /* @__PURE__ */ jsx210(PasswordStrengthBar, { password: state.password })
       ] }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Confirm password",
           type: state.showConfirmPassword ? "text" : "password",
           value: state.confirmPassword,
           onChange: (e) => setConfirmPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(Lock3, { size: 18 }),
-          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx209(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx209(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
+          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
           onIconClick: toggleShowConfirmPassword,
           error: state.fieldErrors.confirmPassword,
           autoComplete: "new-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx210(
           Checkbox_default,
           {
             label: "I agree to the Terms of Service and Privacy Policy",
@@ -34055,9 +34347,9 @@ var AuthLogin = forwardRef55(
             onChange: setAcceptTerms
           }
         ),
-        state.fieldErrors.terms && /* @__PURE__ */ jsx209("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
+        state.fieldErrors.terms && /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
       ] }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
         Button_default,
         {
           type: "submit",
@@ -34065,14 +34357,14 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx209(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Creating account..." : "Create account"
         }
       ) }),
       renderSocial(),
-      /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx209("span", { children: "Already have an account?" }),
-        /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx210("span", { children: "Already have an account?" }),
+        /* @__PURE__ */ jsx210(
           "button",
           {
             type: "button",
@@ -34083,21 +34375,21 @@ var AuthLogin = forwardRef55(
         )
       ] })
     ] });
-    const renderForgotForm = () => /* @__PURE__ */ jsxs131("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx209(
+    const renderForgotForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx209(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx209(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
         Button_default,
         {
           type: "submit",
@@ -34105,19 +34397,19 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx209(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Sending..." : "Send reset link"
         }
       ) }),
-      /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs131(
+      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs132(
         "button",
         {
           type: "button",
           className: AUTH_CLASSES.backLink,
           onClick: () => switchView("login"),
           children: [
-            /* @__PURE__ */ jsx209(ArrowLeft2, { size: 16 }),
-            /* @__PURE__ */ jsx209("span", { children: "Back to sign in" })
+            /* @__PURE__ */ jsx210(ArrowLeft2, { size: 16 }),
+            /* @__PURE__ */ jsx210("span", { children: "Back to sign in" })
           ]
         }
       ) })
@@ -34134,16 +34426,16 @@ var AuthLogin = forwardRef55(
       }
     };
     if (variant === "split") {
-      return /* @__PURE__ */ jsxs131("div", { ref, className: rootClasses, children: [
-        /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx209("div", { className: AUTH_CLASSES.logo, children: logo }) }),
-        /* @__PURE__ */ jsxs131("div", { className: AUTH_CLASSES.splitForm, children: [
+      return /* @__PURE__ */ jsxs132("div", { ref, className: rootClasses, children: [
+        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.logo, children: logo }) }),
+        /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.splitForm, children: [
           renderHeader(),
           renderError(),
           renderView()
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs131("div", { ref, className: rootClasses, children: [
+    return /* @__PURE__ */ jsxs132("div", { ref, className: rootClasses, children: [
       renderHeader(),
       renderError(),
       renderView()
@@ -34153,7 +34445,7 @@ var AuthLogin = forwardRef55(
 AuthLogin.displayName = "AuthLogin";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { forwardRef as forwardRef56, useCallback as useCallback99 } from "react";
+import { forwardRef as forwardRef56, useCallback as useCallback100 } from "react";
 import {
   CreditCard as CreditCard2,
   Check as Check3,
@@ -34231,7 +34523,7 @@ var BANK_DETAILS = {
 };
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.hooks.ts
-import { useState as useState73, useCallback as useCallback98, useMemo as useMemo113 } from "react";
+import { useState as useState74, useCallback as useCallback99, useMemo as useMemo113 } from "react";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.utils.ts
 function formatCardNumber(value) {
@@ -34328,12 +34620,12 @@ var EMPTY_VALIDATION = {
   cvv: null
 };
 function usePaymentForm(defaultMethod) {
-  const [method, setMethod] = useState73(defaultMethod);
-  const [card, setCard] = useState73(EMPTY_CARD);
-  const [validation, setValidation] = useState73(EMPTY_VALIDATION);
-  const [step, setStep] = useState73(0);
+  const [method, setMethod] = useState74(defaultMethod);
+  const [card, setCard] = useState74(EMPTY_CARD);
+  const [validation, setValidation] = useState74(EMPTY_VALIDATION);
+  const [step, setStep] = useState74(0);
   const brand = useMemo113(() => detectCardBrand(card.number), [card.number]);
-  const handleCardNumberChange = useCallback98(
+  const handleCardNumberChange = useCallback99(
     (value) => {
       const digits = value.replace(/\D/g, "");
       const currentBrand = detectCardBrand(digits);
@@ -34348,14 +34640,14 @@ function usePaymentForm(defaultMethod) {
     },
     []
   );
-  const handleCardNameChange = useCallback98((value) => {
+  const handleCardNameChange = useCallback99((value) => {
     setCard((prev) => ({ ...prev, name: value }));
     setValidation((prev) => ({
       ...prev,
       name: value.trim().length > 0 ? true : null
     }));
   }, []);
-  const handleExpiryChange = useCallback98((value) => {
+  const handleExpiryChange = useCallback99((value) => {
     const formatted = formatExpiry(value);
     setCard((prev) => ({ ...prev, expiry: formatted }));
     setValidation((prev) => ({
@@ -34363,7 +34655,7 @@ function usePaymentForm(defaultMethod) {
       expiry: formatted.length === 5 ? validateExpiry(formatted) : null
     }));
   }, []);
-  const handleCvvChange = useCallback98(
+  const handleCvvChange = useCallback99(
     (value) => {
       const digits = value.replace(/\D/g, "").slice(0, brand === "amex" ? 4 : 3);
       setCard((prev) => ({ ...prev, cvv: digits }));
@@ -34375,7 +34667,7 @@ function usePaymentForm(defaultMethod) {
     },
     [brand]
   );
-  const validateAll = useCallback98(() => {
+  const validateAll = useCallback99(() => {
     const numValid = validateCardNumber(card.number);
     const nameValid = card.name.trim().length > 0;
     const expValid = validateExpiry(card.expiry);
@@ -34392,7 +34684,7 @@ function usePaymentForm(defaultMethod) {
     () => validation.number === true && validation.name === true && validation.expiry === true && validation.cvv === true,
     [validation]
   );
-  const resetForm = useCallback98(() => {
+  const resetForm = useCallback99(() => {
     setCard(EMPTY_CARD);
     setValidation(EMPTY_VALIDATION);
     setStep(0);
@@ -34416,17 +34708,17 @@ function usePaymentForm(defaultMethod) {
 }
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { Fragment as Fragment25, jsx as jsx210, jsxs as jsxs132 } from "react/jsx-runtime";
+import { Fragment as Fragment25, jsx as jsx211, jsxs as jsxs133 } from "react/jsx-runtime";
 var MethodIcon = ({ method }) => {
   switch (method) {
     case "credit-card":
     case "debit-card":
-      return /* @__PURE__ */ jsx210(CreditCard2, { size: 18 });
+      return /* @__PURE__ */ jsx211(CreditCard2, { size: 18 });
     case "paypal":
     case "mercadopago":
-      return /* @__PURE__ */ jsx210(Wallet, { size: 18 });
+      return /* @__PURE__ */ jsx211(Wallet, { size: 18 });
     case "bank-transfer":
-      return /* @__PURE__ */ jsx210(Landmark, { size: 18 });
+      return /* @__PURE__ */ jsx211(Landmark, { size: 18 });
   }
 };
 var BrandLabel = ({ brand }) => {
@@ -34438,7 +34730,7 @@ var BrandLabel = ({ brand }) => {
   };
   const label = labels[brand] || "";
   if (!label) return null;
-  return /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
+  return /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
 };
 var CardForm = ({ form, compact }) => {
   const { card, brand, validation } = form;
@@ -34447,11 +34739,11 @@ var CardForm = ({ form, compact }) => {
     valid === false ? `${PAYMENT_CLASSES.fieldInput}--invalid` : "",
     valid === true ? `${PAYMENT_CLASSES.fieldInput}--valid` : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.form, children: [
-    /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx210("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
-      /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.cardNumber, children: [
-        /* @__PURE__ */ jsx210(
+  return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.form, children: [
+    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
+      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.cardNumber, children: [
+        /* @__PURE__ */ jsx211(
           "input",
           {
             type: "text",
@@ -34464,13 +34756,13 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 17 : 19
           }
         ),
-        /* @__PURE__ */ jsx210(BrandLabel, { brand })
+        /* @__PURE__ */ jsx211(BrandLabel, { brand })
       ] }),
-      validation.number === false && /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
+      validation.number === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
     ] }),
-    /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx210("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
-      /* @__PURE__ */ jsx210(
+    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
+      /* @__PURE__ */ jsx211(
         "input",
         {
           type: "text",
@@ -34481,12 +34773,12 @@ var CardForm = ({ form, compact }) => {
           autoComplete: "cc-name"
         }
       ),
-      validation.name === false && /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
+      validation.name === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
     ] }),
-    /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.fieldRow, children: [
-      /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx210("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
-        /* @__PURE__ */ jsx210(
+    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.fieldRow, children: [
+      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
+        /* @__PURE__ */ jsx211(
           "input",
           {
             type: "text",
@@ -34499,11 +34791,11 @@ var CardForm = ({ form, compact }) => {
             maxLength: 5
           }
         ),
-        validation.expiry === false && /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
+        validation.expiry === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
       ] }),
-      /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx210("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
-        /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
+        /* @__PURE__ */ jsx211(
           "input",
           {
             type: "password",
@@ -34516,38 +34808,38 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 4 : 3
           }
         ),
-        validation.cvv === false && /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
+        validation.cvv === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
       ] })
     ] })
   ] });
 };
 var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading }) => {
   if (method === "bank-transfer") {
-    return /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.altMethod, children: [
-      /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
-      /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.bankDetails, children: [
-        /* @__PURE__ */ jsxs132("div", { children: [
-          /* @__PURE__ */ jsx210("strong", { children: "Bank:" }),
+    return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethod, children: [
+      /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
+      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.bankDetails, children: [
+        /* @__PURE__ */ jsxs133("div", { children: [
+          /* @__PURE__ */ jsx211("strong", { children: "Bank:" }),
           " ",
           BANK_DETAILS.bank
         ] }),
-        /* @__PURE__ */ jsxs132("div", { children: [
-          /* @__PURE__ */ jsx210("strong", { children: "Account:" }),
+        /* @__PURE__ */ jsxs133("div", { children: [
+          /* @__PURE__ */ jsx211("strong", { children: "Account:" }),
           " ",
           BANK_DETAILS.account
         ] }),
-        /* @__PURE__ */ jsxs132("div", { children: [
-          /* @__PURE__ */ jsx210("strong", { children: "Routing:" }),
+        /* @__PURE__ */ jsxs133("div", { children: [
+          /* @__PURE__ */ jsx211("strong", { children: "Routing:" }),
           " ",
           BANK_DETAILS.routing
         ] }),
-        /* @__PURE__ */ jsxs132("div", { children: [
-          /* @__PURE__ */ jsx210("strong", { children: "SWIFT:" }),
+        /* @__PURE__ */ jsxs133("div", { children: [
+          /* @__PURE__ */ jsx211("strong", { children: "SWIFT:" }),
           " ",
           BANK_DETAILS.swift
         ] }),
-        /* @__PURE__ */ jsxs132("div", { children: [
-          /* @__PURE__ */ jsx210("strong", { children: "Amount:" }),
+        /* @__PURE__ */ jsxs133("div", { children: [
+          /* @__PURE__ */ jsx211("strong", { children: "Amount:" }),
           " ",
           formatAmount(amount, currencySymbol)
         ] })
@@ -34555,13 +34847,13 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
     ] });
   }
   const label = method === "mercadopago" ? "Continue with MercadoPago" : "Continue with PayPal";
-  return /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.altMethod, children: [
-    /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
+  return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethod, children: [
+    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
       "You will be redirected to ",
       METHOD_LABELS[method],
       " to complete the payment."
     ] }),
-    /* @__PURE__ */ jsx210(
+    /* @__PURE__ */ jsx211(
       Button_default,
       {
         variant: "raised",
@@ -34575,15 +34867,15 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
   ] });
 };
 var STEP_LABELS = ["Method", "Details", "Confirm"];
-var StepIndicator = ({ current }) => /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
+var StepIndicator = ({ current }) => /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
   const cls = [
     PAYMENT_CLASSES.step,
     i === current ? PAYMENT_CLASSES.stepActive : "",
     i < current ? PAYMENT_CLASSES.stepCompleted : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs132("div", { className: cls, children: [
-    /* @__PURE__ */ jsx210("span", { children: i + 1 }),
-    /* @__PURE__ */ jsx210("span", { children: label })
+  return /* @__PURE__ */ jsxs133("div", { className: cls, children: [
+    /* @__PURE__ */ jsx211("span", { children: i + 1 }),
+    /* @__PURE__ */ jsx211("span", { children: label })
   ] }, label);
 }) });
 var PaymentGateway = forwardRef56(
@@ -34609,7 +34901,7 @@ var PaymentGateway = forwardRef56(
     const rootClass = buildPaymentClasses(variant, color, className);
     const isStepped = variant === "stepped";
     const isCardMethod = form.method === "credit-card" || form.method === "debit-card";
-    const handleMethodSelect = useCallback99(
+    const handleMethodSelect = useCallback100(
       (m) => {
         form.setMethod(m);
         onMethodChange?.(m);
@@ -34617,7 +34909,7 @@ var PaymentGateway = forwardRef56(
       },
       [form, onMethodChange, isStepped]
     );
-    const handleSubmit = useCallback99(() => {
+    const handleSubmit = useCallback100(() => {
       if (isCardMethod) {
         if (!form.validateAll()) return;
       }
@@ -34637,16 +34929,16 @@ var PaymentGateway = forwardRef56(
       onPayment?.(data);
     }, [form, isCardMethod, amount, currency, onPayment]);
     if (success) {
-      return /* @__PURE__ */ jsx210("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.success, children: [
-        /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx210(Check3, { size: 48 }) }),
-        /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
+      return /* @__PURE__ */ jsx211("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.success, children: [
+        /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx211(Check3, { size: 48 }) }),
+        /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
       ] }) });
     }
     if (isStepped) {
-      return /* @__PURE__ */ jsxs132("div", { ref, className: rootClass, children: [
-        /* @__PURE__ */ jsx210(StepIndicator, { current: form.step }),
-        /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.body, children: [
-          form.step === 0 && /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs132(
+      return /* @__PURE__ */ jsxs133("div", { ref, className: rootClass, children: [
+        /* @__PURE__ */ jsx211(StepIndicator, { current: form.step }),
+        /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.body, children: [
+          form.step === 0 && /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs133(
             "button",
             {
               type: "button",
@@ -34658,13 +34950,13 @@ var PaymentGateway = forwardRef56(
               ].filter(Boolean).join(" "),
               onClick: () => handleMethodSelect(m),
               children: [
-                /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx210(MethodIcon, { method: m }) }),
-                /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+                /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx211(MethodIcon, { method: m }) }),
+                /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
               ]
             },
             m
           )) }),
-          form.step === 1 && /* @__PURE__ */ jsx210(Fragment25, { children: isCardMethod ? /* @__PURE__ */ jsx210(CardForm, { form }) : /* @__PURE__ */ jsx210(
+          form.step === 1 && /* @__PURE__ */ jsx211(Fragment25, { children: isCardMethod ? /* @__PURE__ */ jsx211(CardForm, { form }) : /* @__PURE__ */ jsx211(
             AltMethodPanel,
             {
               method: form.method,
@@ -34675,8 +34967,8 @@ var PaymentGateway = forwardRef56(
               loading
             }
           ) }),
-          form.step === 2 && /* @__PURE__ */ jsxs132(Fragment25, { children: [
-            showOrderSummary && orderItems && /* @__PURE__ */ jsx210(
+          form.step === 2 && /* @__PURE__ */ jsxs133(Fragment25, { children: [
+            showOrderSummary && orderItems && /* @__PURE__ */ jsx211(
               OrderSummary,
               {
                 items: orderItems,
@@ -34684,7 +34976,7 @@ var PaymentGateway = forwardRef56(
                 currencySymbol
               }
             ),
-            /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx210(
+            /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx211(
               Button_default,
               {
                 variant: "raised",
@@ -34692,17 +34984,17 @@ var PaymentGateway = forwardRef56(
                 fullWidth: true,
                 onClick: handleSubmit,
                 disabled: loading || isCardMethod && !form.isCardFormValid,
-                children: loading ? /* @__PURE__ */ jsx210(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+                children: loading ? /* @__PURE__ */ jsx211(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
               }
             ) })
           ] })
         ] }),
-        error && /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-          /* @__PURE__ */ jsx210(AlertCircle2, { size: 16 }),
-          /* @__PURE__ */ jsx210("span", { children: error })
+        error && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+          /* @__PURE__ */ jsx211(AlertCircle2, { size: 16 }),
+          /* @__PURE__ */ jsx211("span", { children: error })
         ] }),
-        form.step > 0 && /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.stepNav, children: [
-          /* @__PURE__ */ jsx210(
+        form.step > 0 && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.stepNav, children: [
+          /* @__PURE__ */ jsx211(
             Button_default,
             {
               variant: "text",
@@ -34711,7 +35003,7 @@ var PaymentGateway = forwardRef56(
               children: "Back"
             }
           ),
-          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx210(
+          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx211(
             Button_default,
             {
               variant: "outline",
@@ -34727,8 +35019,8 @@ var PaymentGateway = forwardRef56(
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs132("div", { ref, className: rootClass, children: [
-      /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs132(
+    return /* @__PURE__ */ jsxs133("div", { ref, className: rootClass, children: [
+      /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs133(
         "button",
         {
           type: "button",
@@ -34740,14 +35032,14 @@ var PaymentGateway = forwardRef56(
           ].filter(Boolean).join(" "),
           onClick: () => handleMethodSelect(m),
           children: [
-            /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx210(MethodIcon, { method: m }) }),
-            /* @__PURE__ */ jsx210("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+            /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx211(MethodIcon, { method: m }) }),
+            /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
           ]
         },
         m
       )) }),
-      /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.body, children: [
-        isCardMethod ? /* @__PURE__ */ jsx210(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.body, children: [
+        isCardMethod ? /* @__PURE__ */ jsx211(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx211(
           AltMethodPanel,
           {
             method: form.method,
@@ -34758,7 +35050,7 @@ var PaymentGateway = forwardRef56(
             loading
           }
         ),
-        showOrderSummary && orderItems && /* @__PURE__ */ jsx210(
+        showOrderSummary && orderItems && /* @__PURE__ */ jsx211(
           OrderSummary,
           {
             items: orderItems,
@@ -34767,11 +35059,11 @@ var PaymentGateway = forwardRef56(
           }
         )
       ] }),
-      error && /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-        /* @__PURE__ */ jsx210(AlertCircle2, { size: 16 }),
-        /* @__PURE__ */ jsx210("span", { children: error })
+      error && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+        /* @__PURE__ */ jsx211(AlertCircle2, { size: 16 }),
+        /* @__PURE__ */ jsx211("span", { children: error })
       ] }),
-      isCardMethod && /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx210(
+      isCardMethod && /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx211(
         Button_default,
         {
           variant: "raised",
@@ -34779,31 +35071,31 @@ var PaymentGateway = forwardRef56(
           fullWidth: true,
           onClick: handleSubmit,
           disabled: loading,
-          children: loading ? /* @__PURE__ */ jsx210(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+          children: loading ? /* @__PURE__ */ jsx211(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
         }
       ) })
     ] });
   }
 );
 PaymentGateway.displayName = "PaymentGateway";
-var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.summary, children: [
-  /* @__PURE__ */ jsx210("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
-  items.map((item, i) => /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.summaryItem, children: [
-    /* @__PURE__ */ jsxs132("span", { children: [
+var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summary, children: [
+  /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
+  items.map((item, i) => /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summaryItem, children: [
+    /* @__PURE__ */ jsxs133("span", { children: [
       item.name,
       " x",
       item.quantity
     ] }),
-    /* @__PURE__ */ jsx210("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
+    /* @__PURE__ */ jsx211("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
   ] }, `${item.name}-${i}`)),
-  /* @__PURE__ */ jsxs132("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
-    /* @__PURE__ */ jsx210("span", { children: "Total" }),
-    /* @__PURE__ */ jsx210("span", { children: formatAmount(amount, currencySymbol) })
+  /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
+    /* @__PURE__ */ jsx211("span", { children: "Total" }),
+    /* @__PURE__ */ jsx211("span", { children: formatAmount(amount, currencySymbol) })
   ] })
 ] });
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { forwardRef as forwardRef57, useCallback as useCallback101 } from "react";
+import { forwardRef as forwardRef57, useCallback as useCallback102 } from "react";
 import { ShoppingCart as ShoppingCartIcon, Trash2 as Trash22, Plus as Plus3, Minus as Minus2, PackageOpen } from "lucide-react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.constants.ts
@@ -34853,7 +35145,7 @@ var CART_CLASSES = {
 };
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.hooks.ts
-import { useMemo as useMemo114, useState as useState74, useCallback as useCallback100 } from "react";
+import { useMemo as useMemo114, useState as useState75, useCallback as useCallback101 } from "react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.utils.ts
 function formatCurrency2(amount, symbol, _currency) {
@@ -34890,8 +35182,8 @@ function useCartCalculations(items, taxRate, shippingCost, freeShippingThreshold
   }, [items, taxRate, shippingCost, freeShippingThreshold]);
 }
 function useItemRemoveAnimation() {
-  const [removingIds, setRemovingIds] = useState74(/* @__PURE__ */ new Set());
-  const startRemove = useCallback100(
+  const [removingIds, setRemovingIds] = useState75(/* @__PURE__ */ new Set());
+  const startRemove = useCallback101(
     (id, onComplete) => {
       setRemovingIds((prev) => new Set(prev).add(id));
       setTimeout(() => {
@@ -34909,7 +35201,7 @@ function useItemRemoveAnimation() {
 }
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { jsx as jsx211, jsxs as jsxs133 } from "react/jsx-runtime";
+import { jsx as jsx212, jsxs as jsxs134 } from "react/jsx-runtime";
 var CartItemRow = ({
   item,
   currencySymbol,
@@ -34942,15 +35234,15 @@ var CartItemRow = ({
     CART_CLASSES.item,
     isRemoving ? CART_CLASSES.itemRemoving : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs133("div", { className: rowClass, role: "listitem", children: [
-    showImage && item.image && /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx211("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
-    /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.itemInfo, children: [
-      /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.itemName, children: item.name }),
-      item.description && /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.itemDescription, children: item.description })
+  return /* @__PURE__ */ jsxs134("div", { className: rowClass, role: "listitem", children: [
+    showImage && item.image && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx212("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
+    /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.itemInfo, children: [
+      /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemName, children: item.name }),
+      item.description && /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemDescription, children: item.description })
     ] }),
-    /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
-    showQuantityControls && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.itemQty, children: [
-      /* @__PURE__ */ jsx211(
+    /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
+    showQuantityControls && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.itemQty, children: [
+      /* @__PURE__ */ jsx212(
         "button",
         {
           type: "button",
@@ -34958,11 +35250,11 @@ var CartItemRow = ({
           onClick: handleDecrement,
           disabled: item.quantity <= 1,
           "aria-label": "Decrease quantity",
-          children: /* @__PURE__ */ jsx211(Minus2, { size: 14 })
+          children: /* @__PURE__ */ jsx212(Minus2, { size: 14 })
         }
       ),
-      /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
-      /* @__PURE__ */ jsx211(
+      /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
+      /* @__PURE__ */ jsx212(
         "button",
         {
           type: "button",
@@ -34970,19 +35262,19 @@ var CartItemRow = ({
           onClick: handleIncrement,
           disabled: item.quantity >= (item.maxQuantity ?? 99),
           "aria-label": "Increase quantity",
-          children: /* @__PURE__ */ jsx211(Plus3, { size: 14 })
+          children: /* @__PURE__ */ jsx212(Plus3, { size: 14 })
         }
       )
     ] }),
-    /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
-    showRemoveButton && /* @__PURE__ */ jsx211(
+    /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
+    showRemoveButton && /* @__PURE__ */ jsx212(
       "button",
       {
         type: "button",
         className: CART_CLASSES.itemRemove,
         onClick: handleRemove,
         "aria-label": `Remove ${item.name}`,
-        children: /* @__PURE__ */ jsx211(Trash22, { size: 16 })
+        children: /* @__PURE__ */ jsx212(Trash22, { size: 16 })
       }
     )
   ] });
@@ -35019,20 +35311,20 @@ var ShoppingCart2 = forwardRef57(
     );
     const { removingIds, startRemove } = useItemRemoveAnimation();
     const rootClass = buildCartClasses(variant, color, className);
-    const handleCheckout = useCallback101(() => {
+    const handleCheckout = useCallback102(() => {
       onCheckout?.(summary);
     }, [onCheckout, summary]);
     const isEmpty = items.length === 0;
     const qualifiesForFreeShipping = freeShippingThreshold > 0 && summary.subtotal >= freeShippingThreshold;
-    return /* @__PURE__ */ jsxs133("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
-      /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.header, children: [
-        /* @__PURE__ */ jsx211(ShoppingCartIcon, { size: 20 }),
-        /* @__PURE__ */ jsxs133("span", { children: [
+    return /* @__PURE__ */ jsxs134("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
+      /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.header, children: [
+        /* @__PURE__ */ jsx212(ShoppingCartIcon, { size: 20 }),
+        /* @__PURE__ */ jsxs134("span", { children: [
           "Cart (",
           summary.itemCount,
           ")"
         ] }),
-        !isEmpty && onClearCart && /* @__PURE__ */ jsx211(
+        !isEmpty && onClearCart && /* @__PURE__ */ jsx212(
           Button_default,
           {
             variant: "text",
@@ -35044,11 +35336,11 @@ var ShoppingCart2 = forwardRef57(
           }
         )
       ] }),
-      isEmpty && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.empty, children: [
-        /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx211(PackageOpen, { size: 48 }) }),
-        /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
+      isEmpty && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.empty, children: [
+        /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx212(PackageOpen, { size: 48 }) }),
+        /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
       ] }),
-      !isEmpty && /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx211(
+      !isEmpty && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx212(
         CartItemRow,
         {
           item,
@@ -35064,30 +35356,30 @@ var ShoppingCart2 = forwardRef57(
         },
         item.id
       )) }),
-      !isEmpty && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.summary, children: [
-        showSubtotal && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
+      !isEmpty && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summary, children: [
+        showSubtotal && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
         ] }),
-        showTax && taxRate > 0 && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsxs133("span", { className: CART_CLASSES.summaryLabel, children: [
+        showTax && taxRate > 0 && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsxs134("span", { className: CART_CLASSES.summaryLabel, children: [
             "Tax (",
             (taxRate * 100).toFixed(0),
             "%)"
           ] }),
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
         ] }),
-        showShipping && /* @__PURE__ */ jsxs133("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
+        showShipping && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
         ] }),
-        qualifiesForFreeShipping && /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
-        /* @__PURE__ */ jsxs133("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
-          /* @__PURE__ */ jsx211("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
+        qualifiesForFreeShipping && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
+        /* @__PURE__ */ jsxs134("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
+          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
         ] })
       ] }),
-      !isEmpty && onCheckout && /* @__PURE__ */ jsx211("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs133(
+      !isEmpty && onCheckout && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs134(
         Button_default,
         {
           variant: "raised",
@@ -35107,7 +35399,7 @@ var ShoppingCart2 = forwardRef57(
 ShoppingCart2.displayName = "ShoppingCart";
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { memo as memo2, useRef as useRef91, useState as useState76, useEffect as useEffect48 } from "react";
+import { memo as memo2, useRef as useRef92, useState as useState77, useEffect as useEffect49 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.constants.ts
 var DP_WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mi\xE9", "Jue", "Vie", "S\xE1b"];
@@ -35184,7 +35476,7 @@ var DP_CLASSES = {
 };
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
-import { useState as useState75, useCallback as useCallback102, useRef as useRef90, useEffect as useEffect47 } from "react";
+import { useState as useState76, useCallback as useCallback103, useRef as useRef91, useEffect as useEffect48 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.utils.ts
 function toDateValue(date) {
@@ -35299,22 +35591,22 @@ function parseInitialMonth(initialMonth) {
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
 function useMonthNavigation(initialMonth) {
-  const [current, setCurrent] = useState75(
+  const [current, setCurrent] = useState76(
     () => parseInitialMonth(initialMonth)
   );
-  const goPrev = useCallback102(() => setCurrent(prevMonth), []);
-  const goNext = useCallback102(() => setCurrent(nextMonth), []);
-  const setMonth = useCallback102((cal) => setCurrent(cal), []);
+  const goPrev = useCallback103(() => setCurrent(prevMonth), []);
+  const goNext = useCallback103(() => setCurrent(nextMonth), []);
+  const setMonth = useCallback103((cal) => setCurrent(cal), []);
   const days = buildCalendarDays(current.year, current.month);
   return { current, days, goPrev, goNext, setMonth };
 }
 function useDropdown() {
-  const [isOpen, setIsOpen] = useState75(false);
-  const rootRef = useRef90(null);
-  const open = useCallback102(() => setIsOpen(true), []);
-  const close = useCallback102(() => setIsOpen(false), []);
-  const toggle = useCallback102(() => setIsOpen((p) => !p), []);
-  useEffect47(() => {
+  const [isOpen, setIsOpen] = useState76(false);
+  const rootRef = useRef91(null);
+  const open = useCallback103(() => setIsOpen(true), []);
+  const close = useCallback103(() => setIsOpen(false), []);
+  const toggle = useCallback103(() => setIsOpen((p) => !p), []);
+  useEffect48(() => {
     const onClickOutside = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         close();
@@ -35326,27 +35618,27 @@ function useDropdown() {
   return { isOpen, open, close, toggle, rootRef };
 }
 function useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [selected, setSelected] = useState75(defaultValue ?? null);
-  const select = useCallback102((date) => {
+  const [selected, setSelected] = useState76(defaultValue ?? null);
+  const select = useCallback103((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     setSelected(date);
     onChange?.(toDateValue(date));
   }, [onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback102(() => {
+  const clear = useCallback103(() => {
     setSelected(null);
     onChange?.(null);
   }, [onChange]);
   return { selected, select, clear };
 }
 function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [startDate, setStartDate] = useState75(
+  const [startDate, setStartDate] = useState76(
     defaultValue?.startDate?.date ?? null
   );
-  const [endDate, setEndDate] = useState75(
+  const [endDate, setEndDate] = useState76(
     defaultValue?.endDate?.date ?? null
   );
-  const [selecting, setSelecting] = useState75("start");
-  const selectDate = useCallback102((date) => {
+  const [selecting, setSelecting] = useState76("start");
+  const selectDate = useCallback103((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     if (selecting === "start" || !startDate) {
       setStartDate(date);
@@ -35361,15 +35653,15 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
       onChange?.(buildRangeValue(s, e));
     }
   }, [selecting, startDate, onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback102(() => {
+  const clear = useCallback103(() => {
     setStartDate(null);
     setEndDate(null);
     setSelecting("start");
     onChange?.(buildRangeValue(null, null));
   }, [onChange]);
-  const isDayInRange = useCallback102((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
-  const isDayStart = useCallback102((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
-  const isDayEnd = useCallback102((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
+  const isDayInRange = useCallback103((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
+  const isDayStart = useCallback103((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
+  const isDayEnd = useCallback103((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
   return {
     startDate,
     endDate,
@@ -35382,25 +35674,25 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
   };
 }
 function useMultipleDatePicker(onChange, onAccept) {
-  const [pickers, setPickers] = useState75([
+  const [pickers, setPickers] = useState76([
     { id: 1, value: null, initialMonth: /* @__PURE__ */ new Date() }
   ]);
-  const nextId = useRef90(2);
-  const addPicker = useCallback102(() => {
+  const nextId = useRef91(2);
+  const addPicker = useCallback103(() => {
     setPickers((prev) => [
       ...prev,
       { id: nextId.current++, value: null, initialMonth: /* @__PURE__ */ new Date() }
     ]);
   }, []);
-  const removePicker = useCallback102((id) => {
+  const removePicker = useCallback103((id) => {
     setPickers((prev) => prev.length > 1 ? prev.filter((p) => p.id !== id) : prev);
   }, []);
-  const updateValue = useCallback102((id, value) => {
+  const updateValue = useCallback103((id, value) => {
     setPickers((prev) => prev.map((p) => p.id === id ? { ...p, value } : p));
     const current = pickers.map((p) => p.id === id ? value : p.value).filter(Boolean);
     onChange?.(current);
   }, [pickers, onChange]);
-  const accept = useCallback102(() => {
+  const accept = useCallback103(() => {
     const values = pickers.map((p) => p.value).filter(Boolean);
     onAccept?.(values);
   }, [pickers, onAccept]);
@@ -35408,17 +35700,17 @@ function useMultipleDatePicker(onChange, onAccept) {
 }
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { Fragment as Fragment26, jsx as jsx212, jsxs as jsxs134 } from "react/jsx-runtime";
+import { Fragment as Fragment26, jsx as jsx213, jsxs as jsxs135 } from "react/jsx-runtime";
 var MonthYearPicker = ({ year, month, onSelect }) => {
-  const [selectedYear, setSelectedYear] = useState76(year);
-  const selectedYearRef = useRef91(null);
+  const [selectedYear, setSelectedYear] = useState77(year);
+  const selectedYearRef = useRef92(null);
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
   const years = Array.from({ length: 151 }, (_, i) => currentYear - 100 + i);
-  useEffect48(() => {
+  useEffect49(() => {
     selectedYearRef.current?.scrollIntoView({ block: "center", behavior: "auto" });
   }, []);
-  return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.ymPicker, children: [
-    /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx212(
+  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.ymPicker, children: [
+    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx213(
       "button",
       {
         ref: y === selectedYear ? selectedYearRef : void 0,
@@ -35428,7 +35720,7 @@ var MonthYearPicker = ({ year, month, onSelect }) => {
       },
       y
     )) }),
-    /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx212(
+    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx213(
       "button",
       {
         className: [DP_CLASSES.monthItem, i === month && selectedYear === year ? DP_CLASSES.monthItemSelected : ""].filter(Boolean).join(" "),
@@ -35457,24 +35749,24 @@ var Calendar2 = memo2(({
   nextDisabled = false,
   setMonth
 }) => {
-  const [mode, setMode] = useState76("days");
-  return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.calendar, children: [
-    /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.header, children: [
-      /* @__PURE__ */ jsx212("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
-      /* @__PURE__ */ jsxs134(
+  const [mode, setMode] = useState77("days");
+  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.calendar, children: [
+    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.header, children: [
+      /* @__PURE__ */ jsx213("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
+      /* @__PURE__ */ jsxs135(
         "button",
         {
           className: DP_CLASSES.title,
           onClick: () => setMode((m) => m === "days" ? "month-year" : "days"),
           children: [
             formatMonthTitle(year, month),
-            /* @__PURE__ */ jsx212("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
+            /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
           ]
         }
       ),
-      /* @__PURE__ */ jsx212("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
+      /* @__PURE__ */ jsx213("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
     ] }),
-    mode === "month-year" ? /* @__PURE__ */ jsx212(
+    mode === "month-year" ? /* @__PURE__ */ jsx213(
       MonthYearPicker,
       {
         year,
@@ -35484,9 +35776,9 @@ var Calendar2 = memo2(({
           setMode("days");
         }
       }
-    ) : /* @__PURE__ */ jsxs134(Fragment26, { children: [
-      /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx212("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
-      /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
+    ) : /* @__PURE__ */ jsxs135(Fragment26, { children: [
+      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx213("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
+      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
         const isSel = selectedDate ? isSameDay(cell.date, selectedDate) : false;
         const isStart = startDate ? isSameDay(cell.date, startDate) : false;
         const isEnd = endDate ? isSameDay(cell.date, endDate) : false;
@@ -35504,7 +35796,7 @@ var Calendar2 = memo2(({
           isStart && !isEnd ? DP_CLASSES.dayRangeStart : "",
           !isStart && isEnd ? DP_CLASSES.dayRangeEnd : ""
         ].filter(Boolean).join(" ");
-        return /* @__PURE__ */ jsx212(
+        return /* @__PURE__ */ jsx213(
           "button",
           {
             className: cls,
@@ -35538,7 +35830,7 @@ var DatePicker = ({
   const { current, days, goPrev, goNext, setMonth } = useMonthNavigation(initialMonth);
   const { selected, select, clear } = useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = selected ? toDateValue(selected).display : "";
-  const calendar = /* @__PURE__ */ jsx212(
+  const calendar = /* @__PURE__ */ jsx213(
     Calendar2,
     {
       year: current.year,
@@ -35558,16 +35850,16 @@ var DatePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.root, children: [
-      name && /* @__PURE__ */ jsx212("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, children: [
+      name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
       calendar,
-      clearable && selected && /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx212("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      clearable && selected && /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx213("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] });
   }
-  return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx212("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
-    /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx212(
+  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx213(
         "input",
         {
           readOnly: true,
@@ -35577,13 +35869,13 @@ var DatePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx212("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+      /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.dropdown, children: calendar })
+    isOpen && /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.dropdown, children: calendar })
   ] });
 };
 DatePicker.displayName = "DatePicker";
-var StaticDatePicker = (props) => /* @__PURE__ */ jsx212(DatePicker, { ...props, inline: true });
+var StaticDatePicker = (props) => /* @__PURE__ */ jsx213(DatePicker, { ...props, inline: true });
 StaticDatePicker.displayName = "StaticDatePicker";
 var DateRangePicker = ({
   defaultValue,
@@ -35612,7 +35904,7 @@ var DateRangePicker = ({
     isDayEnd
   } = useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = startDate ? buildRangeValue(startDate, endDate).formattedRange || toDateValue(startDate).display : "";
-  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx212(
+  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx213(
     Calendar2,
     {
       year: nav.current.year,
@@ -35632,13 +35924,13 @@ var DateRangePicker = ({
     }
   );
   const singleCalendar = calendarBase(leftNav);
-  const dualCalendar = /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.dual, children: [
+  const dualCalendar = /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.dual, children: [
     calendarBase(
       leftNav,
       false,
       !discontinuous ? leftNav.current.month === rightNav.current.month - 1 && leftNav.current.year === rightNav.current.year : false
     ),
-    /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.dualDivider }),
+    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.dualDivider }),
     calendarBase(
       rightNav,
       !discontinuous ? rightNav.current.month === leftNav.current.month + 1 && rightNav.current.year === leftNav.current.year : false,
@@ -35646,20 +35938,20 @@ var DateRangePicker = ({
     )
   ] });
   const content = dual ? dualCalendar : singleCalendar;
-  return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx212("input", { type: "hidden", name, value: displayValue }),
-    /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx212("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
-      /* @__PURE__ */ jsx212("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: displayValue }),
+    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx213("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
+      /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.dropdown, children: [
+    isOpen && /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.dropdown, children: [
       content,
-      /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx212("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx213("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] })
   ] });
 };
 DateRangePicker.displayName = "DateRangePicker";
-var DateRangePickerDual = (props) => /* @__PURE__ */ jsx212(DateRangePicker, { ...props, dual: true });
+var DateRangePickerDual = (props) => /* @__PURE__ */ jsx213(DateRangePicker, { ...props, dual: true });
 DateRangePickerDual.displayName = "DateRangePickerDual";
 var MultipleDatePicker = ({
   onChange,
@@ -35673,8 +35965,8 @@ var MultipleDatePicker = ({
   name
 }) => {
   const { pickers, addPicker, removePicker, updateValue, accept } = useMultipleDatePicker(onChange, onAccept);
-  return /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.multiple, children: [
-    name && /* @__PURE__ */ jsx212(
+  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multiple, children: [
+    name && /* @__PURE__ */ jsx213(
       "input",
       {
         type: "hidden",
@@ -35682,12 +35974,12 @@ var MultipleDatePicker = ({
         value: JSON.stringify(pickers.map((p) => p.value?.formatted ?? ""))
       }
     ),
-    /* @__PURE__ */ jsx212("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.multipleItem, children: [
-      /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.multipleItemLabel, children: [
+    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multipleItem, children: [
+      /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multipleItemLabel, children: [
         "Fecha ",
         idx + 1
       ] }),
-      pickers.length > 1 && /* @__PURE__ */ jsx212(
+      pickers.length > 1 && /* @__PURE__ */ jsx213(
         "button",
         {
           className: DP_CLASSES.multipleItemRemove,
@@ -35696,7 +35988,7 @@ var MultipleDatePicker = ({
           children: "\u2715"
         }
       ),
-      /* @__PURE__ */ jsx212(
+      /* @__PURE__ */ jsx213(
         StaticDatePicker,
         {
           defaultValue: p.value?.date ?? null,
@@ -35709,8 +36001,8 @@ var MultipleDatePicker = ({
       )
     ] }, p.id)) }),
     children,
-    /* @__PURE__ */ jsxs134("div", { className: DP_CLASSES.actions, children: [
-      pickers.length < maxPickers && /* @__PURE__ */ jsx212(
+    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.actions, children: [
+      pickers.length < maxPickers && /* @__PURE__ */ jsx213(
         "button",
         {
           onClick: addPicker,
@@ -35718,7 +36010,7 @@ var MultipleDatePicker = ({
           children: "+ Agregar fecha"
         }
       ),
-      /* @__PURE__ */ jsx212(
+      /* @__PURE__ */ jsx213(
         "button",
         {
           onClick: accept,
@@ -35732,7 +36024,7 @@ var MultipleDatePicker = ({
 MultipleDatePicker.displayName = "MultipleDatePicker";
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { memo as memo3, useRef as useRef93 } from "react";
+import { memo as memo3, useRef as useRef94 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.constants.ts
 var TP_CLASSES = {
@@ -35771,7 +36063,7 @@ var ALL_MINUTES = Array.from({ length: 60 }, (_, i) => i);
 var ALL_SECONDS = Array.from({ length: 60 }, (_, i) => i);
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
-import { useState as useState77, useCallback as useCallback103, useRef as useRef92, useEffect as useEffect49 } from "react";
+import { useState as useState78, useCallback as useCallback104, useRef as useRef93, useEffect as useEffect50 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.utils.ts
 function buildTimeValue(hours24, minutes, seconds, format) {
@@ -35822,12 +36114,12 @@ function formatTimeDisplay(hours24, minutes, seconds, format, showSeconds) {
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
 function useTPDropdown() {
-  const [isOpen, setIsOpen] = useState77(false);
-  const rootRef = useRef92(null);
-  const open = useCallback103(() => setIsOpen(true), []);
-  const close = useCallback103(() => setIsOpen(false), []);
-  const toggle = useCallback103(() => setIsOpen((p) => !p), []);
-  useEffect49(() => {
+  const [isOpen, setIsOpen] = useState78(false);
+  const rootRef = useRef93(null);
+  const open = useCallback104(() => setIsOpen(true), []);
+  const close = useCallback104(() => setIsOpen(false), []);
+  const toggle = useCallback104(() => setIsOpen((p) => !p), []);
+  useEffect50(() => {
     const onOut = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) close();
     };
@@ -35846,44 +36138,44 @@ function useTimePicker(options) {
     onChange
   } = options;
   const parsed = parsePartialTime(defaultValue);
-  const [hours24, setHours24] = useState77(parsed.hours24);
-  const [minutes, setMinutes] = useState77(parsed.minutes);
-  const [seconds, setSeconds] = useState77(parsed.seconds);
+  const [hours24, setHours24] = useState78(parsed.hours24);
+  const [minutes, setMinutes] = useState78(parsed.minutes);
+  const [seconds, setSeconds] = useState78(parsed.seconds);
   const ampm = hours24 < 12 ? "AM" : "PM";
   const hours12 = to12Hour(hours24);
   const hourValues = format === 12 ? HOURS_12 : HOURS_24;
   const minuteValues = generateRange(59, minuteStep);
   const secondValues = generateRange(59, secondStep);
-  const emitChange = useCallback103((h, m, s) => {
+  const emitChange = useCallback104((h, m, s) => {
     onChange?.(buildTimeValue(h, m, s, format));
   }, [onChange, format]);
-  const setHour = useCallback103((raw) => {
+  const setHour = useCallback104((raw) => {
     const h = format === 12 ? to24Hour(raw, ampm) : raw;
     setHours24(h);
     emitChange(h, minutes, seconds);
   }, [format, ampm, minutes, seconds, emitChange]);
-  const setMinute = useCallback103((m) => {
+  const setMinute = useCallback104((m) => {
     setMinutes(m);
     emitChange(hours24, m, seconds);
   }, [hours24, seconds, emitChange]);
-  const setSecond = useCallback103((s) => {
+  const setSecond = useCallback104((s) => {
     setSeconds(s);
     emitChange(hours24, minutes, s);
   }, [hours24, minutes, emitChange]);
-  const toggleAmPm = useCallback103(() => {
+  const toggleAmPm = useCallback104(() => {
     const newAmPm = ampm === "AM" ? "PM" : "AM";
     const newH = to24Hour(hours12, newAmPm);
     setHours24(newH);
     emitChange(newH, minutes, seconds);
   }, [ampm, hours12, minutes, seconds, emitChange]);
-  const setNow = useCallback103(() => {
+  const setNow = useCallback104(() => {
     const { hours24: h, minutes: m, seconds: s } = getNowValues();
     setHours24(h);
     setMinutes(m);
     setSeconds(s);
     emitChange(h, m, s);
   }, [emitChange]);
-  const clear = useCallback103(() => {
+  const clear = useCallback104(() => {
     setHours24(0);
     setMinutes(0);
     setSeconds(0);
@@ -35909,11 +36201,11 @@ function useTimePicker(options) {
 }
 function useScrollWheel(containerRef, values, selected, onSelect) {
   const ITEM_HEIGHT = 44;
-  const isMounted = useRef92(false);
-  const isProgrammatic = useRef92(false);
-  const programmaticTimer = useRef92(null);
-  const snapTimer = useRef92(null);
-  useEffect49(() => {
+  const isMounted = useRef93(false);
+  const isProgrammatic = useRef93(false);
+  const programmaticTimer = useRef93(null);
+  const snapTimer = useRef93(null);
+  useEffect50(() => {
     const el2 = containerRef.current;
     if (!el2) return;
     const idx = values.indexOf(selected);
@@ -35933,7 +36225,7 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
       }, 500);
     }
   }, [selected, values, containerRef]);
-  const onScroll = useCallback103(() => {
+  const onScroll = useCallback104(() => {
     if (isProgrammatic.current) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -35950,13 +36242,13 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
 }
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { Fragment as Fragment27, jsx as jsx213, jsxs as jsxs135 } from "react/jsx-runtime";
+import { Fragment as Fragment27, jsx as jsx214, jsxs as jsxs136 } from "react/jsx-runtime";
 var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
-  const scrollRef = useRef93(null);
+  const scrollRef = useRef94(null);
   const { onScroll } = useScrollWheel(scrollRef, values, selected, onSelect);
-  return /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.column, children: [
-    /* @__PURE__ */ jsx213("span", { className: TP_CLASSES.columnLabel, children: label }),
-    /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.column, children: [
+    /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.columnLabel, children: label }),
+    /* @__PURE__ */ jsx214(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -35967,9 +36259,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         children: "\u25B2"
       }
     ),
-    /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
-      /* @__PURE__ */ jsx213("div", { style: { height: 44, flexShrink: 0 } }),
-      values.map((v) => /* @__PURE__ */ jsx213(
+    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
+      /* @__PURE__ */ jsx214("div", { style: { height: 44, flexShrink: 0 } }),
+      values.map((v) => /* @__PURE__ */ jsx214(
         "button",
         {
           className: `${TP_CLASSES.item}${v === selected ? ` ${TP_CLASSES.itemSelected}` : ""}`,
@@ -35979,9 +36271,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         },
         v
       )),
-      /* @__PURE__ */ jsx213("div", { style: { height: 44, flexShrink: 0 } })
+      /* @__PURE__ */ jsx214("div", { style: { height: 44, flexShrink: 0 } })
     ] }),
-    /* @__PURE__ */ jsx213(
+    /* @__PURE__ */ jsx214(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -36022,10 +36314,10 @@ var TimePickerPanel = memo3(({
     clear
   } = state;
   const displayH = format === 12 ? hours12 : hours24;
-  return /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.panel, children: [
-    /* @__PURE__ */ jsx213("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx213("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
-    /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.wheels, children: [
-      /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.panel, children: [
+    /* @__PURE__ */ jsx214("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
+    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.wheels, children: [
+      /* @__PURE__ */ jsx214(
         WheelColumn,
         {
           label: "Horas",
@@ -36034,8 +36326,8 @@ var TimePickerPanel = memo3(({
           onSelect: setHour
         }
       ),
-      /* @__PURE__ */ jsx213("span", { className: TP_CLASSES.separator, children: ":" }),
-      /* @__PURE__ */ jsx213(
+      /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.separator, children: ":" }),
+      /* @__PURE__ */ jsx214(
         WheelColumn,
         {
           label: "Minutos",
@@ -36044,9 +36336,9 @@ var TimePickerPanel = memo3(({
           onSelect: setMinute
         }
       ),
-      showSeconds && /* @__PURE__ */ jsxs135(Fragment27, { children: [
-        /* @__PURE__ */ jsx213("span", { className: TP_CLASSES.separator, children: ":" }),
-        /* @__PURE__ */ jsx213(
+      showSeconds && /* @__PURE__ */ jsxs136(Fragment27, { children: [
+        /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.separator, children: ":" }),
+        /* @__PURE__ */ jsx214(
           WheelColumn,
           {
             label: "Segundos",
@@ -36056,8 +36348,8 @@ var TimePickerPanel = memo3(({
           }
         )
       ] }),
-      format === 12 && /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.ampm, children: [
-        /* @__PURE__ */ jsx213(
+      format === 12 && /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.ampm, children: [
+        /* @__PURE__ */ jsx214(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "AM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -36065,7 +36357,7 @@ var TimePickerPanel = memo3(({
             children: "AM"
           }
         ),
-        /* @__PURE__ */ jsx213(
+        /* @__PURE__ */ jsx214(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "PM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -36075,8 +36367,8 @@ var TimePickerPanel = memo3(({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.actions, children: [
-      showNow && /* @__PURE__ */ jsx213(
+    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.actions, children: [
+      showNow && /* @__PURE__ */ jsx214(
         "button",
         {
           onClick: () => {
@@ -36086,7 +36378,7 @@ var TimePickerPanel = memo3(({
           children: "Ahora"
         }
       ),
-      onClear && /* @__PURE__ */ jsx213(
+      onClear && /* @__PURE__ */ jsx214(
         "button",
         {
           onClick: () => {
@@ -36097,7 +36389,7 @@ var TimePickerPanel = memo3(({
           children: "Limpiar"
         }
       ),
-      onAccept && /* @__PURE__ */ jsx213(
+      onAccept && /* @__PURE__ */ jsx214(
         "button",
         {
           onClick: () => {
@@ -36144,7 +36436,7 @@ var TimePicker = ({
     format,
     showSeconds
   );
-  const panel = /* @__PURE__ */ jsx213(
+  const panel = /* @__PURE__ */ jsx214(
     TimePickerPanel,
     {
       state,
@@ -36157,16 +36449,16 @@ var TimePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs135("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
-      name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    return /* @__PURE__ */ jsxs136("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
+      name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
       panel,
       children
     ] });
   }
-  return /* @__PURE__ */ jsxs135("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
-    /* @__PURE__ */ jsxs135("div", { className: TP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx214(
         "input",
         {
           readOnly: true,
@@ -36176,14 +36468,14 @@ var TimePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx213("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
+      /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx213("div", { className: TP_CLASSES.dropdown, children: panel }),
+    isOpen && /* @__PURE__ */ jsx214("div", { className: TP_CLASSES.dropdown, children: panel }),
     children
   ] });
 };
 TimePicker.displayName = "TimePicker";
-var StaticTimePicker = (props) => /* @__PURE__ */ jsx213(TimePicker, { ...props, inline: true });
+var StaticTimePicker = (props) => /* @__PURE__ */ jsx214(TimePicker, { ...props, inline: true });
 StaticTimePicker.displayName = "StaticTimePicker";
 export {
   Accordion,

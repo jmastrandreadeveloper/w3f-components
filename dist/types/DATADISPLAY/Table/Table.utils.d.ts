@@ -11,7 +11,7 @@ export declare const buildTableClasses: (size: TableSize, variant: TableVariant,
  * Texto de un número con el formato de la columna. Devuelve null si no corresponde (sin formato o
  * el valor no es un número finito): la celda muestra el valor tal cual.
  */
-export declare const formatNumber: (value: unknown, format?: TableNumberFormat, decimals?: number, locale?: string) => string | null;
+export declare const formatNumber: (value: unknown, format?: TableNumberFormat, decimals?: number, locale?: string, grouping?: boolean) => string | null;
 /**
  * 0026 X14: las filas de grupos de la cabecera (una por nivel), arriba de la de encabezados. En cada nivel se juntan
  * las columnas seguidas con el mismo camino hasta ese nivel; las que no tienen ese nivel van en celdas vacías
