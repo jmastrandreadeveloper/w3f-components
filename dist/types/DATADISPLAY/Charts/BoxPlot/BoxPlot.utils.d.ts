@@ -9,5 +9,7 @@ export declare function buildBoxPlotScales(stats: readonly BoxPlotStats[], inner
     yScale: import("d3-scale").ScaleLinear<number, number, never>;
 };
 export { formatTick };
+/** Los cinco números de la caja, de abajo hacia arriba como se dibujan, y los atípicos (0022 P96: igual que la
+ *  tabla del documento; antes «med=87177.2, Q1=…, Q3=…», sin bigotes ni atípicos y con otro formato). */
 export declare function buildTooltipContent(stats: BoxPlotStats): string;
 //# sourceMappingURL=BoxPlot.utils.d.ts.map

@@ -17,6 +17,8 @@ export declare const GAP = 16;
 export type DragChildrenMode = 'together' | 'alone';
 /** Atributo del canvas del Desktop con `dragChildren`; cada Window lo lee al empezar a arrastrar. */
 export declare const DRAG_CHILDREN_ATTR = "data-drag-children";
+/** B61: al maximizar una ventana, su contenido a tamaño real (100 %) o con el zoom del escritorio. */
+export declare const MAXIMIZE_SCALE_ATTR = "data-maximize-scale";
 export declare const overlaps: (a: LinkRect, b: LinkRect, gap: number) => boolean;
 /**
  * Cuánto mover `me` (dx, dy) para que no toque ninguna de `others` (con `gap` de separación), lo menos posible.

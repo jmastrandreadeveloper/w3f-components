@@ -19,6 +19,10 @@ export interface StreamgraphInnerProps extends BaseChartProps {
     onSelect?: (datum: SeriesSelect, index: number) => void;
     /** 0022 B53.1: cómo se escriben las fechas del eje X ('auto' = las de siempre). */
     xDateFormat?: ChartDateFormat;
+    /** P112: línea guía y cartel con el valor de cada capa al pasar el mouse. */
+    showTooltip?: boolean;
+    /** Formato de los valores del cartel. */
+    formatY?: (n: number) => string;
 }
 export type StreamgraphProps = Omit<StreamgraphInnerProps, 'width' | 'height'> & {
     width?: number;

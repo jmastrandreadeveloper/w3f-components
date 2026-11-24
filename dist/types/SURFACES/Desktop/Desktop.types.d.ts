@@ -55,6 +55,9 @@ export interface DesktopProps {
     /** Qué va con una ventana al arrastrarla: 'together' (default) lleva a las que salieron de ella (`windowSource`);
      *  'alone' la mueve sola. Alt mientras se arrastra hace lo contrario de lo elegido. */
     dragChildren?: DragChildrenMode;
+    /** B61: al maximizar una ventana, su contenido a tamaño real ('real', por defecto: sin el zoom del escritorio)
+     *  o con el zoom del escritorio ('desktop'). */
+    maximizeScale?: 'real' | 'desktop';
     /** Vista a aplicar (ej. al volver a abrir un proyecto): se aplica cada vez que cambia su valor. */
     view?: DesktopView | null;
     /** Width of the inner canvas div. Default: 3000. Solo es el tamaño de la capa: las ventanas pueden estar fuera

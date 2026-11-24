@@ -32,5 +32,7 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
     bindId?: string;
     /** Visual variant: solid (default), outlined, ghost, soft */
     variant?: 'solid' | 'outlined' | 'ghost' | 'soft';
+    /** Muestra las opciones en orden alfabético (español, sin acentos); las de «nada elegido» quedan arriba. */
+    sortOptions?: boolean;
 }
 //# sourceMappingURL=Select.types.d.ts.map

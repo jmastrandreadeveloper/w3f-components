@@ -61,5 +61,13 @@ export declare const DASHBOARD_CLASSES: {
     readonly zoomBtn: "w3f-dashboard-zoombar-btn";
     readonly zoomSlider: "w3f-dashboard-zoombar-slider";
     readonly zoomPct: "w3f-dashboard-zoombar-pct";
+    readonly navWrap: "w3f-dashboard-navwrap";
+    readonly nav: "w3f-dashboard-nav";
+    readonly navLink: "w3f-dashboard-nav-link";
+    readonly navActive: "w3f-dashboard-nav-link--active";
+    readonly navTop: "w3f-dashboard-nav-top";
+    readonly expand: "w3f-dashboard-tile-expand";
+    readonly tileExpanded: "w3f-dashboard-tile--expanded";
+    readonly backdrop: "w3f-dashboard-backdrop";
 };
 //# sourceMappingURL=Dashboard.constants.d.ts.map

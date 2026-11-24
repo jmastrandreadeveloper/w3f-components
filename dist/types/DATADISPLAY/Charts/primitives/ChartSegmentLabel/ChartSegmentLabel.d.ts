@@ -28,9 +28,10 @@ export type ChartSegmentLabelFormat = 'es' | 'python';
 export declare function segmentText(value: number, total: number, mode?: ChartSegmentLabelMode, min?: number, decimals?: number, format?: ChartSegmentLabelFormat): string;
 /** ¿La barra `label` está entre las atenuadas? */
 export declare const isMuted: (label: string, muted?: readonly string[]) => boolean;
-/** La opacidad de una barra según `mutedBars` (1 si no está; con colores propios de las atenuadas, 1). */
-export declare const barOpacity: (label: string, muted?: readonly string[], opacity?: number, mutedColors?: readonly string[]) => number;
-/** El color del tramo `keyIdx` de la barra `label`: el propio de las atenuadas si lo hay; si no, `fill`. */
+/** La opacidad de una barra según `mutedBars` (1 si no está; con su color propio de atenuada, 1). */
+export declare const barOpacity: (label: string, muted?: readonly string[], opacity?: number, mutedColors?: readonly string[], keyIdx?: number) => number;
+/** El color del tramo `keyIdx` de la barra `label`: el propio de las atenuadas si lo hay (un tramo sin color propio
+ *  —más tramos que colores— va con su color y la opacidad de las atenuadas, no repite el de otro tramo). */
 export declare const barFill: (label: string, keyIdx: number, fill: string, muted?: readonly string[], mutedColors?: readonly string[]) => string;
 export interface ChartSegmentLabelProps {
     x: number;

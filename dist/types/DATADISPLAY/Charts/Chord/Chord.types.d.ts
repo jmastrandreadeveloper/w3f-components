@@ -4,10 +4,12 @@ export type ChordDatum = {
     labels: string[];
 };
 export type ChordData = ChordDatum;
+/** `back` = la otra dirección del mismo par (de target a source): una cinta junta las dos. */
 export type ChordRibbonInfo = {
     source: string;
     target: string;
     value: number;
+    back?: number;
 };
 export interface ChordInnerProps extends BaseChartProps, ChartEventProps<ChordRibbonInfo> {
     width: number;

@@ -8,6 +8,11 @@ export declare const buildContainerClasses: (className?: string, unstyled?: bool
  */
 export declare const buildTableClasses: (size: TableSize, variant: TableVariant, color: TableColor, enableColumnResize: boolean, unstyled?: boolean) => string;
 /**
+ * w3f-data-analysis (0030 B.4): si una celda sin formato numérico lleva el sufijo de su columna. Solo los números
+ * (o un texto que es un número: «94.4»); un «-», «Sin dato» o un booleano quedan como están (antes salía «-%»).
+ */
+export declare const takesSuffix: (value: unknown) => boolean;
+/**
  * Texto de un número con el formato de la columna. Devuelve null si no corresponde (sin formato o
  * el valor no es un número finito): la celda muestra el valor tal cual.
  */

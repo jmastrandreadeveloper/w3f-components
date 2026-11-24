@@ -4421,7 +4421,7 @@ var Rating = forwardRef12(({
 Rating.displayName = "Rating";
 
 // src/INPUTS/Select/Select.tsx
-import { forwardRef as forwardRef13, useId as useId9, useState as useState18 } from "react";
+import { forwardRef as forwardRef13, useId as useId9, useMemo as useMemo3, useState as useState18 } from "react";
 
 // src/INPUTS/Select/Select.constants.ts
 var SELECT_DEFAULTS = {
@@ -4482,6 +4482,32 @@ function buildLabelClasses5(isFloating, showShifted) {
 function hasSelectValue(value) {
   if (Array.isArray(value)) return value.length > 0;
   return value !== "" && value !== null && value !== void 0;
+}
+var COLLATOR = new Intl.Collator("es", { sensitivity: "base", numeric: true });
+var PINNED_LABEL = /^\s*(\(|—|–|-|ningun|ninguna|todos|todas|sin\b|cualquier)/i;
+function labelOf(item) {
+  if (typeof item === "string") return item;
+  const o = item;
+  return String(o?.label ?? o?.value ?? "");
+}
+function isPinned(item) {
+  if (typeof item === "string") return item === "" || PINNED_LABEL.test(item);
+  const o = item;
+  if (o?.value === "" || o?.value === null || o?.value === void 0) return true;
+  return PINNED_LABEL.test(labelOf(item));
+}
+function sortSelectOptions(items) {
+  if (!Array.isArray(items)) return items;
+  const head = [];
+  let i = 0;
+  while (i < items.length && !isOptionGroup(items[i]) && isPinned(items[i])) head.push(items[i++]);
+  const rest = items.slice(i).map(
+    (item) => isOptionGroup(item) ? { ...item, options: sortSelectOptions(item.options) } : item
+  );
+  const groups = rest.filter((it) => isOptionGroup(it));
+  const plain = rest.filter((it) => !isOptionGroup(it));
+  plain.sort((a, b) => COLLATOR.compare(labelOf(a), labelOf(b)));
+  return [...head, ...plain, ...groups];
 }
 
 // src/INPUTS/Select/Select.hooks.ts
@@ -4561,6 +4587,7 @@ var Select = forwardRef13(
     unstyled = SELECT_DEFAULTS.unstyled,
     bindId,
     variant,
+    sortOptions = false,
     ...props
   }, ref) => {
     const formContext = useSelectFormContext();
@@ -4571,6 +4598,10 @@ var Select = forwardRef13(
     );
     const { isFocused, onFocus, onBlur: onBlurFocus } = useSelectFocus();
     const inputId = useId9();
+    const shownOptions = useMemo3(
+      () => sortOptions ? sortSelectOptions(options) : options,
+      [options, sortOptions]
+    );
     const currentValue = isFormControlled ? formContext.values[name] !== void 0 ? formContext.values[name] : multiple ? [] : "" : externalValue !== void 0 ? externalValue : internalValue;
     const inputError = isFormControlled ? formContext.errors[name] : propError;
     const hasError = Boolean(inputError);
@@ -4621,7 +4652,7 @@ var Select = forwardRef13(
             ...props,
             children: [
               !multiple && /* @__PURE__ */ jsx18("option", { value: "", disabled: true, hidden: true }),
-              renderOptions(options)
+              renderOptions(shownOptions)
             ]
           }
         ),
@@ -5335,7 +5366,7 @@ var TextField = forwardRef16(
 TextField.displayName = "TextField";
 
 // src/INPUTS/FormulaEditor/FormulaEditor.tsx
-import { forwardRef as forwardRef17, useCallback as useCallback6, useEffect as useEffect9, useImperativeHandle, useMemo as useMemo3, useRef as useRef8, useState as useState22 } from "react";
+import { forwardRef as forwardRef17, useCallback as useCallback6, useEffect as useEffect9, useImperativeHandle, useMemo as useMemo4, useRef as useRef8, useState as useState22 } from "react";
 import { Fragment as Fragment3, jsx as jsx22, jsxs as jsxs17 } from "react/jsx-runtime";
 var KEYWORDS = /* @__PURE__ */ new Set(["VAR", "RETURN", "DEVOLVER"]);
 var SQL_KEYWORDS = /* @__PURE__ */ new Set([
@@ -5521,12 +5552,12 @@ var FormulaEditor = forwardRef17((props, ref) => {
   const [open, setOpen] = useState22(false);
   const [active, setActive] = useState22(0);
   const [pending, setPending] = useState22(null);
-  const tokens = useMemo3(() => tokenize(value, columns, functions, mode), [value, columns, functions, mode]);
-  const completion = useMemo3(
+  const tokens = useMemo4(() => tokenize(value, columns, functions, mode), [value, columns, functions, mode]);
+  const completion = useMemo4(
     () => open ? completionAt(value, caret, columns, functions, mode) : null,
     [open, value, caret, columns, functions, mode]
   );
-  const enclosing = useMemo3(() => enclosingFunction(value, caret, functions), [value, caret, functions]);
+  const enclosing = useMemo4(() => enclosingFunction(value, caret, functions), [value, caret, functions]);
   const items = completion?.items ?? [];
   useEffect9(() => {
     if (pending != null && taRef.current) {
@@ -6075,7 +6106,7 @@ function buildItemClasses(isSelected2, isDisabled) {
 }
 
 // src/INPUTS/TransferList/TransferList.hooks.ts
-import { useState as useState23, useCallback as useCallback8, useMemo as useMemo4 } from "react";
+import { useState as useState23, useCallback as useCallback8, useMemo as useMemo5 } from "react";
 var useTransferList = (initialSource, initialTarget, notify, disabled) => {
   const [sourceList, setSourceList] = useState23(initialSource);
   const [targetList, setTargetList] = useState23(initialTarget);
@@ -6083,11 +6114,11 @@ var useTransferList = (initialSource, initialTarget, notify, disabled) => {
   const [targetSelected, setTargetSelected] = useState23(/* @__PURE__ */ new Set());
   const [sourceFilter, setSourceFilter] = useState23("");
   const [targetFilter, setTargetFilter] = useState23("");
-  const filteredSource = useMemo4(
+  const filteredSource = useMemo5(
     () => filterItems(sourceList, sourceFilter),
     [sourceList, sourceFilter]
   );
-  const filteredTarget = useMemo4(
+  const filteredTarget = useMemo5(
     () => filterItems(targetList, targetFilter),
     [targetList, targetFilter]
   );
@@ -6560,7 +6591,7 @@ var TransferList = forwardRef19(({
 TransferList.displayName = "TransferList";
 
 // src/NAVIGATION/BottomNavigation/BottomNavigation.tsx
-import { forwardRef as forwardRef20, useMemo as useMemo5 } from "react";
+import { forwardRef as forwardRef20, useMemo as useMemo6 } from "react";
 
 // src/NAVIGATION/BottomNavigation/BottomNavigation.constants.ts
 var BOTTOM_NAV_DEFAULTS = {
@@ -6667,7 +6698,7 @@ var BottomNavigationAction = ({
     if (onClick) onClick(e);
     if (ctx.onChange && value !== void 0) ctx.onChange(e, value);
   };
-  const cls = useMemo5(
+  const cls = useMemo6(
     () => buildActionClasses(isActive, disabled, showLabel, className),
     [isActive, disabled, showLabel, className]
   );
@@ -6708,7 +6739,7 @@ var BottomNavigation = forwardRef20(({
 }, ref) => {
   const { currentValue, handleChange } = useBottomNav(valueProp, defaultValue, onChange, disabled);
   const ctxValue = useBottomNavContext(currentValue, handleChange, showLabels, color);
-  const cls = useMemo5(
+  const cls = useMemo6(
     () => buildBottomNavClasses(variant, color, fixed, disabled, className, unstyled),
     [variant, color, fixed, disabled, className, unstyled]
   );
@@ -6717,7 +6748,7 @@ var BottomNavigation = forwardRef20(({
 BottomNavigation.displayName = "BottomNavigation";
 
 // src/NAVIGATION/Breadcrumbs/Breadcrumbs.tsx
-import React24, { forwardRef as forwardRef21, useMemo as useMemo6, useCallback as useCallback11 } from "react";
+import React24, { forwardRef as forwardRef21, useMemo as useMemo7, useCallback as useCallback11 } from "react";
 import { ChevronRight as ChevronRight3, MoreHorizontal as MoreHorizontal2 } from "lucide-react";
 
 // src/NAVIGATION/Breadcrumbs/Breadcrumbs.constants.ts
@@ -6814,7 +6845,7 @@ var BreadcrumbItem = ({
   className = BREADCRUMB_ITEM_DEFAULTS.className,
   ...props
 }) => {
-  const cls = useMemo6(
+  const cls = useMemo7(
     () => buildBreadcrumbItemClasses(active, disabled, className),
     [active, disabled, className]
   );
@@ -6853,16 +6884,16 @@ var Breadcrumbs = forwardRef21(({
   ...props
 }, ref) => {
   const { expanded, expand } = useBreadcrumbsExpand();
-  const items = useMemo6(
+  const items = useMemo7(
     () => React24.Children.toArray(children).filter(Boolean),
     [children]
   );
-  const visibleItems = useMemo6(
+  const visibleItems = useMemo7(
     () => computeVisibleItems(items, expanded, maxItems, itemsBeforeCollapse, itemsAfterCollapse),
     [items, expanded, maxItems, itemsBeforeCollapse, itemsAfterCollapse]
   );
   const separatorNode = separator || /* @__PURE__ */ jsx26(ChevronRight3, { size: 14 });
-  const cls = useMemo6(
+  const cls = useMemo7(
     () => buildBreadcrumbsClasses(size, color, className, unstyled, variant),
     [size, color, className, unstyled, variant]
   );
@@ -7123,7 +7154,7 @@ var Drawer = forwardRef22(({
 Drawer.displayName = "Drawer";
 
 // src/NAVIGATION/Link/Link.tsx
-import { forwardRef as forwardRef23, useMemo as useMemo7 } from "react";
+import { forwardRef as forwardRef23, useMemo as useMemo8 } from "react";
 
 // src/NAVIGATION/Link/Link.constants.ts
 var LINK_DEFAULTS = {
@@ -7193,7 +7224,7 @@ var Link = forwardRef23(({
 }, ref) => {
   const Tag3 = component || (href ? "a" : "button");
   const isButton = Tag3 === "button";
-  const cls = useMemo7(
+  const cls = useMemo8(
     () => buildLinkClasses(color, underline, variant, disabled, isButton, className, unstyled),
     [color, underline, variant, disabled, isButton, className, unstyled]
   );
@@ -7235,7 +7266,7 @@ var Link = forwardRef23(({
 Link.displayName = "Link";
 
 // src/NAVIGATION/Pagination/Pagination.tsx
-import { forwardRef as forwardRef24, useMemo as useMemo8 } from "react";
+import { forwardRef as forwardRef24, useMemo as useMemo9 } from "react";
 import {
   ChevronLeft as ChevronLeft3,
   ChevronRight as ChevronRight4,
@@ -7376,11 +7407,11 @@ var Pagination = forwardRef24(
       disabled,
       onChange
     );
-    const pages = useMemo8(
+    const pages = useMemo9(
       () => buildPages(count, currentPage, siblingCount, boundaryCount),
       [count, currentPage, siblingCount, boundaryCount]
     );
-    const containerCls = useMemo8(
+    const containerCls = useMemo9(
       () => buildPaginationClasses(variant, shape, size, color, disabled, className, unstyled),
       [variant, shape, size, color, disabled, className, unstyled]
     );
@@ -7806,7 +7837,7 @@ var SpeedDial = forwardRef25(
 SpeedDial.displayName = "SpeedDial";
 
 // src/NAVIGATION/Stepper/Stepper.tsx
-import React29, { forwardRef as forwardRef26, useMemo as useMemo9, useCallback as useCallback17 } from "react";
+import React29, { forwardRef as forwardRef26, useMemo as useMemo10, useCallback as useCallback17 } from "react";
 import { Check as Check2, X as X6 } from "lucide-react";
 
 // src/NAVIGATION/Stepper/Stepper.constants.ts
@@ -7969,7 +8000,7 @@ var StepConnector = ({
   _alternativeLabel = STEP_CONNECTOR_DEFAULTS._alternativeLabel,
   ...rest
 }) => {
-  const cls = useMemo9(
+  const cls = useMemo10(
     () => buildConnectorClasses(_orientation, _active, _completed, _alternativeLabel, className),
     [_orientation, _active, _completed, _alternativeLabel, className]
   );
@@ -8005,7 +8036,7 @@ var StepLabel = ({
   ...rest
 }) => {
   const isClickable = !_disabled && (!!onClick || _nonLinear);
-  const cls = useMemo9(
+  const cls = useMemo10(
     () => buildLabelClasses7(isClickable, _alternativeLabel, className),
     [isClickable, _alternativeLabel, className]
   );
@@ -8080,7 +8111,7 @@ var StepContent = ({
   ...rest
 }) => {
   const { contentRef, maxHeight } = useStepContentAnimation(_active);
-  const cls = useMemo9(
+  const cls = useMemo10(
     () => buildContentClasses(_active, _last, className),
     [_active, _last, className]
   );
@@ -8114,7 +8145,7 @@ var Step = ({
   _connector,
   ...rest
 }) => {
-  const cls = useMemo9(
+  const cls = useMemo10(
     () => buildStepClasses(_orientation, active, completed, disabled),
     [_orientation, active, completed, disabled]
   );
@@ -8153,7 +8184,7 @@ var Stepper = forwardRef26(({
   className = STEPPER_DEFAULTS.className,
   ...rest
 }, ref) => {
-  const cls = useMemo9(
+  const cls = useMemo10(
     () => buildStepperClasses(orientation, color, alternativeLabel, className, unstyled),
     [orientation, color, alternativeLabel, className, unstyled]
   );
@@ -9113,6 +9144,33 @@ function buildDesktopClasses(className, unstyled, pannable, isPanning) {
 
 // src/SURFACES/Desktop/Desktop.hooks.ts
 import { useState as useState33, useCallback as useCallback21, useEffect as useEffect16, useRef as useRef17 } from "react";
+
+// src/UTILS/touchDrag.ts
+var CONTROLS = 'button, input, select, textarea, a[href], [contenteditable], [role="slider"], [data-no-drag]';
+var isTouchStart = (e) => {
+  if (e.pointerType === "mouse" || !e.isPrimary) return false;
+  const target = e.target;
+  const control = target?.closest?.(CONTROLS);
+  return !control || control === e.currentTarget;
+};
+var isTouchEvent = (e) => {
+  const ev = "nativeEvent" in e && e.nativeEvent ? e.nativeEvent : e;
+  return typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType !== "mouse";
+};
+var listenDrag = (touch, onMove, onUp, target = window) => {
+  const move = touch ? "pointermove" : "mousemove";
+  const ups = touch ? ["pointerup", "pointercancel"] : ["mouseup"];
+  const mv = onMove;
+  const up = onUp;
+  target.addEventListener(move, mv);
+  for (const u of ups) target.addEventListener(u, up);
+  return () => {
+    target.removeEventListener(move, mv);
+    for (const u of ups) target.removeEventListener(u, up);
+  };
+};
+
+// src/SURFACES/Desktop/Desktop.hooks.ts
 function useWindowOrder(children) {
   const [windowOrder, setWindowOrder] = useState33([]);
   useEffect16(() => {
@@ -9192,7 +9250,8 @@ function useCanvasTransform({
     return () => window.removeEventListener("w3f-desktop-focus", handler);
   }, []);
   const handlePanStart = useCallback21((e) => {
-    if (!panEnabled || e.button !== 0) return;
+    const touch = isTouchEvent(e);
+    if (!panEnabled || !touch && e.button !== 0) return;
     const target = e.target;
     const isBackground = target === e.currentTarget || target.parentElement === e.currentTarget;
     if (!isBackground) return;
@@ -9208,11 +9267,9 @@ function useCanvasTransform({
     };
     const handleMouseUp = () => {
       setIsPanning(false);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      stop();
     };
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    const stop = listenDrag(touch, handleMouseMove, handleMouseUp, document);
   }, [panEnabled]);
   const setView = useCallback21((v) => {
     setZoom(clamp(v.zoom));
@@ -9711,6 +9768,7 @@ var SETTLE_EVENT = "w3f:settle-windows";
 var GREW_EVENT = "w3f:window-grew";
 var GAP = 16;
 var DRAG_CHILDREN_ATTR = "data-drag-children";
+var MAXIMIZE_SCALE_ATTR = "data-maximize-scale";
 var overlaps = (a, b, gap) => a.left < b.left + b.width + gap && b.left < a.left + a.width + gap && a.top < b.top + b.height + gap && b.top < a.top + a.height + gap;
 function freeSpot(me, others, gap = GAP) {
   const blockers = others.filter((o) => o.width > 0 && o.height > 0);
@@ -9789,6 +9847,7 @@ var Desktop = forwardRef31(({
   linkRouting = "curve",
   windowLayout = "free",
   dragChildren = "together",
+  maximizeScale = "real",
   view
 }, forwardedRef) => {
   const containerRef = useRef18(null);
@@ -9973,6 +10032,9 @@ var Desktop = forwardRef31(({
             className: DESKTOP_CLASSES.viewport,
             style: viewportStyle,
             onMouseDown: pannable ? handlePanStart : void 0,
+            onPointerDown: pannable ? (e) => {
+              if (isTouchStart(e)) handlePanStart(e);
+            } : void 0,
             children: /* @__PURE__ */ jsxs30(
               "div",
               {
@@ -9982,6 +10044,7 @@ var Desktop = forwardRef31(({
                 ...{ [LINK_ROUTING_ATTR]: linkRouting },
                 ...{ [WINDOW_LAYOUT_ATTR]: windowLayout },
                 ...{ [DRAG_CHILDREN_ATTR]: dragChildren },
+                ...{ [MAXIMIZE_SCALE_ATTR]: maximizeScale },
                 children: [
                   /* @__PURE__ */ jsx36(
                     "svg",
@@ -11273,13 +11336,13 @@ function getAriaLabel(ariaLabel, variant, children, processedContent) {
 }
 
 // src/DATADISPLAY/Badge/Badge.hooks.ts
-import { useMemo as useMemo10 } from "react";
+import { useMemo as useMemo11 } from "react";
 function useBadgeContent(children, max, variant, ariaLabel) {
-  const processed = useMemo10(
+  const processed = useMemo11(
     () => processContent(children, max, variant),
     [children, max, variant]
   );
-  const effectiveAriaLabel = useMemo10(
+  const effectiveAriaLabel = useMemo11(
     () => getAriaLabel(ariaLabel, variant, children, processed),
     [ariaLabel, variant, children, processed]
   );
@@ -11703,7 +11766,7 @@ var ToggleIcons = {
 };
 
 // src/DATADISPLAY/TreeRefactorized/TreeContext.tsx
-import { createContext as createContext5, useContext as useContext22, useState as useState37, useCallback as useCallback26, useMemo as useMemo11 } from "react";
+import { createContext as createContext5, useContext as useContext22, useState as useState37, useCallback as useCallback26, useMemo as useMemo12 } from "react";
 
 // src/DATADISPLAY/TreeRefactorized/Tree.utils.ts
 var buildTreeClasses = (unstyled, className) => {
@@ -11750,13 +11813,13 @@ var TreeProvider = ({ children, data, onNodeSelect, defaultExpandAll }) => {
   const [expandedNodes, setExpandedNodes] = useState37(
     () => defaultExpandAll ? collectAllExpandableNodeIds(data) : /* @__PURE__ */ new Set()
   );
-  const isValid = useMemo11(() => data && Array.isArray(data) && data.length > 0, [data]);
-  const totalNodes = useMemo11(() => isValid ? countNodes(data) : 0, [isValid, data]);
-  const allExpandableNodeIds = useMemo11(
+  const isValid = useMemo12(() => data && Array.isArray(data) && data.length > 0, [data]);
+  const totalNodes = useMemo12(() => isValid ? countNodes(data) : 0, [isValid, data]);
+  const allExpandableNodeIds = useMemo12(
     () => isValid ? collectAllExpandableNodeIds(data) : /* @__PURE__ */ new Set(),
     [isValid, data]
   );
-  const isExpanded = useMemo11(() => {
+  const isExpanded = useMemo12(() => {
     if (!isValid || allExpandableNodeIds.size === 0) return false;
     return expandedNodes.size === allExpandableNodeIds.size;
   }, [expandedNodes, allExpandableNodeIds, isValid]);
@@ -12420,6 +12483,7 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
   const [isFocused, setIsFocused] = useState39(false);
   const [isDragging, setIsDragging] = useState39(false);
   const [isResizing, setIsResizing] = useState39(false);
+  const touchDragRef = useRef20(false);
   const [zIndex, setZIndex] = useState39(() => ++windowZIndexCounter);
   const [position, setPosition] = useState39(initialPosition ?? { x: 100, y: 100 });
   const [dimensions, setDimensions] = useState39(initialSize ?? null);
@@ -12578,19 +12642,30 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       props.forEach((p) => el2.style.removeProperty(p));
       return void 0;
     }
+    const real = (canvas.getAttribute(MAXIMIZE_SCALE_ATTR) ?? "real") !== "desktop";
     const fit = () => {
       const scale2 = canvas.offsetWidth ? canvas.getBoundingClientRect().width / canvas.offsetWidth : 1;
+      const k = real ? 1 : scale2;
       const vr = viewport.getBoundingClientRect();
       const cr = canvas.getBoundingClientRect();
-      el2.style.setProperty(props[0], `${(vr.top - cr.top) / scale2}px`);
-      el2.style.setProperty(props[1], `${(vr.left - cr.left) / scale2}px`);
-      el2.style.setProperty(props[2], `${vr.width / scale2}px`);
-      el2.style.setProperty(props[3], `${vr.height / scale2}px`);
+      el2.style.setProperty(props[0], `${(vr.top - cr.top) / k}px`);
+      el2.style.setProperty(props[1], `${(vr.left - cr.left) / k}px`);
+      el2.style.setProperty(props[2], `${vr.width / k}px`);
+      el2.style.setProperty(props[3], `${vr.height / k}px`);
+      if (real && Math.abs(scale2 - 1) > 1e-3) el2.style.setProperty("zoom", String(1 / scale2));
+      else el2.style.removeProperty("zoom");
     };
     fit();
     window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
+    return () => {
+      window.removeEventListener("resize", fit);
+      el2.style.removeProperty("zoom");
+    };
   }, [isMaximized]);
+  useEffect24(() => {
+    const group = windowRef.current?.parentElement?.closest(".w3f-window-group");
+    if (group && isFocused) group.style.zIndex = String(zIndex);
+  }, [zIndex, isFocused]);
   useEffect24(() => {
     const canvas = windowRef.current?.closest(`[${WINDOW_LAYOUT_ATTR}]`);
     if (!canvas || !isOpen) return;
@@ -12602,6 +12677,13 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     canvas.addEventListener(SETTLE_EVENT, onSettle);
     return () => canvas.removeEventListener(SETTLE_EVENT, onSettle);
   }, [isOpen, settle]);
+  const paint = useCallback28((pos) => {
+    positionRef.current = pos;
+    const el2 = windowRef.current;
+    if (!el2) return;
+    el2.style.left = `${pos.x}px`;
+    el2.style.top = `${pos.y}px`;
+  }, []);
   useEffect24(() => {
     const el2 = windowRef.current;
     if (!windowId || !el2 || !isOpen) return;
@@ -12611,16 +12693,20 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       getPosition: () => positionRef.current,
       moveTo: (pos, final) => {
         if (stateFlagsRef.current.isMaximized) return;
+        if (!final) {
+          paint(pos);
+          return;
+        }
         positionRef.current = pos;
         setPosition(pos);
-        if (final) reportLayout(pos, false, stateFlagsRef.current.isMinimized);
+        reportLayout(pos, false, stateFlagsRef.current.isMinimized);
       }
     };
     reg.set(windowId, entry);
     return () => {
       if (reg.get(windowId) === entry) reg.delete(windowId);
     };
-  }, [windowId, windowSource, isOpen, reportLayout]);
+  }, [windowId, windowSource, isOpen, reportLayout, paint]);
   useEffect24(() => {
     if (!isDragging) return;
     const delta = (e) => {
@@ -12633,25 +12719,27 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
     const onMouseMove = (e) => {
       const { posX, posY } = dragStartRef.current;
       const { dx, dy } = delta(e);
-      setPosition({ x: posX + dx, y: posY + dy });
+      paint({ x: posX + dx, y: posY + dy });
       moveChildren(dx, dy, false);
     };
     const onMouseUp = (e) => {
+      const { posX, posY } = dragStartRef.current;
       const { dx, dy } = delta(e);
+      const pos = { x: posX + dx, y: posY + dy };
+      positionRef.current = pos;
+      setPosition(pos);
       if (dx || dy) moveChildren(dx, dy, true);
       dragChildrenRef.current = [];
       setIsDragging(false);
     };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-  }, [isDragging]);
+    return listenDrag(touchDragRef.current, onMouseMove, onMouseUp);
+  }, [isDragging, paint]);
   const handleDragStart = useCallback28((e) => {
     if (!draggable || isMaximized || isMinimized) return;
     if (!windowRef.current) return;
+    const touch = isTouchEvent(e);
+    if (!touch && e.button !== 0) return;
+    touchDragRef.current = touch;
     e.stopPropagation();
     const getCanvasScale = () => {
       let node = windowRef.current.offsetParent;
@@ -12715,16 +12803,14 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       setIsResizing(false);
       resizeDirection.current = null;
     };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
+    return listenDrag(touchDragRef.current, onMouseMove, onMouseUp);
   }, [isResizing]);
   const handleResizeStart = useCallback28((e, direction) => {
     if (!resizable || isMaximized) return;
+    const touch = isTouchEvent(e);
+    if (!touch && e.button !== 0) return;
     e.stopPropagation();
+    touchDragRef.current = touch;
     resizeDirection.current = direction;
     fitPrevRef.current = null;
     setIsFitWidth(false);
@@ -12782,6 +12868,8 @@ function useWindowState(open, draggable, resizable, onClose, onMinimize, onMaxim
       if (previousState.current.position) setPosition(previousState.current.position);
       if (previousState.current.dimensions) setDimensions(previousState.current.dimensions);
     }
+    setIsFocused(true);
+    setZIndex(++windowZIndexCounter);
     setIsMaximized((prev) => {
       if (onMaximize) onMaximize(!prev);
       return !prev;
@@ -12929,6 +13017,26 @@ function buildWindowStyle(style, position, dimensions, isMaximized, zIndex, auto
     } : {},
     ...!isMaximized && !autoContent && dimensions ? { width: `${dimensions.width}px`, height: `${dimensions.height}px`, maxHeight: "none", maxWidth: "none" } : {}
   };
+}
+function maximizedFreeSpace(el2) {
+  const tile = el2?.closest(".w3f-dashboard-tile--expanded");
+  const win = tile ? null : el2?.closest(".w3f-window");
+  if (!el2 || !tile && (!win || !win.classList.contains("w3f-window--maximized"))) return null;
+  const body = tile ? tile.querySelector(":scope > .w3f-dashboard-tile-body") : win.querySelector(":scope > .w3f-window-body") ?? el2.closest(".w3f-window-body");
+  if (!body) return null;
+  const br = body.getBoundingClientRect();
+  if (br.height <= 0) return null;
+  let bottom = br.top;
+  const leaf = "TABLE,svg,CANVAS,INPUT,SELECT,BUTTON,TEXTAREA,IMG";
+  for (const e of Array.from(body.querySelectorAll("*"))) {
+    const tag = e.tagName;
+    const isLeaf = leaf.includes(tag) || !e.children.length && (e.textContent || "").trim() !== "";
+    if (!isLeaf || tag !== "TABLE" && e.closest("table") || tag !== "svg" && e.closest("svg")) continue;
+    const r = e.getBoundingClientRect();
+    if (r.height < 1 || r.width < 1 || r.top >= br.bottom) continue;
+    bottom = Math.max(bottom, Math.min(r.bottom, br.bottom));
+  }
+  return { free: Math.max(0, br.bottom - bottom), scale: body.clientHeight ? br.height / body.clientHeight : 1 };
 }
 
 // src/SURFACES/Window/Window.tsx
@@ -13222,7 +13330,10 @@ var Window = forwardRef42(({
       "div",
       {
         className: `${WINDOW_CLASSES.resizeHandle} ${WINDOW_CLASSES.resizeHandle}--${dir}`,
-        onMouseDown: (e) => handleResizeStart(e, dir)
+        onMouseDown: (e) => handleResizeStart(e, dir),
+        onPointerDown: (e) => {
+          if (isTouchStart(e)) handleResizeStart(e, dir);
+        }
       },
       dir
     ));
@@ -13259,6 +13370,9 @@ var Window = forwardRef42(({
           {
             className: `${WINDOW_CLASSES.titlebar} ${isDragging ? WINDOW_CLASSES.titlebarDragging : ""}`,
             onMouseDown: handleDragStart,
+            onPointerDown: (e) => {
+              if (isTouchStart(e)) handleDragStart(e);
+            },
             tabIndex: 0,
             role: "group",
             onKeyDown: handleKeyMove,
@@ -15389,7 +15503,7 @@ var Marquee = forwardRef48(({
 Marquee.displayName = "Marquee";
 
 // src/DATADISPLAY/Note/Note.tsx
-import { forwardRef as forwardRef49, useMemo as useMemo12 } from "react";
+import { forwardRef as forwardRef49, useMemo as useMemo13 } from "react";
 
 // src/DATADISPLAY/Note/Note.constants.ts
 var NOTE_DEFAULTS = {
@@ -15487,7 +15601,7 @@ var Note = forwardRef49(({
 }, ref) => {
   const { dispatch } = useBridgeBind({ bindId });
   const { isVisible, handleDismiss } = useNoteDismiss(onDismiss);
-  const classNames = useMemo12(
+  const classNames = useMemo13(
     () => buildNoteClasses(type, round, shadow, border, fullBorder, className, unstyled, variant),
     [type, round, shadow, border, fullBorder, className, unstyled, variant]
   );
@@ -15684,7 +15798,7 @@ var ProgressBarIndeterminate = ({
 ProgressBarIndeterminate.displayName = "ProgressBarIndeterminate";
 
 // src/DATADISPLAY/ProgressSpinner/ProgressSpinner.tsx
-import { forwardRef as forwardRef51, useMemo as useMemo13 } from "react";
+import { forwardRef as forwardRef51, useMemo as useMemo14 } from "react";
 
 // src/DATADISPLAY/ProgressSpinner/ProgressSpinner.constants.ts
 var PROGRESS_SPINNER_DEFAULTS = {
@@ -15750,15 +15864,15 @@ var ProgressSpinner = forwardRef51(({
   className = PROGRESS_SPINNER_DEFAULTS.className,
   unstyled = PROGRESS_SPINNER_DEFAULTS.unstyled
 }, ref) => {
-  const finalDiameter = useMemo13(
+  const finalDiameter = useMemo14(
     () => resolveSpinnerDiameter(size, diameter),
     [size, diameter]
   );
   const radius = (finalDiameter - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = finalDiameter / 2;
-  const strokeColor = useMemo13(() => resolveSpinnerColor(color), [color]);
-  const strokeDashoffset = useMemo13(
+  const strokeColor = useMemo14(() => resolveSpinnerColor(color), [color]);
+  const strokeDashoffset = useMemo14(
     () => calcDashOffset(mode, value, circumference),
     [mode, value, circumference]
   );
@@ -15878,7 +15992,7 @@ var Quotes = ({
 Quotes.displayName = "Quotes";
 
 // src/DATADISPLAY/Reloj/RelojAnalogico.tsx
-import { useMemo as useMemo14 } from "react";
+import { useMemo as useMemo15 } from "react";
 
 // src/DATADISPLAY/Text/Text.tsx
 import React63, { forwardRef as forwardRef52 } from "react";
@@ -16043,16 +16157,16 @@ var RelojAnalogico = ({
   unstyled = RELOJ_DEFAULTS.unstyled
 }) => {
   const { hours, minutes, seconds } = useClock();
-  const angles = useMemo14(
+  const angles = useMemo15(
     () => calculateAngles(hours, minutes, seconds),
     [hours, minutes, seconds]
   );
   const clockRadius = size / 2;
-  const visibleNumbers = useMemo14(
+  const visibleNumbers = useMemo15(
     () => getVisibleNumbers(showAllNumbers, numbersToShow),
     [showAllNumbers, numbersToShow]
   );
-  const hourNumbers = useMemo14(() => {
+  const hourNumbers = useMemo15(() => {
     return [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((hour, index) => {
       if (!visibleNumbers.includes(hour)) return null;
       const numberStyle = buildHourNumberStyle(index, clockRadius);
@@ -16068,7 +16182,7 @@ var RelojAnalogico = ({
       );
     }).filter(Boolean);
   }, [clockRadius, visibleNumbers, showAllNumbers]);
-  const ticElements = useMemo14(() => {
+  const ticElements = useMemo15(() => {
     if (!showTics) return null;
     const minuteTics = generateTics(false, clockRadius);
     const hourTics = generateTics(true, clockRadius);
@@ -16140,7 +16254,7 @@ var RelojAnalogico = ({
 RelojAnalogico.displayName = "RelojAnalogico";
 
 // src/DATADISPLAY/Table/Table.tsx
-import React65, { useMemo as useMemo16, useRef as useRef29, useEffect as useEffect33, useLayoutEffect, useState as useState47 } from "react";
+import React65, { useMemo as useMemo17, useRef as useRef29, useEffect as useEffect33, useLayoutEffect, useState as useState47 } from "react";
 import { ArrowUp as ArrowUp2, ArrowDown as ArrowDown2, ArrowUpDown as ArrowUpDown2, Search as Search4 } from "lucide-react";
 
 // src/DATADISPLAY/Table/Table.types.ts
@@ -16207,13 +16321,17 @@ var buildTableClasses = (size, variant, color, enableColumnResize, unstyled) => 
   ].filter(Boolean).join(" ");
 };
 var formatters = /* @__PURE__ */ new Map();
+var takesSuffix = (value) => {
+  if (typeof value === "number") return Number.isFinite(value);
+  return typeof value === "string" && /^\s*[-+]?\d+([.,]\d+)?\s*$/.test(value);
+};
 var formatNumber = (value, format, decimals, locale = "es-AR", grouping = true) => {
   if (!format || typeof value !== "number" || !Number.isFinite(value)) return null;
   const digits = decimals ?? (format === "percent" ? 1 : 2);
   const key = `${locale}|${format}|${digits}|${grouping}`;
-  let fmt5 = formatters.get(key);
-  if (!fmt5) {
-    fmt5 = new Intl.NumberFormat(locale, {
+  let fmt6 = formatters.get(key);
+  if (!fmt6) {
+    fmt6 = new Intl.NumberFormat(locale, {
       style: format === "percent" ? "percent" : "decimal",
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
@@ -16221,9 +16339,9 @@ var formatNumber = (value, format, decimals, locale = "es-AR", grouping = true) 
       // 0027 (w3f-data-analysis): sin «-0» (un −0 de los datos, o −0,004 redondeado a 0): signo solo si es < 0
       signDisplay: "negative"
     });
-    formatters.set(key, fmt5);
+    formatters.set(key, fmt6);
   }
-  return fmt5.format(value);
+  return fmt6.format(value);
 };
 var headerGroupRows = (columns) => {
   const depth = columns.reduce((m, c) => Math.max(m, c.groups?.length ?? 0), 0);
@@ -16263,7 +16381,7 @@ var mergeSpans = (rows, keys) => {
 };
 
 // src/DATADISPLAY/Table/Table.hooks.ts
-import { useState as useState46, useMemo as useMemo15, useCallback as useCallback38, useRef as useRef28, useEffect as useEffect32 } from "react";
+import { useState as useState46, useMemo as useMemo16, useCallback as useCallback38, useRef as useRef28, useEffect as useEffect32 } from "react";
 var useTableSort = () => {
   const [sortState, setSortState] = useState46({ key: null, direction: null });
   const handleSort = useCallback38((columnKey) => {
@@ -16280,7 +16398,7 @@ var useTableFilter = (data, columns) => {
   const handleFilterChange = useCallback38((e) => {
     setGlobalFilter(e.target.value);
   }, []);
-  const filteredData = useMemo15(() => {
+  const filteredData = useMemo16(() => {
     if (!globalFilter.trim()) return data;
     const search = globalFilter.toLowerCase().trim();
     return data.filter(
@@ -16297,7 +16415,7 @@ var useTableFilter = (data, columns) => {
 var useTablePagination = (totalItems, initialPageSize) => {
   const [currentPage, setCurrentPage] = useState46(1);
   const [pageSize, setPageSize] = useState46(initialPageSize);
-  const totalPages = useMemo15(
+  const totalPages = useMemo16(
     () => Math.max(1, Math.ceil(totalItems / pageSize)),
     [totalItems, pageSize]
   );
@@ -16306,7 +16424,7 @@ var useTablePagination = (totalItems, initialPageSize) => {
     setCurrentPage(1);
   }, []);
   const resetPage = useCallback38(() => setCurrentPage(1), []);
-  return { currentPage, setCurrentPage, pageSize, totalPages, handlePageSizeChange, resetPage };
+  return { currentPage, setCurrentPage, pageSize, setPageSize, totalPages, handlePageSizeChange, resetPage };
 };
 var useManualQuery = (manual, currentPage, pageSize, sortState, globalFilter, setCurrentPage, onQueryChange) => {
   const [filter, setFilter] = useState46(globalFilter.trim());
@@ -16378,6 +16496,8 @@ var useColumnResize = (initial, onChange, fit = false) => {
     if (initial && Object.keys(initial).length) setColumnWidths((prev) => ({ ...prev, ...initial }));
   }, [initialKey]);
   const handleResizeMouseDown = useCallback38((e, columnKey) => {
+    const touch = isTouchEvent(e);
+    if (!touch && e.button !== 0) return;
     e.stopPropagation();
     e.preventDefault();
     const startX = e.clientX;
@@ -16418,14 +16538,12 @@ var useColumnResize = (initial, onChange, fit = false) => {
       setColumnWidths((prev) => ({ ...prev, [columnKey]: newWidth }));
     };
     const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+      stop();
       document.body.classList.remove("w3f-table-resizing");
       resizeRef.current = null;
       changeRef.current?.({ ...widthsRef.current });
     };
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    const stop = listenDrag(touch, onMouseMove, onMouseUp, document);
   }, [columnWidths, fit]);
   return { columnWidths, initWidths, handleResizeMouseDown, widthsInitializedRef };
 };
@@ -16446,7 +16564,7 @@ var useColumnReorder = (columns, onColumnOrderChange) => {
     propKeysRef.current = joined;
     setColumnOrder(currentKeys);
   }, [columns]);
-  const orderedColumns = useMemo15(() => {
+  const orderedColumns = useMemo16(() => {
     const columnMap = {};
     columns.forEach((c) => {
       columnMap[c.accessorKey] = c;
@@ -16455,7 +16573,8 @@ var useColumnReorder = (columns, onColumnOrderChange) => {
   }, [columns, columnOrder]);
   const handleDragMouseDown = useCallback38((e, columnKey, headerRowRef) => {
     if (e.target.closest(".w3f-table-resize-handle")) return;
-    if (e.button !== 0) return;
+    const touch = isTouchEvent(e);
+    if (!touch && e.button !== 0) return;
     e.stopPropagation();
     const startX = e.clientX;
     const startY = e.clientY;
@@ -16517,8 +16636,7 @@ var useColumnReorder = (columns, onColumnOrderChange) => {
       }
     };
     const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+      stop();
       if (isDragging && dragRef.current) {
         const { columnKey: dragKey, dropEdge, sourceEl } = dragRef.current;
         sourceEl.classList.remove("w3f-table-th-dragging");
@@ -16546,8 +16664,7 @@ var useColumnReorder = (columns, onColumnOrderChange) => {
         dragRef.current = null;
       }
     };
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    const stop = listenDrag(touch, onMouseMove, onMouseUp, document);
   }, []);
   return { columnOrder, orderedColumns, handleDragMouseDown };
 };
@@ -16557,7 +16674,8 @@ var useRowReorder = (onDrop) => {
   const ghostRef = useRef28(null);
   const indicatorRef = useRef28(null);
   const handleRowDragMouseDown = useCallback38((e, rowIndex, tbodyRef) => {
-    if (e.button !== 0) return;
+    const touch = isTouchEvent(e);
+    if (!touch && e.button !== 0) return;
     e.stopPropagation();
     const startX = e.clientX;
     const startY = e.clientY;
@@ -16621,8 +16739,7 @@ var useRowReorder = (onDrop) => {
       }
     };
     const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+      stop();
       if (!isDragging) return;
       tr?.classList.remove("w3f-table-tr-dragging");
       document.body.classList.remove("w3f-table-dragging-body");
@@ -16636,14 +16753,14 @@ var useRowReorder = (onDrop) => {
       }
       if (edge) dropRef.current?.(rowIndex, edge.index, edge.position);
     };
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    const stop = listenDrag(touch, onMouseMove, onMouseUp, document);
   }, []);
   return { handleRowDragMouseDown };
 };
 
 // src/DATADISPLAY/Table/Table.tsx
 import { Fragment as Fragment15, jsx as jsx81, jsxs as jsxs61 } from "react/jsx-runtime";
+var touchPrimary = (e) => e.pointerType !== "mouse" && e.isPrimary;
 var cellContent = (value) => typeof value === "boolean" ? String(value) : value;
 var cellExtra = (row, key) => {
   const styles = row[ROW_STYLE_KEY];
@@ -16678,8 +16795,7 @@ var clampStyle = (n) => ({
 var renderValue = (col, value) => {
   const text = formatNumber(value, col.format, col.decimals, col.locale, col.grouping ?? true);
   if (text != null) return col.suffix ? text + col.suffix : text;
-  const empty = value == null || value === "" || typeof value === "number" && !Number.isFinite(value);
-  return col.suffix && !empty && typeof value !== "object" ? String(value) + col.suffix : cellContent(value);
+  return col.suffix && takesSuffix(value) ? String(value) + col.suffix : cellContent(value);
 };
 var Table = React65.forwardRef(({
   data = [],
@@ -16734,10 +16850,10 @@ var Table = React65.forwardRef(({
     if (!onRowReorder || !page[fromIndex] || !page[toIndex]) return;
     onRowReorder({ fromIndex, toIndex, position, row: page[fromIndex], targetRow: page[toIndex] });
   });
-  const sortedData = useMemo16(() => {
+  const sortedData = useMemo17(() => {
     if (manual) return data;
     if (!sortState.key || !sortState.direction) return filteredData;
-    return [...filteredData].sort((a, b) => {
+    return filteredData.toSorted((a, b) => {
       const aVal = a[sortState.key];
       const bVal = b[sortState.key];
       if (aVal == null && bVal == null) return 0;
@@ -16757,6 +16873,7 @@ var Table = React65.forwardRef(({
     currentPage,
     setCurrentPage,
     pageSize,
+    setPageSize,
     totalPages,
     handlePageSizeChange,
     resetPage
@@ -16765,7 +16882,7 @@ var Table = React65.forwardRef(({
     if (!manual) resetPage();
   }, [manual, sortState, globalFilter, resetPage]);
   useManualQuery(manual, currentPage, pageSize, sortState, globalFilter, setCurrentPage, onQueryChange);
-  const paginatedData = useMemo16(() => {
+  const paginatedData = useMemo17(() => {
     if (!enablePagination || manual) return sortedData;
     const start = (currentPage - 1) * pageSize;
     return sortedData.slice(start, start + pageSize);
@@ -16800,11 +16917,64 @@ var Table = React65.forwardRef(({
     if (n < paginatedData.length) n = Math.max(1, n - 1);
     if (n !== fitCount) setFitCount(n);
   }, [fitRows, paginatedData, fitCount, fitTick]);
+  const savedPageSizeRef = useRef29(null);
+  const pageSizeRef = useRef29(pageSize);
+  pageSizeRef.current = pageSize;
+  const rowsRef = useRef29(0);
+  rowsRef.current = paginatedData.length;
+  useEffect33(() => {
+    const wrap = wrapperRef.current;
+    const win = wrap?.closest(".w3f-window, .w3f-dashboard-tile");
+    const body = wrap?.closest(".w3f-window-body, .w3f-dashboard-tile-body");
+    if (!enablePagination || fitRows || maxHeight || !wrap || !win || !body || typeof ResizeObserver === "undefined" || typeof MutationObserver === "undefined") return void 0;
+    let raf = 0;
+    const measure = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const maxed = win.classList.contains("w3f-window--maximized") || win.classList.contains("w3f-dashboard-tile--expanded");
+        const cur = pageSizeRef.current;
+        if (!maxed) {
+          if (savedPageSizeRef.current != null) {
+            const prev = savedPageSizeRef.current;
+            savedPageSizeRef.current = null;
+            if (prev !== cur) setPageSize(prev);
+          }
+          return;
+        }
+        const first = tbodyRef.current?.querySelector("tr[data-row-index]");
+        const rowH = first ? first.getBoundingClientRect().height : 0;
+        const space = maximizedFreeSpace(wrap);
+        if (!space || rowH <= 0 || rowsRef.current < cur) return;
+        const table = wrap.querySelector("table");
+        const free = space.free + Math.max(0, wrap.getBoundingClientRect().height - (table ? table.getBoundingClientRect().height : 0));
+        const extra = Math.floor(free / rowH);
+        if (extra < 1) return;
+        if (savedPageSizeRef.current == null) savedPageSizeRef.current = cur;
+        setPageSize(cur + extra);
+      });
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(body);
+    ro.observe(wrap);
+    const mo = new MutationObserver(measure);
+    mo.observe(win, { attributes: true, attributeFilter: ["class"] });
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [enablePagination, fitRows, maxHeight, setPageSize]);
+  const lastSizeRef = useRef29(pageSize);
+  useEffect33(() => {
+    const prev = lastSizeRef.current;
+    lastSizeRef.current = pageSize;
+    if (prev !== pageSize) setCurrentPage((p) => Math.floor((p - 1) * prev / pageSize) + 1);
+  }, [pageSize, setCurrentPage]);
   const visibleData = fitRows && fitCount != null ? paginatedData.slice(0, fitCount) : paginatedData;
   const fitHidden = fitRows ? paginatedData.length - visibleData.length : 0;
-  const groupRows = useMemo16(() => groupHeaders ? headerGroupRows(displayColumns) : [], [groupHeaders, displayColumns]);
-  const mergeKeys = useMemo16(() => mergeMode === "none" ? [] : displayColumns.filter((c) => c.merge).map((c) => c.accessorKey), [mergeMode, displayColumns]);
-  const spans = useMemo16(
+  const groupRows = useMemo17(() => groupHeaders ? headerGroupRows(displayColumns) : [], [groupHeaders, displayColumns]);
+  const mergeKeys = useMemo17(() => mergeMode === "none" ? [] : displayColumns.filter((c) => c.merge).map((c) => c.accessorKey), [mergeMode, displayColumns]);
+  const spans = useMemo17(
     () => mergeKeys.length ? mergeSpans(visibleData, mergeKeys) : null,
     [visibleData, mergeKeys]
   );
@@ -16884,17 +17054,28 @@ var Table = React65.forwardRef(({
                         style: headerAlignStyle(col, widthStyle),
                         onClick: isSortable ? () => handleSort(col.accessorKey) : void 0,
                         onMouseDown: enableColumnReorder ? (e) => handleDragMouseDown(e, col.accessorKey, headerRowRef) : void 0,
+                        onPointerDown: enableColumnReorder ? (e) => {
+                          if (touchPrimary(e)) handleDragMouseDown(e, col.accessorKey, headerRowRef);
+                        } : void 0,
                         "aria-sort": isSorted ? sortState.direction === "asc" ? "ascending" : "descending" : void 0,
                         children: [
-                          /* @__PURE__ */ jsxs61("span", { className: "w3f-table-header-content", children: [
-                            col.header,
-                            isSortable && /* @__PURE__ */ jsx81("span", { className: "w3f-table-sort-icon", children: renderSortIcon(col.accessorKey) })
-                          ] }),
+                          isSortable ? (
+                            // 0031 MWG2 (sortable-table): un botón adentro del <th> para llegar con Tab y
+                            // ordenar con Enter / Espacio. Sin onClick propio: el clic sube al <th>, como
+                            // siempre (mouse, arrastre de columnas y pruebas igual que antes)
+                            /* @__PURE__ */ jsxs61("button", { type: "button", className: "w3f-table-header-content w3f-table-sort-button", children: [
+                              col.header,
+                              /* @__PURE__ */ jsx81("span", { className: "w3f-table-sort-icon", "aria-hidden": "true", children: renderSortIcon(col.accessorKey) })
+                            ] })
+                          ) : /* @__PURE__ */ jsx81("span", { className: "w3f-table-header-content", children: col.header }),
                           enableColumnResize && /* @__PURE__ */ jsx81(
                             "div",
                             {
                               className: "w3f-table-resize-handle",
-                              onMouseDown: (e) => handleResizeMouseDown(e, col.accessorKey)
+                              onMouseDown: (e) => handleResizeMouseDown(e, col.accessorKey),
+                              onPointerDown: (e) => {
+                                if (touchPrimary(e)) handleResizeMouseDown(e, col.accessorKey);
+                              }
                             }
                           )
                         ]
@@ -16935,6 +17116,9 @@ var Table = React65.forwardRef(({
                             rowSpan: span != null && span > 1 && spanMode === "span" ? span : void 0,
                             className: classes || void 0,
                             onMouseDown: isHandle ? (e) => handleRowDragMouseDown(e, rowIndex, tbodyRef) : void 0,
+                            onPointerDown: isHandle ? (e) => {
+                              if (touchPrimary(e)) handleRowDragMouseDown(e, rowIndex, tbodyRef);
+                            } : void 0,
                             onDoubleClick: onCellDoubleClick ? () => onCellDoubleClick({ row, column: col.accessorKey, value: row[col.accessorKey], rowIndex }) : void 0,
                             children: repeated ? null : maxLines && maxLines > 0 ? /* @__PURE__ */ jsxs61("span", { className: "w3f-table-clamp", style: clampStyle(maxLines), children: [
                               extra.prefix ? `${extra.prefix} ` : null,
@@ -16979,7 +17163,7 @@ var Table = React65.forwardRef(({
               value: pageSize,
               onChange: handlePageSizeChange,
               "aria-label": "Filas por p\xE1gina",
-              children: PAGE_SIZE_OPTIONS.map((opt) => /* @__PURE__ */ jsx81("option", { value: opt, children: opt }, opt))
+              children: (PAGE_SIZE_OPTIONS.includes(pageSize) ? PAGE_SIZE_OPTIONS : [...PAGE_SIZE_OPTIONS, pageSize].sort((a, b) => a - b)).map((opt) => /* @__PURE__ */ jsx81("option", { value: opt, children: opt }, opt))
             }
           )
         ] })
@@ -17050,7 +17234,7 @@ var Tag2 = forwardRef53(({
 Tag2.displayName = "Tag";
 
 // src/DATADISPLAY/Tooltip/Tooltip.tsx
-import { forwardRef as forwardRef54 } from "react";
+import { forwardRef as forwardRef54, useEffect as useEffect35, useId as useId12, useRef as useRef31 } from "react";
 
 // src/DATADISPLAY/Tooltip/Tooltip.constants.ts
 var TOOLTIP_DEFAULTS = {
@@ -17107,13 +17291,35 @@ var useTooltipVisibility = (showDelay, hideDelay) => {
       setIsVisible(false);
     }, hideDelay);
   }, [hideDelay]);
+  const handleFocus = useCallback39((e) => {
+    let kb = true;
+    try {
+      kb = e.target.matches(":focus-visible");
+    } catch {
+    }
+    if (!kb) return;
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    setIsVisible(true);
+  }, []);
+  const handleBlur = useCallback39(() => {
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
+    setIsVisible(false);
+  }, []);
+  useEffect34(() => {
+    if (!isVisible) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setIsVisible(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isVisible]);
   useEffect34(() => {
     return () => {
       if (showTimerRef.current) clearTimeout(showTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
-  return { isVisible, handleMouseEnter, handleMouseLeave };
+  return { isVisible, handleMouseEnter, handleMouseLeave, handleFocus, handleBlur };
 };
 
 // src/DATADISPLAY/Tooltip/Tooltip.tsx
@@ -17127,19 +17333,39 @@ var Tooltip = forwardRef54(({ children, config = {}, unstyled = TOOLTIP_DEFAULTS
     arrow = TOOLTIP_DEFAULTS.arrow,
     variant = TOOLTIP_DEFAULTS.variant
   } = config;
-  const { isVisible, handleMouseEnter, handleMouseLeave } = useTooltipVisibility(showDelay, hideDelay);
+  const { isVisible, handleMouseEnter, handleMouseLeave, handleFocus, handleBlur } = useTooltipVisibility(showDelay, hideDelay);
+  const tipId = `w3f-tip-${useId12().replace(/:/g, "")}`;
+  const wrapRef = useRef31(null);
+  useEffect35(() => {
+    const ctl = wrapRef.current?.querySelector("button, a[href], input, select, textarea, [tabindex]");
+    if (!ctl || !message) return;
+    const prev = (ctl.getAttribute("aria-describedby") || "").split(/\s+/).filter((x) => x && x !== tipId);
+    ctl.setAttribute("aria-describedby", [...prev, tipId].join(" "));
+    return () => {
+      const left = (ctl.getAttribute("aria-describedby") || "").split(/\s+/).filter((x) => x && x !== tipId);
+      if (left.length) ctl.setAttribute("aria-describedby", left.join(" "));
+      else ctl.removeAttribute("aria-describedby");
+    };
+  }, [tipId, message]);
+  const setRefs = (el2) => {
+    wrapRef.current = el2;
+    if (typeof ref === "function") ref(el2);
+    else if (ref) ref.current = el2;
+  };
   const tooltipClass = buildTooltipClasses(position, variant, isVisible, unstyled);
   const arrowClass = buildArrowClasses(position);
   return /* @__PURE__ */ jsxs62(
     "div",
     {
-      ref,
+      ref: setRefs,
       className: "w3f-tooltip-wrapper",
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
       children: [
         children,
-        /* @__PURE__ */ jsxs62("div", { className: tooltipClass, children: [
+        /* @__PURE__ */ jsxs62("div", { id: tipId, role: "tooltip", className: tooltipClass, children: [
           message,
           arrow && /* @__PURE__ */ jsx83("div", { className: arrowClass })
         ] })
@@ -17150,10 +17376,10 @@ var Tooltip = forwardRef54(({ children, config = {}, unstyled = TOOLTIP_DEFAULTS
 Tooltip.displayName = "Tooltip";
 
 // src/DATADISPLAY/Charts/Bar/Bar.tsx
-import React70, { useRef as useRef33 } from "react";
+import React71, { useRef as useRef35 } from "react";
 
 // src/DATADISPLAY/Charts/Bar/BarInner.tsx
-import { useMemo as useMemo20 } from "react";
+import { useMemo as useMemo21 } from "react";
 import { Group as Group2 } from "@visx/group";
 import { Bar as VisxBar } from "@visx/shape";
 
@@ -17384,11 +17610,12 @@ function buildTooltipContent(datum, getLabel, getValue2) {
 }
 
 // src/DATADISPLAY/Charts/Bar/Bar.hooks.ts
-import { useMemo as useMemo18, useCallback as useCallback41 } from "react";
+import { useMemo as useMemo19, useCallback as useCallback41 } from "react";
 
 // src/DATADISPLAY/Charts/_base/hooks.ts
-import { useCallback as useCallback40, useEffect as useEffect35, useMemo as useMemo17, useRef as useRef31, useState as useState49 } from "react";
+import { useCallback as useCallback40, useEffect as useEffect36, useMemo as useMemo18, useRef as useRef32, useState as useState49 } from "react";
 var CHART_FILL_CLASS = "w3f-chart-fill";
+var CHART_FILL_MAX_CLASS = "w3f-chart-fill-max";
 function contentHeight(box) {
   const cs = getComputedStyle(box);
   const kids = Array.from(box.children);
@@ -17401,14 +17628,14 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   }));
-  const heightRef = useRef31(dims.height);
+  const heightRef = useRef32(dims.height);
   heightRef.current = dims.height;
-  const fillRef = useRef31(null);
-  const mutationRef = useRef31(null);
-  const recomputeRef = useRef31(() => {
+  const fillRef = useRef32(null);
+  const mutationRef = useRef32(null);
+  const recomputeRef = useRef32(() => {
   });
-  const plotRef = useRef31(null);
-  const observerRef = useRef31(null);
+  const plotRef = useRef32(null);
+  const observerRef = useRef32(null);
   const recompute = useCallback40(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
@@ -17421,7 +17648,8 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
     }
     const target = plot && plot.clientWidth > 0 ? plot : el2;
     const w = target.clientWidth || el2.clientWidth || el2.getBoundingClientRect().width;
-    const fill = el2.closest(`.${CHART_FILL_CLASS}`);
+    const fillMax = el2.closest(".w3f-window--maximized") ? el2.closest(`.${CHART_FILL_MAX_CLASS}`) : null;
+    const fill = el2.closest(`.${CHART_FILL_CLASS}`) ?? fillMax;
     if (fill !== fillRef.current) {
       if (fillRef.current) observerRef.current?.unobserve(fillRef.current);
       if (fill) observerRef.current?.observe(fill);
@@ -17444,7 +17672,7 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
     });
   }, [propWidth, propHeight, defaultHeight, containerRef]);
   recomputeRef.current = recompute;
-  useEffect35(() => {
+  useEffect36(() => {
     if (propWidth && propHeight) {
       setDims({ width: propWidth, height: propHeight });
       return;
@@ -17474,7 +17702,7 @@ function useChartDimensions(containerRef, propWidth, propHeight, defaultWidth = 
 function useInnerDims(width, height, margin, axis) {
   const rot = axis?.xLabelRotate ?? 0;
   const aspect = axis?.plotAspect ?? 0;
-  return useMemo17(() => {
+  return useMemo18(() => {
     const m = margin ?? DEFAULT_CHART_MARGIN;
     const extra = (rot ? Math.round(Math.abs(Math.sin(rot * Math.PI / 180)) * 50) : 0) + (axis?.labelWrap ? 28 : 0);
     const right = axis?.secondaryYFactor || axis?.twinSeries ? Math.max(m.right, 56) : m.right;
@@ -17489,7 +17717,7 @@ function useInnerDims(width, height, margin, axis) {
   }, [width, height, margin, rot, aspect, axis?.secondaryYFactor, axis?.secondaryXFactor, axis?.twinSeries, axis?.labelWrap]);
 }
 function useColorScale(keys, scheme) {
-  return useMemo17(() => {
+  return useMemo18(() => {
     const palette = resolveColorScheme(scheme);
     return buildColorScale(keys, palette);
   }, [keys, scheme]);
@@ -17503,7 +17731,7 @@ function useHoveredIndex() {
 
 // src/DATADISPLAY/Charts/Bar/Bar.hooks.ts
 function useBarAccessors(getLabel, getValue2) {
-  return useMemo18(
+  return useMemo19(
     () => ({
       getLabel: getLabel ?? defaultGetLabel,
       getValue: getValue2 ?? defaultGetValue
@@ -17512,13 +17740,13 @@ function useBarAccessors(getLabel, getValue2) {
   );
 }
 function useBarScales(data, innerWidth, innerHeight, getLabel, getValue2, padding = BAR_DEFAULTS.padding, yDomain) {
-  return useMemo18(
+  return useMemo19(
     () => buildBarScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, yDomain),
     [data, innerWidth, innerHeight, getLabel, getValue2, padding, yDomain]
   );
 }
 function useBarColors(data, getLabel, colorScheme) {
-  return useMemo18(() => {
+  return useMemo19(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
@@ -17658,9 +17886,9 @@ function buildAxisClasses(orientation, className) {
 }
 
 // src/DATADISPLAY/Charts/primitives/ChartAxis/ChartAxis.hooks.ts
-import { useMemo as useMemo19 } from "react";
+import { useMemo as useMemo20 } from "react";
 function useTickFormat(tickFormat) {
-  return useMemo19(
+  return useMemo20(
     () => tickFormat ?? ((value) => formatTick(value)),
     [tickFormat]
   );
@@ -18264,6 +18492,9 @@ var ChartErrorBand = ({ items, valueScale, color, curve, errorBand, errorBandOpa
 };
 ChartErrorBand.displayName = "ChartErrorBand";
 
+// src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.tsx
+import { useLayoutEffect as useLayoutEffect2, useRef as useRef33, useState as useState50 } from "react";
+
 // src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.constants.ts
 var CHART_TOOLTIP_CLASSES = {
   root: "w3f-chart-tooltip",
@@ -18282,6 +18513,20 @@ function buildTooltipClasses2(visible, className) {
   if (className) parts.push(className);
   return parts.join(" ");
 }
+var TOOLTIP_EDGE = 4;
+function fitTooltip(a, size, box, edge = TOOLTIP_EDGE) {
+  const dx = Math.abs(a.offsetX);
+  const dy = Math.abs(a.offsetY);
+  let x = a.left + a.offsetX;
+  let y = a.top + a.offsetY;
+  if (x + size.width > box.width - edge) x = a.left - dx - size.width;
+  if (x < edge && a.left + dx + size.width <= box.width - edge) x = a.left + dx;
+  if (y + size.height > box.height - edge) y = a.top - dy - size.height;
+  if (y < edge) y = a.top + dy;
+  x = Math.max(edge, Math.min(x, box.width - size.width - edge));
+  y = Math.max(edge, Math.min(y, box.height - size.height - edge));
+  return { left: Math.round(x), top: Math.round(y) };
+}
 
 // src/DATADISPLAY/Charts/primitives/ChartTooltip/ChartTooltip.tsx
 import { jsx as jsx90 } from "react/jsx-runtime";
@@ -18295,17 +18540,43 @@ var ChartTooltip = (props) => {
     offsetX = CHART_TOOLTIP_DEFAULTS.offsetX,
     offsetY = CHART_TOOLTIP_DEFAULTS.offsetY
   } = props;
+  const ref = useRef33(null);
+  const [fit, setFit] = useState50(null);
+  useLayoutEffect2(() => {
+    const el2 = ref.current;
+    const box = el2?.offsetParent;
+    if (!el2 || !box || !box.clientWidth || !box.clientHeight) {
+      if (fit) setFit(null);
+      return;
+    }
+    if (![left, top, offsetX, offsetY].every(Number.isFinite)) {
+      if (fit) setFit(null);
+      return;
+    }
+    const size = { width: el2.offsetWidth, height: el2.offsetHeight };
+    const pos = fitTooltip(
+      { left, top, offsetX, offsetY },
+      size,
+      { width: box.clientWidth, height: box.clientHeight }
+    );
+    if (!fit || fit.left !== pos.left || fit.top !== pos.top) setFit(pos);
+  });
   const rootClass = buildTooltipClasses2(visible, className);
+  const finite = Number.isFinite(left + offsetX) && Number.isFinite(top + offsetY);
   return /* @__PURE__ */ jsx90(
     "div",
     {
+      ref,
       className: rootClass,
       style: {
         position: "absolute",
-        left: left + offsetX,
-        top: top + offsetY,
+        left: fit ? fit.left : finite ? left + offsetX : 0,
+        top: fit ? fit.top : finite ? top + offsetY : 0,
+        width: "max-content",
+        maxWidth: `calc(100% - ${2 * TOOLTIP_EDGE}px)`,
+        whiteSpace: "normal",
         pointerEvents: "none",
-        opacity: visible ? 1 : 0,
+        opacity: visible && (fit || finite) ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(-4px)",
         transition: "opacity 120ms ease-out, transform 120ms ease-out"
       },
@@ -18327,8 +18598,9 @@ function segmentText(value, total, mode = "none", min = 4, decimals = 1, format 
   return fmt3(value, Number.isInteger(value) ? 0 : decimals, format);
 }
 var isMuted = (label, muted) => !!muted && muted.some((m) => String(m).trim() === String(label).trim());
-var barOpacity = (label, muted, opacity = 0.45, mutedColors) => isMuted(label, muted) && !(mutedColors && mutedColors.length) ? opacity : 1;
-var barFill = (label, keyIdx, fill, muted, mutedColors) => isMuted(label, muted) && mutedColors && mutedColors.length ? mutedColors[keyIdx % mutedColors.length] : fill;
+var hasMutedColor = (keyIdx, mutedColors) => !!mutedColors && mutedColors.length > 0 && (keyIdx == null || keyIdx < mutedColors.length);
+var barOpacity = (label, muted, opacity = 0.45, mutedColors, keyIdx) => isMuted(label, muted) && !hasMutedColor(keyIdx, mutedColors) ? opacity : 1;
+var barFill = (label, keyIdx, fill, muted, mutedColors) => isMuted(label, muted) && hasMutedColor(keyIdx, mutedColors) ? mutedColors[keyIdx] : fill;
 function labelColor(fill) {
   const f = String(fill ?? "").trim();
   let rgb = null;
@@ -18508,7 +18780,7 @@ var ChartHeader = ({ title, subtitle, titleStyle, subtitleStyle }) => {
 ChartHeader.displayName = "ChartHeader";
 
 // src/DATADISPLAY/Charts/primitives/ChartMarkDecor/ChartMarkDecor.tsx
-import { useId as useId12, useLayoutEffect as useLayoutEffect2, useRef as useRef32 } from "react";
+import { useId as useId13, useLayoutEffect as useLayoutEffect3, useRef as useRef34 } from "react";
 import { Fragment as Fragment17, jsx as jsx95, jsxs as jsxs72 } from "react/jsx-runtime";
 var DASH = { dashed: "6 4", dotted: "1.5 3" };
 var MARKS = ".visx-bar, .w3f-chart-slice, .w3f-chart-point";
@@ -18555,15 +18827,15 @@ var copy = (mark, attrs) => {
   return c;
 };
 var ChartMarkDecorLayer = (p) => {
-  const id = `w3f-hatch-${useId12().replace(/:/g, "")}`;
-  const ref = useRef32(null);
+  const id = `w3f-hatch-${useId13().replace(/:/g, "")}`;
+  const ref = useRef34(null);
   const hatch = p.markHatch && p.markHatch !== "none" ? p.markHatch : null;
   const icon = p.markIcon && p.markIcon !== "none" && ICON_PATHS[p.markIcon] ? p.markIcon : null;
   const hollow = p.markFill === "hollow";
   const gap = p.markGapColor && p.markDash && p.markDash !== "solid" ? p.markGapColor : null;
   const edgeW = String(p.markEdgeWidth ?? 1);
   const sketch = p.markSketch && p.markSketch > 0 ? p.markSketch : 0;
-  useLayoutEffect2(() => {
+  useLayoutEffect3(() => {
     const layer = ref.current;
     if (!layer) return;
     while (layer.firstChild) layer.removeChild(layer.firstChild);
@@ -18740,10 +19012,10 @@ var BarInner = (props) => {
     onHover,
     onSelect
   );
-  const classes = useMemo20(() => buildBarClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo21(() => buildBarClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
-  const total = useMemo20(() => data.reduce((s, d) => s + getValue2(d), 0), [data, getValue2]);
-  const legendItems = useMemo20(
+  const total = useMemo21(() => data.reduce((s, d) => s + getValue2(d), 0), [data, getValue2]);
+  const legendItems = useMemo21(
     () => showLegend ? data.map((d, i) => ({ id: String(getLabel(d)), label: String(getLabel(d)), color: colors[i] })) : [],
     [showLegend, data, getLabel, colors]
   );
@@ -18949,9 +19221,9 @@ BarInner.displayName = "BarInner";
 
 // src/DATADISPLAY/Charts/Bar/Bar.tsx
 import { jsx as jsx97 } from "react/jsx-runtime";
-var Bar = React70.forwardRef(
+var Bar = React71.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef33(null);
+    const containerRef = useRef35(null);
     const { width, height } = useChartDimensions(
       containerRef,
       propWidth,
@@ -18965,10 +19237,10 @@ var Bar = React70.forwardRef(
 Bar.displayName = "Bar";
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.tsx
-import React72, { useRef as useRef34 } from "react";
+import React73, { useRef as useRef36 } from "react";
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontalInner.tsx
-import { useMemo as useMemo22 } from "react";
+import { useMemo as useMemo23 } from "react";
 import { Group as Group3 } from "@visx/group";
 import { Bar as VisxBar2 } from "@visx/shape";
 
@@ -19003,21 +19275,21 @@ function buildTooltipContent2(datum, getLabel, getValue2) {
 }
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.hooks.ts
-import { useMemo as useMemo21, useCallback as useCallback42 } from "react";
+import { useMemo as useMemo22, useCallback as useCallback42 } from "react";
 function useBarHAccessors(getLabel, getValue2) {
-  return useMemo21(() => ({
+  return useMemo22(() => ({
     getLabel: getLabel ?? defaultGetLabel2,
     getValue: getValue2 ?? defaultGetValue2
   }), [getLabel, getValue2]);
 }
 function useBarHScales(data, innerWidth, innerHeight, getLabel, getValue2, padding = BAR_H_DEFAULTS.padding, xDomain) {
-  return useMemo21(
+  return useMemo22(
     () => buildBarHScales(data, innerWidth, innerHeight, getLabel, getValue2, padding, xDomain),
     [data, innerWidth, innerHeight, getLabel, getValue2, padding, xDomain]
   );
 }
 function useBarHColors(data, colorScheme) {
-  return useMemo21(() => {
+  return useMemo22(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
@@ -19092,9 +19364,9 @@ var BarHorizontalInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colors = useBarHColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBarHInteraction(onHover, onSelect);
-  const classes = useMemo22(() => buildBarHClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo23(() => buildBarHClasses(className, unstyled), [className, unstyled]);
   const xTickFormat = formatX ?? formatTick;
-  const total = useMemo22(() => data.reduce((s, d) => s + getValue2(d), 0), [data, getValue2]);
+  const total = useMemo23(() => data.reduce((s, d) => s + getValue2(d), 0), [data, getValue2]);
   if (data.length === 0) {
     return /* @__PURE__ */ jsx98("div", { className: classes, children: /* @__PURE__ */ jsx98("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty horizontal bar chart" }) });
   }
@@ -19238,9 +19510,9 @@ BarHorizontalInner.displayName = "BarHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarHorizontal/BarHorizontal.tsx
 import { jsx as jsx99 } from "react/jsx-runtime";
-var BarHorizontal = React72.forwardRef(
+var BarHorizontal = React73.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef34(null);
+    const containerRef = useRef36(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx99("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx99("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx99(BarHorizontalInner, { ...rest, width, height }) }) });
   }
@@ -19248,10 +19520,10 @@ var BarHorizontal = React72.forwardRef(
 BarHorizontal.displayName = "BarHorizontal";
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGrouped.tsx
-import React74, { useRef as useRef35 } from "react";
+import React75, { useRef as useRef37 } from "react";
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGroupedInner.tsx
-import { useMemo as useMemo24 } from "react";
+import { useMemo as useMemo25 } from "react";
 import { Group as Group4 } from "@visx/group";
 import { Bar as VisxBar3 } from "@visx/shape";
 
@@ -19295,18 +19567,18 @@ function buildGroupedScales(data, keys, innerWidth, innerHeight, getLabel, paddi
 }
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGrouped.hooks.ts
-import { useMemo as useMemo23, useCallback as useCallback43, useState as useState50 } from "react";
+import { useMemo as useMemo24, useCallback as useCallback43, useState as useState51 } from "react";
 function useBarGroupedAccessors(getLabel) {
-  return useMemo23(() => ({ getLabel: getLabel ?? defaultGetLabel3 }), [getLabel]);
+  return useMemo24(() => ({ getLabel: getLabel ?? defaultGetLabel3 }), [getLabel]);
 }
 function useBarGroupedScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_GROUPED_DEFAULTS.padding, yDomain) {
-  return useMemo23(
+  return useMemo24(
     () => buildGroupedScales(data, keys, innerWidth, innerHeight, getLabel, padding, yDomain),
     [data, keys, innerWidth, innerHeight, getLabel, padding, yDomain]
   );
 }
 function useBarGroupedColors(keys, colorScheme) {
-  return useMemo23(() => {
+  return useMemo24(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     keys.forEach((k, i) => {
@@ -19316,7 +19588,7 @@ function useBarGroupedColors(keys, colorScheme) {
   }, [keys, colorScheme]);
 }
 function useBarGroupedInteraction(onHover, onSelect) {
-  const [hovered, setHovered] = useState50(null);
+  const [hovered, setHovered] = useState51(null);
   const handleEnter = useCallback43((datum, groupIdx, keyIdx) => {
     setHovered({ groupIdx, keyIdx });
     onHover?.(datum, groupIdx);
@@ -19383,9 +19655,9 @@ var BarGroupedInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colorMap = useBarGroupedColors(keys, colorScheme);
   const { hovered, handleEnter, handleLeave, handleClick } = useBarGroupedInteraction(onHover, onSelect);
-  const classes = useMemo24(() => buildBarGroupedClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo25(() => buildBarGroupedClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
-  const legendItems = useMemo24(
+  const legendItems = useMemo25(
     () => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })),
     [keys, colorMap]
   );
@@ -19502,9 +19774,9 @@ BarGroupedInner.displayName = "BarGroupedInner";
 
 // src/DATADISPLAY/Charts/BarGrouped/BarGrouped.tsx
 import { jsx as jsx101 } from "react/jsx-runtime";
-var BarGrouped = React74.forwardRef(
+var BarGrouped = React75.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef35(null);
+    const containerRef = useRef37(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx101("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx101("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx101(BarGroupedInner, { ...rest, width, height }) }) });
   }
@@ -19512,10 +19784,10 @@ var BarGrouped = React74.forwardRef(
 BarGrouped.displayName = "BarGrouped";
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.tsx
-import React76, { useRef as useRef36 } from "react";
+import React77, { useRef as useRef38 } from "react";
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontalInner.tsx
-import { useMemo as useMemo26 } from "react";
+import { useMemo as useMemo27 } from "react";
 import { Group as Group5 } from "@visx/group";
 import { Bar as VisxBar4 } from "@visx/shape";
 
@@ -19559,18 +19831,18 @@ function buildGroupedHScales(data, keys, innerWidth, innerHeight, getLabel, padd
 }
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.hooks.ts
-import { useMemo as useMemo25, useCallback as useCallback44, useState as useState51 } from "react";
+import { useMemo as useMemo26, useCallback as useCallback44, useState as useState52 } from "react";
 function useBarGHAccessors(getLabel) {
-  return useMemo25(() => ({ getLabel: getLabel ?? defaultGetLabel4 }), [getLabel]);
+  return useMemo26(() => ({ getLabel: getLabel ?? defaultGetLabel4 }), [getLabel]);
 }
 function useBarGHScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_GH_DEFAULTS.padding, xDomain) {
-  return useMemo25(
+  return useMemo26(
     () => buildGroupedHScales(data, keys, innerWidth, innerHeight, getLabel, padding, xDomain),
     [data, keys, innerWidth, innerHeight, getLabel, padding, xDomain]
   );
 }
 function useBarGHColors(keys, colorScheme) {
-  return useMemo25(() => {
+  return useMemo26(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     keys.forEach((k, i) => {
@@ -19580,7 +19852,7 @@ function useBarGHColors(keys, colorScheme) {
   }, [keys, colorScheme]);
 }
 function useBarGHInteraction(onHover, onSelect) {
-  const [hovered, setHovered] = useState51(null);
+  const [hovered, setHovered] = useState52(null);
   const handleEnter = useCallback44((datum, groupIdx, keyIdx) => {
     setHovered({ groupIdx, keyIdx });
     onHover?.(datum, groupIdx);
@@ -19647,9 +19919,9 @@ var BarGroupedHorizontalInner = (props) => {
   const xScale = adaptScale(xScaleRaw, props, "x");
   const colorMap = useBarGHColors(keys, colorScheme);
   const { hovered, handleEnter, handleLeave, handleClick } = useBarGHInteraction(onHover, onSelect);
-  const classes = useMemo26(() => buildBarGHClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo27(() => buildBarGHClasses(className, unstyled), [className, unstyled]);
   const xTickFormat = formatX ?? formatTick;
-  const legendItems = useMemo26(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  const legendItems = useMemo27(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
     return /* @__PURE__ */ jsx102("div", { className: classes, children: /* @__PURE__ */ jsx102("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty grouped horizontal bar chart" }) });
   }
@@ -19739,9 +20011,9 @@ BarGroupedHorizontalInner.displayName = "BarGroupedHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarGroupedHorizontal/BarGroupedHorizontal.tsx
 import { jsx as jsx103 } from "react/jsx-runtime";
-var BarGroupedHorizontal = React76.forwardRef(
+var BarGroupedHorizontal = React77.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef36(null);
+    const containerRef = useRef38(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx103("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx103("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx103(BarGroupedHorizontalInner, { ...rest, width, height }) }) });
   }
@@ -19749,10 +20021,10 @@ var BarGroupedHorizontal = React76.forwardRef(
 BarGroupedHorizontal.displayName = "BarGroupedHorizontal";
 
 // src/DATADISPLAY/Charts/BarStacked/BarStacked.tsx
-import React78, { useRef as useRef37 } from "react";
+import React79, { useRef as useRef39 } from "react";
 
 // src/DATADISPLAY/Charts/BarStacked/BarStackedInner.tsx
-import React77, { useMemo as useMemo28 } from "react";
+import React78, { useMemo as useMemo29 } from "react";
 import { Group as Group6 } from "@visx/group";
 import { Bar as VisxBar5 } from "@visx/shape";
 
@@ -19800,21 +20072,21 @@ function computeStack(data, keys, getLabel) {
 }
 
 // src/DATADISPLAY/Charts/BarStacked/BarStacked.hooks.ts
-import { useMemo as useMemo27, useCallback as useCallback45, useState as useState52 } from "react";
+import { useMemo as useMemo28, useCallback as useCallback45, useState as useState53 } from "react";
 function useBarStackedAccessors(getLabel) {
-  return useMemo27(() => ({ getLabel: getLabel ?? defaultGetLabel5 }), [getLabel]);
+  return useMemo28(() => ({ getLabel: getLabel ?? defaultGetLabel5 }), [getLabel]);
 }
 function useBarStackedScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_STACKED_DEFAULTS.padding) {
-  return useMemo27(
+  return useMemo28(
     () => buildStackedScales(data, keys, innerWidth, innerHeight, getLabel, padding),
     [data, keys, innerWidth, innerHeight, getLabel, padding]
   );
 }
 function useStackData(data, keys, getLabel) {
-  return useMemo27(() => computeStack(data, keys, getLabel), [data, keys, getLabel]);
+  return useMemo28(() => computeStack(data, keys, getLabel), [data, keys, getLabel]);
 }
 function useBarStackedColors(keys, colorScheme) {
-  return useMemo27(() => {
+  return useMemo28(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     keys.forEach((k, i) => {
@@ -19824,7 +20096,7 @@ function useBarStackedColors(keys, colorScheme) {
   }, [keys, colorScheme]);
 }
 function useBarStackedInteraction(onHover, onSelect) {
-  const [hovered, setHovered] = useState52(null);
+  const [hovered, setHovered] = useState53(null);
   const handleEnter = useCallback45((datum, groupIdx, keyIdx) => {
     setHovered({ groupIdx, keyIdx });
     onHover?.(datum, groupIdx);
@@ -19901,9 +20173,9 @@ var BarStackedInner = (props) => {
   const stackRows = useStackData(data, keys, getLabel);
   const colorMap = useBarStackedColors(keys, colorScheme);
   const { hovered, handleEnter, handleLeave, handleClick } = useBarStackedInteraction(onHover, onSelect);
-  const classes = useMemo28(() => buildBarStackedClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo29(() => buildBarStackedClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
-  const legendItems = useMemo28(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  const legendItems = useMemo29(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
     return /* @__PURE__ */ jsx104("div", { className: classes, children: /* @__PURE__ */ jsx104("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked bar chart" }) });
   }
@@ -19951,7 +20223,7 @@ var BarStackedInner = (props) => {
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
               const total = row.segments.reduce((a, s) => a + (s.value || 0), 0);
               const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals, segmentLabelFormat);
-              return /* @__PURE__ */ jsxs77(React77.Fragment, { children: [
+              return /* @__PURE__ */ jsxs77(React78.Fragment, { children: [
                 /* @__PURE__ */ jsx104(
                   VisxBar5,
                   {
@@ -19960,7 +20232,7 @@ var BarStackedInner = (props) => {
                     width: bw,
                     height: Math.max(barH, 0),
                     fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors),
-                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors),
+                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors, ki),
                     stroke: isHighlightedBar ? "var(--w3f-chart-mark-outline, #fff)" : void 0,
                     strokeWidth: isHighlightedBar ? 2 : void 0,
                     rx: barRadius,
@@ -20026,9 +20298,9 @@ BarStackedInner.displayName = "BarStackedInner";
 
 // src/DATADISPLAY/Charts/BarStacked/BarStacked.tsx
 import { jsx as jsx105 } from "react/jsx-runtime";
-var BarStacked = React78.forwardRef(
+var BarStacked = React79.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef37(null);
+    const containerRef = useRef39(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx105("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx105("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx105(BarStackedInner, { ...rest, width, height }) }) });
   }
@@ -20036,10 +20308,10 @@ var BarStacked = React78.forwardRef(
 BarStacked.displayName = "BarStacked";
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.tsx
-import React80, { useRef as useRef38 } from "react";
+import React81, { useRef as useRef40 } from "react";
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontalInner.tsx
-import React79, { useMemo as useMemo30 } from "react";
+import React80, { useMemo as useMemo31 } from "react";
 import { Group as Group7 } from "@visx/group";
 import { Bar as VisxBar6 } from "@visx/shape";
 
@@ -20087,21 +20359,21 @@ function computeStackH(data, keys, getLabel) {
 }
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.hooks.ts
-import { useMemo as useMemo29, useCallback as useCallback46, useState as useState53 } from "react";
+import { useMemo as useMemo30, useCallback as useCallback46, useState as useState54 } from "react";
 function useBarSHAccessors(getLabel) {
-  return useMemo29(() => ({ getLabel: getLabel ?? defaultGetLabel6 }), [getLabel]);
+  return useMemo30(() => ({ getLabel: getLabel ?? defaultGetLabel6 }), [getLabel]);
 }
 function useBarSHScales(data, keys, innerWidth, innerHeight, getLabel, padding = BAR_SH_DEFAULTS.padding) {
-  return useMemo29(
+  return useMemo30(
     () => buildStackedHScales(data, keys, innerWidth, innerHeight, getLabel, padding),
     [data, keys, innerWidth, innerHeight, getLabel, padding]
   );
 }
 function useStackHData(data, keys, getLabel) {
-  return useMemo29(() => computeStackH(data, keys, getLabel), [data, keys, getLabel]);
+  return useMemo30(() => computeStackH(data, keys, getLabel), [data, keys, getLabel]);
 }
 function useBarSHColors(keys, colorScheme) {
-  return useMemo29(() => {
+  return useMemo30(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     keys.forEach((k, i) => {
@@ -20111,7 +20383,7 @@ function useBarSHColors(keys, colorScheme) {
   }, [keys, colorScheme]);
 }
 function useBarSHInteraction(onHover, onSelect) {
-  const [hovered, setHovered] = useState53(null);
+  const [hovered, setHovered] = useState54(null);
   const handleEnter = useCallback46((datum, groupIdx, keyIdx) => {
     setHovered({ groupIdx, keyIdx });
     onHover?.(datum, groupIdx);
@@ -20188,9 +20460,9 @@ var BarStackedHorizontalInner = (props) => {
   const stackRows = useStackHData(data, keys, getLabel);
   const colorMap = useBarSHColors(keys, colorScheme);
   const { hovered, handleEnter, handleLeave, handleClick } = useBarSHInteraction(onHover, onSelect);
-  const classes = useMemo30(() => buildBarSHClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo31(() => buildBarSHClasses(className, unstyled), [className, unstyled]);
   const xTickFormat = formatX ?? formatTick;
-  const legendItems = useMemo30(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
+  const legendItems = useMemo31(() => keys.map((k) => ({ id: k, label: k, color: colorMap[k] })), [keys, colorMap]);
   if (data.length === 0) {
     return /* @__PURE__ */ jsx106("div", { className: classes, children: /* @__PURE__ */ jsx106("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked horizontal bar chart" }) });
   }
@@ -20238,7 +20510,7 @@ var BarStackedHorizontalInner = (props) => {
               const isDimmed = highlightIndex != null ? !isHighlightedBar : hovered != null && !isHovered;
               const total = row.segments.reduce((a, s) => a + (s.value || 0), 0);
               const label = segmentText(seg.value, total, segmentLabels, segmentLabelMin, segmentLabelDecimals, segmentLabelFormat);
-              return /* @__PURE__ */ jsxs78(React79.Fragment, { children: [
+              return /* @__PURE__ */ jsxs78(React80.Fragment, { children: [
                 /* @__PURE__ */ jsx106(
                   VisxBar6,
                   {
@@ -20247,7 +20519,7 @@ var BarStackedHorizontalInner = (props) => {
                     width: Math.max(barW, 0),
                     height: bh,
                     fill: barFill(String(row.label), ki, colorMap[seg.key], mutedBars, mutedColors),
-                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors),
+                    opacity: (isDimmed ? 0.3 : 1) * barOpacity(String(row.label), mutedBars, mutedOpacity, mutedColors, ki),
                     stroke: isHighlightedBar ? "var(--w3f-chart-mark-outline, #fff)" : void 0,
                     strokeWidth: isHighlightedBar ? 2 : void 0,
                     rx: barRadius,
@@ -20299,9 +20571,9 @@ BarStackedHorizontalInner.displayName = "BarStackedHorizontalInner";
 
 // src/DATADISPLAY/Charts/BarStackedHorizontal/BarStackedHorizontal.tsx
 import { jsx as jsx107 } from "react/jsx-runtime";
-var BarStackedHorizontal = React80.forwardRef(
+var BarStackedHorizontal = React81.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef38(null);
+    const containerRef = useRef40(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx107("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx107("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx107(BarStackedHorizontalInner, { ...rest, width, height }) }) });
   }
@@ -20309,10 +20581,10 @@ var BarStackedHorizontal = React80.forwardRef(
 BarStackedHorizontal.displayName = "BarStackedHorizontal";
 
 // src/DATADISPLAY/Charts/Line/Line.tsx
-import React82, { useRef as useRef39 } from "react";
+import React83, { useRef as useRef41 } from "react";
 
 // src/DATADISPLAY/Charts/Line/LineInner.tsx
-import { useMemo as useMemo32 } from "react";
+import { useMemo as useMemo33 } from "react";
 import { Group as Group8 } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
@@ -20357,21 +20629,21 @@ function buildTimeScales(data, innerWidth, innerHeight, getDate, getValue2, yDom
 }
 
 // src/DATADISPLAY/Charts/Line/Line.hooks.ts
-import { useMemo as useMemo31, useCallback as useCallback47 } from "react";
+import { useMemo as useMemo32, useCallback as useCallback47 } from "react";
 function useLineAccessors(getDate, getValue2) {
-  return useMemo31(() => ({
+  return useMemo32(() => ({
     getDate: getDate ?? defaultGetDate,
     getValue: getValue2 ?? defaultGetValue3
   }), [getDate, getValue2]);
 }
 function useLineScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
-  return useMemo31(
+  return useMemo32(
     () => buildTimeScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain),
     [data, innerWidth, innerHeight, getDate, getValue2, yDomain]
   );
 }
 function useLineColor(colorScheme) {
-  return useMemo31(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
+  return useMemo32(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
 }
 function useLineInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
@@ -20461,7 +20733,7 @@ var LineInner = (props) => {
   const yScale = scaleForErrors(adaptScale(yScaleRaw, props, "y"), data, getValue2, props, "y");
   const color = useLineColor(colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useLineInteraction(onHover, onSelect);
-  const classes = useMemo32(() => buildLineClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo33(() => buildLineClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const curve = pickCurve(curved, props.lineStep, curveMonotoneX);
   if (data.length === 0) {
@@ -20651,9 +20923,9 @@ LineInner.displayName = "LineInner";
 
 // src/DATADISPLAY/Charts/Line/Line.tsx
 import { jsx as jsx110 } from "react/jsx-runtime";
-var Line = React82.forwardRef(
+var Line = React83.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef39(null);
+    const containerRef = useRef41(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
     return /* @__PURE__ */ jsx110("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx110("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx110(LineInner, { ...rest, width, height }) }) });
   }
@@ -20661,10 +20933,10 @@ var Line = React82.forwardRef(
 Line.displayName = "Line";
 
 // src/DATADISPLAY/Charts/LineMulti/LineMulti.tsx
-import React84, { useRef as useRef40 } from "react";
+import React86, { useRef as useRef42 } from "react";
 
 // src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
-import { useMemo as useMemo34 } from "react";
+import { useMemo as useMemo35 } from "react";
 import { Group as Group9 } from "@visx/group";
 import { LinePath as LinePath2 } from "@visx/shape";
 import { curveMonotoneX as curveMonotoneX2 } from "@visx/curve";
@@ -20709,12 +20981,12 @@ function buildMultiTimeScales(data, innerWidth, innerHeight) {
 }
 
 // src/DATADISPLAY/Charts/LineMulti/LineMulti.hooks.ts
-import { useMemo as useMemo33, useCallback as useCallback48, useState as useState54 } from "react";
+import { useMemo as useMemo34, useCallback as useCallback48, useState as useState55 } from "react";
 function useLineMultiScales(data, innerWidth, innerHeight) {
-  return useMemo33(() => buildMultiTimeScales(data, innerWidth, innerHeight), [data, innerWidth, innerHeight]);
+  return useMemo34(() => buildMultiTimeScales(data, innerWidth, innerHeight), [data, innerWidth, innerHeight]);
 }
 function useLineMultiColors(seriesIds, colorScheme) {
-  return useMemo33(() => {
+  return useMemo34(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     seriesIds.forEach((id, i) => {
@@ -20724,7 +20996,7 @@ function useLineMultiColors(seriesIds, colorScheme) {
   }, [seriesIds, colorScheme]);
 }
 function useLineMultiHover(onHover) {
-  const [hovered, setHovered] = useState54(null);
+  const [hovered, setHovered] = useState55(null);
   const enter = useCallback48((seriesId) => {
     setHovered(seriesId);
     onHover?.(seriesId, null);
@@ -20758,7 +21030,87 @@ function nearestIndex(event, marginLeft, xScale, dates) {
 
 // src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
 import { scaleLinear as scaleLinear4 } from "@visx/scale";
+
+// src/DATADISPLAY/Charts/primitives/ChartCrosshair/ChartCrosshair.tsx
+import { useCallback as useCallback49, useState as useState56 } from "react";
+import { localPoint as localPoint2 } from "@visx/event";
 import { jsx as jsx111, jsxs as jsxs80 } from "react/jsx-runtime";
+function useCrosshair(marginLeft, marginTop, xScale, dates, onChange) {
+  const [hover, setHover] = useState56(null);
+  const move = useCallback49((e) => {
+    const i = nearestIndex(e, marginLeft, xScale, dates);
+    if (i < 0) return;
+    const p = localPoint2(e);
+    const y = p ? p.y - marginTop : 0;
+    setHover((h) => h && h.index === i && Math.abs(h.y - y) < 2 ? h : { index: i, y });
+    onChange?.(i);
+  }, [marginLeft, marginTop, xScale, dates, onChange]);
+  const leave = useCallback49(() => {
+    setHover(null);
+    onChange?.(null);
+  }, [onChange]);
+  return { hover, move, leave };
+}
+function unionDates(series, toDate10 = (v) => v instanceof Date ? v : new Date(v)) {
+  const seen = /* @__PURE__ */ new Map();
+  for (const s of series) for (const p of s.data) {
+    const d = toDate10(p.date);
+    const t = d.getTime();
+    if (Number.isFinite(t) && !seen.has(t)) seen.set(t, d);
+  }
+  return [...seen.values()].sort((a, b) => a.getTime() - b.getTime());
+}
+function crosshairDate(d, format) {
+  return format ? format(d) : d.toLocaleDateString();
+}
+var ChartCrosshair = ({ x, height, dots = [] }) => /* @__PURE__ */ jsxs80("g", { className: "w3f-chart-crosshair", pointerEvents: "none", children: [
+  /* @__PURE__ */ jsx111(
+    "line",
+    {
+      x1: x,
+      x2: x,
+      y1: 0,
+      y2: height,
+      stroke: "var(--w3f-chart-crosshair-color, currentColor)",
+      strokeOpacity: 0.55,
+      strokeWidth: 1,
+      strokeDasharray: "4 3"
+    }
+  ),
+  dots.filter((d) => Number.isFinite(d.y)).map((d, i) => /* @__PURE__ */ jsx111(
+    "circle",
+    {
+      cx: x,
+      cy: d.y,
+      r: 4,
+      fill: d.color,
+      stroke: "var(--w3f-chart-mark-outline, #fff)",
+      strokeWidth: 1.5
+    },
+    i
+  ))
+] });
+var ChartCrosshairTip = ({ left, top, title, rows }) => /* @__PURE__ */ jsx111(ChartTooltip, { left, top, visible: true, offsetX: 14, offsetY: -12, children: /* @__PURE__ */ jsxs80("div", { className: "w3f-chart-crosshair-tip", children: [
+  /* @__PURE__ */ jsx111("div", { style: { fontWeight: 600, marginBottom: 2 }, children: title }),
+  rows.map((r, i) => /* @__PURE__ */ jsxs80("div", { style: { display: "flex", alignItems: "center", gap: 6, fontWeight: r.strong ? 600 : void 0 }, children: [
+    r.color && /* @__PURE__ */ jsx111("span", { "aria-hidden": "true", style: {
+      display: "inline-block",
+      width: 8,
+      height: 8,
+      borderRadius: 2,
+      background: r.color,
+      flexShrink: 0
+    } }),
+    /* @__PURE__ */ jsxs80("span", { children: [
+      r.label,
+      ":"
+    ] }),
+    /* @__PURE__ */ jsx111("span", { style: { marginLeft: "auto", paddingLeft: 8, fontVariantNumeric: "tabular-nums" }, children: r.value })
+  ] }, i))
+] }) });
+
+// src/DATADISPLAY/Charts/LineMulti/LineMultiInner.tsx
+import { jsx as jsx112, jsxs as jsxs81 } from "react/jsx-runtime";
 var LineMultiInner = (props) => {
   const {
     data,
@@ -20783,6 +21135,7 @@ var LineMultiInner = (props) => {
     highlightSeriesId = null,
     formatY,
     onHover,
+    showTooltip = LINE_MULTI_DEFAULTS.showTooltip,
     lineStyle,
     dotRadius = 3,
     valueLabels = "none",
@@ -20791,151 +21144,200 @@ var LineMultiInner = (props) => {
     // 0022 B53.1
   } = props;
   const dims = useInnerDims(width, height, margin, props);
-  const seriesIds = useMemo34(() => data.map((s) => s.id), [data]);
+  const seriesIds = useMemo35(() => data.map((s) => s.id), [data]);
   const twin = data.length > 1 ? data.find((s) => s.id === props.twinSeries) : void 0;
-  const mainData = useMemo34(() => twin ? data.filter((s) => s.id !== twin.id) : data, [data, twin]);
+  const mainData = useMemo35(() => twin ? data.filter((s) => s.id !== twin.id) : data, [data, twin]);
   const { xScale: xScaleRaw, yScale: yScaleRaw } = useLineMultiScales(mainData, dims.innerWidth, dims.innerHeight);
   const xScale = adaptScale(xScaleRaw, props, "x");
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colorMap = useLineMultiColors(seriesIds, colorScheme);
-  const yScale2 = useMemo34(() => {
+  const yScale2 = useMemo35(() => {
     if (!twin) return null;
     const vs = twin.data.map((d) => d.value).filter(Number.isFinite);
     return scaleLinear4({ domain: [Math.min(0, ...vs), Math.max(1e-9, ...vs)], range: [dims.innerHeight, 0], nice: true });
   }, [twin, dims.innerHeight]);
   const { hovered, enter, leave } = useLineMultiHover(onHover);
-  const classes = useMemo34(() => buildLineMultiClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo35(() => buildLineMultiClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const curve = pickCurve(curved, props.lineStep, curveMonotoneX2);
-  const legendItems = useMemo34(
+  const guideDates = useMemo35(() => unionDates(data, toDate2), [data]);
+  const { hover, move, leave: leaveGuide } = useCrosshair(plotLeft(dims, props), plotTop(dims, props), xScale, guideDates);
+  const pointAt = (s, d) => s.data.find((p) => toDate2(p.date).getTime() === d.getTime());
+  const legendItems = useMemo35(
     () => data.map((s) => ({ id: s.id, label: s.label ?? s.id, color: colorMap[s.id] })),
     [data, colorMap]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx111("div", { className: classes, children: /* @__PURE__ */ jsx111("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty multi-line chart" }) });
+    return /* @__PURE__ */ jsx112("div", { className: classes, children: /* @__PURE__ */ jsx112("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty multi-line chart" }) });
   }
-  return /* @__PURE__ */ jsxs80("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx111(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ jsx111(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ jsx111("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs80("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Multi-line chart", children: [
-      description && /* @__PURE__ */ jsx111("desc", { children: description }),
-      /* @__PURE__ */ jsxs80(Group9, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-        showGrid && /* @__PURE__ */ jsx111(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-        data.map((series) => {
-          const active = highlightSeriesId ?? hovered;
-          const isDimmed = active != null && active !== series.id;
-          const ys = twin && yScale2 && series.id === twin.id ? yScale2 : yScale;
-          return /* @__PURE__ */ jsxs80(
-            "g",
-            {
-              onMouseEnter: () => enter(series.id),
-              onMouseLeave: leave,
-              onClick: props.onSelect ? (e) => {
-                const dates = series.data.map((d) => d.date);
-                const i = nearestIndex(e, plotLeft(dims, props), xScale, dates);
-                if (i >= 0) props.onSelect({ seriesId: series.id, date: dates[i] }, i);
-              } : void 0,
-              style: { cursor: "pointer" },
-              children: [
-                /* @__PURE__ */ jsx111(
-                  LinePath2,
+  return /* @__PURE__ */ jsxs81("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx112(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx112(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs81("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs81(
+        "svg",
+        {
+          width,
+          height,
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Multi-line chart",
+          onMouseMove: move,
+          onMouseLeave: leaveGuide,
+          children: [
+            description && /* @__PURE__ */ jsx112("desc", { children: description }),
+            /* @__PURE__ */ jsxs81(Group9, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+              showGrid && /* @__PURE__ */ jsx112(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+              data.map((series) => {
+                const active = highlightSeriesId ?? hovered;
+                const isDimmed = active != null && active !== series.id;
+                const ys = twin && yScale2 && series.id === twin.id ? yScale2 : yScale;
+                return /* @__PURE__ */ jsxs81(
+                  "g",
                   {
-                    data: [...series.data],
-                    x: (d) => xScale(toDate2(d.date)) ?? 0,
-                    y: (d) => ys(d.value) ?? 0,
-                    stroke: colorMap[series.id],
-                    strokeWidth: hovered === series.id ? strokeWidth + 1 : strokeWidth,
-                    strokeOpacity: isDimmed ? 0.2 : 1,
-                    ...lineDash(lineStyle, strokeWidth),
-                    curve
-                  }
-                ),
-                /* @__PURE__ */ jsx111(
-                  LinePath2,
-                  {
-                    data: [...series.data],
-                    x: (d) => xScale(toDate2(d.date)) ?? 0,
-                    y: (d) => ys(d.value) ?? 0,
-                    stroke: "transparent",
-                    strokeWidth: 12,
-                    curve
-                  }
-                ),
-                showDots && series.data.map((pt, pi) => /* @__PURE__ */ jsx111(
-                  ChartPointShape,
-                  {
-                    shape: props.pointShape ?? "circle",
-                    cx: xScale(toDate2(pt.date)) ?? 0,
-                    cy: ys(pt.value) ?? 0,
-                    r: dotRadius,
-                    fill: colorMap[series.id],
-                    opacity: isDimmed ? 0.2 : 1
+                    onMouseEnter: () => enter(series.id),
+                    onMouseLeave: leave,
+                    onClick: props.onSelect ? (e) => {
+                      const dates = series.data.map((d) => d.date);
+                      const i = nearestIndex(e, plotLeft(dims, props), xScale, dates);
+                      if (i >= 0) props.onSelect({ seriesId: series.id, date: dates[i] }, i);
+                    } : void 0,
+                    style: { cursor: "pointer" },
+                    children: [
+                      /* @__PURE__ */ jsx112(
+                        LinePath2,
+                        {
+                          data: [...series.data],
+                          x: (d) => xScale(toDate2(d.date)) ?? 0,
+                          y: (d) => ys(d.value) ?? 0,
+                          stroke: colorMap[series.id],
+                          strokeWidth: hovered === series.id ? strokeWidth + 1 : strokeWidth,
+                          strokeOpacity: isDimmed ? 0.2 : 1,
+                          ...lineDash(lineStyle, strokeWidth),
+                          curve
+                        }
+                      ),
+                      /* @__PURE__ */ jsx112(
+                        LinePath2,
+                        {
+                          data: [...series.data],
+                          x: (d) => xScale(toDate2(d.date)) ?? 0,
+                          y: (d) => ys(d.value) ?? 0,
+                          stroke: "transparent",
+                          strokeWidth: 12,
+                          curve
+                        }
+                      ),
+                      showDots && series.data.map((pt, pi) => /* @__PURE__ */ jsx112(
+                        ChartPointShape,
+                        {
+                          shape: props.pointShape ?? "circle",
+                          cx: xScale(toDate2(pt.date)) ?? 0,
+                          cy: ys(pt.value) ?? 0,
+                          r: dotRadius,
+                          fill: colorMap[series.id],
+                          opacity: isDimmed ? 0.2 : 1
+                        },
+                        pi
+                      )),
+                      /* @__PURE__ */ jsx112(ChartPointLabels, { size: valueLabelSize, labels: labelIndices(
+                        valueLabels,
+                        series.data.map((p) => p.value)
+                      ).map((i) => ({
+                        x: xScale(toDate2(series.data[i].date)) ?? 0,
+                        y: ys(series.data[i].value) ?? 0,
+                        text: formatLabel(series.data[i].value, formatY),
+                        color: colorMap[series.id]
+                      })) })
+                    ]
                   },
-                  pi
-                )),
-                /* @__PURE__ */ jsx111(ChartPointLabels, { size: valueLabelSize, labels: labelIndices(
-                  valueLabels,
-                  series.data.map((p) => p.value)
-                ).map((i) => ({
-                  x: xScale(toDate2(series.data[i].date)) ?? 0,
-                  y: ys(series.data[i].value) ?? 0,
-                  text: formatLabel(series.data[i].value, formatY),
-                  color: colorMap[series.id]
-                })) })
-              ]
-            },
-            series.id
-          );
-        }),
-        showXAxis && /* @__PURE__ */ jsx111(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) }),
-        showYAxis && /* @__PURE__ */ jsx111(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-        twin && yScale2 && /* @__PURE__ */ jsx111(
-          ChartAxis,
+                  series.id
+                );
+              }),
+              hover && guideDates[hover.index] && (() => {
+                const d = guideDates[hover.index];
+                return /* @__PURE__ */ jsx112(
+                  ChartCrosshair,
+                  {
+                    x: xScale(d) ?? 0,
+                    height: dims.innerHeight,
+                    dots: data.flatMap((s) => {
+                      const p = pointAt(s, d);
+                      const ys = twin && yScale2 && s.id === twin.id ? yScale2 : yScale;
+                      return p ? [{ y: ys(p.value) ?? 0, color: colorMap[s.id] }] : [];
+                    })
+                  }
+                );
+              })(),
+              showXAxis && /* @__PURE__ */ jsx112(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) }),
+              showYAxis && /* @__PURE__ */ jsx112(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+              twin && yScale2 && /* @__PURE__ */ jsx112(
+                ChartAxis,
+                {
+                  scale: yScale2,
+                  orientation: "right",
+                  left: dims.innerWidth,
+                  tickFormat: yTickFormat,
+                  label: twin.label ?? twin.id,
+                  className: "w3f-chart-axis--twin"
+                }
+              ),
+              /* @__PURE__ */ jsx112(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+              /* @__PURE__ */ jsx112(
+                ChartReferenceLines,
+                {
+                  lines: props.referenceLines,
+                  bands: props.referenceBands,
+                  annotation: props.annotation,
+                  points: overlayPoints(data),
+                  xScale,
+                  yScale: (v) => yScale(v),
+                  width: dims.innerWidth,
+                  height: dims.innerHeight
+                }
+              )
+            ] })
+          ]
+        }
+      ),
+      showTooltip && hover && guideDates[hover.index] && (() => {
+        const d = guideDates[hover.index];
+        const fmt6 = (v) => formatY ? formatY(v) : v.toLocaleString();
+        const rows = data.flatMap((s) => {
+          const p = pointAt(s, d);
+          return p ? [{ label: s.label ?? s.id, value: fmt6(p.value), color: colorMap[s.id] }] : [];
+        });
+        return /* @__PURE__ */ jsx112(
+          ChartCrosshairTip,
           {
-            scale: yScale2,
-            orientation: "right",
-            left: dims.innerWidth,
-            tickFormat: yTickFormat,
-            label: twin.label ?? twin.id,
-            className: "w3f-chart-axis--twin"
+            left: (xScale(d) ?? 0) + plotLeft(dims, props),
+            top: hover.y + plotTop(dims, props),
+            title: crosshairDate(d, dateTickFormat(xDateFormat)),
+            rows
           }
-        ),
-        /* @__PURE__ */ jsx111(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-        /* @__PURE__ */ jsx111(
-          ChartReferenceLines,
-          {
-            lines: props.referenceLines,
-            bands: props.referenceBands,
-            annotation: props.annotation,
-            points: overlayPoints(data),
-            xScale,
-            yScale: (v) => yScale(v),
-            width: dims.innerWidth,
-            height: dims.innerHeight
-          }
-        )
-      ] })
-    ] }) })
+        );
+      })()
+    ] })
   ] });
 };
 LineMultiInner.displayName = "LineMultiInner";
 
 // src/DATADISPLAY/Charts/LineMulti/LineMulti.tsx
-import { jsx as jsx112 } from "react/jsx-runtime";
-var LineMulti = React84.forwardRef(
+import { jsx as jsx113 } from "react/jsx-runtime";
+var LineMulti = React86.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef40(null);
+    const containerRef = useRef42(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx112("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx112("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx112(LineMultiInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx113("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx113("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx113(LineMultiInner, { ...rest, width, height }) }) });
   }
 );
 LineMulti.displayName = "LineMulti";
 
 // src/DATADISPLAY/Charts/Area/Area.tsx
-import React86, { useRef as useRef41 } from "react";
+import React88, { useRef as useRef43 } from "react";
 
 // src/DATADISPLAY/Charts/Area/AreaInner.tsx
-import { useId as useId13, useMemo as useMemo36 } from "react";
+import { useId as useId14, useMemo as useMemo37 } from "react";
 import { Group as Group10 } from "@visx/group";
 import { Area as VisxArea, AreaClosed, LinePath as LinePath3 } from "@visx/shape";
 import { curveMonotoneX as curveMonotoneX3 } from "@visx/curve";
@@ -20974,40 +21376,40 @@ function buildAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDom
 }
 
 // src/DATADISPLAY/Charts/Area/Area.hooks.ts
-import { useMemo as useMemo35, useCallback as useCallback49 } from "react";
+import { useMemo as useMemo36, useCallback as useCallback50 } from "react";
 function useAreaAccessors(getDate, getValue2) {
-  return useMemo35(() => ({
+  return useMemo36(() => ({
     getDate: getDate ?? defaultGetDate2,
     getValue: getValue2 ?? defaultGetValue4
   }), [getDate, getValue2]);
 }
 function useAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain) {
-  return useMemo35(
+  return useMemo36(
     () => buildAreaScales(data, innerWidth, innerHeight, getDate, getValue2, yDomain),
     [data, innerWidth, innerHeight, getDate, getValue2, yDomain]
   );
 }
 function useAreaColor(colorScheme) {
-  return useMemo35(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
+  return useMemo36(() => resolveColorScheme(colorScheme)[0], [colorScheme]);
 }
 function useAreaInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback49((d, i) => {
+  const handleEnter = useCallback50((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback49(() => {
+  const handleLeave = useCallback50(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback49((d, i) => {
+  const handleClick = useCallback50((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Area/AreaInner.tsx
-import { jsx as jsx113, jsxs as jsxs81 } from "react/jsx-runtime";
+import { jsx as jsx114, jsxs as jsxs82 } from "react/jsx-runtime";
 var AreaInner = (props) => {
   const {
     data,
@@ -21051,22 +21453,22 @@ var AreaInner = (props) => {
   const yScale = scaleForErrors(adaptScale(yScaleRaw, props, "y"), data, getValue2, props, "y");
   const color = useAreaColor(colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useAreaInteraction(onHover, onSelect);
-  const classes = useMemo36(() => buildAreaClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo37(() => buildAreaClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const curve = pickCurve(curved, props.lineStep, curveMonotoneX3);
-  const clipId = `w3f-area-where-${useId13().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const clipId = `w3f-area-where-${useId14().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const { areaWhere = "all", areaWhereValue } = props;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx113("div", { className: classes, children: /* @__PURE__ */ jsx113("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty area chart" }) });
+    return /* @__PURE__ */ jsx114("div", { className: classes, children: /* @__PURE__ */ jsx114("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty area chart" }) });
   }
-  return /* @__PURE__ */ jsxs81("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx113(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs81("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs81("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Area chart", children: [
-        description && /* @__PURE__ */ jsx113("desc", { children: description }),
-        /* @__PURE__ */ jsxs81(Group10, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx113(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-          /* @__PURE__ */ jsx113(
+  return /* @__PURE__ */ jsxs82("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx114(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs82("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs82("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Area chart", children: [
+        description && /* @__PURE__ */ jsx114("desc", { children: description }),
+        /* @__PURE__ */ jsxs82(Group10, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx114(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+          /* @__PURE__ */ jsx114(
             ChartErrorBand,
             {
               ...props,
@@ -21079,8 +21481,8 @@ var AreaInner = (props) => {
           areaWhere !== "all" && areaWhereValue != null && Number.isFinite(areaWhereValue) ? (() => {
             const ty = Math.max(0, Math.min(dims.innerHeight, yScale(areaWhereValue) ?? 0));
             const up = areaWhere === "above";
-            return /* @__PURE__ */ jsxs81("g", { className: "w3f-chart-area-where", children: [
-              /* @__PURE__ */ jsx113("defs", { children: /* @__PURE__ */ jsx113("clipPath", { id: clipId, children: /* @__PURE__ */ jsx113(
+            return /* @__PURE__ */ jsxs82("g", { className: "w3f-chart-area-where", children: [
+              /* @__PURE__ */ jsx114("defs", { children: /* @__PURE__ */ jsx114("clipPath", { id: clipId, children: /* @__PURE__ */ jsx114(
                 "rect",
                 {
                   x: 0,
@@ -21089,7 +21491,7 @@ var AreaInner = (props) => {
                   height: up ? ty : Math.max(0, dims.innerHeight - ty)
                 }
               ) }) }),
-              /* @__PURE__ */ jsx113(
+              /* @__PURE__ */ jsx114(
                 VisxArea,
                 {
                   data: [...data],
@@ -21102,9 +21504,9 @@ var AreaInner = (props) => {
                   clipPath: `url(#${clipId})`
                 }
               ),
-              /* @__PURE__ */ jsx113("line", { x1: 0, x2: dims.innerWidth, y1: ty, y2: ty, stroke: color, strokeOpacity: 0.5, strokeDasharray: "4 3" })
+              /* @__PURE__ */ jsx114("line", { x1: 0, x2: dims.innerWidth, y1: ty, y2: ty, stroke: color, strokeOpacity: 0.5, strokeDasharray: "4 3" })
             ] });
-          })() : /* @__PURE__ */ jsx113(
+          })() : /* @__PURE__ */ jsx114(
             AreaClosed,
             {
               data: [...data],
@@ -21116,7 +21518,7 @@ var AreaInner = (props) => {
               curve
             }
           ),
-          showLine && /* @__PURE__ */ jsx113(
+          showLine && /* @__PURE__ */ jsx114(
             LinePath3,
             {
               data: [...data],
@@ -21128,12 +21530,12 @@ var AreaInner = (props) => {
               curve
             }
           ),
-          /* @__PURE__ */ jsx113(ChartPointLabels, { size: valueLabelSize, labels: labelIndices(valueLabels, data.map(getValue2)).map((i) => ({
+          /* @__PURE__ */ jsx114(ChartPointLabels, { size: valueLabelSize, labels: labelIndices(valueLabels, data.map(getValue2)).map((i) => ({
             x: xScale(toDate3(getDate(data[i]))) ?? 0,
             y: yScale(getValue2(data[i])) ?? 0,
             text: formatLabel(getValue2(data[i]), formatY)
           })) }),
-          data.map((d, i) => /* @__PURE__ */ jsx113(
+          data.map((d, i) => /* @__PURE__ */ jsx114(
             "circle",
             {
               cx: xScale(toDate3(getDate(d))) ?? 0,
@@ -21147,7 +21549,7 @@ var AreaInner = (props) => {
             },
             i
           )),
-          hoveredIndex != null && /* @__PURE__ */ jsx113(
+          hoveredIndex != null && /* @__PURE__ */ jsx114(
             "circle",
             {
               cx: xScale(toDate3(getDate(data[hoveredIndex]))) ?? 0,
@@ -21159,19 +21561,19 @@ var AreaInner = (props) => {
               pointerEvents: "none"
             }
           ),
-          showXAxis && /* @__PURE__ */ jsx113(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props, tickRotateX), tickFormat: dateTickFormat(xDateFormat) }),
-          showYAxis && /* @__PURE__ */ jsx113(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+          showXAxis && /* @__PURE__ */ jsx114(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props, tickRotateX), tickFormat: dateTickFormat(xDateFormat) }),
+          showYAxis && /* @__PURE__ */ jsx114(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
           highlightIndex != null && data[highlightIndex] != null && (() => {
             const d = data[highlightIndex];
             const cx = xScale(toDate3(getDate(d))) ?? 0;
             const cy = yScale(getValue2(d)) ?? 0;
-            return /* @__PURE__ */ jsxs81("g", { children: [
-              /* @__PURE__ */ jsx113("circle", { cx, cy, r: 12, fill: color, opacity: 0.2, pointerEvents: "none" }),
-              /* @__PURE__ */ jsx113("circle", { cx, cy, r: 6, fill: color, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5, pointerEvents: "none" }),
-              /* @__PURE__ */ jsx113("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6, pointerEvents: "none" })
+            return /* @__PURE__ */ jsxs82("g", { children: [
+              /* @__PURE__ */ jsx114("circle", { cx, cy, r: 12, fill: color, opacity: 0.2, pointerEvents: "none" }),
+              /* @__PURE__ */ jsx114("circle", { cx, cy, r: 6, fill: color, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5, pointerEvents: "none" }),
+              /* @__PURE__ */ jsx114("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: color, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6, pointerEvents: "none" })
             ] });
           })(),
-          /* @__PURE__ */ jsx113(
+          /* @__PURE__ */ jsx114(
             ChartErrorBars,
             {
               ...props,
@@ -21179,8 +21581,8 @@ var AreaInner = (props) => {
               items: data.map((d) => ({ at: xScale(toDate3(getDate(d))) ?? 0, row: d, value: getValue2(d) }))
             }
           ),
-          /* @__PURE__ */ jsx113(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx113(
+          /* @__PURE__ */ jsx114(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          /* @__PURE__ */ jsx114(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -21198,7 +21600,7 @@ var AreaInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
         const date = toDate3(getDate(d));
-        return /* @__PURE__ */ jsx113(ChartTooltip, { left: (xScale(date) ?? 0) + plotLeft(dims, props), top: (yScale(getValue2(d)) ?? 0) + plotTop(dims, props), visible: true, offsetY: -12, children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}` });
+        return /* @__PURE__ */ jsx114(ChartTooltip, { left: (xScale(date) ?? 0) + plotLeft(dims, props), top: (yScale(getValue2(d)) ?? 0) + plotTop(dims, props), visible: true, offsetY: -12, children: `${date.toLocaleDateString()}: ${getValue2(d).toLocaleString()}` });
       })()
     ] })
   ] });
@@ -21206,10 +21608,10 @@ var AreaInner = (props) => {
 AreaInner.displayName = "AreaInner";
 
 // src/DATADISPLAY/Charts/Area/Area.tsx
-import { jsx as jsx114 } from "react/jsx-runtime";
-var Area2 = React86.forwardRef(
+import { jsx as jsx115 } from "react/jsx-runtime";
+var Area2 = React88.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef41(null);
+    const containerRef = useRef43(null);
     const { width, height } = useChartDimensions(
       containerRef,
       propWidth,
@@ -21217,16 +21619,16 @@ var Area2 = React86.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ jsx114("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx114("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx114(AreaInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx115("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx115("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx115(AreaInner, { ...rest, width, height }) }) });
   }
 );
 Area2.displayName = "Area";
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStacked.tsx
-import React88, { useRef as useRef42 } from "react";
+import React90, { useRef as useRef44 } from "react";
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStackedInner.tsx
-import { useMemo as useMemo38 } from "react";
+import { useMemo as useMemo39 } from "react";
 import { Group as Group11 } from "@visx/group";
 import { Area as Area3 } from "@visx/shape";
 import { curveMonotoneX as curveMonotoneX4 } from "@visx/curve";
@@ -21239,7 +21641,7 @@ var AREA_STACKED_DEFAULTS = {
   showXAxis: true,
   showYAxis: true,
   showGrid: true,
-  showTooltip: false,
+  showTooltip: true,
   showLegend: true,
   unstyled: false
 };
@@ -21321,10 +21723,10 @@ function computeAreaStack(data, keys) {
 }
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStacked.hooks.ts
-import { useMemo as useMemo37, useCallback as useCallback50, useState as useState55 } from "react";
+import { useMemo as useMemo38, useCallback as useCallback51, useState as useState57 } from "react";
 import { scaleTime as scaleTime4, scaleLinear as scaleLinear6 } from "@visx/scale";
 function useAreaStackedScales(layers, dates, innerWidth, innerHeight, yDomain) {
-  return useMemo37(() => {
+  return useMemo38(() => {
     if (dates.length === 0) {
       const xScale2 = scaleTime4({ domain: [0, 1], range: [0, innerWidth] });
       const yScale2 = scaleLinear6({ domain: [0, 1], range: [innerHeight, 0] });
@@ -21345,7 +21747,7 @@ function useAreaStackedScales(layers, dates, innerWidth, innerHeight, yDomain) {
   }, [layers, dates, innerWidth, innerHeight, yDomain]);
 }
 function useAreaStackedColors(keys, colorScheme) {
-  return useMemo37(() => {
+  return useMemo38(() => {
     const palette = resolveColorScheme(colorScheme);
     const map = {};
     keys.forEach((k, i) => {
@@ -21355,12 +21757,12 @@ function useAreaStackedColors(keys, colorScheme) {
   }, [keys, colorScheme]);
 }
 function useAreaStackedHover(onHover) {
-  const [hovered, setHovered] = useState55(null);
-  const enter = useCallback50((seriesId) => {
+  const [hovered, setHovered] = useState57(null);
+  const enter = useCallback51((seriesId) => {
     setHovered(seriesId);
     onHover?.(seriesId);
   }, [onHover]);
-  const leave = useCallback50(() => {
+  const leave = useCallback51(() => {
     setHovered(null);
     onHover?.(null);
   }, [onHover]);
@@ -21368,7 +21770,7 @@ function useAreaStackedHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStackedInner.tsx
-import { jsx as jsx115, jsxs as jsxs82 } from "react/jsx-runtime";
+import { jsx as jsx116, jsxs as jsxs83 } from "react/jsx-runtime";
 var AreaStackedInner = (props) => {
   const {
     data,
@@ -21400,7 +21802,7 @@ var AreaStackedInner = (props) => {
     // 0022 B53.1
   } = props;
   const dims = useInnerDims(width, height, margin, props);
-  const stacked = useMemo38(
+  const stacked = useMemo39(
     () => stackBaseline(computeAreaStack(data, keys), props.stackBaseline),
     // VX9
     [data, keys, props.stackBaseline]
@@ -21417,10 +21819,11 @@ var AreaStackedInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colorMap = useAreaStackedColors(keys, colorScheme);
   const { hovered, enter, leave } = useAreaStackedHover(onHover);
-  const classes = useMemo38(() => buildAreaStackedClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo39(() => buildAreaStackedClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const curve = pickCurve(curved, props.lineStep, curveMonotoneX4);
-  const legendItems = useMemo38(
+  const { hover, move, leave: leaveGuide } = useCrosshair(plotLeft(dims, props), plotTop(dims, props), xScale, dates);
+  const legendItems = useMemo39(
     () => keys.map((k) => {
       const series = data.find((s) => s.id === k);
       return { id: k, label: series?.label ?? k, color: colorMap[k] };
@@ -21428,97 +21831,139 @@ var AreaStackedInner = (props) => {
     [keys, data, colorMap]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx115("div", { className: classes, children: /* @__PURE__ */ jsx115("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked area chart" }) });
+    return /* @__PURE__ */ jsx116("div", { className: classes, children: /* @__PURE__ */ jsx116("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty stacked area chart" }) });
   }
-  return /* @__PURE__ */ jsxs82("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx115(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ jsx115(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ jsx115("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs82("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Stacked area chart", children: [
-      description && /* @__PURE__ */ jsx115("desc", { children: description }),
-      /* @__PURE__ */ jsxs82(Group11, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-        showGrid && /* @__PURE__ */ jsx115(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-        layers.map((layer) => {
-          const activeHover = highlightSeriesId !== void 0 ? highlightSeriesId : hovered;
-          const isDimmed = activeHover != null && activeHover !== layer.key;
-          return /* @__PURE__ */ jsxs82(
-            "g",
-            {
-              onMouseEnter: () => enter(layer.key),
-              onMouseLeave: leave,
-              onClick: props.onSelect ? (e) => {
-                const raw = (props.data.find((s) => s.id === keys[0])?.data ?? []).map((d) => d.date);
-                const i = nearestIndex(e, plotLeft(dims, props), xScale, raw);
-                if (i >= 0) props.onSelect({ seriesId: layer.key, date: raw[i] }, i);
-              } : void 0,
-              style: { cursor: "pointer" },
-              children: [
-                /* @__PURE__ */ jsx115(
-                  Area3,
+  return /* @__PURE__ */ jsxs83("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx116(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx116(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs83("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs83(
+        "svg",
+        {
+          width,
+          height,
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Stacked area chart",
+          onMouseMove: move,
+          onMouseLeave: leaveGuide,
+          children: [
+            description && /* @__PURE__ */ jsx116("desc", { children: description }),
+            /* @__PURE__ */ jsxs83(Group11, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+              showGrid && /* @__PURE__ */ jsx116(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+              layers.map((layer) => {
+                const activeHover = highlightSeriesId !== void 0 ? highlightSeriesId : hovered;
+                const isDimmed = activeHover != null && activeHover !== layer.key;
+                return /* @__PURE__ */ jsxs83(
+                  "g",
                   {
-                    data: layer.points,
-                    x: (d) => xScale(toDate4(d.date)) ?? 0,
-                    y0: (d) => yScale(d.y0) ?? 0,
-                    y1: (d) => yScale(d.y1) ?? 0,
-                    fill: colorMap[layer.key],
-                    fillOpacity: isDimmed ? 0.2 : fillOpacity,
-                    curve,
-                    style: { transition: "fill-opacity 120ms ease-out" }
-                  }
-                ),
-                /* @__PURE__ */ jsx115(
-                  Area3,
-                  {
-                    data: layer.points,
-                    x: (d) => xScale(toDate4(d.date)) ?? 0,
-                    y0: (d) => yScale(d.y1 - (d.y1 - d.y0) * 0.2) ?? 0,
-                    y1: (d) => yScale(d.y1) ?? 0,
-                    fill: "transparent",
-                    strokeWidth: 0
-                  }
-                )
-              ]
-            },
-            layer.key
-          );
-        }),
-        showXAxis && /* @__PURE__ */ jsx115(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props, tickRotateX), tickFormat: dateTickFormat(xDateFormat) }),
-        showYAxis && /* @__PURE__ */ jsx115(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-        /* @__PURE__ */ jsx115(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-        /* @__PURE__ */ jsx115(
-          ChartReferenceLines,
+                    onMouseEnter: () => enter(layer.key),
+                    onMouseLeave: leave,
+                    onClick: props.onSelect ? (e) => {
+                      const raw = (props.data.find((s) => s.id === keys[0])?.data ?? []).map((d) => d.date);
+                      const i = nearestIndex(e, plotLeft(dims, props), xScale, raw);
+                      if (i >= 0) props.onSelect({ seriesId: layer.key, date: raw[i] }, i);
+                    } : void 0,
+                    style: { cursor: "pointer" },
+                    children: [
+                      /* @__PURE__ */ jsx116(
+                        Area3,
+                        {
+                          data: layer.points,
+                          x: (d) => xScale(toDate4(d.date)) ?? 0,
+                          y0: (d) => yScale(d.y0) ?? 0,
+                          y1: (d) => yScale(d.y1) ?? 0,
+                          fill: colorMap[layer.key],
+                          fillOpacity: isDimmed ? 0.2 : fillOpacity,
+                          curve,
+                          style: { transition: "fill-opacity 120ms ease-out" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsx116(
+                        Area3,
+                        {
+                          data: layer.points,
+                          x: (d) => xScale(toDate4(d.date)) ?? 0,
+                          y0: (d) => yScale(d.y1 - (d.y1 - d.y0) * 0.2) ?? 0,
+                          y1: (d) => yScale(d.y1) ?? 0,
+                          fill: "transparent",
+                          strokeWidth: 0
+                        }
+                      )
+                    ]
+                  },
+                  layer.key
+                );
+              }),
+              hover && dates[hover.index] && /* @__PURE__ */ jsx116(
+                ChartCrosshair,
+                {
+                  x: xScale(dates[hover.index]) ?? 0,
+                  height: dims.innerHeight,
+                  dots: layers.map((l) => ({ y: yScale(l.points[hover.index]?.y1 ?? 0) ?? 0, color: colorMap[l.key] }))
+                }
+              ),
+              showXAxis && /* @__PURE__ */ jsx116(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props, tickRotateX), tickFormat: dateTickFormat(xDateFormat) }),
+              showYAxis && /* @__PURE__ */ jsx116(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+              /* @__PURE__ */ jsx116(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+              /* @__PURE__ */ jsx116(
+                ChartReferenceLines,
+                {
+                  lines: props.referenceLines,
+                  bands: props.referenceBands,
+                  annotation: props.annotation,
+                  points: overlayPoints(data),
+                  xScale,
+                  yScale: (v) => yScale(v),
+                  width: dims.innerWidth,
+                  height: dims.innerHeight
+                }
+              )
+            ] })
+          ]
+        }
+      ),
+      showTooltip && hover && dates[hover.index] && (() => {
+        const i = hover.index;
+        const fmt6 = (v) => formatY ? formatY(v) : v.toLocaleString();
+        const total = layers.reduce((acc, l) => acc + (l.points[i]?.value ?? 0), 0);
+        const rows = [...layers].reverse().map((l) => ({
+          label: legendItems.find((it) => it.id === l.key)?.label ?? l.key,
+          value: fmt6(l.points[i]?.value ?? 0),
+          color: colorMap[l.key]
+        }));
+        if (layers.length > 1) rows.push({ label: "Total", value: fmt6(total), strong: true });
+        return /* @__PURE__ */ jsx116(
+          ChartCrosshairTip,
           {
-            lines: props.referenceLines,
-            bands: props.referenceBands,
-            annotation: props.annotation,
-            points: overlayPoints(data),
-            xScale,
-            yScale: (v) => yScale(v),
-            width: dims.innerWidth,
-            height: dims.innerHeight
+            left: (xScale(dates[i]) ?? 0) + plotLeft(dims, props),
+            top: hover.y + plotTop(dims, props),
+            title: crosshairDate(dates[i], dateTickFormat(xDateFormat)),
+            rows
           }
-        )
-      ] })
-    ] }) })
+        );
+      })()
+    ] })
   ] });
 };
 AreaStackedInner.displayName = "AreaStackedInner";
 
 // src/DATADISPLAY/Charts/AreaStacked/AreaStacked.tsx
-import { jsx as jsx116 } from "react/jsx-runtime";
-var AreaStacked = React88.forwardRef(
+import { jsx as jsx117 } from "react/jsx-runtime";
+var AreaStacked = React90.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef42(null);
+    const containerRef = useRef44(null);
     const { width, height } = useChartDimensions(containerRef, pw, ph, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx116("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx116("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx116(AreaStackedInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx117("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx117("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx117(AreaStackedInner, { ...rest, width, height }) }) });
   }
 );
 AreaStacked.displayName = "AreaStacked";
 
 // src/DATADISPLAY/Charts/Threshold/Threshold.tsx
-import React90, { useRef as useRef43 } from "react";
+import React92, { useRef as useRef45 } from "react";
 
 // src/DATADISPLAY/Charts/Threshold/ThresholdInner.tsx
-import { useMemo as useMemo40 } from "react";
+import { useCallback as useCallback53, useMemo as useMemo41 } from "react";
 import { Group as Group12 } from "@visx/group";
 import { LinePath as LinePath4 } from "@visx/shape";
 import VisxThreshold from "@visx/threshold/lib/Threshold";
@@ -21566,22 +22011,22 @@ function buildThresholdScales(data, innerWidth, innerHeight, getDate, getValue0,
 }
 
 // src/DATADISPLAY/Charts/Threshold/Threshold.hooks.ts
-import { useMemo as useMemo39, useCallback as useCallback51 } from "react";
+import { useMemo as useMemo40, useCallback as useCallback52 } from "react";
 function useThresholdAccessors(getDate, getValue0, getValue1) {
-  return useMemo39(() => ({
+  return useMemo40(() => ({
     getDate: getDate ?? defaultGetDate3,
     getValue0: getValue0 ?? defaultGetValue0,
     getValue1: getValue1 ?? defaultGetValue1
   }), [getDate, getValue0, getValue1]);
 }
 function useThresholdScales(data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain) {
-  return useMemo39(
+  return useMemo40(
     () => buildThresholdScales(data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain),
     [data, innerWidth, innerHeight, getDate, getValue0, getValue1, yDomain]
   );
 }
 function useThresholdColors(aboveColor, belowColor, colorScheme) {
-  return useMemo39(() => {
+  return useMemo40(() => {
     const palette = resolveColorScheme(colorScheme);
     return {
       above: aboveColor ?? palette[0],
@@ -21593,11 +22038,11 @@ function useThresholdColors(aboveColor, belowColor, colorScheme) {
 }
 function useThresholdInteraction(onHover) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback51((d, i) => {
+  const handleEnter = useCallback52((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback51(() => {
+  const handleLeave = useCallback52(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
@@ -21605,7 +22050,7 @@ function useThresholdInteraction(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Threshold/ThresholdInner.tsx
-import { Fragment as Fragment18, jsx as jsx117, jsxs as jsxs83 } from "react/jsx-runtime";
+import { jsx as jsx118, jsxs as jsxs84 } from "react/jsx-runtime";
 var ThresholdInner = (props) => {
   const {
     data,
@@ -21650,132 +22095,165 @@ var ThresholdInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colors = useThresholdColors(aboveColor, belowColor, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave } = useThresholdInteraction(onHover);
-  const classes = useMemo40(() => buildThresholdClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo41(() => buildThresholdClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const curve = pickCurve(curved, props.lineStep, curveMonotoneX5);
-  const legendItems = useMemo40(() => [
+  const guideDates = useMemo41(() => data.map((d) => toDate5(getDate(d))), [data, getDate]);
+  const onGuide = useCallback53((i) => {
+    if (i == null) handleLeave();
+    else handleEnter(data[i], i);
+  }, [data, handleEnter, handleLeave]);
+  const { hover, move, leave: leaveGuide } = useCrosshair(plotLeft(dims, props), plotTop(dims, props), xScale, guideDates, onGuide);
+  const legendItems = useMemo41(() => [
     { id: "above", label: `${label0} > ${label1}`, color: colors.above },
     { id: "below", label: `${label1} > ${label0}`, color: colors.below }
   ], [label0, label1, colors]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx117("div", { className: classes, children: /* @__PURE__ */ jsx117("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty threshold chart" }) });
+    return /* @__PURE__ */ jsx118("div", { className: classes, children: /* @__PURE__ */ jsx118("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty threshold chart" }) });
   }
   const mutableData = [...data];
   const thresholdId = `threshold-${bindId ?? "default"}-${width}`;
-  return /* @__PURE__ */ jsxs83("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx117(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ jsx117(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ jsxs83("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs83("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Threshold chart", children: [
-        description && /* @__PURE__ */ jsx117("desc", { children: description }),
-        /* @__PURE__ */ jsxs83(Group12, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx117(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
-          /* @__PURE__ */ jsx117(
-            VisxThreshold,
-            {
-              id: thresholdId,
-              data: mutableData,
-              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
-              y0: (d) => yScale(getValue0(d)) ?? 0,
-              y1: (d) => yScale(getValue1(d)) ?? 0,
-              clipAboveTo: 0,
-              clipBelowTo: dims.innerHeight,
-              curve,
-              aboveAreaProps: { fill: colors.above, fillOpacity },
-              belowAreaProps: { fill: colors.below, fillOpacity }
-            }
-          ),
-          /* @__PURE__ */ jsx117(
-            LinePath4,
-            {
-              data: mutableData,
-              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
-              y: (d) => yScale(getValue0(d)) ?? 0,
-              stroke: colors.line0,
-              strokeWidth,
-              ...lineDash(lineStyle, strokeWidth),
-              curve
-            }
-          ),
-          /* @__PURE__ */ jsx117(
-            LinePath4,
-            {
-              data: mutableData,
-              x: (d) => xScale(toDate5(getDate(d))) ?? 0,
-              y: (d) => yScale(getValue1(d)) ?? 0,
-              stroke: colors.line1,
-              strokeWidth,
-              strokeDasharray: "4,2",
-              curve
-            }
-          ),
-          data.map((d, i) => {
-            const cx = xScale(toDate5(getDate(d))) ?? 0;
-            const midY = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
-            return /* @__PURE__ */ jsx117(
-              "circle",
-              {
-                cx,
-                cy: midY,
-                r: 8,
-                fill: "transparent",
-                onMouseEnter: () => handleEnter(d, i),
-                onMouseLeave: handleLeave,
-                onClick: props.onSelect ? () => props.onSelect(d, i) : void 0,
-                style: { cursor: props.onSelect ? "pointer" : "default" }
-              },
-              i
-            );
-          }),
-          hoveredIndex != null && (() => {
-            const d = data[hoveredIndex];
-            const cx = xScale(toDate5(getDate(d))) ?? 0;
-            return /* @__PURE__ */ jsxs83(Fragment18, { children: [
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue0(d)), r: 4, fill: colors.line0, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2, pointerEvents: "none" }),
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue1(d)), r: 4, fill: colors.line1, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2, pointerEvents: "none" })
-            ] });
-          })(),
-          highlightIndex != null && highlightIndex < data.length && (() => {
-            const d = data[highlightIndex];
-            const cx = xScale(toDate5(getDate(d))) ?? 0;
-            const cy = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
-            const hlColor = colors.above ?? "var(--w3f-primary)";
-            return /* @__PURE__ */ jsxs83("g", { pointerEvents: "none", children: [
-              /* @__PURE__ */ jsx117("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: hlColor, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue0(d)), r: 12, fill: colors.line0, opacity: 0.2 }),
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue0(d)), r: 6, fill: colors.line0, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5 }),
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue1(d)), r: 12, fill: colors.line1, opacity: 0.2 }),
-              /* @__PURE__ */ jsx117("circle", { cx, cy: yScale(getValue1(d)), r: 6, fill: colors.line1, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5 })
-            ] });
-          })(),
-          showXAxis && /* @__PURE__ */ jsx117(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) }),
-          showYAxis && /* @__PURE__ */ jsx117(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-          /* @__PURE__ */ jsx117(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx117(
-            ChartReferenceLines,
-            {
-              lines: props.referenceLines,
-              bands: props.referenceBands,
-              annotation: props.annotation,
-              points: overlayPoints(data),
-              xScale,
-              yScale: (v) => yScale(v),
-              width: dims.innerWidth,
-              height: dims.innerHeight
-            }
-          )
-        ] })
-      ] }),
-      showTooltip && hoveredIndex != null && (() => {
+  return /* @__PURE__ */ jsxs84("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx118(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx118(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs84("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs84(
+        "svg",
+        {
+          width,
+          height,
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Threshold chart",
+          onMouseMove: move,
+          onMouseLeave: leaveGuide,
+          children: [
+            description && /* @__PURE__ */ jsx118("desc", { children: description }),
+            /* @__PURE__ */ jsxs84(Group12, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+              showGrid && /* @__PURE__ */ jsx118(ChartGrid, { yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" }),
+              /* @__PURE__ */ jsx118(
+                VisxThreshold,
+                {
+                  id: thresholdId,
+                  data: mutableData,
+                  x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+                  y0: (d) => yScale(getValue0(d)) ?? 0,
+                  y1: (d) => yScale(getValue1(d)) ?? 0,
+                  clipAboveTo: 0,
+                  clipBelowTo: dims.innerHeight,
+                  curve,
+                  aboveAreaProps: { fill: colors.above, fillOpacity },
+                  belowAreaProps: { fill: colors.below, fillOpacity }
+                }
+              ),
+              /* @__PURE__ */ jsx118(
+                LinePath4,
+                {
+                  data: mutableData,
+                  x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+                  y: (d) => yScale(getValue0(d)) ?? 0,
+                  stroke: colors.line0,
+                  strokeWidth,
+                  ...lineDash(lineStyle, strokeWidth),
+                  curve
+                }
+              ),
+              /* @__PURE__ */ jsx118(
+                LinePath4,
+                {
+                  data: mutableData,
+                  x: (d) => xScale(toDate5(getDate(d))) ?? 0,
+                  y: (d) => yScale(getValue1(d)) ?? 0,
+                  stroke: colors.line1,
+                  strokeWidth,
+                  strokeDasharray: "4,2",
+                  curve
+                }
+              ),
+              data.map((d, i) => {
+                const cx = xScale(toDate5(getDate(d))) ?? 0;
+                const midY = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
+                return /* @__PURE__ */ jsx118(
+                  "circle",
+                  {
+                    cx,
+                    cy: midY,
+                    r: 8,
+                    fill: "transparent",
+                    onClick: props.onSelect ? () => props.onSelect(d, i) : void 0,
+                    style: { cursor: props.onSelect ? "pointer" : "default" }
+                  },
+                  i
+                );
+              }),
+              hoveredIndex != null && data[hoveredIndex] && (() => {
+                const d = data[hoveredIndex];
+                return /* @__PURE__ */ jsx118(
+                  ChartCrosshair,
+                  {
+                    x: xScale(toDate5(getDate(d))) ?? 0,
+                    height: dims.innerHeight,
+                    dots: [
+                      { y: yScale(getValue0(d)) ?? 0, color: colors.line0 },
+                      { y: yScale(getValue1(d)) ?? 0, color: colors.line1 }
+                    ]
+                  }
+                );
+              })(),
+              highlightIndex != null && highlightIndex < data.length && (() => {
+                const d = data[highlightIndex];
+                const cx = xScale(toDate5(getDate(d))) ?? 0;
+                const cy = (yScale(getValue0(d)) + yScale(getValue1(d))) / 2;
+                const hlColor = colors.above ?? "var(--w3f-primary)";
+                return /* @__PURE__ */ jsxs84("g", { pointerEvents: "none", children: [
+                  /* @__PURE__ */ jsx118("line", { x1: cx, y1: 0, x2: cx, y2: dims.innerHeight, stroke: hlColor, strokeWidth: 1, strokeDasharray: "4 3", opacity: 0.6 }),
+                  /* @__PURE__ */ jsx118("circle", { cx, cy: yScale(getValue0(d)), r: 12, fill: colors.line0, opacity: 0.2 }),
+                  /* @__PURE__ */ jsx118("circle", { cx, cy: yScale(getValue0(d)), r: 6, fill: colors.line0, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5 }),
+                  /* @__PURE__ */ jsx118("circle", { cx, cy: yScale(getValue1(d)), r: 12, fill: colors.line1, opacity: 0.2 }),
+                  /* @__PURE__ */ jsx118("circle", { cx, cy: yScale(getValue1(d)), r: 6, fill: colors.line1, stroke: "var(--w3f-chart-mark-outline, #fff)", strokeWidth: 2.5 })
+                ] });
+              })(),
+              showXAxis && /* @__PURE__ */ jsx118(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) }),
+              showYAxis && /* @__PURE__ */ jsx118(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+              /* @__PURE__ */ jsx118(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+              /* @__PURE__ */ jsx118(
+                ChartReferenceLines,
+                {
+                  lines: props.referenceLines,
+                  bands: props.referenceBands,
+                  annotation: props.annotation,
+                  points: overlayPoints(data),
+                  xScale,
+                  yScale: (v) => yScale(v),
+                  width: dims.innerWidth,
+                  height: dims.innerHeight
+                }
+              )
+            ] })
+          ]
+        }
+      ),
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && (() => {
         const d = data[hoveredIndex];
         const date = toDate5(getDate(d));
         const v0 = getValue0(d);
         const v1 = getValue1(d);
+        const fmt6 = (v) => formatY ? formatY(v) : v.toLocaleString();
         const cx = (xScale(date) ?? 0) + plotLeft(dims, props);
-        const cy = (yScale(v0) + yScale(v1)) / 2 + plotTop(dims, props);
-        return /* @__PURE__ */ jsx117(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: `${date.toLocaleDateString()}
-${label0}: ${v0.toLocaleString()}
-${label1}: ${v1.toLocaleString()}` });
+        const cy = (hover ? hover.y : (yScale(v0) + yScale(v1)) / 2) + plotTop(dims, props);
+        return /* @__PURE__ */ jsx118(
+          ChartCrosshairTip,
+          {
+            left: cx,
+            top: cy,
+            title: crosshairDate(date, dateTickFormat(xDateFormat)),
+            rows: [
+              { label: label0, value: fmt6(v0), color: colors.line0 },
+              { label: label1, value: fmt6(v1), color: colors.line1 },
+              { label: "Diferencia", value: fmt6(v0 - v1), strong: true }
+            ]
+          }
+        );
       })()
     ] })
   ] });
@@ -21783,10 +22261,10 @@ ${label1}: ${v1.toLocaleString()}` });
 ThresholdInner.displayName = "ThresholdInner";
 
 // src/DATADISPLAY/Charts/Threshold/Threshold.tsx
-import { jsx as jsx118 } from "react/jsx-runtime";
-var Threshold = React90.forwardRef(
+import { jsx as jsx119 } from "react/jsx-runtime";
+var Threshold = React92.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef43(null);
+    const containerRef = useRef45(null);
     const { width, height } = useChartDimensions(
       containerRef,
       pw,
@@ -21794,16 +22272,16 @@ var Threshold = React90.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ jsx118("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx118("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx118(ThresholdInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx119("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx119("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx119(ThresholdInner, { ...rest, width, height }) }) });
   }
 );
 Threshold.displayName = "Threshold";
 
 // src/DATADISPLAY/Charts/Streamgraph/Streamgraph.tsx
-import React92, { useRef as useRef44 } from "react";
+import React94, { useRef as useRef46 } from "react";
 
 // src/DATADISPLAY/Charts/Streamgraph/StreamgraphInner.tsx
-import { useMemo as useMemo42 } from "react";
+import { useMemo as useMemo43 } from "react";
 import { Group as Group13 } from "@visx/group";
 import { Area as Area4 } from "@visx/shape";
 import { curveBasis } from "@visx/curve";
@@ -21815,6 +22293,7 @@ var STREAMGRAPH_DEFAULTS = {
   fillOpacity: 0.8,
   showXAxis: true,
   showLegend: true,
+  showTooltip: true,
   unstyled: false
 };
 
@@ -21857,10 +22336,10 @@ function computeStreamLayers(data, keys) {
 }
 
 // src/DATADISPLAY/Charts/Streamgraph/Streamgraph.hooks.ts
-import { useMemo as useMemo41, useCallback as useCallback52, useState as useState56 } from "react";
+import { useMemo as useMemo42, useCallback as useCallback54, useState as useState58 } from "react";
 import { scaleTime as scaleTime6, scaleLinear as scaleLinear8 } from "@visx/scale";
 function useStreamScales(layers, dates, innerWidth, innerHeight) {
-  return useMemo41(() => {
+  return useMemo42(() => {
     if (dates.length === 0 || layers.length === 0) {
       return {
         xScale: scaleTime6({ domain: [/* @__PURE__ */ new Date(), /* @__PURE__ */ new Date()], range: [0, innerWidth] }),
@@ -21890,12 +22369,12 @@ function useStreamColors(keys, colorScheme) {
   return useColorScale(keys, colorScheme);
 }
 function useStreamHover(onHover) {
-  const [hovered, setHovered] = useState56(null);
-  const enter = useCallback52((id) => {
+  const [hovered, setHovered] = useState58(null);
+  const enter = useCallback54((id) => {
     setHovered(id);
     onHover?.(id);
   }, [onHover]);
-  const leave = useCallback52(() => {
+  const leave = useCallback54(() => {
     setHovered(null);
     onHover?.(null);
   }, [onHover]);
@@ -21903,7 +22382,7 @@ function useStreamHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Streamgraph/StreamgraphInner.tsx
-import { jsx as jsx119, jsxs as jsxs84 } from "react/jsx-runtime";
+import { jsx as jsx120, jsxs as jsxs85 } from "react/jsx-runtime";
 var StreamgraphInner = (props) => {
   const {
     data,
@@ -21925,76 +22404,124 @@ var StreamgraphInner = (props) => {
     showLegend = STREAMGRAPH_DEFAULTS.showLegend,
     highlightSeriesId = null,
     onHover,
+    formatY,
+    showTooltip = STREAMGRAPH_DEFAULTS.showTooltip,
     xDateFormat
     // 0022 B53.1
   } = props;
   const dims = useInnerDims(width, height, margin, props);
-  const { dates, layers } = useMemo42(() => computeStreamLayers(data, keys), [data, keys]);
+  const { dates, layers } = useMemo43(() => computeStreamLayers(data, keys), [data, keys]);
   const { xScale: xScaleRaw, yScale: yScaleRaw } = useStreamScales(layers, dates, dims.innerWidth, dims.innerHeight);
   const xScale = adaptScale(xScaleRaw, props, "x");
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colorMap = useStreamColors(keys, colorScheme);
   const { hovered, enter, leave } = useStreamHover(onHover);
-  const classes = useMemo42(() => buildStreamgraphClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo43(() => buildStreamgraphClasses(className, unstyled), [className, unstyled]);
   const curve = pickCurve(curved, props.lineStep, curveBasis);
-  const legendItems = useMemo42(
+  const { hover, move, leave: leaveGuide } = useCrosshair(plotLeft(dims, props), plotTop(dims, props), xScale, dates);
+  const legendItems = useMemo43(
     () => keys.map((k) => ({ id: k, label: data.find((s) => s.id === k)?.label ?? k, color: colorMap(k) })),
     [keys, data, colorMap]
   );
   if (layers.length === 0) {
-    return /* @__PURE__ */ jsx119("div", { className: classes, children: /* @__PURE__ */ jsx119("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty streamgraph" }) });
+    return /* @__PURE__ */ jsx120("div", { className: classes, children: /* @__PURE__ */ jsx120("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty streamgraph" }) });
   }
-  return /* @__PURE__ */ jsxs84("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx119(ChartHeader, { title, subtitle }),
-    showLegend && /* @__PURE__ */ jsx119(ChartLegend, { items: legendItems }),
-    /* @__PURE__ */ jsx119("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: /* @__PURE__ */ jsxs84("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Streamgraph", children: [
-      description && /* @__PURE__ */ jsx119("desc", { children: description }),
-      /* @__PURE__ */ jsxs84(Group13, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-        layers.map((layer) => {
-          const active = highlightSeriesId ?? hovered;
-          const isDimmed = active != null && active !== layer.key;
-          return /* @__PURE__ */ jsx119(
-            Area4,
-            {
-              data: layer.points,
-              x: (d) => xScale(d.date) ?? 0,
-              y0: (d) => yScale(d.y0) ?? 0,
-              y1: (d) => yScale(d.y1) ?? 0,
-              curve,
-              children: ({ path }) => /* @__PURE__ */ jsx119(
-                "path",
+  return /* @__PURE__ */ jsxs85("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx120(ChartHeader, { title, subtitle }),
+    showLegend && /* @__PURE__ */ jsx120(ChartLegend, { items: legendItems }),
+    /* @__PURE__ */ jsxs85("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs85(
+        "svg",
+        {
+          width,
+          height,
+          className: BASE_CHART_CLASSES.svg,
+          role: "img",
+          "aria-label": ariaLabel ?? "Streamgraph",
+          onMouseMove: move,
+          onMouseLeave: leaveGuide,
+          children: [
+            description && /* @__PURE__ */ jsx120("desc", { children: description }),
+            /* @__PURE__ */ jsxs85(Group13, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+              layers.map((layer) => {
+                const active = highlightSeriesId ?? hovered;
+                const isDimmed = active != null && active !== layer.key;
+                return /* @__PURE__ */ jsx120(
+                  Area4,
+                  {
+                    data: layer.points,
+                    x: (d) => xScale(d.date) ?? 0,
+                    y0: (d) => yScale(d.y0) ?? 0,
+                    y1: (d) => yScale(d.y1) ?? 0,
+                    curve,
+                    children: ({ path }) => /* @__PURE__ */ jsx120(
+                      "path",
+                      {
+                        d: path([...layer.points]) ?? "",
+                        fill: colorMap(layer.key),
+                        fillOpacity: isDimmed ? 0.15 : fillOpacity,
+                        stroke: colorMap(layer.key),
+                        strokeWidth: 0.5,
+                        onMouseEnter: () => enter(layer.key),
+                        onMouseLeave: leave,
+                        onClick: props.onSelect ? (e) => {
+                          const raw = (data.find((s) => s.id === keys[0])?.data ?? []).map((d) => d.date);
+                          const i = nearestIndex(e, plotLeft(dims, props), xScale, raw);
+                          if (i >= 0) props.onSelect({ seriesId: layer.key, date: raw[i] }, i);
+                        } : void 0,
+                        style: { cursor: "pointer", transition: "fill-opacity 120ms" }
+                      }
+                    )
+                  },
+                  layer.key
+                );
+              }),
+              hover && dates[hover.index] && /* @__PURE__ */ jsx120(
+                ChartCrosshair,
                 {
-                  d: path([...layer.points]) ?? "",
-                  fill: colorMap(layer.key),
-                  fillOpacity: isDimmed ? 0.15 : fillOpacity,
-                  stroke: colorMap(layer.key),
-                  strokeWidth: 0.5,
-                  onMouseEnter: () => enter(layer.key),
-                  onMouseLeave: leave,
-                  onClick: props.onSelect ? (e) => {
-                    const raw = (data.find((s) => s.id === keys[0])?.data ?? []).map((d) => d.date);
-                    const i = nearestIndex(e, plotLeft(dims, props), xScale, raw);
-                    if (i >= 0) props.onSelect({ seriesId: layer.key, date: raw[i] }, i);
-                  } : void 0,
-                  style: { cursor: "pointer", transition: "fill-opacity 120ms" }
+                  x: xScale(dates[hover.index]) ?? 0,
+                  height: dims.innerHeight,
+                  dots: layers.map((l) => ({ y: yScale(l.points[hover.index]?.y1 ?? 0) ?? 0, color: colorMap(l.key) }))
                 }
-              )
-            },
-            layer.key
-          );
-        }),
-        showXAxis && /* @__PURE__ */ jsx119(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) })
-      ] })
-    ] }) })
+              ),
+              showXAxis && /* @__PURE__ */ jsx120(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: dateTickFormat(xDateFormat) })
+            ] })
+          ]
+        }
+      ),
+      showTooltip && hover && dates[hover.index] && (() => {
+        const i = hover.index;
+        const fmt6 = (v) => formatY ? formatY(v) : v.toLocaleString();
+        const rows = [...layers].reverse().map((l) => ({
+          label: legendItems.find((it) => it.id === l.key)?.label ?? l.key,
+          value: fmt6(l.points[i]?.value ?? 0),
+          color: colorMap(l.key)
+        }));
+        if (layers.length > 1) rows.push({
+          label: "Total",
+          value: fmt6(layers.reduce((acc, l) => acc + (l.points[i]?.value ?? 0), 0)),
+          strong: true
+        });
+        return /* @__PURE__ */ jsx120(
+          ChartCrosshairTip,
+          {
+            left: (xScale(dates[i]) ?? 0) + plotLeft(dims, props),
+            top: hover.y + plotTop(dims, props),
+            title: crosshairDate(dates[i], dateTickFormat(xDateFormat)),
+            rows
+          }
+        );
+      })()
+    ] })
   ] });
 };
 StreamgraphInner.displayName = "StreamgraphInner";
 
 // src/DATADISPLAY/Charts/Streamgraph/Streamgraph.tsx
-import { jsx as jsx120 } from "react/jsx-runtime";
-var Streamgraph = React92.forwardRef(
+import { jsx as jsx121 } from "react/jsx-runtime";
+var Streamgraph = React94.forwardRef(
   ({ width: pw, height: ph, ...rest }, ref) => {
-    const containerRef = useRef44(null);
+    const containerRef = useRef46(null);
     const { width, height } = useChartDimensions(
       containerRef,
       pw,
@@ -22002,16 +22529,16 @@ var Streamgraph = React92.forwardRef(
       DEFAULT_CHART_WIDTH,
       DEFAULT_CHART_HEIGHT
     );
-    return /* @__PURE__ */ jsx120("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx120("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx120(StreamgraphInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx121("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx121("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx121(StreamgraphInner, { ...rest, width, height }) }) });
   }
 );
 Streamgraph.displayName = "Streamgraph";
 
 // src/DATADISPLAY/Charts/Scatter/Scatter.tsx
-import React94, { useRef as useRef45 } from "react";
+import React96, { useRef as useRef47 } from "react";
 
 // src/DATADISPLAY/Charts/Scatter/ScatterInner.tsx
-import { useMemo as useMemo44 } from "react";
+import { useMemo as useMemo45 } from "react";
 import { Group as Group14 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Scatter/Scatter.constants.ts
@@ -22048,9 +22575,9 @@ function buildTooltipContent3(datum, getX, getY) {
 }
 
 // src/DATADISPLAY/Charts/Scatter/Scatter.hooks.ts
-import { useMemo as useMemo43, useCallback as useCallback53 } from "react";
+import { useMemo as useMemo44, useCallback as useCallback55 } from "react";
 function useScatterAccessors(getX, getY, getR, getLabel) {
-  return useMemo43(() => ({
+  return useMemo44(() => ({
     getX: getX ?? defaultGetX,
     getY: getY ?? defaultGetY,
     getR: getR ?? defaultGetR,
@@ -22058,31 +22585,31 @@ function useScatterAccessors(getX, getY, getR, getLabel) {
   }), [getX, getY, getR, getLabel]);
 }
 function useScatterScales(data, innerWidth, innerHeight, getX, getY, xDomain, yDomain) {
-  return useMemo43(
+  return useMemo44(
     () => buildScatterScales(data, innerWidth, innerHeight, getX, getY, xDomain, yDomain),
     [data, innerWidth, innerHeight, getX, getY, xDomain, yDomain]
   );
 }
 function useScatterColors(data, colorScheme) {
-  return useMemo43(() => {
+  return useMemo44(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
 }
 function useScatterInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback53(
+  const handleEnter = useCallback55(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback53(() => {
+  const handleLeave = useCallback55(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback53(
+  const handleClick = useCallback55(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -22131,7 +22658,7 @@ function hexPath(x, y, size) {
 }
 
 // src/DATADISPLAY/Charts/Scatter/ScatterInner.tsx
-import { jsx as jsx121, jsxs as jsxs85 } from "react/jsx-runtime";
+import { jsx as jsx122, jsxs as jsxs86 } from "react/jsx-runtime";
 var ScatterInner = (props) => {
   const {
     data,
@@ -22175,19 +22702,19 @@ var ScatterInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colors = useScatterColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useScatterInteraction(onHover, onSelect);
-  const classes = useMemo44(() => buildScatterClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo45(() => buildScatterClasses(className, unstyled), [className, unstyled]);
   const xTickFormat = formatX ?? formatTick;
   const yTickFormat = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx121("div", { className: classes, children: /* @__PURE__ */ jsx121("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty scatter chart" }) });
+    return /* @__PURE__ */ jsx122("div", { className: classes, children: /* @__PURE__ */ jsx122("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty scatter chart" }) });
   }
-  return /* @__PURE__ */ jsxs85("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx121(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs85("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs85("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Scatter chart", children: [
-        description && /* @__PURE__ */ jsx121("desc", { children: description }),
-        /* @__PURE__ */ jsxs85(Group14, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx121(
+  return /* @__PURE__ */ jsxs86("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx122(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs86("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs86("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Scatter chart", children: [
+        description && /* @__PURE__ */ jsx122("desc", { children: description }),
+        /* @__PURE__ */ jsxs86(Group14, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx122(
             ChartGrid,
             {
               xScale,
@@ -22201,7 +22728,7 @@ var ScatterInner = (props) => {
             const size = props.hexSize ?? 14;
             const bins = hexBins(data.map((d) => [xScale(getX(d)) ?? NaN, yScale(getY(d)) ?? NaN]), size);
             const max = Math.max(1, ...bins.map((b) => b.n));
-            return /* @__PURE__ */ jsx121("g", { className: "w3f-chart-hexbins", children: bins.map((b, i) => /* @__PURE__ */ jsx121(
+            return /* @__PURE__ */ jsx122("g", { className: "w3f-chart-hexbins", children: bins.map((b, i) => /* @__PURE__ */ jsx122(
               "path",
               {
                 className: "w3f-chart-hexbin",
@@ -22209,7 +22736,7 @@ var ScatterInner = (props) => {
                 fill: colors[0],
                 fillOpacity: 0.15 + 0.85 * (b.n / max),
                 stroke: pointStroke || "none",
-                children: /* @__PURE__ */ jsx121("title", { children: `${b.n}` })
+                children: /* @__PURE__ */ jsx122("title", { children: `${b.n}` })
               },
               i
             )) });
@@ -22217,7 +22744,7 @@ var ScatterInner = (props) => {
             const cx = xScale(getX(d)) ?? 0;
             const cy = yScale(getY(d)) ?? 0;
             const r = getR(d) ?? pointRadius;
-            return /* @__PURE__ */ jsx121(
+            return /* @__PURE__ */ jsx122(
               ChartPointShape,
               {
                 shape: pointShape,
@@ -22240,9 +22767,9 @@ var ScatterInner = (props) => {
             const fit = linearFit(data.map(getX), data.map(getY));
             if (!fit) return null;
             const [x0, x1] = xScale.domain();
-            const fmt5 = (v) => v.toLocaleString("es-AR", { maximumFractionDigits: 3 });
-            return /* @__PURE__ */ jsxs85("g", { className: "w3f-chart-trend", pointerEvents: "none", children: [
-              /* @__PURE__ */ jsx121(
+            const fmt6 = (v) => v.toLocaleString("es-AR", { maximumFractionDigits: 3 });
+            return /* @__PURE__ */ jsxs86("g", { className: "w3f-chart-trend", pointerEvents: "none", children: [
+              /* @__PURE__ */ jsx122(
                 "line",
                 {
                   x1: xScale(x0),
@@ -22254,7 +22781,7 @@ var ScatterInner = (props) => {
                   strokeDasharray: "6 4"
                 }
               ),
-              /* @__PURE__ */ jsx121(
+              /* @__PURE__ */ jsx122(
                 "text",
                 {
                   x: dims.innerWidth - 4,
@@ -22262,15 +22789,15 @@ var ScatterInner = (props) => {
                   textAnchor: "end",
                   fontSize: 11,
                   style: { fill: "var(--w3f-chart-trend-color, #f97316)" },
-                  children: `y = ${fmt5(fit.b)}\xB7x ${fit.a < 0 ? "\u2212" : "+"} ${fmt5(Math.abs(fit.a))}  (R\xB2 = ${fmt5(fit.r2)})`
+                  children: `y = ${fmt6(fit.b)}\xB7x ${fit.a < 0 ? "\u2212" : "+"} ${fmt6(Math.abs(fit.a))}  (R\xB2 = ${fmt6(fit.r2)})`
                 }
               )
             ] });
           })(),
-          showXAxis && /* @__PURE__ */ jsx121(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xTickFormat }),
-          showYAxis && /* @__PURE__ */ jsx121(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-          /* @__PURE__ */ jsx121(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx121(
+          showXAxis && /* @__PURE__ */ jsx122(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xTickFormat }),
+          showYAxis && /* @__PURE__ */ jsx122(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+          /* @__PURE__ */ jsx122(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          /* @__PURE__ */ jsx122(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -22284,10 +22811,10 @@ var ScatterInner = (props) => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsx121(ChartMarkDecorLayer, { ...props }),
+        /* @__PURE__ */ jsx122(ChartMarkDecorLayer, { ...props }),
         "   "
       ] }),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx121(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx122(
         ChartTooltip,
         {
           left: (xScale(getX(data[hoveredIndex])) ?? 0) + plotLeft(dims, props),
@@ -22303,21 +22830,21 @@ var ScatterInner = (props) => {
 ScatterInner.displayName = "ScatterInner";
 
 // src/DATADISPLAY/Charts/Scatter/Scatter.tsx
-import { jsx as jsx122 } from "react/jsx-runtime";
-var Scatter = React94.forwardRef(
+import { jsx as jsx123 } from "react/jsx-runtime";
+var Scatter = React96.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef45(null);
+    const containerRef = useRef47(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx122("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx122("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx122(ScatterInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx123("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx123("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx123(ScatterInner, { ...rest, width, height }) }) });
   }
 );
 Scatter.displayName = "Scatter";
 
 // src/DATADISPLAY/Charts/Bubble/Bubble.tsx
-import React96, { useRef as useRef46 } from "react";
+import React98, { useRef as useRef48 } from "react";
 
 // src/DATADISPLAY/Charts/Bubble/BubbleInner.tsx
-import { useMemo as useMemo46 } from "react";
+import { useMemo as useMemo47 } from "react";
 import { Group as Group15 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Bubble/Bubble.constants.ts
@@ -22359,9 +22886,9 @@ function buildTooltipContent4(datum, getX, getY, getR) {
 }
 
 // src/DATADISPLAY/Charts/Bubble/Bubble.hooks.ts
-import { useMemo as useMemo45, useCallback as useCallback54 } from "react";
+import { useMemo as useMemo46, useCallback as useCallback56 } from "react";
 function useBubbleAccessors(getX, getY, getR, getLabel) {
-  return useMemo45(() => ({
+  return useMemo46(() => ({
     getX: getX ?? defaultGetX2,
     getY: getY ?? defaultGetY2,
     getR: getR ?? defaultGetR2,
@@ -22369,35 +22896,35 @@ function useBubbleAccessors(getX, getY, getR, getLabel) {
   }), [getX, getY, getR, getLabel]);
 }
 function useBubbleScales(data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain) {
-  return useMemo45(
+  return useMemo46(
     () => buildBubbleScales(data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain),
     [data, innerWidth, innerHeight, getX, getY, getR, minRadius, maxRadius, xDomain, yDomain]
   );
 }
 function useBubbleColors(data, colorScheme) {
-  return useMemo45(() => {
+  return useMemo46(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
 }
 function useBubbleInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback54((datum, index) => {
+  const handleEnter = useCallback56((datum, index) => {
     enter(index);
     onHover?.(datum, index);
   }, [enter, onHover]);
-  const handleLeave = useCallback54(() => {
+  const handleLeave = useCallback56(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback54((datum, index) => {
+  const handleClick = useCallback56((datum, index) => {
     onSelect?.(datum, index);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Bubble/BubbleInner.tsx
-import { jsx as jsx123, jsxs as jsxs86 } from "react/jsx-runtime";
+import { jsx as jsx124, jsxs as jsxs87 } from "react/jsx-runtime";
 var BubbleInner = (props) => {
   const {
     data,
@@ -22437,20 +22964,20 @@ var BubbleInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const colors = useBubbleColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBubbleInteraction(onHover, onSelect);
-  const classes = useMemo46(() => buildBubbleClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo47(() => buildBubbleClasses(className, unstyled), [className, unstyled]);
   const xf = formatX ?? formatTick;
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx123("div", { className: classes, children: /* @__PURE__ */ jsx123("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bubble chart" }) });
+    return /* @__PURE__ */ jsx124("div", { className: classes, children: /* @__PURE__ */ jsx124("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bubble chart" }) });
   }
-  return /* @__PURE__ */ jsxs86("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx123(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs86("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs86("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Bubble chart", children: [
-        description && /* @__PURE__ */ jsx123("desc", { children: description }),
-        /* @__PURE__ */ jsxs86(Group15, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx123(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "both" }),
-          data.map((d, i) => /* @__PURE__ */ jsx123(
+  return /* @__PURE__ */ jsxs87("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx124(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs87("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs87("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Bubble chart", children: [
+        description && /* @__PURE__ */ jsx124("desc", { children: description }),
+        /* @__PURE__ */ jsxs87(Group15, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx124(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "both" }),
+          data.map((d, i) => /* @__PURE__ */ jsx124(
             ChartPointShape,
             {
               shape: props.pointShape ?? "circle",
@@ -22468,10 +22995,10 @@ var BubbleInner = (props) => {
             },
             i
           )),
-          showXAxis && /* @__PURE__ */ jsx123(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xf }),
-          showYAxis && /* @__PURE__ */ jsx123(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yf }),
-          /* @__PURE__ */ jsx123(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx123(
+          showXAxis && /* @__PURE__ */ jsx124(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xf }),
+          showYAxis && /* @__PURE__ */ jsx124(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yf }),
+          /* @__PURE__ */ jsx124(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          /* @__PURE__ */ jsx124(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -22485,10 +23012,10 @@ var BubbleInner = (props) => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsx123(ChartMarkDecorLayer, { ...props }),
+        /* @__PURE__ */ jsx124(ChartMarkDecorLayer, { ...props }),
         "   "
       ] }),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx123(
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx124(
         ChartTooltip,
         {
           left: (xScale(getX(data[hoveredIndex])) ?? 0) + plotLeft(dims, props),
@@ -22504,21 +23031,21 @@ var BubbleInner = (props) => {
 BubbleInner.displayName = "BubbleInner";
 
 // src/DATADISPLAY/Charts/Bubble/Bubble.tsx
-import { jsx as jsx124 } from "react/jsx-runtime";
-var Bubble = React96.forwardRef(
+import { jsx as jsx125 } from "react/jsx-runtime";
+var Bubble = React98.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef46(null);
+    const containerRef = useRef48(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx124("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx124("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx124(BubbleInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx125("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx125("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx125(BubbleInner, { ...rest, width, height }) }) });
   }
 );
 Bubble.displayName = "Bubble";
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlot.tsx
-import React98, { useRef as useRef47 } from "react";
+import React100, { useRef as useRef49 } from "react";
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlotInner.tsx
-import { useMemo as useMemo48 } from "react";
+import { useMemo as useMemo49 } from "react";
 import { Group as Group16 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlot.constants.ts
@@ -22550,43 +23077,43 @@ function buildTooltipContent5(datum, getX, category) {
 }
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlot.hooks.ts
-import { useMemo as useMemo47, useCallback as useCallback55 } from "react";
+import { useMemo as useMemo48, useCallback as useCallback57 } from "react";
 function useDotPlotAccessors(getX, getCategory) {
-  return useMemo47(() => ({
+  return useMemo48(() => ({
     getX: getX ?? defaultGetX3,
     getCategory: getCategory ?? defaultGetCategory
   }), [getX, getCategory]);
 }
 function useDotPlotScales(data, categories, innerWidth, innerHeight, getX, xDomain) {
-  return useMemo47(
+  return useMemo48(
     () => buildDotPlotScales(data, categories, innerWidth, innerHeight, getX, xDomain),
     [data, categories, innerWidth, innerHeight, getX, xDomain]
   );
 }
 function useDotPlotColors(categories, colorScheme) {
-  return useMemo47(() => {
+  return useMemo48(() => {
     const palette = resolveColorScheme(colorScheme);
     return categories.map((_, i) => palette[i % palette.length]);
   }, [categories, colorScheme]);
 }
 function useDotPlotInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback55((datum, index) => {
+  const handleEnter = useCallback57((datum, index) => {
     enter(index);
     onHover?.(datum, index);
   }, [enter, onHover]);
-  const handleLeave = useCallback55(() => {
+  const handleLeave = useCallback57(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback55((datum, index) => {
+  const handleClick = useCallback57((datum, index) => {
     onSelect?.(datum, index);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlotInner.tsx
-import { jsx as jsx125, jsxs as jsxs87 } from "react/jsx-runtime";
+import { jsx as jsx126, jsxs as jsxs88 } from "react/jsx-runtime";
 var DotPlotInner = (props) => {
   const {
     data,
@@ -22623,24 +23150,24 @@ var DotPlotInner = (props) => {
   const yScale = adaptScale(yScaleRaw, props, "y");
   const categoryColors = useDotPlotColors(categories, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useDotPlotInteraction(onHover, onSelect);
-  const classes = useMemo48(() => buildDotPlotClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo49(() => buildDotPlotClasses(className, unstyled), [className, unstyled]);
   const xf = formatX ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx125("div", { className: classes, children: /* @__PURE__ */ jsx125("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty dot plot" }) });
+    return /* @__PURE__ */ jsx126("div", { className: classes, children: /* @__PURE__ */ jsx126("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty dot plot" }) });
   }
-  return /* @__PURE__ */ jsxs87("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx125(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs87("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs87("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Dot plot", children: [
-        description && /* @__PURE__ */ jsx125("desc", { children: description }),
-        /* @__PURE__ */ jsxs87(Group16, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx125(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
+  return /* @__PURE__ */ jsxs88("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx126(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs88("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs88("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Dot plot", children: [
+        description && /* @__PURE__ */ jsx126("desc", { children: description }),
+        /* @__PURE__ */ jsxs88(Group16, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx126(ChartGrid, { xScale, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }),
           data.map((d, i) => {
             const catIdx = getCategory(d);
             const catName = categories[catIdx] ?? "";
             const cx = xScale(getX(d)) ?? 0;
             const cy = (yScale(catName) ?? 0) + yScale.bandwidth() / 2;
-            return /* @__PURE__ */ jsx125(
+            return /* @__PURE__ */ jsx126(
               ChartPointShape,
               {
                 shape: pointShape,
@@ -22657,8 +23184,8 @@ var DotPlotInner = (props) => {
               i
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx125(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xf }),
-          showCategoryLabels && categories.map((cat) => /* @__PURE__ */ jsx125(
+          showXAxis && /* @__PURE__ */ jsx126(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: xf }),
+          showCategoryLabels && categories.map((cat) => /* @__PURE__ */ jsx126(
             "text",
             {
               x: -8,
@@ -22677,7 +23204,7 @@ var DotPlotInner = (props) => {
         const d = data[hoveredIndex];
         const catIdx = getCategory(d);
         const catName = categories[catIdx] ?? "";
-        return /* @__PURE__ */ jsx125(
+        return /* @__PURE__ */ jsx126(
           ChartTooltip,
           {
             left: (xScale(getX(d)) ?? 0) + plotLeft(dims, props),
@@ -22694,21 +23221,21 @@ var DotPlotInner = (props) => {
 DotPlotInner.displayName = "DotPlotInner";
 
 // src/DATADISPLAY/Charts/DotPlot/DotPlot.tsx
-import { jsx as jsx126 } from "react/jsx-runtime";
-var DotPlot = React98.forwardRef(
+import { jsx as jsx127 } from "react/jsx-runtime";
+var DotPlot = React100.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef47(null);
+    const containerRef = useRef49(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx126("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx126("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx126(DotPlotInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx127("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx127("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx127(DotPlotInner, { ...rest, width, height }) }) });
   }
 );
 DotPlot.displayName = "DotPlot";
 
 // src/DATADISPLAY/Charts/Heatmap/Heatmap.tsx
-import React100, { useRef as useRef48 } from "react";
+import React102, { useRef as useRef50 } from "react";
 
 // src/DATADISPLAY/Charts/Heatmap/HeatmapInner.tsx
-import { useMemo as useMemo50 } from "react";
+import { useMemo as useMemo51 } from "react";
 import { Group as Group17 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Heatmap/Heatmap.constants.ts
@@ -22759,37 +23286,37 @@ function buildTooltipContent6(row, col, value) {
 }
 
 // src/DATADISPLAY/Charts/Heatmap/Heatmap.hooks.ts
-import { useMemo as useMemo49, useCallback as useCallback56 } from "react";
+import { useMemo as useMemo50, useCallback as useCallback58 } from "react";
 function useHeatmapAccessors(getRow, getCol, getValue2) {
-  return useMemo49(() => ({
+  return useMemo50(() => ({
     getRow: getRow ?? defaultGetRow,
     getCol: getCol ?? defaultGetCol,
     getValue: getValue2 ?? defaultGetValue5
   }), [getRow, getCol, getValue2]);
 }
 function useHeatmapAxes(data, getRow, getCol) {
-  return useMemo49(() => extractAxes(data, getRow, getCol), [data, getRow, getCol]);
+  return useMemo50(() => extractAxes(data, getRow, getCol), [data, getRow, getCol]);
 }
 function useHeatmapScales(rows, cols, data, getValue2, innerWidth, innerHeight, colorRange) {
-  return useMemo49(
+  return useMemo50(
     () => buildHeatmapScales(rows, cols, data, getValue2, innerWidth, innerHeight, colorRange),
     [rows, cols, data, getValue2, innerWidth, innerHeight, colorRange]
   );
 }
 function useHeatmapInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback56(
+  const handleEnter = useCallback58(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback56(() => {
+  const handleLeave = useCallback58(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback56(
+  const handleClick = useCallback58(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -22811,7 +23338,7 @@ function colorPosition(value, lo, hi, log) {
 }
 
 // src/DATADISPLAY/Charts/Heatmap/HeatmapInner.tsx
-import { jsx as jsx127, jsxs as jsxs88 } from "react/jsx-runtime";
+import { jsx as jsx128, jsxs as jsxs89 } from "react/jsx-runtime";
 var contrastOn = (bg) => {
   const m = bg.match(/rgba?\((\d+)\D+(\d+)\D+(\d+)/);
   let r = 0, g = 0, b = 0;
@@ -22857,7 +23384,7 @@ var HeatmapInner = (props) => {
   const dims = useInnerDims(width, height, margin ?? { top: 10, right: 10, bottom: 40, left: 60 });
   const { rows, cols } = useHeatmapAxes(data, getRow, getCol);
   const { xScale, yScale, colorScale: colorScaleRaw } = useHeatmapScales(rows, cols, data, getValue2, dims.innerWidth, dims.innerHeight, colors);
-  const colorScale = useMemo50(() => {
+  const colorScale = useMemo51(() => {
     if (!hasColorRange(props)) return colorScaleRaw;
     const [d0, d1] = colorScaleRaw.domain();
     const lo = props.colorMin ?? d0, hi = props.colorMax ?? d1;
@@ -22865,13 +23392,13 @@ var HeatmapInner = (props) => {
     return (v) => pos(colorPosition(v, lo, hi, props.colorLog));
   }, [colorScaleRaw, props.colorMin, props.colorMax, props.colorLog]);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useHeatmapInteraction(onHover, onSelect);
-  const classes = useMemo50(() => buildHeatmapClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo51(() => buildHeatmapClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx127("div", { className: classes, children: /* @__PURE__ */ jsx127("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty heatmap" }) });
+    return /* @__PURE__ */ jsx128("div", { className: classes, children: /* @__PURE__ */ jsx128("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty heatmap" }) });
   }
   const cellWidth = xScale.bandwidth();
   const cellHeight = yScale.bandwidth();
-  const cells = useMemo50(() => {
+  const cells = useMemo51(() => {
     const result = [];
     for (const row of rows) {
       for (const col of cols) {
@@ -22884,13 +23411,13 @@ var HeatmapInner = (props) => {
     }
     return result;
   }, [data, rows, cols, getRow, getCol, getValue2]);
-  return /* @__PURE__ */ jsxs88("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx127(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs88("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs88("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Heatmap", children: [
-        description && /* @__PURE__ */ jsx127("desc", { children: description }),
-        /* @__PURE__ */ jsxs88(Group17, { top: dims.margin.top, left: dims.margin.left, children: [
-          cells.map((cell, i) => /* @__PURE__ */ jsx127(
+  return /* @__PURE__ */ jsxs89("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx128(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs89("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs89("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Heatmap", children: [
+        description && /* @__PURE__ */ jsx128("desc", { children: description }),
+        /* @__PURE__ */ jsxs89(Group17, { top: dims.margin.top, left: dims.margin.left, children: [
+          cells.map((cell, i) => /* @__PURE__ */ jsx128(
             "rect",
             {
               x: xScale(cell.col) ?? 0,
@@ -22911,7 +23438,7 @@ var HeatmapInner = (props) => {
           )),
           showCellValues && cells.map((cell) => (
             /* 0022 B53.4: el valor de cada celda */
-            /* @__PURE__ */ jsx127(
+            /* @__PURE__ */ jsx128(
               "text",
               {
                 className: "w3f-chart-cell-value",
@@ -22927,7 +23454,7 @@ var HeatmapInner = (props) => {
               `v-${cell.row}-${cell.col}`
             )
           )),
-          showRowLabels && rows.map((row) => /* @__PURE__ */ jsx127(
+          showRowLabels && rows.map((row) => /* @__PURE__ */ jsx128(
             "text",
             {
               x: -6,
@@ -22940,7 +23467,7 @@ var HeatmapInner = (props) => {
             },
             `row-${row}`
           )),
-          showColLabels && cols.map((col) => /* @__PURE__ */ jsx127(
+          showColLabels && cols.map((col) => /* @__PURE__ */ jsx128(
             "text",
             {
               x: (xScale(col) ?? 0) + cellWidth / 2,
@@ -22954,7 +23481,7 @@ var HeatmapInner = (props) => {
           ))
         ] })
       ] }),
-      showColLabels && hoveredIndex != null && /* @__PURE__ */ jsx127(
+      showColLabels && hoveredIndex != null && /* @__PURE__ */ jsx128(
         ChartTooltip,
         {
           left: (xScale(cells[hoveredIndex].col) ?? 0) + cellWidth / 2 + dims.margin.left,
@@ -22970,21 +23497,21 @@ var HeatmapInner = (props) => {
 HeatmapInner.displayName = "HeatmapInner";
 
 // src/DATADISPLAY/Charts/Heatmap/Heatmap.tsx
-import { jsx as jsx128 } from "react/jsx-runtime";
-var Heatmap = React100.forwardRef(
+import { jsx as jsx129 } from "react/jsx-runtime";
+var Heatmap = React102.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef48(null);
+    const containerRef = useRef50(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx128("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx128("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx128(HeatmapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx129("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx129("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx129(HeatmapInner, { ...rest, width, height }) }) });
   }
 );
 Heatmap.displayName = "Heatmap";
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlot.tsx
-import React102, { useRef as useRef49 } from "react";
+import React104, { useRef as useRef51 } from "react";
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlotInner.tsx
-import { useMemo as useMemo52 } from "react";
+import { useMemo as useMemo53 } from "react";
 import { Group as Group18 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlot.constants.ts
@@ -23010,7 +23537,7 @@ function quantile(sorted, q) {
   return sorted[base + 1] !== void 0 ? sorted[base] + rest * (sorted[base + 1] - sorted[base]) : sorted[base];
 }
 function computeStats(group, whis = "iqr15") {
-  const sorted = [...group.values].sort((a, b) => a - b);
+  const sorted = group.values.toSorted((a, b) => a - b);
   const q1 = quantile(sorted, 0.25);
   const median = quantile(sorted, 0.5);
   const q3 = quantile(sorted, 0.75);
@@ -23047,39 +23574,51 @@ function computeStats(group, whis = "iqr15") {
     notchHigh: median + notch
   };
 }
+function fmtNum(v) {
+  const dec = Math.abs(v) >= 100 ? 0 : 2;
+  return v.toLocaleString("es-AR", { maximumFractionDigits: dec });
+}
 function buildTooltipContent7(stats) {
-  return `${stats.group}: med=${stats.median.toFixed(1)}, Q1=${stats.firstQuartile.toFixed(1)}, Q3=${stats.thirdQuartile.toFixed(1)}`;
+  const n = stats.outliers.length;
+  return [
+    `${stats.group}: bigote de abajo ${fmtNum(stats.min)}`,
+    `Q1 ${fmtNum(stats.firstQuartile)}`,
+    `mediana ${fmtNum(stats.median)}`,
+    `Q3 ${fmtNum(stats.thirdQuartile)}`,
+    `bigote de arriba ${fmtNum(stats.max)}`,
+    `${n} ${n === 1 ? "at\xEDpico" : "at\xEDpicos"}`
+  ].join(" \xB7 ");
 }
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlot.hooks.ts
-import { useMemo as useMemo51, useCallback as useCallback57 } from "react";
+import { useMemo as useMemo52, useCallback as useCallback59 } from "react";
 function useBoxPlotStats(data, whis) {
-  return useMemo51(() => data.map((g) => computeStats(g, whis)), [data, whis]);
+  return useMemo52(() => data.map((g) => computeStats(g, whis)), [data, whis]);
 }
 function useBoxPlotColors(stats, colorScheme) {
-  return useMemo51(() => {
+  return useMemo52(() => {
     const palette = resolveColorScheme(colorScheme);
     return stats.map((_, i) => palette[i % palette.length]);
   }, [stats, colorScheme]);
 }
 function useBoxPlotInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback57((d, i) => {
+  const handleEnter = useCallback59((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback57(() => {
+  const handleLeave = useCallback59(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback57((d, i) => {
+  const handleClick = useCallback59((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlotInner.tsx
-import { jsx as jsx129, jsxs as jsxs89 } from "react/jsx-runtime";
+import { jsx as jsx130, jsxs as jsxs90 } from "react/jsx-runtime";
 var BoxPlotInner = (props) => {
   const {
     data,
@@ -23119,7 +23658,7 @@ var BoxPlotInner = (props) => {
     boxWhiskerStyle = "solid"
   } = props;
   const stats = useBoxPlotStats(data, boxWhisker);
-  const hMargin = useMemo52(() => {
+  const hMargin = useMemo53(() => {
     if (boxOrientation !== "horizontal") return margin;
     const longest = Math.max(0, ...data.map((d) => String(d.group).length));
     const base = margin ?? { top: 20, right: 20, bottom: 40, left: 50 };
@@ -23127,7 +23666,7 @@ var BoxPlotInner = (props) => {
   }, [margin, data, boxOrientation]);
   const dims = useInnerDims(width, height, hMargin, props);
   const H = boxOrientation === "horizontal";
-  const { catScale, valScale } = useMemo52(() => {
+  const { catScale, valScale } = useMemo53(() => {
     const groups = stats.map((st) => st.group);
     const all = stats.flatMap((st) => [st.min, st.max, ...st.outliers, ...st.mean != null ? [st.mean] : []]);
     const [lo, hi] = yDomain ?? safeExtent(all);
@@ -23142,33 +23681,33 @@ var BoxPlotInner = (props) => {
   const val = H ? xScale : yScale;
   const colors = useBoxPlotColors(stats, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBoxPlotInteraction(onHover, onSelect);
-  const classes = useMemo52(() => buildBoxPlotClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo53(() => buildBoxPlotClasses(className, unstyled), [className, unstyled]);
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx129("div", { className: classes, children: /* @__PURE__ */ jsx129("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty box plot" }) });
+    return /* @__PURE__ */ jsx130("div", { className: classes, children: /* @__PURE__ */ jsx130("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty box plot" }) });
   }
   const halfBox = Math.min(boxWidth, cat.bandwidth()) / 2;
   const pt = (c, v) => H ? [val(v) ?? 0, c] : [c, val(v) ?? 0];
   const seg = (c1, v1, c2, v2, p2, key) => {
     const [x1, y1] = pt(c1, v1);
     const [x2, y2] = pt(c2, v2);
-    return /* @__PURE__ */ jsx129("line", { x1, y1, x2, y2, ...p2 }, key);
+    return /* @__PURE__ */ jsx130("line", { x1, y1, x2, y2, ...p2 }, key);
   };
   const flier = (cx, v, color, k) => {
     const [x, y] = pt(cx, v);
     const r = 3;
-    if (boxFlierShape === "x") return /* @__PURE__ */ jsx129("path", { className: "w3f-chart-box-flier", d: `M${x - r},${y - r}L${x + r},${y + r}M${x - r},${y + r}L${x + r},${y - r}`, stroke: color, strokeWidth: 1.5 }, k);
-    if (boxFlierShape === "diamond") return /* @__PURE__ */ jsx129("path", { className: "w3f-chart-box-flier", d: `M${x},${y - r * 1.3}L${x + r * 1.3},${y}L${x},${y + r * 1.3}L${x - r * 1.3},${y}Z`, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
-    if (boxFlierShape === "square") return /* @__PURE__ */ jsx129("rect", { className: "w3f-chart-box-flier", x: x - r, y: y - r, width: 2 * r, height: 2 * r, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
-    return /* @__PURE__ */ jsx129("circle", { className: "w3f-chart-box-flier", cx: x, cy: y, r, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
+    if (boxFlierShape === "x") return /* @__PURE__ */ jsx130("path", { className: "w3f-chart-box-flier", d: `M${x - r},${y - r}L${x + r},${y + r}M${x - r},${y + r}L${x + r},${y - r}`, stroke: color, strokeWidth: 1.5 }, k);
+    if (boxFlierShape === "diamond") return /* @__PURE__ */ jsx130("path", { className: "w3f-chart-box-flier", d: `M${x},${y - r * 1.3}L${x + r * 1.3},${y}L${x},${y + r * 1.3}L${x - r * 1.3},${y}Z`, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
+    if (boxFlierShape === "square") return /* @__PURE__ */ jsx130("rect", { className: "w3f-chart-box-flier", x: x - r, y: y - r, width: 2 * r, height: 2 * r, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
+    return /* @__PURE__ */ jsx130("circle", { className: "w3f-chart-box-flier", cx: x, cy: y, r, fill: "none", stroke: color, strokeWidth: 1.5 }, k);
   };
-  return /* @__PURE__ */ jsxs89("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx129(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs89("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs89("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Box plot", children: [
-        description && /* @__PURE__ */ jsx129("desc", { children: description }),
-        /* @__PURE__ */ jsxs89(Group18, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && (H ? /* @__PURE__ */ jsx129(ChartGrid, { xScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx129(ChartGrid, { yScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
+  return /* @__PURE__ */ jsxs90("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx130(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs90("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs90("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Box plot", children: [
+        description && /* @__PURE__ */ jsx130("desc", { children: description }),
+        /* @__PURE__ */ jsxs90(Group18, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && (H ? /* @__PURE__ */ jsx130(ChartGrid, { xScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx130(ChartGrid, { yScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
           stats.map((st, i) => {
             const cx = (cat(st.group) ?? 0) + cat.bandwidth() / 2;
             const isHovered = hoveredIndex === i;
@@ -23197,7 +23736,7 @@ var BoxPlotInner = (props) => {
             ];
             const boxPath = "M" + boxPts.map(([c, v]) => pt(c, v).join(",")).join("L") + "Z";
             const medHalf = boxNotch ? halfBox * 0.5 : halfBox;
-            return /* @__PURE__ */ jsxs89(
+            return /* @__PURE__ */ jsxs90(
               "g",
               {
                 opacity,
@@ -23210,7 +23749,7 @@ var BoxPlotInner = (props) => {
                   seg(cx, st.firstQuartile, cx, st.min, wh, "wl"),
                   boxShowCaps && seg(cx - cap, st.max, cx + cap, st.max, { stroke: fill, strokeWidth: 1.5 }, "cu"),
                   boxShowCaps && seg(cx - cap, st.min, cx + cap, st.min, { stroke: fill, strokeWidth: 1.5 }, "cl"),
-                  /* @__PURE__ */ jsx129("path", { d: boxPath, fill, fillOpacity: 0.3, stroke: fill, strokeWidth: 1.5, className: "w3f-chart-box" }),
+                  /* @__PURE__ */ jsx130("path", { d: boxPath, fill, fillOpacity: 0.3, stroke: fill, strokeWidth: 1.5, className: "w3f-chart-box" }),
                   seg(
                     cx - medHalf,
                     st.median,
@@ -23229,7 +23768,7 @@ var BoxPlotInner = (props) => {
                   ),
                   boxShowMeans === "point" && st.mean != null && (() => {
                     const [x, y] = pt(cx, st.mean);
-                    return /* @__PURE__ */ jsx129(
+                    return /* @__PURE__ */ jsx130(
                       "path",
                       {
                         d: `M${x},${y - 5}L${x + 5},${y}L${x},${y + 5}L${x - 5},${y}Z`,
@@ -23246,10 +23785,10 @@ var BoxPlotInner = (props) => {
               st.group
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx129(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : void 0 }),
-          showYAxis && /* @__PURE__ */ jsx129(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? void 0 : yf }),
-          /* @__PURE__ */ jsx129(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          !H && /* @__PURE__ */ jsx129(
+          showXAxis && /* @__PURE__ */ jsx130(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : void 0 }),
+          showYAxis && /* @__PURE__ */ jsx130(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? void 0 : yf }),
+          /* @__PURE__ */ jsx130(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          !H && /* @__PURE__ */ jsx130(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -23267,7 +23806,7 @@ var BoxPlotInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const st = stats[hoveredIndex];
         const [x, y] = pt((cat(st.group) ?? 0) + cat.bandwidth() / 2, st.median);
-        return /* @__PURE__ */ jsx129(ChartTooltip, { left: x + plotLeft(dims, props), top: y + plotTop(dims, props), visible: true, offsetY: -12, children: buildTooltipContent7(st) });
+        return /* @__PURE__ */ jsx130(ChartTooltip, { left: x + plotLeft(dims, props), top: y + plotTop(dims, props), visible: true, offsetY: -12, children: buildTooltipContent7(st) });
       })()
     ] })
   ] });
@@ -23275,21 +23814,21 @@ var BoxPlotInner = (props) => {
 BoxPlotInner.displayName = "BoxPlotInner";
 
 // src/DATADISPLAY/Charts/BoxPlot/BoxPlot.tsx
-import { jsx as jsx130 } from "react/jsx-runtime";
-var BoxPlot = React102.forwardRef(
+import { jsx as jsx131 } from "react/jsx-runtime";
+var BoxPlot = React104.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef49(null);
+    const containerRef = useRef51(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx130("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx130("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx130(BoxPlotInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx131("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx131("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx131(BoxPlotInner, { ...rest, width, height }) }) });
   }
 );
 BoxPlot.displayName = "BoxPlot";
 
 // src/DATADISPLAY/Charts/Violin/Violin.tsx
-import React104, { useRef as useRef50 } from "react";
+import React106, { useRef as useRef52 } from "react";
 
 // src/DATADISPLAY/Charts/Violin/ViolinInner.tsx
-import { useMemo as useMemo54 } from "react";
+import { useMemo as useMemo55 } from "react";
 import { Group as Group19 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Violin/Violin.constants.ts
@@ -23310,7 +23849,7 @@ function buildViolinClasses(className, unstyled) {
 }
 function kde(values, min, max, resolution, bandwidthMul) {
   if (values.length === 0) return [];
-  const sorted = [...values].sort((a, b) => a - b);
+  const sorted = values.toSorted((a, b) => a - b);
   const n = sorted.length;
   const std = Math.sqrt(sorted.reduce((s, v) => s + (v - sorted[n >> 1]) ** 2, 0) / n) || 1;
   const h = 1.06 * std * Math.pow(n, -0.2) * bandwidthMul;
@@ -23334,37 +23873,37 @@ function buildTooltipContent8(group) {
 }
 
 // src/DATADISPLAY/Charts/Violin/Violin.hooks.ts
-import { useMemo as useMemo53, useCallback as useCallback58 } from "react";
+import { useMemo as useMemo54, useCallback as useCallback60 } from "react";
 function useViolinKDE(data, yMin, yMax, resolution, bandwidth) {
-  return useMemo53(
+  return useMemo54(
     () => data.map((g) => kde(g.values, yMin, yMax, resolution, bandwidth)),
     [data, yMin, yMax, resolution, bandwidth]
   );
 }
 function useViolinColors(data, colorScheme) {
-  return useMemo53(() => {
+  return useMemo54(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
 }
 function useViolinInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback58((d, i) => {
+  const handleEnter = useCallback60((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback58(() => {
+  const handleLeave = useCallback60(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback58((d, i) => {
+  const handleClick = useCallback60((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Violin/ViolinInner.tsx
-import { jsx as jsx131, jsxs as jsxs90 } from "react/jsx-runtime";
+import { jsx as jsx132, jsxs as jsxs91 } from "react/jsx-runtime";
 var ViolinInner = (props) => {
   const {
     data,
@@ -23399,7 +23938,7 @@ var ViolinInner = (props) => {
     violinQuantiles = "none",
     violinLineColor
   } = props;
-  const hMargin = useMemo54(() => {
+  const hMargin = useMemo55(() => {
     if (violinOrientation !== "horizontal") return margin;
     const longest = Math.max(0, ...data.map((d) => String(d.group).length));
     const base = margin ?? { top: 20, right: 20, bottom: 40, left: 50 };
@@ -23407,9 +23946,9 @@ var ViolinInner = (props) => {
   }, [margin, data, violinOrientation]);
   const dims = useInnerDims(width, height, hMargin, props);
   const H = violinOrientation === "horizontal";
-  const allValues = useMemo54(() => data.flatMap((d) => d.values), [data]);
-  const [yMin, yMax] = useMemo54(() => yDomain ?? safeExtent(allValues), [yDomain, allValues]);
-  const { catScale, valScale } = useMemo54(() => ({
+  const allValues = useMemo55(() => data.flatMap((d) => d.values), [data]);
+  const [yMin, yMax] = useMemo55(() => yDomain ?? safeExtent(allValues), [yDomain, allValues]);
+  const { catScale, valScale } = useMemo55(() => ({
     catScale: buildBandScale(data.map((d) => d.group), H ? [0, dims.innerHeight] : [0, dims.innerWidth], 0.2),
     valScale: buildLinearScale(yMin, yMax, H ? [0, dims.innerWidth] : [dims.innerHeight, 0])
   }), [data, dims.innerWidth, dims.innerHeight, yMin, yMax, H]);
@@ -23420,15 +23959,15 @@ var ViolinInner = (props) => {
   const kdeResults = useViolinKDE(data, yMin, yMax, resolution, bandwidth);
   const colors = useViolinColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useViolinInteraction(onHover, onSelect);
-  const maxDensity = useMemo54(() => {
+  const maxDensity = useMemo55(() => {
     let m = 0;
     for (const pts of kdeResults) for (const p of pts) if (p.density > m) m = p.density;
     return m || 1;
   }, [kdeResults]);
-  const classes = useMemo54(() => buildViolinClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo55(() => buildViolinClasses(className, unstyled), [className, unstyled]);
   const yf = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx131("div", { className: classes, children: /* @__PURE__ */ jsx131("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty violin plot" }) });
+    return /* @__PURE__ */ jsx132("div", { className: classes, children: /* @__PURE__ */ jsx132("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty violin plot" }) });
   }
   const pt = (c, v) => H ? [val(v) ?? 0, c] : [c, val(v) ?? 0];
   const qs = violinQuantiles === "quartiles" ? [0.25, 0.5, 0.75] : violinQuantiles === "deciles" ? [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] : [];
@@ -23437,13 +23976,13 @@ var ViolinInner = (props) => {
     const base = Math.floor(pos);
     return sorted[base + 1] !== void 0 ? sorted[base] + (pos - base) * (sorted[base + 1] - sorted[base]) : sorted[base];
   };
-  return /* @__PURE__ */ jsxs90("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx131(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs90("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs90("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Violin plot", children: [
-        description && /* @__PURE__ */ jsx131("desc", { children: description }),
-        /* @__PURE__ */ jsxs90(Group19, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && (H ? /* @__PURE__ */ jsx131(ChartGrid, { xScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx131(ChartGrid, { yScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
+  return /* @__PURE__ */ jsxs91("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx132(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs91("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs91("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Violin plot", children: [
+        description && /* @__PURE__ */ jsx132("desc", { children: description }),
+        /* @__PURE__ */ jsxs91(Group19, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && (H ? /* @__PURE__ */ jsx132(ChartGrid, { xScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx132(ChartGrid, { yScale: val, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
           data.map((g, i) => {
             const cx = (cat(g.group) ?? 0) + cat.bandwidth() / 2;
             const halfW = cat.bandwidth() / 2 * Math.max(0.1, Math.min(1, violinWidth));
@@ -23455,15 +23994,15 @@ var ViolinInner = (props) => {
             const hi = violinSide !== "low";
             const lo = violinSide !== "high";
             const right = pts.map((p) => pt(cx + (hi ? p.density / maxDensity * halfW : 0), p.value).join(","));
-            const left = [...pts].reverse().map((p) => pt(cx - (lo ? p.density / maxDensity * halfW : 0), p.value).join(","));
+            const left = pts.toReversed().map((p) => pt(cx - (lo ? p.density / maxDensity * halfW : 0), p.value).join(","));
             const pathD = `M${right.join(" L")} L${left.join(" L")} Z`;
-            const sorted = [...g.values].sort((a, b) => a - b);
+            const sorted = g.values.toSorted((a, b) => a - b);
             const mark = (v, w, k, style) => {
               const [x1, y1] = pt(cx - (lo ? w : 0), v);
               const [x2, y2] = pt(cx + (hi ? w : 0), v);
-              return /* @__PURE__ */ jsx131("line", { x1, y1, x2, y2, ...style }, k);
+              return /* @__PURE__ */ jsx132("line", { x1, y1, x2, y2, ...style }, k);
             };
-            return /* @__PURE__ */ jsxs90(
+            return /* @__PURE__ */ jsxs91(
               "g",
               {
                 opacity,
@@ -23472,14 +24011,14 @@ var ViolinInner = (props) => {
                 onMouseLeave: handleLeave,
                 onClick: onSelect ? () => handleClick(g, i) : void 0,
                 children: [
-                  /* @__PURE__ */ jsx131("path", { d: pathD, fill, fillOpacity: 0.3, stroke: line, strokeWidth: 1.5, className: "w3f-chart-violin" }),
-                  violinShowExtrema && sorted.length > 0 && /* @__PURE__ */ jsxs90("g", { className: "w3f-chart-violin-extrema", children: [
+                  /* @__PURE__ */ jsx132("path", { d: pathD, fill, fillOpacity: 0.3, stroke: line, strokeWidth: 1.5, className: "w3f-chart-violin" }),
+                  violinShowExtrema && sorted.length > 0 && /* @__PURE__ */ jsxs91("g", { className: "w3f-chart-violin-extrema", children: [
                     mark(sorted[0], halfW * 0.4, "mn", { stroke: line, strokeWidth: 1.5 }),
                     mark(sorted[sorted.length - 1], halfW * 0.4, "mx", { stroke: line, strokeWidth: 1.5 }),
                     (() => {
                       const [x1, y1] = pt(cx, sorted[0]);
                       const [x2, y2] = pt(cx, sorted[sorted.length - 1]);
-                      return /* @__PURE__ */ jsx131("line", { x1, y1, x2, y2, stroke: line, strokeWidth: 1 });
+                      return /* @__PURE__ */ jsx132("line", { x1, y1, x2, y2, stroke: line, strokeWidth: 1 });
                     })()
                   ] }),
                   sorted.length > 0 && qs.map((q) => mark(
@@ -23496,17 +24035,17 @@ var ViolinInner = (props) => {
                   ),
                   violinShowMeans && sorted.length > 0 && (() => {
                     const [x, y] = pt(cx, sorted.reduce((s, v) => s + v, 0) / sorted.length);
-                    return /* @__PURE__ */ jsx131("circle", { cx: x, cy: y, r: 4, fill: "#ffffff", stroke: line, strokeWidth: 1.5, className: "w3f-chart-violin-mean" });
+                    return /* @__PURE__ */ jsx132("circle", { cx: x, cy: y, r: 4, fill: "#ffffff", stroke: line, strokeWidth: 1.5, className: "w3f-chart-violin-mean" });
                   })()
                 ]
               },
               g.group
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx131(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : void 0 }),
-          showYAxis && /* @__PURE__ */ jsx131(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? void 0 : yf }),
-          /* @__PURE__ */ jsx131(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          !H && /* @__PURE__ */ jsx131(
+          showXAxis && /* @__PURE__ */ jsx132(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : void 0 }),
+          showYAxis && /* @__PURE__ */ jsx132(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? void 0 : yf }),
+          /* @__PURE__ */ jsx132(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          !H && /* @__PURE__ */ jsx132(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -23523,9 +24062,9 @@ var ViolinInner = (props) => {
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const g = data[hoveredIndex];
-        const sorted = [...g.values].sort((a, b) => a - b);
+        const sorted = g.values.toSorted((a, b) => a - b);
         const [x, y] = pt((cat(g.group) ?? 0) + cat.bandwidth() / 2, sorted[Math.floor(sorted.length / 2)]);
-        return /* @__PURE__ */ jsx131(ChartTooltip, { left: x + plotLeft(dims, props), top: y + plotTop(dims, props), visible: true, offsetY: -12, children: buildTooltipContent8(g) });
+        return /* @__PURE__ */ jsx132(ChartTooltip, { left: x + plotLeft(dims, props), top: y + plotTop(dims, props), visible: true, offsetY: -12, children: buildTooltipContent8(g) });
       })()
     ] })
   ] });
@@ -23533,21 +24072,21 @@ var ViolinInner = (props) => {
 ViolinInner.displayName = "ViolinInner";
 
 // src/DATADISPLAY/Charts/Violin/Violin.tsx
-import { jsx as jsx132 } from "react/jsx-runtime";
-var Violin = React104.forwardRef(
+import { jsx as jsx133 } from "react/jsx-runtime";
+var Violin = React106.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef50(null);
+    const containerRef = useRef52(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx132("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx132("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx132(ViolinInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx133("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx133("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx133(ViolinInner, { ...rest, width, height }) }) });
   }
 );
 Violin.displayName = "Violin";
 
 // src/DATADISPLAY/Charts/Histogram/Histogram.tsx
-import React106, { useRef as useRef51 } from "react";
+import React108, { useRef as useRef53 } from "react";
 
 // src/DATADISPLAY/Charts/Histogram/HistogramInner.tsx
-import { useMemo as useMemo56 } from "react";
+import { useMemo as useMemo57 } from "react";
 import { Group as Group20 } from "@visx/group";
 import { Bar as VisxBar7 } from "@visx/shape";
 
@@ -23589,27 +24128,27 @@ function buildTooltipContent9(bin) {
 }
 
 // src/DATADISPLAY/Charts/Histogram/Histogram.hooks.ts
-import { useMemo as useMemo55, useCallback as useCallback59 } from "react";
+import { useMemo as useMemo56, useCallback as useCallback61 } from "react";
 function useHistogramBins(data, binCount, xDomain, given) {
-  return useMemo55(() => given ?? computeBins(data, binCount, xDomain), [data, binCount, xDomain, given]);
+  return useMemo56(() => given ?? computeBins(data, binCount, xDomain), [data, binCount, xDomain, given]);
 }
 function useHistogramColor(colorScheme) {
-  return useMemo55(() => {
+  return useMemo56(() => {
     const palette = resolveColorScheme(colorScheme);
     return palette[0];
   }, [colorScheme]);
 }
 function useHistogramInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback59((b, i) => {
+  const handleEnter = useCallback61((b, i) => {
     enter(i);
     onHover?.(b, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback59(() => {
+  const handleLeave = useCallback61(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback59((b, i) => {
+  const handleClick = useCallback61((b, i) => {
     onSelect?.(b, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
@@ -23617,7 +24156,7 @@ function useHistogramInteraction(onHover, onSelect) {
 
 // src/DATADISPLAY/Charts/Histogram/HistogramInner.tsx
 import { scaleLinear as scaleLinear11 } from "@visx/scale";
-import { jsx as jsx133, jsxs as jsxs91 } from "react/jsx-runtime";
+import { jsx as jsx134, jsxs as jsxs92 } from "react/jsx-runtime";
 var HistogramInner = (props) => {
   const {
     data,
@@ -23654,7 +24193,7 @@ var HistogramInner = (props) => {
     histOrientation = "vertical"
   } = props;
   const rawBins = useHistogramBins(data, binCount, xDomain, givenBins);
-  const bins = useMemo56(() => {
+  const bins = useMemo57(() => {
     let b = rawBins.filter((x) => (histRangeMin == null || x.x1 > histRangeMin) && (histRangeMax == null || x.x0 < histRangeMax));
     const total = b.reduce((s, x) => s + x.count, 0) || 1;
     if (histCumulative) {
@@ -23670,7 +24209,7 @@ var HistogramInner = (props) => {
   }, [rawBins, histRangeMin, histRangeMax, histCumulative, histDensity]);
   const dims = useInnerDims(width, height, margin, props);
   const H = histOrientation === "horizontal";
-  const { valScale, cntScale } = useMemo56(() => {
+  const { valScale, cntScale } = useMemo57(() => {
     const lo = bins.length ? bins[0].x0 : 0;
     const hi = bins.length ? bins[bins.length - 1].x1 : 1;
     const max = Math.max(0, ...bins.map((x) => x.count)) || 1;
@@ -23685,11 +24224,11 @@ var HistogramInner = (props) => {
   const cnt = H ? xScale : yScale;
   const fillColor = useHistogramColor(colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useHistogramInteraction(onHover, onSelect);
-  const classes = useMemo56(() => buildHistogramClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo57(() => buildHistogramClasses(className, unstyled), [className, unstyled]);
   const xf = formatX ?? formatTick;
   const yf = formatY ?? formatTick;
   if (bins.length === 0) {
-    return /* @__PURE__ */ jsx133("div", { className: classes, children: /* @__PURE__ */ jsx133("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty histogram" }) });
+    return /* @__PURE__ */ jsx134("div", { className: classes, children: /* @__PURE__ */ jsx134("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty histogram" }) });
   }
   const cBase = cnt.range()[0];
   const rectOf = (bin) => {
@@ -23705,14 +24244,14 @@ var HistogramInner = (props) => {
     }
     return d + ` L${p(val(bins[bins.length - 1].x1) ?? 0, cBase)}` + (histType === "stepfilled" ? " Z" : "");
   };
-  return /* @__PURE__ */ jsxs91("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx133(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs91("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs91("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Histogram", children: [
-        description && /* @__PURE__ */ jsx133("desc", { children: description }),
-        /* @__PURE__ */ jsxs91(Group20, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && (H ? /* @__PURE__ */ jsx133(ChartGrid, { xScale: cnt, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx133(ChartGrid, { yScale: cnt, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
-          histType !== "bar" && /* @__PURE__ */ jsx133(
+  return /* @__PURE__ */ jsxs92("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx134(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs92("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs92("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Histogram", children: [
+        description && /* @__PURE__ */ jsx134("desc", { children: description }),
+        /* @__PURE__ */ jsxs92(Group20, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && (H ? /* @__PURE__ */ jsx134(ChartGrid, { xScale: cnt, width: dims.innerWidth, height: dims.innerHeight, axis: "columns" }) : /* @__PURE__ */ jsx134(ChartGrid, { yScale: cnt, width: dims.innerWidth, height: dims.innerHeight, axis: "rows" })),
+          histType !== "bar" && /* @__PURE__ */ jsx134(
             "path",
             {
               d: stepPath(),
@@ -23727,7 +24266,7 @@ var HistogramInner = (props) => {
           bins.map((bin, i) => {
             const r = rectOf(bin);
             const isHovered = hoveredIndex === i;
-            return /* @__PURE__ */ jsx133(
+            return /* @__PURE__ */ jsx134(
               VisxBar7,
               {
                 ...r,
@@ -23745,10 +24284,10 @@ var HistogramInner = (props) => {
               i
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx133(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : xf }),
-          showYAxis && /* @__PURE__ */ jsx133(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? xf : yf }),
-          /* @__PURE__ */ jsx133(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          !H && /* @__PURE__ */ jsx133(
+          showXAxis && /* @__PURE__ */ jsx134(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props), tickFormat: H ? yf : xf }),
+          showYAxis && /* @__PURE__ */ jsx134(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: H ? xf : yf }),
+          /* @__PURE__ */ jsx134(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          !H && /* @__PURE__ */ jsx134(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -23762,7 +24301,7 @@ var HistogramInner = (props) => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsx133(ChartMarkDecorLayer, { ...props }),
+        /* @__PURE__ */ jsx134(ChartMarkDecorLayer, { ...props }),
         "   "
       ] }),
       showTooltip && hoveredIndex != null && (() => {
@@ -23770,7 +24309,7 @@ var HistogramInner = (props) => {
         const r = rectOf(bin);
         const cx = r.x + (H ? r.width : r.width / 2) + plotLeft(dims, props);
         const cy = r.y + (H ? r.height / 2 : 0) + plotTop(dims, props);
-        return /* @__PURE__ */ jsx133(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent9(bin) });
+        return /* @__PURE__ */ jsx134(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -12, children: buildTooltipContent9(bin) });
       })()
     ] })
   ] });
@@ -23778,21 +24317,21 @@ var HistogramInner = (props) => {
 HistogramInner.displayName = "HistogramInner";
 
 // src/DATADISPLAY/Charts/Histogram/Histogram.tsx
-import { jsx as jsx134 } from "react/jsx-runtime";
-var Histogram = React106.forwardRef(
+import { jsx as jsx135 } from "react/jsx-runtime";
+var Histogram = React108.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef51(null);
+    const containerRef = useRef53(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx134("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx134("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx134(HistogramInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx135("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx135("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx135(HistogramInner, { ...rest, width, height }) }) });
   }
 );
 Histogram.displayName = "Histogram";
 
 // src/DATADISPLAY/Charts/Pie/Pie.tsx
-import React108, { useRef as useRef52 } from "react";
+import React110, { useRef as useRef54 } from "react";
 
 // src/DATADISPLAY/Charts/Pie/PieInner.tsx
-import { useMemo as useMemo58 } from "react";
+import { useMemo as useMemo59 } from "react";
 import { Group as Group21 } from "@visx/group";
 import { Pie as VisxPie } from "@visx/shape";
 
@@ -23826,34 +24365,34 @@ function labelFits(startAngle, endAngle, minAngle = 0.35) {
 }
 
 // src/DATADISPLAY/Charts/Pie/Pie.hooks.ts
-import { useMemo as useMemo57, useCallback as useCallback60 } from "react";
+import { useMemo as useMemo58, useCallback as useCallback62 } from "react";
 function usePieAccessors(getValue2, getLabel) {
-  return useMemo57(() => ({
+  return useMemo58(() => ({
     getValue: getValue2 ?? defaultGetValue6,
     getLabel: getLabel ?? defaultGetLabel9
   }), [getValue2, getLabel]);
 }
 function usePieColors(data, colorScheme) {
-  return useMemo57(() => buildPieColors(data, colorScheme), [data, colorScheme]);
+  return useMemo58(() => buildPieColors(data, colorScheme), [data, colorScheme]);
 }
 function usePieInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback60((d, i) => {
+  const handleEnter = useCallback62((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback60(() => {
+  const handleLeave = useCallback62(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback60((d, i) => {
+  const handleClick = useCallback62((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Pie/PieInner.tsx
-import { jsx as jsx135, jsxs as jsxs92 } from "react/jsx-runtime";
+import { jsx as jsx136, jsxs as jsxs93 } from "react/jsx-runtime";
 var sliceText = (mode, name, value, total) => {
   const pct = total ? `${(value / total * 100).toLocaleString("es-AR", { maximumFractionDigits: 1 })} %` : "";
   const val = value.toLocaleString("es-AR", { maximumFractionDigits: 2 });
@@ -23909,31 +24448,31 @@ var PieInner = (props) => {
   const { getValue: getValue2, getLabel } = usePieAccessors(gvp, glp);
   const colors = usePieColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePieInteraction(onHover, onSelect);
-  const classes = useMemo58(() => buildPieClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo59(() => buildPieClasses(className, unstyled), [className, unstyled]);
   const legendHeight = showLegend ? 36 : 0;
   const svgHeight = height - legendHeight;
   const outside = labelPosition3 === "outside";
   const radius = Math.min(width, svgHeight) / 2 * (outside ? 0.68 : 0.85);
-  const total = useMemo58(() => data.reduce((s, d) => s + (Number(getValue2(d)) || 0), 0), [data, getValue2]);
-  const maxValue = useMemo58(() => Math.max(0, ...data.map((d) => Number(getValue2(d)) || 0)), [data, getValue2]);
+  const total = useMemo59(() => data.reduce((s, d) => s + (Number(getValue2(d)) || 0), 0), [data, getValue2]);
+  const maxValue = useMemo59(() => Math.max(0, ...data.map((d) => Number(getValue2(d)) || 0)), [data, getValue2]);
   const start = startAngle * Math.PI / 180;
   const sortProps = sliceOrder === "data" ? { pieSort: null, pieSortValues: null } : sliceOrder === "asc" ? { pieSortValues: (a, b) => a - b } : {};
   const innerR = radius * innerRadioProp;
   const cx = width / 2;
   const cy = svgHeight / 2;
-  const legendItems = useMemo58(
+  const legendItems = useMemo59(
     () => data.map((d, i) => ({ id: d.id, label: d.label, color: colors[i] })),
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx135("div", { className: classes, children: /* @__PURE__ */ jsx135("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pie chart" }) });
+    return /* @__PURE__ */ jsx136("div", { className: classes, children: /* @__PURE__ */ jsx136("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pie chart" }) });
   }
-  return /* @__PURE__ */ jsxs92("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx135(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs92("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs92("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Pie chart", children: [
-        description && /* @__PURE__ */ jsx135("desc", { children: description }),
-        /* @__PURE__ */ jsx135(Group21, { top: cy, left: cx, children: /* @__PURE__ */ jsx135(
+  return /* @__PURE__ */ jsxs93("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx136(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs93("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs93("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Pie chart", children: [
+        description && /* @__PURE__ */ jsx136("desc", { children: description }),
+        /* @__PURE__ */ jsx136(Group21, { top: cy, left: cx, children: /* @__PURE__ */ jsx136(
           VisxPie,
           {
             data: [...data],
@@ -23957,7 +24496,7 @@ var PieInner = (props) => {
               let deg = mid * 180 / Math.PI - 90;
               if (deg > 90) deg -= 180;
               if (deg < -90) deg += 180;
-              return /* @__PURE__ */ jsxs92(
+              return /* @__PURE__ */ jsxs93(
                 "g",
                 {
                   opacity,
@@ -23967,7 +24506,7 @@ var PieInner = (props) => {
                   onMouseLeave: handleLeave,
                   onClick: onSelect ? () => handleClick(d, i) : void 0,
                   children: [
-                    /* @__PURE__ */ jsx135(
+                    /* @__PURE__ */ jsx136(
                       "path",
                       {
                         d: path,
@@ -23978,7 +24517,7 @@ var PieInner = (props) => {
                         strokeWidth: isHighlighted ? 2 : void 0
                       }
                     ),
-                    showLabels && !outside && labelFits(arc.startAngle, arc.endAngle) && /* @__PURE__ */ jsx135(
+                    showLabels && !outside && labelFits(arc.startAngle, arc.endAngle) && /* @__PURE__ */ jsx136(
                       "text",
                       {
                         x: lx,
@@ -23999,8 +24538,8 @@ var PieInner = (props) => {
                       const sx = Math.sin(a), sy = -Math.cos(a);
                       const right = sx >= 0;
                       const ex = (radius + 14) * sx, ey = (radius + 14) * sy;
-                      return /* @__PURE__ */ jsxs92("g", { pointerEvents: "none", children: [
-                        /* @__PURE__ */ jsx135(
+                      return /* @__PURE__ */ jsxs93("g", { pointerEvents: "none", children: [
+                        /* @__PURE__ */ jsx136(
                           "polyline",
                           {
                             points: `${radius * sx},${radius * sy} ${ex},${ey} ${ex + (right ? 8 : -8)},${ey}`,
@@ -24009,7 +24548,7 @@ var PieInner = (props) => {
                             strokeWidth: 1
                           }
                         ),
-                        /* @__PURE__ */ jsx135(
+                        /* @__PURE__ */ jsx136(
                           "text",
                           {
                             x: ex + (right ? 11 : -11),
@@ -24034,43 +24573,43 @@ var PieInner = (props) => {
             })
           }
         ) }),
-        /* @__PURE__ */ jsx135(ChartMarkDecorLayer, { ...props }),
+        /* @__PURE__ */ jsx136(ChartMarkDecorLayer, { ...props }),
         "   "
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
-        return /* @__PURE__ */ jsx135(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent10(d, getValue2) });
+        return /* @__PURE__ */ jsx136(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent10(d, getValue2) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ jsx135(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ jsx136(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 PieInner.displayName = "PieInner";
 
 // src/DATADISPLAY/Charts/Pie/Pie.tsx
-import { jsx as jsx136 } from "react/jsx-runtime";
-var Pie = React108.forwardRef(
+import { jsx as jsx137 } from "react/jsx-runtime";
+var Pie = React110.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef52(null);
+    const containerRef = useRef54(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx136("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx136("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx136(PieInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx137("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx137("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx137(PieInner, { ...rest, width, height }) }) });
   }
 );
 Pie.displayName = "Pie";
 
 // src/DATADISPLAY/Charts/Donut/Donut.tsx
-import React109 from "react";
-import { jsx as jsx137 } from "react/jsx-runtime";
-var Donut = React109.forwardRef(
-  (props, ref) => /* @__PURE__ */ jsx137(Pie, { ref, innerRadius: 0.55, ...props })
+import React111 from "react";
+import { jsx as jsx138 } from "react/jsx-runtime";
+var Donut = React111.forwardRef(
+  (props, ref) => /* @__PURE__ */ jsx138(Pie, { ref, ...props, innerRadius: props.innerRadius ?? 0.55 })
 );
 Donut.displayName = "Donut";
 
 // src/DATADISPLAY/Charts/Radar/Radar.tsx
-import React111, { useRef as useRef53 } from "react";
+import React113, { useRef as useRef55 } from "react";
 
 // src/DATADISPLAY/Charts/Radar/RadarInner.tsx
-import { useMemo as useMemo60 } from "react";
+import { useMemo as useMemo61 } from "react";
 import { Group as Group22 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Radar/Radar.constants.ts
@@ -24124,43 +24663,43 @@ function buildTooltipContent11(d, getLabel, getValue2) {
 }
 
 // src/DATADISPLAY/Charts/Radar/Radar.hooks.ts
-import { useMemo as useMemo59, useCallback as useCallback61 } from "react";
+import { useMemo as useMemo60, useCallback as useCallback63 } from "react";
 function useRadarAccessors(getLabel, getValue2) {
-  return useMemo59(() => ({
+  return useMemo60(() => ({
     getLabel: getLabel ?? defaultGetLabel10,
     getValue: getValue2 ?? defaultGetValue7
   }), [getLabel, getValue2]);
 }
 function useRadarScale(data, getValue2, radius, maxValue) {
-  return useMemo59(() => {
+  return useMemo60(() => {
     const max = maxValue ?? Math.max(...data.map(getValue2), 1);
     return buildRadarScale(max, radius);
   }, [data, getValue2, radius, maxValue]);
 }
 function useRadarColor(colorScheme) {
-  return useMemo59(() => {
+  return useMemo60(() => {
     const palette = resolveColorScheme(colorScheme);
     return palette[0];
   }, [colorScheme]);
 }
 function useRadarInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback61((d, i) => {
+  const handleEnter = useCallback63((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback61(() => {
+  const handleLeave = useCallback63(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback61((d, i) => {
+  const handleClick = useCallback63((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Radar/RadarInner.tsx
-import { jsx as jsx138, jsxs as jsxs93 } from "react/jsx-runtime";
+import { jsx as jsx139, jsxs as jsxs94 } from "react/jsx-runtime";
 var RadarInner = (props) => {
   const {
     data,
@@ -24192,23 +24731,23 @@ var RadarInner = (props) => {
   const rScale = useRadarScale(data, getValue2, radius, maxValue);
   const color = useRadarColor(colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useRadarInteraction(onHover, onSelect);
-  const classes = useMemo60(() => buildRadarClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo61(() => buildRadarClasses(className, unstyled), [className, unstyled]);
   const cx = width / 2;
   const cy = height / 2;
   const n = data.length;
   if (n === 0) {
-    return /* @__PURE__ */ jsx138("div", { className: classes, children: /* @__PURE__ */ jsx138("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty radar chart" }) });
+    return /* @__PURE__ */ jsx139("div", { className: classes, children: /* @__PURE__ */ jsx139("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty radar chart" }) });
   }
   const polygon = buildPolygon(data, getValue2, rScale);
-  return /* @__PURE__ */ jsxs93("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx138(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs93("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs93("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Radar chart", children: [
-        description && /* @__PURE__ */ jsx138("desc", { children: description }),
-        /* @__PURE__ */ jsxs93(Group22, { top: cy, left: cx, children: [
+  return /* @__PURE__ */ jsxs94("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx139(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs94("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs94("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Radar chart", children: [
+        description && /* @__PURE__ */ jsx139("desc", { children: description }),
+        /* @__PURE__ */ jsxs94(Group22, { top: cy, left: cx, children: [
           showGrid && Array.from({ length: gridLevels }, (_, level) => {
             const r = radius * (level + 1) / gridLevels;
-            return /* @__PURE__ */ jsx138(
+            return /* @__PURE__ */ jsx139(
               "polygon",
               {
                 points: buildGridPolygon(n, r),
@@ -24222,7 +24761,7 @@ var RadarInner = (props) => {
           }),
           showGrid && data.map((_, i) => {
             const angle = axisAngle(i, n);
-            return /* @__PURE__ */ jsx138(
+            return /* @__PURE__ */ jsx139(
               "line",
               {
                 x1: 0,
@@ -24235,7 +24774,7 @@ var RadarInner = (props) => {
               i
             );
           }),
-          /* @__PURE__ */ jsx138(
+          /* @__PURE__ */ jsx139(
             "polygon",
             {
               points: polygon,
@@ -24251,7 +24790,7 @@ var RadarInner = (props) => {
             const px = Math.cos(angle) * r;
             const py = Math.sin(angle) * r;
             const isHovered = hoveredIndex === i;
-            return /* @__PURE__ */ jsx138(
+            return /* @__PURE__ */ jsx139(
               "circle",
               {
                 cx: px,
@@ -24270,7 +24809,7 @@ var RadarInner = (props) => {
           }),
           showLabels && data.map((d, i) => {
             const pos = labelPosition(i, n, radius);
-            return /* @__PURE__ */ jsx138(
+            return /* @__PURE__ */ jsx139(
               "text",
               {
                 x: pos.x,
@@ -24290,7 +24829,7 @@ var RadarInner = (props) => {
         const d = data[hoveredIndex];
         const angle = axisAngle(hoveredIndex, n);
         const r = rScale(getValue2(d));
-        return /* @__PURE__ */ jsx138(
+        return /* @__PURE__ */ jsx139(
           ChartTooltip,
           {
             left: cx + Math.cos(angle) * r,
@@ -24307,21 +24846,21 @@ var RadarInner = (props) => {
 RadarInner.displayName = "RadarInner";
 
 // src/DATADISPLAY/Charts/Radar/Radar.tsx
-import { jsx as jsx139 } from "react/jsx-runtime";
-var Radar = React111.forwardRef(
+import { jsx as jsx140 } from "react/jsx-runtime";
+var Radar = React113.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef53(null);
+    const containerRef = useRef55(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 400, 400);
-    return /* @__PURE__ */ jsx139("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx139("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx139(RadarInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx140("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx140("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx140(RadarInner, { ...rest, width, height }) }) });
   }
 );
 Radar.displayName = "Radar";
 
 // src/DATADISPLAY/Charts/Gauge/Gauge.tsx
-import React113, { useRef as useRef54 } from "react";
+import React115, { useRef as useRef56 } from "react";
 
 // src/DATADISPLAY/Charts/Gauge/GaugeInner.tsx
-import { useMemo as useMemo62 } from "react";
+import { useMemo as useMemo63 } from "react";
 
 // src/DATADISPLAY/Charts/Gauge/Gauge.constants.ts
 var GAUGE_ROOT_CLASS = "w3f-chart-gauge";
@@ -24344,7 +24883,7 @@ function buildGaugeScale(min, max) {
 }
 function getGaugeColor(value, color, thresholds) {
   if (!thresholds || thresholds.length === 0) return color;
-  const sorted = [...thresholds].sort((a, b) => a.value - b.value);
+  const sorted = thresholds.toSorted((a, b) => a.value - b.value);
   let result = color;
   for (const t of sorted) {
     if (value >= t.value) result = t.color;
@@ -24384,16 +24923,16 @@ function needlePath(cx, cy, length, angle) {
 }
 
 // src/DATADISPLAY/Charts/Gauge/Gauge.hooks.ts
-import { useMemo as useMemo61 } from "react";
+import { useMemo as useMemo62 } from "react";
 function useGaugeScale(min, max) {
-  return useMemo61(() => buildGaugeScale(min, max), [min, max]);
+  return useMemo62(() => buildGaugeScale(min, max), [min, max]);
 }
 function useGaugeColor(value, color, thresholds) {
-  return useMemo61(() => getGaugeColor(value, color, thresholds), [value, color, thresholds]);
+  return useMemo62(() => getGaugeColor(value, color, thresholds), [value, color, thresholds]);
 }
 
 // src/DATADISPLAY/Charts/Gauge/GaugeInner.tsx
-import { Fragment as Fragment19, jsx as jsx140, jsxs as jsxs94 } from "react/jsx-runtime";
+import { Fragment as Fragment18, jsx as jsx141, jsxs as jsxs95 } from "react/jsx-runtime";
 var GaugeInner = (props) => {
   const {
     value,
@@ -24413,74 +24952,115 @@ var GaugeInner = (props) => {
     showValue = GAUGE_DEFAULTS.showValue,
     showMinMax = GAUGE_DEFAULTS.showMinMax,
     highlightIndex,
-    formatValue: formatValue2
+    formatValue: formatValue2,
+    valueText,
+    target,
+    targetText,
+    onSelect
   } = props;
   const scale = useGaugeScale(min, max);
   const fillColor = useGaugeColor(value, color, thresholds);
-  const classes = useMemo62(() => buildGaugeClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo63(() => buildGaugeClasses(className, unstyled), [className, unstyled]);
   const cx = width / 2;
-  const cy = height * 0.72;
-  const outerR = Math.min(width / 2, height * 0.65) * 0.9;
+  const cy = height * (targetText ? 0.62 : 0.72);
+  const outerR = Math.min(width / 2, height * (targetText ? 0.55 : 0.65)) * 0.9;
   const innerR = outerR * 0.7;
   const needleLen = outerR * 0.85;
   const startAngle = -Math.PI;
   const endAngle = 0;
   const valueAngle = scale(value);
   const needle = needlePath(cx, cy, needleLen, valueAngle);
-  const fmt5 = formatValue2 ?? ((v) => v.toFixed(0));
-  const segments = useMemo62(() => {
+  const fmt6 = formatValue2 ?? ((v) => v.toFixed(0));
+  const valueSize = Math.max(16, outerR * 0.22);
+  const targetAngle = target != null && Number.isFinite(target) ? scale(target) : null;
+  const segments = useMemo63(() => {
     if (!thresholds || thresholds.length === 0) return null;
-    const sorted = [...thresholds].sort((a, b) => a.value - b.value);
+    const sorted = thresholds.toSorted((a, b) => a.value - b.value);
     return sorted.map((t, i) => {
       const from = i === 0 ? min : sorted[i - 1].value;
       const to = t.value;
       return { color: t.color, fromAngle: scale(from), toAngle: scale(to) };
     });
   }, [thresholds, min, scale]);
-  return /* @__PURE__ */ jsxs94("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx140(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsx140("div", { className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsxs94("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? `Gauge: ${value}`, children: [
-      description && /* @__PURE__ */ jsx140("desc", { children: description }),
-      segments ? (
-        /* Threshold arcs — each segment colored, highlightIndex dims others */
-        segments.map((seg, i) => /* @__PURE__ */ jsx140(
-          "path",
-          {
-            d: arcPath(cx, cy, outerR, innerR, seg.fromAngle, seg.toAngle),
-            fill: seg.color,
-            opacity: highlightIndex != null && highlightIndex !== i ? 0.25 : 1,
-            style: { transition: "opacity 150ms ease-out" }
-          },
-          i
-        ))
-      ) : /* @__PURE__ */ jsxs94(Fragment19, { children: [
-        /* @__PURE__ */ jsx140("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, endAngle), fill: "var(--w3f-chart-grid-stroke, #e2e8f0)", opacity: 0.4 }),
-        /* @__PURE__ */ jsx140("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, valueAngle), fill: fillColor })
-      ] }),
-      segments && /* @__PURE__ */ jsx140(
-        "path",
+  return /* @__PURE__ */ jsxs95("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx141(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsx141("div", { className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsxs95("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? `Gauge: ${value}`, children: [
+      description && /* @__PURE__ */ jsx141("desc", { children: description }),
+      /* @__PURE__ */ jsxs95(
+        "g",
         {
-          d: arcPath(cx, cy, outerR * 0.96, innerR * 1.04, startAngle, valueAngle),
-          fill: "rgba(0,0,0,0.18)"
+          className: "w3f-gauge-body",
+          style: onSelect ? { cursor: "pointer" } : void 0,
+          onClick: onSelect ? () => onSelect({ value, target }, 0) : void 0,
+          children: [
+            segments ? (
+              /* Threshold arcs — each segment colored, highlightIndex dims others */
+              segments.map((seg, i) => /* @__PURE__ */ jsx141(
+                "path",
+                {
+                  d: arcPath(cx, cy, outerR, innerR, seg.fromAngle, seg.toAngle),
+                  fill: seg.color,
+                  opacity: highlightIndex != null && highlightIndex !== i ? 0.25 : 1,
+                  style: { transition: "opacity 150ms ease-out" }
+                },
+                i
+              ))
+            ) : /* @__PURE__ */ jsxs95(Fragment18, { children: [
+              /* @__PURE__ */ jsx141("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, endAngle), fill: "var(--w3f-chart-grid-stroke, #e2e8f0)", opacity: 0.4 }),
+              /* @__PURE__ */ jsx141("path", { d: arcPath(cx, cy, outerR, innerR, startAngle, valueAngle), fill: fillColor })
+            ] }),
+            segments && /* @__PURE__ */ jsx141(
+              "path",
+              {
+                d: arcPath(cx, cy, outerR * 0.96, innerR * 1.04, startAngle, valueAngle),
+                fill: "rgba(0,0,0,0.18)"
+              }
+            ),
+            targetAngle != null && /* @__PURE__ */ jsx141(
+              "line",
+              {
+                className: "w3f-gauge-target",
+                x1: cx + innerR * 0.92 * Math.cos(targetAngle),
+                y1: cy + innerR * 0.92 * Math.sin(targetAngle),
+                x2: cx + outerR * 1.06 * Math.cos(targetAngle),
+                y2: cy + outerR * 1.06 * Math.sin(targetAngle),
+                stroke: "var(--w3f-chart-text-color, #1e293b)",
+                strokeWidth: 3,
+                strokeLinecap: "round"
+              }
+            ),
+            /* @__PURE__ */ jsx141("path", { d: needle, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+            /* @__PURE__ */ jsx141("circle", { cx, cy, r: 6, fill: "var(--w3f-chart-text-color, #1e293b)" }),
+            /* @__PURE__ */ jsx141("circle", { cx, cy, r: 3, fill: "var(--w3f-chart-mark-outline, #fff)" })
+          ]
         }
       ),
-      /* @__PURE__ */ jsx140("path", { d: needle, fill: "var(--w3f-chart-text-color, #1e293b)" }),
-      /* @__PURE__ */ jsx140("circle", { cx, cy, r: 6, fill: "var(--w3f-chart-text-color, #1e293b)" }),
-      /* @__PURE__ */ jsx140("circle", { cx, cy, r: 3, fill: "var(--w3f-chart-mark-outline, #fff)" }),
-      showValue && /* @__PURE__ */ jsx140(
+      showValue && /* @__PURE__ */ jsx141(
         "text",
         {
           x: cx,
           y: cy + outerR * 0.35,
           textAnchor: "middle",
-          fontSize: Math.max(16, outerR * 0.22),
+          fontSize: valueSize,
           fontWeight: 700,
           fill: "var(--w3f-chart-text-color, #1e293b)",
-          children: fmt5(value)
+          children: valueText ?? fmt6(value)
         }
       ),
-      showMinMax && /* @__PURE__ */ jsxs94(Fragment19, { children: [
-        /* @__PURE__ */ jsx140(
+      targetText && /* @__PURE__ */ jsx141(
+        "text",
+        {
+          className: "w3f-gauge-target-text",
+          x: cx,
+          y: cy + outerR * 0.35 + valueSize * 0.95,
+          textAnchor: "middle",
+          fontSize: Math.max(11, valueSize * 0.55),
+          fill: "var(--w3f-chart-text-color, #1e293b)",
+          children: targetText
+        }
+      ),
+      showMinMax && /* @__PURE__ */ jsxs95(Fragment18, { children: [
+        /* @__PURE__ */ jsx141(
           "text",
           {
             x: cx - outerR - 4,
@@ -24491,7 +25071,7 @@ var GaugeInner = (props) => {
             children: min
           }
         ),
-        /* @__PURE__ */ jsx140(
+        /* @__PURE__ */ jsx141(
           "text",
           {
             x: cx + outerR + 4,
@@ -24509,23 +25089,24 @@ var GaugeInner = (props) => {
 GaugeInner.displayName = "GaugeInner";
 
 // src/DATADISPLAY/Charts/Gauge/Gauge.tsx
-import { jsx as jsx141 } from "react/jsx-runtime";
-var Gauge = React113.forwardRef(
+import { jsx as jsx142 } from "react/jsx-runtime";
+var Gauge = React115.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef54(null);
+    const containerRef = useRef56(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 300, 200);
-    return /* @__PURE__ */ jsx141("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx141("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx141(GaugeInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx142("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx142("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx142(GaugeInner, { ...rest, width, height }) }) });
   }
 );
 Gauge.displayName = "Gauge";
 
 // src/DATADISPLAY/Charts/Treemap/Treemap.tsx
-import React115, { useRef as useRef55 } from "react";
+import React117, { useRef as useRef57 } from "react";
 
 // src/DATADISPLAY/Charts/Treemap/TreemapInner.tsx
-import { useMemo as useMemo64 } from "react";
+import { useMemo as useMemo65 } from "react";
 import { Group as Group23 } from "@visx/group";
-import { Treemap as VisxTreemap, hierarchy, treemapSquarify } from "@visx/hierarchy";
+import { hierarchy, treemapSquarify } from "@visx/hierarchy";
+import { treemap as d3treemap } from "d3-hierarchy";
 
 // src/DATADISPLAY/Charts/Treemap/Treemap.constants.ts
 var TREEMAP_ROOT_CLASS = "w3f-chart-treemap";
@@ -24554,33 +25135,35 @@ function truncateLabel(label, maxWidth, fontSize = 11) {
   if (label.length <= maxChars) return label;
   return maxChars > 2 ? label.slice(0, maxChars - 1) + "\u2026" : "";
 }
-function buildTooltipContent12(node) {
-  return `${node.label ?? node.id}: ${node.value?.toLocaleString() ?? ""}`;
+function buildTooltipContent12(node, path = []) {
+  const name = [...path, String(node.label ?? node.id)].join(" \u203A ");
+  return `${name}: ${node.value?.toLocaleString("es-AR", { maximumFractionDigits: 1 }) ?? ""}`;
 }
 
 // src/DATADISPLAY/Charts/Treemap/Treemap.hooks.ts
-import { useMemo as useMemo63, useCallback as useCallback62 } from "react";
+import { useMemo as useMemo64, useCallback as useCallback64 } from "react";
 function useTreemapColors(leafCount, colorScheme) {
-  return useMemo63(() => buildTreemapColors(leafCount, colorScheme), [leafCount, colorScheme]);
+  return useMemo64(() => buildTreemapColors(leafCount, colorScheme), [leafCount, colorScheme]);
 }
 function useTreemapInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback62((d, i) => {
+  const handleEnter = useCallback64((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback62(() => {
+  const handleLeave = useCallback64(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback62((d, i) => {
+  const handleClick = useCallback64((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Treemap/TreemapInner.tsx
-import { jsx as jsx142, jsxs as jsxs95 } from "react/jsx-runtime";
+import { jsx as jsx143, jsxs as jsxs96 } from "react/jsx-runtime";
+var fmt5 = (v) => v.toLocaleString("es-AR", { maximumFractionDigits: 1 });
 var TreemapInner = (props) => {
   const {
     data,
@@ -24604,126 +25187,157 @@ var TreemapInner = (props) => {
     showTileValues = false
     // 0022 B53.4
   } = props;
-  const root = useMemo64(
-    () => hierarchy(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
-    [data]
-  );
-  const leaves = useMemo64(() => root.leaves(), [root]);
-  const colors = useTreemapColors(leaves.length, colorScheme);
+  const header = tileLabelSize + 8;
+  const root = useMemo65(() => {
+    const h = hierarchy(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    const nested2 = h.height > 1;
+    return d3treemap().tile(treemapSquarify).size([Math.max(0, width), Math.max(0, height)]).paddingInner(tilePadding).paddingOuter(nested2 ? tilePadding : 0).paddingTop((n) => nested2 && n.depth === 1 ? header : nested2 && n.depth === 0 ? 0 : tilePadding)(h);
+  }, [data, width, height, tilePadding, header]);
+  const nested = root.height > 1;
+  const groups = useMemo65(() => nested ? root.children ?? [] : [], [root, nested]);
+  const leaves = useMemo65(() => root.leaves(), [root]);
+  const colors = useTreemapColors(nested ? groups.length : leaves.length, colorScheme);
+  const colorOf = (node, i) => {
+    if (!nested) return colors[i];
+    const top = node.ancestors().find((a) => a.depth === 1);
+    return colors[Math.max(0, groups.indexOf(top))];
+  };
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useTreemapInteraction(onHover, onSelect);
-  const classes = useMemo64(() => buildTreemapClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo65(() => buildTreemapClasses(className, unstyled), [className, unstyled]);
   if (leaves.length === 0) {
-    return /* @__PURE__ */ jsx142("div", { className: classes, children: /* @__PURE__ */ jsx142("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty treemap" }) });
+    return /* @__PURE__ */ jsx143("div", { className: classes, children: /* @__PURE__ */ jsx143("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty treemap" }) });
   }
-  return /* @__PURE__ */ jsxs95("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx142(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs95("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs95("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Treemap", children: [
-        description && /* @__PURE__ */ jsx142("desc", { children: description }),
-        /* @__PURE__ */ jsx142(
-          VisxTreemap,
-          {
-            root,
-            size: [width, height],
-            tile: treemapSquarify,
-            padding: tilePadding,
-            children: (treemap) => /* @__PURE__ */ jsx142(Group23, { children: treemap.descendants().filter((n) => !n.children).map((node, i) => {
-              const w = node.x1 - node.x0;
-              const h = node.y1 - node.y0;
-              const d = node.data;
-              const isHovered = hoveredIndex === i;
-              const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
-              const label = d.label ?? d.id;
-              return /* @__PURE__ */ jsxs95(
-                "g",
+  const hovered = hoveredIndex != null ? leaves[hoveredIndex] : void 0;
+  return /* @__PURE__ */ jsxs96("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx143(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs96("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs96("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Treemap", children: [
+        description && /* @__PURE__ */ jsx143("desc", { children: description }),
+        /* @__PURE__ */ jsxs96(Group23, { children: [
+          groups.map((g, gi) => {
+            const w = g.x1 - g.x0;
+            const label = `${g.data.label ?? g.data.id} \xB7 ${fmt5(g.value ?? 0)}`;
+            return /* @__PURE__ */ jsxs96("g", { className: "w3f-chart-tile-group", pointerEvents: "none", children: [
+              /* @__PURE__ */ jsx143(
+                "rect",
                 {
-                  opacity,
-                  style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
-                  onMouseEnter: () => handleEnter(d, i),
-                  onMouseLeave: handleLeave,
-                  onClick: onSelect ? () => handleClick(d, i) : void 0,
-                  children: [
-                    /* @__PURE__ */ jsx142(
-                      "rect",
-                      {
-                        x: node.x0,
-                        y: node.y0,
-                        width: w,
-                        height: h,
-                        fill: colors[i],
-                        rx: tileRadius
-                      }
-                    ),
-                    showLabels && textFits(w, h) && /* @__PURE__ */ jsx142(
-                      "text",
-                      {
-                        x: node.x0 + 4,
-                        y: node.y0 + tileLabelSize + 3,
-                        fontSize: tileLabelSize,
-                        fill: "var(--w3f-chart-inner-label-color, #fff)",
-                        fontWeight: 500,
-                        pointerEvents: "none",
-                        className: "w3f-chart-tile-label",
-                        children: truncateLabel(label, w - 8)
-                      }
-                    ),
-                    showTileValues && textFits(w, h) && h > tileLabelSize * 2.6 && /* @__PURE__ */ jsx142(
-                      "text",
-                      {
-                        x: node.x0 + 4,
-                        y: node.y0 + tileLabelSize * 2 + 6,
-                        fontSize: Math.max(8, tileLabelSize - 1),
-                        pointerEvents: "none",
-                        className: "w3f-chart-tile-value",
-                        fill: "var(--w3f-chart-inner-label-color, #fff)",
-                        opacity: 0.85,
-                        children: (node.value ?? 0).toLocaleString("es-AR", { maximumFractionDigits: 1 })
-                      }
-                    )
-                  ]
-                },
-                d.id + "-" + i
-              );
-            }) })
-          }
-        )
+                  x: g.x0,
+                  y: g.y0,
+                  width: w,
+                  height: g.y1 - g.y0,
+                  rx: tileRadius,
+                  fill: colors[gi],
+                  opacity: 0.3
+                }
+              ),
+              showLabels && w > 30 && /* @__PURE__ */ jsx143(
+                "text",
+                {
+                  x: g.x0 + 4,
+                  y: g.y0 + tileLabelSize + 2,
+                  fontSize: tileLabelSize,
+                  fontWeight: 700,
+                  className: "w3f-chart-tile-group-label",
+                  fill: "var(--w3f-chart-text-color, currentColor)",
+                  children: truncateLabel(label, w - 8)
+                }
+              )
+            ] }, `grupo-${g.data.id}`);
+          }),
+          leaves.map((node, i) => {
+            const w = node.x1 - node.x0;
+            const h = node.y1 - node.y0;
+            const d = node.data;
+            const isHovered = hoveredIndex === i;
+            const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
+            const label = d.label ?? d.id;
+            return /* @__PURE__ */ jsxs96(
+              "g",
+              {
+                opacity,
+                style: { transition: "opacity 120ms ease-out", cursor: onSelect ? "pointer" : void 0 },
+                onMouseEnter: () => handleEnter(d, i),
+                onMouseLeave: handleLeave,
+                onClick: onSelect ? () => handleClick(d, i) : void 0,
+                children: [
+                  /* @__PURE__ */ jsx143(
+                    "rect",
+                    {
+                      x: node.x0,
+                      y: node.y0,
+                      width: w,
+                      height: h,
+                      fill: colorOf(node, i),
+                      rx: tileRadius
+                    }
+                  ),
+                  showLabels && textFits(w, h) && /* @__PURE__ */ jsx143(
+                    "text",
+                    {
+                      x: node.x0 + 4,
+                      y: node.y0 + tileLabelSize + 3,
+                      fontSize: tileLabelSize,
+                      fill: "var(--w3f-chart-inner-label-color, #fff)",
+                      fontWeight: 500,
+                      pointerEvents: "none",
+                      className: "w3f-chart-tile-label",
+                      children: truncateLabel(label, w - 8)
+                    }
+                  ),
+                  showTileValues && textFits(w, h) && h > tileLabelSize * 2.6 && /* @__PURE__ */ jsx143(
+                    "text",
+                    {
+                      x: node.x0 + 4,
+                      y: node.y0 + tileLabelSize * 2 + 6,
+                      fontSize: Math.max(8, tileLabelSize - 1),
+                      pointerEvents: "none",
+                      className: "w3f-chart-tile-value",
+                      fill: "var(--w3f-chart-inner-label-color, #fff)",
+                      opacity: 0.85,
+                      children: fmt5(node.value ?? 0)
+                    }
+                  )
+                ]
+              },
+              d.id + "-" + i
+            );
+          })
+        ] })
       ] }),
-      showTooltip && hoveredIndex != null && (() => {
-        const leafNodes = root.leaves();
-        const node = leafNodes[hoveredIndex];
-        if (!node) return null;
-        return /* @__PURE__ */ jsx142(
-          ChartTooltip,
-          {
-            left: (node.x0 + node.x1) / 2,
-            top: node.y0,
-            visible: true,
-            offsetY: -12,
-            children: buildTooltipContent12(node.data)
-          }
-        );
-      })()
+      showTooltip && hovered && Number.isFinite(hovered.x0) && /* @__PURE__ */ jsx143(
+        ChartTooltip,
+        {
+          left: (hovered.x0 + hovered.x1) / 2,
+          top: hovered.y0,
+          visible: true,
+          offsetY: -12,
+          children: buildTooltipContent12(
+            hovered.data,
+            hovered.ancestors().reverse().slice(1, -1).map((a) => String(a.data.label ?? a.data.id))
+          )
+        }
+      )
     ] })
   ] });
 };
 TreemapInner.displayName = "TreemapInner";
 
 // src/DATADISPLAY/Charts/Treemap/Treemap.tsx
-import { jsx as jsx143 } from "react/jsx-runtime";
-var Treemap = React115.forwardRef(
+import { jsx as jsx144 } from "react/jsx-runtime";
+var Treemap = React117.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef55(null);
+    const containerRef = useRef57(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx143("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx143("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx143(TreemapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx144("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx144("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx144(TreemapInner, { ...rest, width, height }) }) });
   }
 );
 Treemap.displayName = "Treemap";
 
 // src/DATADISPLAY/Charts/Pack/Pack.tsx
-import React117, { useRef as useRef56 } from "react";
+import React119, { useRef as useRef58 } from "react";
 
 // src/DATADISPLAY/Charts/Pack/PackInner.tsx
-import { useMemo as useMemo66 } from "react";
+import { useMemo as useMemo67 } from "react";
 import { Group as Group24 } from "@visx/group";
 import { Pack as VisxPack, hierarchy as hierarchy2 } from "@visx/hierarchy";
 
@@ -24749,28 +25363,28 @@ function buildTooltipContent13(node) {
 }
 
 // src/DATADISPLAY/Charts/Pack/Pack.hooks.ts
-import { useMemo as useMemo65, useCallback as useCallback63 } from "react";
+import { useMemo as useMemo66, useCallback as useCallback65 } from "react";
 function usePackColors(leafCount, colorScheme) {
-  return useMemo65(() => buildPackColors(leafCount, colorScheme), [leafCount, colorScheme]);
+  return useMemo66(() => buildPackColors(leafCount, colorScheme), [leafCount, colorScheme]);
 }
 function usePackInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback63((d, i) => {
+  const handleEnter = useCallback65((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback63(() => {
+  const handleLeave = useCallback65(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback63((d, i) => {
+  const handleClick = useCallback65((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Pack/PackInner.tsx
-import { jsx as jsx144, jsxs as jsxs96 } from "react/jsx-runtime";
+import { jsx as jsx145, jsxs as jsxs97 } from "react/jsx-runtime";
 var PackInner = (props) => {
   const {
     data,
@@ -24790,23 +25404,23 @@ var PackInner = (props) => {
     onHover,
     onSelect
   } = props;
-  const root = useMemo66(
+  const root = useMemo67(
     () => hierarchy2(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
     [data]
   );
-  const leaves = useMemo66(() => root.leaves(), [root]);
+  const leaves = useMemo67(() => root.leaves(), [root]);
   const colors = usePackColors(leaves.length, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePackInteraction(onHover, onSelect);
-  const classes = useMemo66(() => buildPackClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo67(() => buildPackClasses(className, unstyled), [className, unstyled]);
   if (leaves.length === 0) {
-    return /* @__PURE__ */ jsx144("div", { className: classes, children: /* @__PURE__ */ jsx144("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pack chart" }) });
+    return /* @__PURE__ */ jsx145("div", { className: classes, children: /* @__PURE__ */ jsx145("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty pack chart" }) });
   }
-  return /* @__PURE__ */ jsxs96("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx144(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs96("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs96("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Circle pack chart", children: [
-        description && /* @__PURE__ */ jsx144("desc", { children: description }),
-        /* @__PURE__ */ jsx144(
+  return /* @__PURE__ */ jsxs97("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx145(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs97("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs97("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Circle pack chart", children: [
+        description && /* @__PURE__ */ jsx145("desc", { children: description }),
+        /* @__PURE__ */ jsx145(
           VisxPack,
           {
             root,
@@ -24814,8 +25428,8 @@ var PackInner = (props) => {
             padding: circlePadding,
             children: (pack) => {
               const leafNodes = pack.descendants().filter((n) => !n.children);
-              return /* @__PURE__ */ jsxs96(Group24, { children: [
-                pack.descendants().filter((n) => n.children && n.depth > 0).map((node, i) => /* @__PURE__ */ jsx144(
+              return /* @__PURE__ */ jsxs97(Group24, { children: [
+                pack.descendants().filter((n) => n.children && n.depth > 0).map((node, i) => /* @__PURE__ */ jsx145(
                   "circle",
                   {
                     cx: node.x,
@@ -24832,7 +25446,7 @@ var PackInner = (props) => {
                   const d = node.data;
                   const isHovered = hoveredIndex === i;
                   const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
-                  return /* @__PURE__ */ jsxs96(
+                  return /* @__PURE__ */ jsxs97(
                     "g",
                     {
                       opacity,
@@ -24841,7 +25455,7 @@ var PackInner = (props) => {
                       onMouseLeave: handleLeave,
                       onClick: onSelect ? () => handleClick(d, i) : void 0,
                       children: [
-                        /* @__PURE__ */ jsx144(
+                        /* @__PURE__ */ jsx145(
                           "circle",
                           {
                             cx: node.x,
@@ -24851,7 +25465,7 @@ var PackInner = (props) => {
                             fillOpacity: 0.75
                           }
                         ),
-                        showLabels && node.r > 14 && /* @__PURE__ */ jsx144(
+                        showLabels && node.r > 14 && /* @__PURE__ */ jsx145(
                           "text",
                           {
                             x: node.x,
@@ -24879,7 +25493,7 @@ var PackInner = (props) => {
         const leafNodes = root.leaves();
         const node = leafNodes[hoveredIndex];
         if (!node) return null;
-        return /* @__PURE__ */ jsx144(
+        return /* @__PURE__ */ jsx145(
           ChartTooltip,
           {
             left: node.x ?? 0,
@@ -24896,21 +25510,21 @@ var PackInner = (props) => {
 PackInner.displayName = "PackInner";
 
 // src/DATADISPLAY/Charts/Pack/Pack.tsx
-import { jsx as jsx145 } from "react/jsx-runtime";
-var Pack = React117.forwardRef(
+import { jsx as jsx146 } from "react/jsx-runtime";
+var Pack = React119.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef56(null);
+    const containerRef = useRef58(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx145("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx145("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx145(PackInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx146("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx146("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx146(PackInner, { ...rest, width, height }) }) });
   }
 );
 Pack.displayName = "Pack";
 
 // src/DATADISPLAY/Charts/Network/Network.tsx
-import React119, { useRef as useRef57 } from "react";
+import React121, { useRef as useRef59 } from "react";
 
 // src/DATADISPLAY/Charts/Network/NetworkInner.tsx
-import { useMemo as useMemo68 } from "react";
+import { useMemo as useMemo69 } from "react";
 
 // src/DATADISPLAY/Charts/Network/Network.constants.ts
 var NETWORK_ROOT_CLASS = "w3f-chart-network";
@@ -25023,15 +25637,15 @@ function buildTooltipContent14(node) {
 }
 
 // src/DATADISPLAY/Charts/Network/Network.hooks.ts
-import { useMemo as useMemo67, useCallback as useCallback64 } from "react";
+import { useMemo as useMemo68, useCallback as useCallback66 } from "react";
 function useNetworkLayout(data, width, height, iterations) {
-  return useMemo67(
+  return useMemo68(
     () => computeForceLayout(data, width, height, iterations),
     [data, width, height, iterations]
   );
 }
 function useNetworkColors(nodes, colorScheme) {
-  return useMemo67(() => {
+  return useMemo68(() => {
     const palette = resolveColorScheme(colorScheme);
     const groups = [...new Set(nodes.map((n) => n.group ?? n.id))];
     const groupMap = new Map(groups.map((g, i) => [g, palette[i % palette.length]]));
@@ -25040,18 +25654,18 @@ function useNetworkColors(nodes, colorScheme) {
 }
 function useNetworkInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback64(
+  const handleEnter = useCallback66(
     (node, index) => {
       enter(index);
       onHover?.(node, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback64(() => {
+  const handleLeave = useCallback66(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback64(
+  const handleClick = useCallback66(
     (node, index) => {
       onSelect?.(node, index);
     },
@@ -25061,7 +25675,7 @@ function useNetworkInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Network/NetworkInner.tsx
-import { jsx as jsx146, jsxs as jsxs97 } from "react/jsx-runtime";
+import { jsx as jsx147, jsxs as jsxs98 } from "react/jsx-runtime";
 var NetworkInner = (props) => {
   const {
     data,
@@ -25088,8 +25702,8 @@ var NetworkInner = (props) => {
   const layout = useNetworkLayout(data, width, height, iterations);
   const colors = useNetworkColors(layout.nodes, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useNetworkInteraction(onHover, onSelect);
-  const classes = useMemo68(() => buildNetworkClasses(className, unstyled), [className, unstyled]);
-  const nodeMap = useMemo68(() => {
+  const classes = useMemo69(() => buildNetworkClasses(className, unstyled), [className, unstyled]);
+  const nodeMap = useMemo69(() => {
     const map = /* @__PURE__ */ new Map();
     for (const n of layout.nodes) {
       map.set(n.id, { x: n.x, y: n.y });
@@ -25097,19 +25711,19 @@ var NetworkInner = (props) => {
     return map;
   }, [layout.nodes]);
   if (data.nodes.length === 0) {
-    return /* @__PURE__ */ jsx146("div", { className: classes, children: /* @__PURE__ */ jsx146("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty network chart" }) });
+    return /* @__PURE__ */ jsx147("div", { className: classes, children: /* @__PURE__ */ jsx147("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty network chart" }) });
   }
-  return /* @__PURE__ */ jsxs97("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx146(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs97("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs97("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Network chart", children: [
-        description && /* @__PURE__ */ jsx146("desc", { children: description }),
+  return /* @__PURE__ */ jsxs98("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx147(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs98("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs98("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Network chart", children: [
+        description && /* @__PURE__ */ jsx147("desc", { children: description }),
         layout.links.map((link, i) => {
           const s = nodeMap.get(link.source);
           const t = nodeMap.get(link.target);
           if (!s || !t) return null;
           const isHighlighted = hoveredIndex != null && (data.nodes[hoveredIndex]?.id === link.source || data.nodes[hoveredIndex]?.id === link.target);
-          return /* @__PURE__ */ jsx146(
+          return /* @__PURE__ */ jsx147(
             "line",
             {
               x1: s.x,
@@ -25124,8 +25738,8 @@ var NetworkInner = (props) => {
             `link-${i}`
           );
         }),
-        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs97("g", { children: [
-          /* @__PURE__ */ jsx146(
+        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs98("g", { children: [
+          /* @__PURE__ */ jsx147(
             "circle",
             {
               cx: node.x,
@@ -25141,7 +25755,7 @@ var NetworkInner = (props) => {
               style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
             }
           ),
-          showLabels && /* @__PURE__ */ jsx146(
+          showLabels && /* @__PURE__ */ jsx147(
             "text",
             {
               x: node.x,
@@ -25157,7 +25771,7 @@ var NetworkInner = (props) => {
           )
         ] }, node.id))
       ] }),
-      showTooltip && hoveredIndex != null && layout.nodes[hoveredIndex] && /* @__PURE__ */ jsx146(
+      showTooltip && hoveredIndex != null && layout.nodes[hoveredIndex] && /* @__PURE__ */ jsx147(
         ChartTooltip,
         {
           left: layout.nodes[hoveredIndex].x,
@@ -25173,21 +25787,21 @@ var NetworkInner = (props) => {
 NetworkInner.displayName = "NetworkInner";
 
 // src/DATADISPLAY/Charts/Network/Network.tsx
-import { jsx as jsx147 } from "react/jsx-runtime";
-var Network2 = React119.forwardRef(
+import { jsx as jsx148 } from "react/jsx-runtime";
+var Network2 = React121.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef57(null);
+    const containerRef = useRef59(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx147("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx147("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx147(NetworkInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx148("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx148("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx148(NetworkInner, { ...rest, width, height }) }) });
   }
 );
 Network2.displayName = "Network";
 
 // src/DATADISPLAY/Charts/Sankey/Sankey.tsx
-import React121, { useRef as useRef58 } from "react";
+import React123, { useRef as useRef60 } from "react";
 
 // src/DATADISPLAY/Charts/Sankey/SankeyInner.tsx
-import { useMemo as useMemo70 } from "react";
+import { useMemo as useMemo71 } from "react";
 
 // src/DATADISPLAY/Charts/Sankey/Sankey.constants.ts
 var SANKEY_ROOT_CLASS = "w3f-chart-sankey";
@@ -25306,15 +25920,15 @@ function buildTooltipContent15(node) {
 }
 
 // src/DATADISPLAY/Charts/Sankey/Sankey.hooks.ts
-import { useMemo as useMemo69, useCallback as useCallback65 } from "react";
+import { useMemo as useMemo70, useCallback as useCallback67 } from "react";
 function useSankeyLayout(data, width, height, nodeWidth, nodePadding) {
-  return useMemo69(
+  return useMemo70(
     () => computeSankeyLayout(data, width, height, nodeWidth, nodePadding),
     [data, width, height, nodeWidth, nodePadding]
   );
 }
 function useSankeyColors(nodes, colorScheme) {
-  return useMemo69(() => {
+  return useMemo70(() => {
     const palette = resolveColorScheme(colorScheme);
     const groups = [...new Set(nodes.map((n) => n.group ?? n.id))];
     const groupMap = new Map(groups.map((g, i) => [g, palette[i % palette.length]]));
@@ -25323,18 +25937,18 @@ function useSankeyColors(nodes, colorScheme) {
 }
 function useSankeyInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback65(
+  const handleEnter = useCallback67(
     (node, index) => {
       enter(index);
       onHover?.(node, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback65(() => {
+  const handleLeave = useCallback67(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback65(
+  const handleClick = useCallback67(
     (node, index) => {
       onSelect?.(node, index);
     },
@@ -25344,7 +25958,7 @@ function useSankeyInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Sankey/SankeyInner.tsx
-import { jsx as jsx148, jsxs as jsxs98 } from "react/jsx-runtime";
+import { jsx as jsx149, jsxs as jsxs99 } from "react/jsx-runtime";
 var SankeyInner = (props) => {
   const {
     data,
@@ -25372,16 +25986,16 @@ var SankeyInner = (props) => {
   const layout = useSankeyLayout(data, width, height, nodeWidth, nodePadding);
   const colorMap = useSankeyColors(layout.nodes, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useSankeyInteraction(onHover, onSelect);
-  const classes = useMemo70(() => buildSankeyClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo71(() => buildSankeyClasses(className, unstyled), [className, unstyled]);
   if (data.nodes.length === 0) {
-    return /* @__PURE__ */ jsx148("div", { className: classes, children: /* @__PURE__ */ jsx148("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sankey chart" }) });
+    return /* @__PURE__ */ jsx149("div", { className: classes, children: /* @__PURE__ */ jsx149("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sankey chart" }) });
   }
   const hoveredNode = hoveredIndex != null ? layout.nodes[hoveredIndex] : null;
-  return /* @__PURE__ */ jsxs98("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx148(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs98("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs98("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sankey chart", children: [
-        description && /* @__PURE__ */ jsx148("desc", { children: description }),
+  return /* @__PURE__ */ jsxs99("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx149(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs99("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs99("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sankey chart", children: [
+        description && /* @__PURE__ */ jsx149("desc", { children: description }),
         layout.links.map((link, i) => {
           const sNode = layout.nodes.find((n) => n.id === link.source);
           const tNode = layout.nodes.find((n) => n.id === link.target);
@@ -25395,7 +26009,7 @@ var SankeyInner = (props) => {
             link.ty0,
             link.ty1
           );
-          return /* @__PURE__ */ jsx148(
+          return /* @__PURE__ */ jsx149(
             "path",
             {
               d: path,
@@ -25408,8 +26022,8 @@ var SankeyInner = (props) => {
             `link-${i}`
           );
         }),
-        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs98("g", { children: [
-          /* @__PURE__ */ jsx148(
+        layout.nodes.map((node, i) => /* @__PURE__ */ jsxs99("g", { children: [
+          /* @__PURE__ */ jsx149(
             "rect",
             {
               x: node.x0,
@@ -25425,7 +26039,7 @@ var SankeyInner = (props) => {
               style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms" }
             }
           ),
-          showLabels && /* @__PURE__ */ jsx148(
+          showLabels && /* @__PURE__ */ jsx149(
             "text",
             {
               x: node.x1 + 4 > width - 60 ? node.x0 - 4 : node.x1 + 4,
@@ -25441,7 +26055,7 @@ var SankeyInner = (props) => {
           )
         ] }, node.id))
       ] }),
-      showTooltip && hoveredNode && /* @__PURE__ */ jsx148(
+      showTooltip && hoveredNode && /* @__PURE__ */ jsx149(
         ChartTooltip,
         {
           left: (hoveredNode.x0 + hoveredNode.x1) / 2,
@@ -25457,21 +26071,21 @@ var SankeyInner = (props) => {
 SankeyInner.displayName = "SankeyInner";
 
 // src/DATADISPLAY/Charts/Sankey/Sankey.tsx
-import { jsx as jsx149 } from "react/jsx-runtime";
-var Sankey = React121.forwardRef(
+import { jsx as jsx150 } from "react/jsx-runtime";
+var Sankey = React123.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef58(null);
+    const containerRef = useRef60(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx149("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx149("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx149(SankeyInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx150("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx150("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx150(SankeyInner, { ...rest, width, height }) }) });
   }
 );
 Sankey.displayName = "Sankey";
 
 // src/DATADISPLAY/Charts/Funnel/Funnel.tsx
-import React123, { useRef as useRef59 } from "react";
+import React125, { useRef as useRef61 } from "react";
 
 // src/DATADISPLAY/Charts/Funnel/FunnelInner.tsx
-import { useMemo as useMemo72 } from "react";
+import { useMemo as useMemo73 } from "react";
 
 // src/DATADISPLAY/Charts/Funnel/Funnel.constants.ts
 var FUNNEL_ROOT_CLASS = "w3f-chart-funnel";
@@ -25528,33 +26142,33 @@ function buildTooltipContent16(datum, percentage, formatValue2) {
 }
 
 // src/DATADISPLAY/Charts/Funnel/Funnel.hooks.ts
-import { useMemo as useMemo71, useCallback as useCallback66 } from "react";
+import { useMemo as useMemo72, useCallback as useCallback68 } from "react";
 function useFunnelSegments(data, width, height, gap) {
-  return useMemo71(
+  return useMemo72(
     () => computeFunnelSegments(data, width, height, gap),
     [data, width, height, gap]
   );
 }
 function useFunnelColors(data, colorScheme) {
-  return useMemo71(() => {
+  return useMemo72(() => {
     const palette = resolveColorScheme(colorScheme);
     return data.map((_, i) => palette[i % palette.length]);
   }, [data, colorScheme]);
 }
 function useFunnelInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback66(
+  const handleEnter = useCallback68(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback66(() => {
+  const handleLeave = useCallback68(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback66(
+  const handleClick = useCallback68(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -25564,7 +26178,7 @@ function useFunnelInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Funnel/FunnelInner.tsx
-import { jsx as jsx150, jsxs as jsxs99 } from "react/jsx-runtime";
+import { jsx as jsx151, jsxs as jsxs100 } from "react/jsx-runtime";
 var FunnelInner = (props) => {
   const {
     data,
@@ -25590,18 +26204,18 @@ var FunnelInner = (props) => {
   const segments = useFunnelSegments(data, width, height, gap);
   const colors = useFunnelColors(data, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useFunnelInteraction(onHover, onSelect);
-  const classes = useMemo72(() => buildFunnelClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo73(() => buildFunnelClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx150("div", { className: classes, children: /* @__PURE__ */ jsx150("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty funnel chart" }) });
+    return /* @__PURE__ */ jsx151("div", { className: classes, children: /* @__PURE__ */ jsx151("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty funnel chart" }) });
   }
   const centerX = width / 2;
-  return /* @__PURE__ */ jsxs99("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx150(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs99("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs99("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Funnel chart", children: [
-        description && /* @__PURE__ */ jsx150("desc", { children: description }),
-        segments.map((seg, i) => /* @__PURE__ */ jsxs99("g", { children: [
-          /* @__PURE__ */ jsx150(
+  return /* @__PURE__ */ jsxs100("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx151(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs100("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs100("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Funnel chart", children: [
+        description && /* @__PURE__ */ jsx151("desc", { children: description }),
+        segments.map((seg, i) => /* @__PURE__ */ jsxs100("g", { children: [
+          /* @__PURE__ */ jsx151(
             "path",
             {
               d: buildSegmentPath(seg),
@@ -25615,7 +26229,7 @@ var FunnelInner = (props) => {
               style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
             }
           ),
-          showLabels && /* @__PURE__ */ jsxs99(
+          showLabels && /* @__PURE__ */ jsxs100(
             "text",
             {
               x: centerX,
@@ -25634,7 +26248,7 @@ var FunnelInner = (props) => {
           )
         ] }, i))
       ] }),
-      showTooltip && hoveredIndex != null && segments[hoveredIndex] && /* @__PURE__ */ jsx150(
+      showTooltip && hoveredIndex != null && segments[hoveredIndex] && /* @__PURE__ */ jsx151(
         ChartTooltip,
         {
           left: centerX,
@@ -25650,21 +26264,21 @@ var FunnelInner = (props) => {
 FunnelInner.displayName = "FunnelInner";
 
 // src/DATADISPLAY/Charts/Funnel/Funnel.tsx
-import { jsx as jsx151 } from "react/jsx-runtime";
-var Funnel = React123.forwardRef(
+import { jsx as jsx152 } from "react/jsx-runtime";
+var Funnel = React125.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef59(null);
+    const containerRef = useRef61(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx151("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx151("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx151(FunnelInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx152("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx152("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx152(FunnelInner, { ...rest, width, height }) }) });
   }
 );
 Funnel.displayName = "Funnel";
 
 // src/DATADISPLAY/Charts/Waterfall/Waterfall.tsx
-import React125, { useRef as useRef60 } from "react";
+import React127, { useRef as useRef62 } from "react";
 
 // src/DATADISPLAY/Charts/Waterfall/WaterfallInner.tsx
-import { useMemo as useMemo74 } from "react";
+import { useMemo as useMemo75 } from "react";
 import { Group as Group25 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Waterfall/Waterfall.constants.ts
@@ -25729,30 +26343,30 @@ function buildTooltipContent17(bar) {
 }
 
 // src/DATADISPLAY/Charts/Waterfall/Waterfall.hooks.ts
-import { useMemo as useMemo73, useCallback as useCallback67 } from "react";
+import { useMemo as useMemo74, useCallback as useCallback69 } from "react";
 function useWaterfallBars(data) {
-  return useMemo73(() => computeWaterfallBars(data), [data]);
+  return useMemo74(() => computeWaterfallBars(data), [data]);
 }
 function useWaterfallScales(bars, data, innerWidth, innerHeight) {
-  return useMemo73(
+  return useMemo74(
     () => buildWaterfallScales(bars, data, innerWidth, innerHeight),
     [bars, data, innerWidth, innerHeight]
   );
 }
 function useWaterfallInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback67(
+  const handleEnter = useCallback69(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback67(() => {
+  const handleLeave = useCallback69(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback67(
+  const handleClick = useCallback69(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -25762,7 +26376,7 @@ function useWaterfallInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Waterfall/WaterfallInner.tsx
-import { jsx as jsx152, jsxs as jsxs100 } from "react/jsx-runtime";
+import { jsx as jsx153, jsxs as jsxs101 } from "react/jsx-runtime";
 var WaterfallInner = (props) => {
   const {
     data,
@@ -25798,19 +26412,19 @@ var WaterfallInner = (props) => {
   const xScale = adaptScale(xScaleRaw, props, "x");
   const yScale = adaptScale(yScaleRaw, props, "y");
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWaterfallInteraction(onHover, onSelect);
-  const classes = useMemo74(() => buildWaterfallClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo75(() => buildWaterfallClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx152("div", { className: classes, children: /* @__PURE__ */ jsx152("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waterfall chart" }) });
+    return /* @__PURE__ */ jsx153("div", { className: classes, children: /* @__PURE__ */ jsx153("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waterfall chart" }) });
   }
   const bandwidth = xScale.bandwidth();
-  return /* @__PURE__ */ jsxs100("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx152(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs100("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs100("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waterfall chart", children: [
-        description && /* @__PURE__ */ jsx152("desc", { children: description }),
-        /* @__PURE__ */ jsxs100(Group25, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx152(
+  return /* @__PURE__ */ jsxs101("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx153(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs101("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs101("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waterfall chart", children: [
+        description && /* @__PURE__ */ jsx153("desc", { children: description }),
+        /* @__PURE__ */ jsxs101(Group25, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx153(
             ChartGrid,
             {
               xScale,
@@ -25827,8 +26441,8 @@ var WaterfallInner = (props) => {
             const yBot = Math.max(ya, yb);
             const barHeight = Math.max(yBot - yTop, 1);
             const fill = bar.datum.isTotal ? totalColor : bar.datum.value >= 0 ? positiveColor : negativeColor;
-            return /* @__PURE__ */ jsxs100("g", { children: [
-              showConnectors && i > 0 && !bar.datum.isTotal && /* @__PURE__ */ jsx152(
+            return /* @__PURE__ */ jsxs101("g", { children: [
+              showConnectors && i > 0 && !bar.datum.isTotal && /* @__PURE__ */ jsx153(
                 "line",
                 {
                   x1: xScale(bars[i - 1].datum.label) + bandwidth,
@@ -25840,7 +26454,7 @@ var WaterfallInner = (props) => {
                   strokeDasharray: "3,3"
                 }
               ),
-              /* @__PURE__ */ jsx152(
+              /* @__PURE__ */ jsx153(
                 "rect",
                 {
                   className: "visx-bar",
@@ -25859,7 +26473,7 @@ var WaterfallInner = (props) => {
                   style: { cursor: highlightIndex === i ? "pointer" : onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
                 }
               ),
-              showLabels && /* @__PURE__ */ jsx152(
+              showLabels && /* @__PURE__ */ jsx153(
                 "text",
                 {
                   x: x + bandwidth / 2,
@@ -25874,10 +26488,10 @@ var WaterfallInner = (props) => {
               )
             ] }, i);
           }),
-          showXAxis && /* @__PURE__ */ jsx152(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props) }),
-          showYAxis && /* @__PURE__ */ jsx152(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-          /* @__PURE__ */ jsx152(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx152(
+          showXAxis && /* @__PURE__ */ jsx153(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props) }),
+          showYAxis && /* @__PURE__ */ jsx153(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+          /* @__PURE__ */ jsx153(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          /* @__PURE__ */ jsx153(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -25891,10 +26505,10 @@ var WaterfallInner = (props) => {
             }
           )
         ] }),
-        /* @__PURE__ */ jsx152(ChartMarkDecorLayer, { ...props }),
+        /* @__PURE__ */ jsx153(ChartMarkDecorLayer, { ...props }),
         "   "
       ] }),
-      showTooltip && hoveredIndex != null && bars[hoveredIndex] && /* @__PURE__ */ jsx152(
+      showTooltip && hoveredIndex != null && bars[hoveredIndex] && /* @__PURE__ */ jsx153(
         ChartTooltip,
         {
           left: (xScale(bars[hoveredIndex].datum.label) ?? 0) + bandwidth / 2 + plotLeft(dims, props),
@@ -25910,21 +26524,21 @@ var WaterfallInner = (props) => {
 WaterfallInner.displayName = "WaterfallInner";
 
 // src/DATADISPLAY/Charts/Waterfall/Waterfall.tsx
-import { jsx as jsx153 } from "react/jsx-runtime";
-var Waterfall = React125.forwardRef(
+import { jsx as jsx154 } from "react/jsx-runtime";
+var Waterfall = React127.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef60(null);
+    const containerRef = useRef62(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx153("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx153("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx153(WaterfallInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx154("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx154("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx154(WaterfallInner, { ...rest, width, height }) }) });
   }
 );
 Waterfall.displayName = "Waterfall";
 
 // src/DATADISPLAY/Charts/Candlestick/Candlestick.tsx
-import React127, { useRef as useRef61 } from "react";
+import React129, { useRef as useRef63 } from "react";
 
 // src/DATADISPLAY/Charts/Candlestick/CandlestickInner.tsx
-import { useMemo as useMemo76 } from "react";
+import { useMemo as useMemo77 } from "react";
 import { Group as Group26 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/Candlestick/Candlestick.constants.ts
@@ -25969,13 +26583,13 @@ function buildTooltipContent18(datum) {
   const dateStr = d.toLocaleDateString();
   const lines = [
     dateStr,
-    `O: ${datum.open.toLocaleString()}`,
-    `H: ${datum.high.toLocaleString()}`,
-    `L: ${datum.low.toLocaleString()}`,
-    `C: ${datum.close.toLocaleString()}`
+    `Apertura: ${datum.open.toLocaleString()}`,
+    `M\xE1x.: ${datum.high.toLocaleString()}`,
+    `M\xEDn.: ${datum.low.toLocaleString()}`,
+    `Cierre: ${datum.close.toLocaleString()}`
   ];
   if (datum.volume != null) {
-    lines.push(`Vol: ${datum.volume.toLocaleString()}`);
+    lines.push(`Volumen: ${datum.volume.toLocaleString()}`);
   }
   return lines.join(" | ");
 }
@@ -25985,27 +26599,27 @@ function defaultFormatX(d) {
 }
 
 // src/DATADISPLAY/Charts/Candlestick/Candlestick.hooks.ts
-import { useMemo as useMemo75, useCallback as useCallback68 } from "react";
+import { useMemo as useMemo76, useCallback as useCallback70 } from "react";
 function useCandlestickScales(data, innerWidth, innerHeight, volumeHeight) {
-  return useMemo75(
+  return useMemo76(
     () => buildCandlestickScales(data, innerWidth, innerHeight, volumeHeight),
     [data, innerWidth, innerHeight, volumeHeight]
   );
 }
 function useCandlestickInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback68(
+  const handleEnter = useCallback70(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback68(() => {
+  const handleLeave = useCallback70(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback68(
+  const handleClick = useCallback70(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -26015,7 +26629,7 @@ function useCandlestickInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Candlestick/CandlestickInner.tsx
-import { jsx as jsx154, jsxs as jsxs101 } from "react/jsx-runtime";
+import { jsx as jsx155, jsxs as jsxs102 } from "react/jsx-runtime";
 var CandlestickInner = (props) => {
   const {
     data,
@@ -26053,11 +26667,11 @@ var CandlestickInner = (props) => {
   const xScale = adaptScale(xScaleRaw, props, "x");
   const yScale = adaptScale(yScaleRaw, props, "y");
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useCandlestickInteraction(onHover, onSelect);
-  const classes = useMemo76(() => buildCandlestickClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo77(() => buildCandlestickClasses(className, unstyled), [className, unstyled]);
   const yTickFormat = formatY ?? formatTick;
   const xTickFormat = formatX ?? defaultFormatX;
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx154("div", { className: classes, children: /* @__PURE__ */ jsx154("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty candlestick chart" }) });
+    return /* @__PURE__ */ jsx155("div", { className: classes, children: /* @__PURE__ */ jsx155("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty candlestick chart" }) });
   }
   const bandwidth = xScale.bandwidth();
   const bodyWidth = bandwidth * candleWidthRatio;
@@ -26066,13 +26680,13 @@ var CandlestickInner = (props) => {
     const idx = Number(v);
     return idx < data.length ? xTickFormat(data[idx].date) : "";
   };
-  return /* @__PURE__ */ jsxs101("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx154(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs101("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs101("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Candlestick chart", children: [
-        description && /* @__PURE__ */ jsx154("desc", { children: description }),
-        /* @__PURE__ */ jsxs101(Group26, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx154(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: priceChartHeight, axis: "y" }),
+  return /* @__PURE__ */ jsxs102("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx155(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs102("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs102("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Candlestick chart", children: [
+        description && /* @__PURE__ */ jsx155("desc", { children: description }),
+        /* @__PURE__ */ jsxs102(Group26, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx155(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: priceChartHeight, axis: "y" }),
           data.map((datum, i) => {
             const x = xScale(String(i)) ?? 0;
             const isBullish = datum.close >= datum.open;
@@ -26081,7 +26695,7 @@ var CandlestickInner = (props) => {
             const bodyBottom = yScale(Math.min(datum.open, datum.close)) ?? 0;
             const bodyH = Math.max(bodyBottom - bodyTop, 1);
             const wickX = x + bandwidth / 2;
-            return /* @__PURE__ */ jsxs101(
+            return /* @__PURE__ */ jsxs102(
               "g",
               {
                 opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
@@ -26091,8 +26705,8 @@ var CandlestickInner = (props) => {
                 onClick: onSelect ? () => handleClick(datum, i) : void 0,
                 cursor: onSelect ? "pointer" : "default",
                 children: [
-                  /* @__PURE__ */ jsx154("line", { x1: wickX, y1: yScale(datum.high) ?? 0, x2: wickX, y2: yScale(datum.low) ?? 0, stroke: color, strokeWidth: 1.5 }),
-                  /* @__PURE__ */ jsx154(
+                  /* @__PURE__ */ jsx155("line", { x1: wickX, y1: yScale(datum.high) ?? 0, x2: wickX, y2: yScale(datum.low) ?? 0, stroke: color, strokeWidth: 1.5 }),
+                  /* @__PURE__ */ jsx155(
                     "rect",
                     {
                       x: x + bodyOffset,
@@ -26116,7 +26730,7 @@ var CandlestickInner = (props) => {
             const x = xScale(String(i)) ?? 0;
             const isBullish = datum.close >= datum.open;
             const barH = volumeHeight - (volumeScale(datum.volume) ?? 0);
-            return /* @__PURE__ */ jsx154(
+            return /* @__PURE__ */ jsx155(
               "rect",
               {
                 x: x + bodyOffset,
@@ -26130,7 +26744,7 @@ var CandlestickInner = (props) => {
               "vol-" + i
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx154(
+          showXAxis && /* @__PURE__ */ jsx155(
             ChartAxis,
             {
               scale: xScale,
@@ -26142,9 +26756,9 @@ var CandlestickInner = (props) => {
               numTicks: Math.min(data.length, 10)
             }
           ),
-          showYAxis && /* @__PURE__ */ jsx154(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
-          /* @__PURE__ */ jsx154(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
-          /* @__PURE__ */ jsx154(
+          showYAxis && /* @__PURE__ */ jsx155(ChartAxis, { scale: yScale, ...yAxisLayout(dims, props), tickFormat: yTickFormat }),
+          /* @__PURE__ */ jsx155(ChartSecondaryAxes, { ...props, xScale, yScale, width: dims.innerWidth, height: dims.innerHeight }),
+          /* @__PURE__ */ jsx155(
             ChartReferenceLines,
             {
               lines: props.referenceLines,
@@ -26159,7 +26773,7 @@ var CandlestickInner = (props) => {
           )
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx154(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx155(
         ChartTooltip,
         {
           left: (xScale(String(hoveredIndex)) ?? 0) + bandwidth / 2 + plotLeft(dims, props),
@@ -26175,21 +26789,21 @@ var CandlestickInner = (props) => {
 CandlestickInner.displayName = "CandlestickInner";
 
 // src/DATADISPLAY/Charts/Candlestick/Candlestick.tsx
-import { jsx as jsx155 } from "react/jsx-runtime";
-var Candlestick = React127.forwardRef(
+import { jsx as jsx156 } from "react/jsx-runtime";
+var Candlestick = React129.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef61(null);
+    const containerRef = useRef63(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx155("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx155("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx155(CandlestickInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx156("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx156("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx156(CandlestickInner, { ...rest, width, height }) }) });
   }
 );
 Candlestick.displayName = "Candlestick";
 
 // src/DATADISPLAY/Charts/Sparkline/Sparkline.tsx
-import React129, { useRef as useRef63 } from "react";
+import React131, { useRef as useRef65 } from "react";
 
 // src/DATADISPLAY/Charts/Sparkline/SparklineInner.tsx
-import { useMemo as useMemo78, useCallback as useCallback70, useRef as useRef62 } from "react";
+import { useMemo as useMemo79, useCallback as useCallback72, useRef as useRef64 } from "react";
 
 // src/DATADISPLAY/Charts/Sparkline/Sparkline.constants.ts
 var SPARKLINE_ROOT_CLASS = "w3f-chart-sparkline";
@@ -26235,23 +26849,23 @@ function buildAreaPath(data, xScale, yScale, height, padding) {
 }
 
 // src/DATADISPLAY/Charts/Sparkline/Sparkline.hooks.ts
-import { useMemo as useMemo77, useState as useState57, useCallback as useCallback69 } from "react";
+import { useMemo as useMemo78, useState as useState59, useCallback as useCallback71 } from "react";
 function useSparklineScales(data, width, height) {
-  return useMemo77(
+  return useMemo78(
     () => buildSparklineScales(data, width, height),
     [data, width, height]
   );
 }
 function useSparklineHover(onHover) {
-  const [hoveredIndex, setHoveredIndex] = useState57(null);
-  const handleMove = useCallback69(
+  const [hoveredIndex, setHoveredIndex] = useState59(null);
+  const handleMove = useCallback71(
     (index, datum) => {
       setHoveredIndex(index);
       onHover?.(datum, index);
     },
     [onHover]
   );
-  const handleLeave = useCallback69(() => {
+  const handleLeave = useCallback71(() => {
     setHoveredIndex(null);
     onHover?.(null, null);
   }, [onHover]);
@@ -26259,7 +26873,7 @@ function useSparklineHover(onHover) {
 }
 
 // src/DATADISPLAY/Charts/Sparkline/SparklineInner.tsx
-import { Fragment as Fragment20, jsx as jsx156, jsxs as jsxs102 } from "react/jsx-runtime";
+import { Fragment as Fragment19, jsx as jsx157, jsxs as jsxs103 } from "react/jsx-runtime";
 var PADDING = 4;
 var SparklineInner = (props) => {
   const {
@@ -26284,28 +26898,28 @@ var SparklineInner = (props) => {
     onSelect,
     highlightIndex = null
   } = props;
-  const svgRef = useRef62(null);
+  const svgRef = useRef64(null);
   const { xScale, yScale } = useSparklineScales(data, width, height);
   const { hoveredIndex, handleMove, handleLeave } = useSparklineHover(onHover);
-  const classes = useMemo78(() => buildSparklineClasses(className, unstyled), [className, unstyled]);
-  const linePath = useMemo78(() => buildSparklinePath(data, xScale, yScale), [data, xScale, yScale]);
-  const areaPath = useMemo78(
+  const classes = useMemo79(() => buildSparklineClasses(className, unstyled), [className, unstyled]);
+  const linePath = useMemo79(() => buildSparklinePath(data, xScale, yScale), [data, xScale, yScale]);
+  const areaPath = useMemo79(
     () => showArea ? buildAreaPath(data, xScale, yScale, height, PADDING) : "",
     [data, xScale, yScale, height, showArea]
   );
-  const minIdx = useMemo78(() => {
+  const minIdx = useMemo79(() => {
     if (!showMinMax || data.length === 0) return -1;
     let mi = 0;
     for (let i = 1; i < data.length; i++) if (data[i] < data[mi]) mi = i;
     return mi;
   }, [data, showMinMax]);
-  const maxIdx = useMemo78(() => {
+  const maxIdx = useMemo79(() => {
     if (!showMinMax || data.length === 0) return -1;
     let mi = 0;
     for (let i = 1; i < data.length; i++) if (data[i] > data[mi]) mi = i;
     return mi;
   }, [data, showMinMax]);
-  const handleMouseMove = useCallback70((e) => {
+  const handleMouseMove = useCallback72((e) => {
     if (data.length === 0) return;
     const svg = svgRef.current;
     if (!svg) return;
@@ -26322,16 +26936,16 @@ var SparklineInner = (props) => {
     }
     handleMove(nearest, data[nearest]);
   }, [data, xScale, handleMove]);
-  const handleClick = useCallback70(() => {
+  const handleClick = useCallback72(() => {
     if (hoveredIndex != null && onSelect) onSelect(data[hoveredIndex], hoveredIndex);
   }, [hoveredIndex, data, onSelect]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx156("div", { className: classes, children: /* @__PURE__ */ jsx156("svg", { width, height, role: "img", "aria-label": ariaLabel ?? "Empty sparkline" }) });
+    return /* @__PURE__ */ jsx157("div", { className: classes, children: /* @__PURE__ */ jsx157("svg", { width, height, role: "img", "aria-label": ariaLabel ?? "Empty sparkline" }) });
   }
-  return /* @__PURE__ */ jsxs102("div", { className: classes, "data-bind-id": bindId, style: { display: "inline-block", lineHeight: 0 }, children: [
-    /* @__PURE__ */ jsx156(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs102("div", { style: { position: "relative", display: "inline-block" }, children: [
-      /* @__PURE__ */ jsxs102(
+  return /* @__PURE__ */ jsxs103("div", { className: classes, "data-bind-id": bindId, style: { display: "inline-block", lineHeight: 0 }, children: [
+    /* @__PURE__ */ jsx157(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs103("div", { style: { position: "relative", display: "inline-block" }, children: [
+      /* @__PURE__ */ jsxs103(
         "svg",
         {
           ref: svgRef,
@@ -26344,13 +26958,13 @@ var SparklineInner = (props) => {
           onClick: handleClick,
           style: { cursor: onSelect ? "pointer" : "default" },
           children: [
-            showArea && /* @__PURE__ */ jsx156("path", { d: areaPath, fill: color, fillOpacity: 0.15 }),
-            /* @__PURE__ */ jsx156("path", { d: linePath, fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round", ...lineDash(lineStyle, strokeWidth) }),
-            showEndDot && data.length > 0 && /* @__PURE__ */ jsx156("circle", { cx: xScale(data.length - 1), cy: yScale(data[data.length - 1]), r: strokeWidth + 1, fill: color }),
-            showMinMax && minIdx >= 0 && /* @__PURE__ */ jsx156("circle", { cx: xScale(minIdx), cy: yScale(data[minIdx]), r: strokeWidth + 1, fill: "var(--w3f-chart-negative-color, #ef4444)" }),
-            showMinMax && maxIdx >= 0 && /* @__PURE__ */ jsx156("circle", { cx: xScale(maxIdx), cy: yScale(data[maxIdx]), r: strokeWidth + 1, fill: "var(--w3f-chart-positive-color, #22c55e)" }),
-            hoveredIndex != null && /* @__PURE__ */ jsxs102(Fragment20, { children: [
-              /* @__PURE__ */ jsx156(
+            showArea && /* @__PURE__ */ jsx157("path", { d: areaPath, fill: color, fillOpacity: 0.15 }),
+            /* @__PURE__ */ jsx157("path", { d: linePath, fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round", ...lineDash(lineStyle, strokeWidth) }),
+            showEndDot && data.length > 0 && /* @__PURE__ */ jsx157("circle", { cx: xScale(data.length - 1), cy: yScale(data[data.length - 1]), r: strokeWidth + 1, fill: color }),
+            showMinMax && minIdx >= 0 && /* @__PURE__ */ jsx157("circle", { cx: xScale(minIdx), cy: yScale(data[minIdx]), r: strokeWidth + 1, fill: "var(--w3f-chart-negative-color, #ef4444)" }),
+            showMinMax && maxIdx >= 0 && /* @__PURE__ */ jsx157("circle", { cx: xScale(maxIdx), cy: yScale(data[maxIdx]), r: strokeWidth + 1, fill: "var(--w3f-chart-positive-color, #22c55e)" }),
+            hoveredIndex != null && /* @__PURE__ */ jsxs103(Fragment19, { children: [
+              /* @__PURE__ */ jsx157(
                 "line",
                 {
                   x1: xScale(hoveredIndex),
@@ -26363,7 +26977,7 @@ var SparklineInner = (props) => {
                   opacity: 0.5
                 }
               ),
-              /* @__PURE__ */ jsx156(
+              /* @__PURE__ */ jsx157(
                 "circle",
                 {
                   cx: xScale(hoveredIndex),
@@ -26375,7 +26989,7 @@ var SparklineInner = (props) => {
                 }
               )
             ] }),
-            highlightIndex != null && highlightIndex < data.length && /* @__PURE__ */ jsx156(
+            highlightIndex != null && highlightIndex < data.length && /* @__PURE__ */ jsx157(
               "circle",
               {
                 cx: xScale(highlightIndex),
@@ -26390,28 +27004,28 @@ var SparklineInner = (props) => {
           ]
         }
       ),
-      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx156(ChartTooltip, { left: xScale(hoveredIndex), top: yScale(data[hoveredIndex]), visible: true, offsetY: -12, children: data[hoveredIndex].toLocaleString() })
+      showTooltip && hoveredIndex != null && /* @__PURE__ */ jsx157(ChartTooltip, { left: xScale(hoveredIndex), top: yScale(data[hoveredIndex]), visible: true, offsetY: -12, children: data[hoveredIndex].toLocaleString() })
     ] })
   ] });
 };
 SparklineInner.displayName = "SparklineInner";
 
 // src/DATADISPLAY/Charts/Sparkline/Sparkline.tsx
-import { jsx as jsx157 } from "react/jsx-runtime";
-var Sparkline = React129.forwardRef(
+import { jsx as jsx158 } from "react/jsx-runtime";
+var Sparkline = React131.forwardRef(
   ({ width: propWidth, height: propHeight = 40, ...rest }, ref) => {
-    const containerRef = useRef63(null);
+    const containerRef = useRef65(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 120, 40);
-    return /* @__PURE__ */ jsx157("div", { ref, style: { width: propWidth ? void 0 : "100%", display: "inline-block" }, children: /* @__PURE__ */ jsx157("div", { ref: containerRef, children: /* @__PURE__ */ jsx157(SparklineInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx158("div", { ref, style: { width: propWidth ? void 0 : "100%", display: "inline-block" }, children: /* @__PURE__ */ jsx158("div", { ref: containerRef, children: /* @__PURE__ */ jsx158(SparklineInner, { ...rest, width, height }) }) });
   }
 );
 Sparkline.displayName = "Sparkline";
 
 // src/DATADISPLAY/Charts/Bullet/Bullet.tsx
-import React131, { useRef as useRef64 } from "react";
+import React133, { useRef as useRef66 } from "react";
 
 // src/DATADISPLAY/Charts/Bullet/BulletInner.tsx
-import { useMemo as useMemo79 } from "react";
+import { useMemo as useMemo80 } from "react";
 
 // src/DATADISPLAY/Charts/Bullet/Bullet.constants.ts
 var BULLET_ROOT_CLASS = "w3f-chart-bullet";
@@ -26442,28 +27056,28 @@ function buildBulletScale(datum, width) {
 function buildTooltipContent19(datum) {
   const parts = [`${datum.label}: ${datum.value.toLocaleString()}`];
   if (datum.target != null) {
-    parts.push(`Target: ${datum.target.toLocaleString()}`);
+    parts.push(`Objetivo: ${datum.target.toLocaleString()}`);
   }
-  parts.push(`Max range: ${Math.max(...datum.ranges).toLocaleString()}`);
+  parts.push(`Escala hasta: ${Math.max(...datum.ranges).toLocaleString()}`);
   return parts.join(" | ");
 }
 
 // src/DATADISPLAY/Charts/Bullet/Bullet.hooks.ts
-import { useCallback as useCallback71 } from "react";
+import { useCallback as useCallback73 } from "react";
 function useBulletInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback71(
+  const handleEnter = useCallback73(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback71(() => {
+  const handleLeave = useCallback73(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback71(
+  const handleClick = useCallback73(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -26473,7 +27087,7 @@ function useBulletInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Bullet/BulletInner.tsx
-import { jsx as jsx158, jsxs as jsxs103 } from "react/jsx-runtime";
+import { jsx as jsx159, jsxs as jsxs104 } from "react/jsx-runtime";
 var BulletInner = (props) => {
   const {
     data,
@@ -26500,18 +27114,18 @@ var BulletInner = (props) => {
   } = props;
   const labelWidth = 80;
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useBulletInteraction(onHover, onSelect);
-  const classes = useMemo79(() => buildBulletClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo80(() => buildBulletClasses(className, unstyled), [className, unstyled]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx158("div", { className: classes, children: /* @__PURE__ */ jsx158("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bullet chart" }) });
+    return /* @__PURE__ */ jsx159("div", { className: classes, children: /* @__PURE__ */ jsx159("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty bullet chart" }) });
   }
   const leftOffset = showLabels ? labelWidth : 0;
   const barWidth = width - leftOffset - (showValues ? 50 : 0);
   const totalHeight = data.length * barHeight + (data.length - 1) * rowGap;
-  const fmt5 = (n) => n.toLocaleString();
-  return /* @__PURE__ */ jsxs103("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx158(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs103("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs103(
+  const fmt6 = (n) => n.toLocaleString();
+  return /* @__PURE__ */ jsxs104("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx159(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs104("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs104(
         "svg",
         {
           width,
@@ -26520,15 +27134,15 @@ var BulletInner = (props) => {
           role: "img",
           "aria-label": ariaLabel ?? "Bullet chart",
           children: [
-            description && /* @__PURE__ */ jsx158("desc", { children: description }),
+            description && /* @__PURE__ */ jsx159("desc", { children: description }),
             data.map((datum, i) => {
               const scale = buildBulletScale(datum, barWidth);
               const y = i * (barHeight + rowGap);
               const measureH = barHeight * 0.4;
               const measureY = y + (barHeight - measureH) / 2;
               const dimmed = highlightIndex != null && highlightIndex !== i || highlightIndex == null && hoveredIndex != null && hoveredIndex !== i;
-              return /* @__PURE__ */ jsxs103("g", { children: [
-                showLabels && /* @__PURE__ */ jsx158(
+              return /* @__PURE__ */ jsxs104("g", { children: [
+                showLabels && /* @__PURE__ */ jsx159(
                   "text",
                   {
                     x: leftOffset - 8,
@@ -26540,8 +27154,8 @@ var BulletInner = (props) => {
                     children: datum.label
                   }
                 ),
-                /* @__PURE__ */ jsxs103("g", { transform: `translate(${leftOffset}, ${y})`, children: [
-                  /* @__PURE__ */ jsx158(
+                /* @__PURE__ */ jsxs104("g", { transform: `translate(${leftOffset}, ${y})`, children: [
+                  /* @__PURE__ */ jsx159(
                     "rect",
                     {
                       x: 0,
@@ -26552,7 +27166,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ jsx158(
+                  /* @__PURE__ */ jsx159(
                     "rect",
                     {
                       x: 0,
@@ -26563,7 +27177,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ jsx158(
+                  /* @__PURE__ */ jsx159(
                     "rect",
                     {
                       x: 0,
@@ -26574,7 +27188,7 @@ var BulletInner = (props) => {
                       rx: 2
                     }
                   ),
-                  /* @__PURE__ */ jsx158(
+                  /* @__PURE__ */ jsx159(
                     "rect",
                     {
                       x: 0,
@@ -26590,7 +27204,7 @@ var BulletInner = (props) => {
                       style: { cursor: onSelect ? "pointer" : "default", transition: "opacity 120ms ease-out" }
                     }
                   ),
-                  datum.target !== void 0 && /* @__PURE__ */ jsx158(
+                  datum.target !== void 0 && /* @__PURE__ */ jsx159(
                     "line",
                     {
                       x1: scale(datum.target) ?? 0,
@@ -26602,7 +27216,7 @@ var BulletInner = (props) => {
                     }
                   )
                 ] }),
-                showValues && /* @__PURE__ */ jsx158(
+                showValues && /* @__PURE__ */ jsx159(
                   "text",
                   {
                     x: leftOffset + barWidth + 8,
@@ -26611,7 +27225,7 @@ var BulletInner = (props) => {
                     fontSize: 11,
                     fontWeight: 600,
                     fill: "currentColor",
-                    children: fmt5(datum.value)
+                    children: fmt6(datum.value)
                   }
                 )
               ] }, i);
@@ -26619,7 +27233,7 @@ var BulletInner = (props) => {
           ]
         }
       ),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx158(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx159(
         ChartTooltip,
         {
           left: leftOffset + (buildBulletScale(data[hoveredIndex], barWidth)(data[hoveredIndex].value) ?? 0) / 2,
@@ -26635,21 +27249,21 @@ var BulletInner = (props) => {
 BulletInner.displayName = "BulletInner";
 
 // src/DATADISPLAY/Charts/Bullet/Bullet.tsx
-import { jsx as jsx159 } from "react/jsx-runtime";
-var Bullet = React131.forwardRef(
+import { jsx as jsx160 } from "react/jsx-runtime";
+var Bullet = React133.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef64(null);
+    const containerRef = useRef66(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx159("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx159("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx159(BulletInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx160("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx160("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx160(BulletInner, { ...rest, width, height }) }) });
   }
 );
 Bullet.displayName = "Bullet";
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.tsx
-import React133, { useRef as useRef65 } from "react";
+import React135, { useRef as useRef67 } from "react";
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmapInner.tsx
-import { useMemo as useMemo81 } from "react";
+import { useMemo as useMemo82 } from "react";
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.constants.ts
 var CALENDAR_ROOT_CLASS = "w3f-chart-calendar-heatmap";
@@ -26735,24 +27349,24 @@ function getMonthBoundaries(cells) {
 }
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.hooks.ts
-import { useMemo as useMemo80, useCallback as useCallback72, useState as useState58 } from "react";
+import { useMemo as useMemo81, useCallback as useCallback74, useState as useState60 } from "react";
 function useCalendarCells(data) {
-  return useMemo80(() => buildCalendarCells(data), [data]);
+  return useMemo81(() => buildCalendarCells(data), [data]);
 }
 function useCalendarInteraction(onHover, onSelect) {
-  const [hoveredIndex, setHoveredIndex] = useState58(null);
-  const handleEnter = useCallback72(
+  const [hoveredIndex, setHoveredIndex] = useState60(null);
+  const handleEnter = useCallback74(
     (datum, index) => {
       setHoveredIndex(index);
       onHover?.(datum, index);
     },
     [onHover]
   );
-  const handleLeave = useCallback72(() => {
+  const handleLeave = useCallback74(() => {
     setHoveredIndex(null);
     onHover?.(null, null);
   }, [onHover]);
-  const handleClick = useCallback72(
+  const handleClick = useCallback74(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -26762,7 +27376,7 @@ function useCalendarInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmapInner.tsx
-import { jsx as jsx160, jsxs as jsxs104 } from "react/jsx-runtime";
+import { jsx as jsx161, jsxs as jsxs105 } from "react/jsx-runtime";
 var DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 var CalendarHeatmapInner = (props) => {
   const {
@@ -26789,13 +27403,13 @@ var CalendarHeatmapInner = (props) => {
   } = props;
   const { cells, weeksCount } = useCalendarCells(data);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useCalendarInteraction(onHover, onSelect);
-  const classes = useMemo81(() => buildCalendarClasses(className, unstyled), [className, unstyled]);
-  const maxValue = useMemo81(() => {
+  const classes = useMemo82(() => buildCalendarClasses(className, unstyled), [className, unstyled]);
+  const maxValue = useMemo82(() => {
     if (data.length === 0) return 1;
     return Math.max(...data.map((d) => d.value), 1);
   }, [data]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx160("div", { className: classes, children: /* @__PURE__ */ jsx160("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty calendar heatmap" }) });
+    return /* @__PURE__ */ jsx161("div", { className: classes, children: /* @__PURE__ */ jsx161("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty calendar heatmap" }) });
   }
   const leftPad = showDayLabels ? 30 : 0;
   const topPad = showMonthLabels ? 18 : 0;
@@ -26803,13 +27417,13 @@ var CalendarHeatmapInner = (props) => {
   const cellSize = Math.max(Math.floor((availWidth - weeksCount * cellGap) / weeksCount), 6);
   const svgWidth = leftPad + weeksCount * (cellSize + cellGap) + 8;
   const svgHeight = topPad + 7 * (cellSize + cellGap) + 8;
-  const monthBoundaries = useMemo81(() => getMonthBoundaries(cells), [cells]);
-  return /* @__PURE__ */ jsxs104("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx160(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs104("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative", overflowX: "auto" }, children: [
-      /* @__PURE__ */ jsxs104("svg", { width: svgWidth, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Calendar heatmap", children: [
-        description && /* @__PURE__ */ jsx160("desc", { children: description }),
-        showMonthLabels && monthBoundaries.map((mb, i) => /* @__PURE__ */ jsx160(
+  const monthBoundaries = useMemo82(() => getMonthBoundaries(cells), [cells]);
+  return /* @__PURE__ */ jsxs105("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx161(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs105("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative", overflowX: "auto" }, children: [
+      /* @__PURE__ */ jsxs105("svg", { width: svgWidth, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Calendar heatmap", children: [
+        description && /* @__PURE__ */ jsx161("desc", { children: description }),
+        showMonthLabels && monthBoundaries.map((mb, i) => /* @__PURE__ */ jsx161(
           "text",
           {
             x: leftPad + mb.weekIndex * (cellSize + cellGap),
@@ -26821,7 +27435,7 @@ var CalendarHeatmapInner = (props) => {
           },
           i
         )),
-        showDayLabels && DAY_LABELS.map((label, i) => label ? /* @__PURE__ */ jsx160(
+        showDayLabels && DAY_LABELS.map((label, i) => label ? /* @__PURE__ */ jsx161(
           "text",
           {
             x: leftPad - 6,
@@ -26844,7 +27458,7 @@ var CalendarHeatmapInner = (props) => {
             props.colorMax ?? maxValue,
             props.colorLog
           ) * colorRamp.length), colorRamp.length - 1)] : valueToColor(cell.value, maxValue, emptyColor, colorRamp);
-          return /* @__PURE__ */ jsx160(
+          return /* @__PURE__ */ jsx161(
             "rect",
             {
               x,
@@ -26867,7 +27481,7 @@ var CalendarHeatmapInner = (props) => {
           );
         })
       ] }),
-      showTooltip && hoveredIndex != null && cells[hoveredIndex] && /* @__PURE__ */ jsx160(
+      showTooltip && hoveredIndex != null && cells[hoveredIndex] && /* @__PURE__ */ jsx161(
         ChartTooltip,
         {
           left: leftPad + cells[hoveredIndex].weekIndex * (cellSize + cellGap) + cellSize / 2,
@@ -26883,21 +27497,21 @@ var CalendarHeatmapInner = (props) => {
 CalendarHeatmapInner.displayName = "CalendarHeatmapInner";
 
 // src/DATADISPLAY/Charts/CalendarHeatmap/CalendarHeatmap.tsx
-import { jsx as jsx161 } from "react/jsx-runtime";
-var CalendarHeatmap = React133.forwardRef(
+import { jsx as jsx162 } from "react/jsx-runtime";
+var CalendarHeatmap = React135.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef65(null);
+    const containerRef = useRef67(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, 800, 140);
-    return /* @__PURE__ */ jsx161("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx161("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx161(CalendarHeatmapInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx162("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx162("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx162(CalendarHeatmapInner, { ...rest, width, height }) }) });
   }
 );
 CalendarHeatmap.displayName = "CalendarHeatmap";
 
 // src/DATADISPLAY/Charts/Sunburst/Sunburst.tsx
-import React135, { useRef as useRef66 } from "react";
+import React137, { useRef as useRef68 } from "react";
 
 // src/DATADISPLAY/Charts/Sunburst/SunburstInner.tsx
-import { useMemo as useMemo83 } from "react";
+import { useMemo as useMemo84 } from "react";
 import { Group as Group27 } from "@visx/group";
 import { hierarchy as hierarchy3 } from "@visx/hierarchy";
 import { partition } from "d3-hierarchy";
@@ -26931,28 +27545,28 @@ function arcLabelFits(startAngle, endAngle, depth) {
 }
 
 // src/DATADISPLAY/Charts/Sunburst/Sunburst.hooks.ts
-import { useMemo as useMemo82, useCallback as useCallback73 } from "react";
+import { useMemo as useMemo83, useCallback as useCallback75 } from "react";
 function useSunburstColors(count, colorScheme) {
-  return useMemo82(() => buildSunburstColors(count, colorScheme), [count, colorScheme]);
+  return useMemo83(() => buildSunburstColors(count, colorScheme), [count, colorScheme]);
 }
 function useSunburstInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback73((d, i) => {
+  const handleEnter = useCallback75((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback73(() => {
+  const handleLeave = useCallback75(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback73((d, i) => {
+  const handleClick = useCallback75((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Sunburst/SunburstInner.tsx
-import { jsx as jsx162, jsxs as jsxs105 } from "react/jsx-runtime";
+import { jsx as jsx163, jsxs as jsxs106 } from "react/jsx-runtime";
 var SunburstInner = (props) => {
   const {
     data,
@@ -26973,32 +27587,32 @@ var SunburstInner = (props) => {
     onHover,
     onSelect
   } = props;
-  const root = useMemo83(() => {
+  const root = useMemo84(() => {
     const r = hierarchy3(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
     return partition().size([2 * Math.PI, r.height + 1])(r);
   }, [data]);
-  const nodes = useMemo83(() => root.descendants().filter((d) => d.depth > 0), [root]);
-  const maxDepth2 = useMemo83(() => Math.max(...nodes.map((n) => n.depth), 1), [nodes]);
+  const nodes = useMemo84(() => root.descendants().filter((d) => d.depth > 0), [root]);
+  const maxDepth2 = useMemo84(() => Math.max(...nodes.map((n) => n.depth), 1), [nodes]);
   const colors = useSunburstColors(nodes.length, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useSunburstInteraction(onHover, onSelect);
-  const classes = useMemo83(() => buildSunburstClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo84(() => buildSunburstClasses(className, unstyled), [className, unstyled]);
   const radius = Math.min(width, height) / 2 * 0.9;
   const cx = width / 2;
   const cy = height / 2;
-  const yScale = useMemo83(() => scaleSqrt({
+  const yScale = useMemo84(() => scaleSqrt({
     domain: [0, maxDepth2 + 1],
     range: [radius * 0.15, radius]
   }), [maxDepth2, radius]);
-  const arcGen = useMemo83(() => d3arc().cornerRadius(cornerRadius), [cornerRadius]);
+  const arcGen = useMemo84(() => d3arc().cornerRadius(cornerRadius), [cornerRadius]);
   if (nodes.length === 0) {
-    return /* @__PURE__ */ jsx162("div", { className: classes, children: /* @__PURE__ */ jsx162("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sunburst" }) });
+    return /* @__PURE__ */ jsx163("div", { className: classes, children: /* @__PURE__ */ jsx163("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty sunburst" }) });
   }
-  return /* @__PURE__ */ jsxs105("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx162(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs105("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs105("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sunburst chart", children: [
-        description && /* @__PURE__ */ jsx162("desc", { children: description }),
-        /* @__PURE__ */ jsx162(Group27, { top: cy, left: cx, children: nodes.map((node, i) => {
+  return /* @__PURE__ */ jsxs106("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx163(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs106("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs106("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Sunburst chart", children: [
+        description && /* @__PURE__ */ jsx163("desc", { children: description }),
+        /* @__PURE__ */ jsx163(Group27, { top: cy, left: cx, children: nodes.map((node, i) => {
           const innerR = yScale(node.depth);
           const outerR = yScale(node.depth + 1);
           const isHovered = hoveredIndex === i;
@@ -27013,7 +27627,7 @@ var SunburstInner = (props) => {
             outerRadius: outerR,
             padAngle
           }) ?? "";
-          return /* @__PURE__ */ jsxs105(
+          return /* @__PURE__ */ jsxs106(
             "g",
             {
               opacity,
@@ -27022,14 +27636,14 @@ var SunburstInner = (props) => {
               onMouseLeave: handleLeave,
               onClick: onSelect ? () => handleClick(d, i) : void 0,
               children: [
-                /* @__PURE__ */ jsx162("path", { d: pathStr, fill: colors[i] }),
+                /* @__PURE__ */ jsx163("path", { d: pathStr, fill: colors[i] }),
                 showLabels && arcLabelFits(startAngle, endAngle, node.depth) && (() => {
                   const angle = (startAngle + endAngle) / 2;
                   const r = (innerR + outerR) / 2;
                   const x = Math.cos(angle - Math.PI / 2) * r;
                   const y = Math.sin(angle - Math.PI / 2) * r;
                   const rotate = angle > Math.PI ? angle * 180 / Math.PI - 270 : angle * 180 / Math.PI - 90;
-                  return /* @__PURE__ */ jsx162(
+                  return /* @__PURE__ */ jsx163(
                     "text",
                     {
                       x,
@@ -27054,7 +27668,7 @@ var SunburstInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const node = nodes[hoveredIndex];
         if (!node) return null;
-        return /* @__PURE__ */ jsx162(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent21(node.data) });
+        return /* @__PURE__ */ jsx163(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent21(node.data) });
       })()
     ] })
   ] });
@@ -27062,21 +27676,21 @@ var SunburstInner = (props) => {
 SunburstInner.displayName = "SunburstInner";
 
 // src/DATADISPLAY/Charts/Sunburst/Sunburst.tsx
-import { jsx as jsx163 } from "react/jsx-runtime";
-var Sunburst = React135.forwardRef(
+import { jsx as jsx164 } from "react/jsx-runtime";
+var Sunburst = React137.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef66(null);
+    const containerRef = useRef68(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx163("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx163("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx163(SunburstInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx164("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx164("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx164(SunburstInner, { ...rest, width, height }) }) });
   }
 );
 Sunburst.displayName = "Sunburst";
 
 // src/DATADISPLAY/Charts/Chord/Chord.tsx
-import React137, { useRef as useRef67 } from "react";
+import React139, { useRef as useRef69 } from "react";
 
 // src/DATADISPLAY/Charts/Chord/ChordInner.tsx
-import { useMemo as useMemo85 } from "react";
+import { useMemo as useMemo86 } from "react";
 import { Group as Group28 } from "@visx/group";
 import { Chord as VisxChord, Ribbon } from "@visx/chord";
 import { arc as d3arc2 } from "d3-shape";
@@ -27098,36 +27712,38 @@ function buildChordColors(count, colorScheme) {
   const palette = resolveColorScheme(colorScheme);
   return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
 }
-function buildTooltipContent22(source, target, value) {
-  return `${source} \u2192 ${target}: ${value.toLocaleString()}`;
+function buildTooltipContent22(source, target, value, back) {
+  const ida = `${source} \u2192 ${target}: ${value.toLocaleString()}`;
+  if (back == null || source === target) return ida;
+  return `${ida} \xB7 ${target} \u2192 ${source}: ${back.toLocaleString()}`;
 }
 
 // src/DATADISPLAY/Charts/Chord/Chord.hooks.ts
-import { useMemo as useMemo84, useCallback as useCallback74, useState as useState59 } from "react";
+import { useMemo as useMemo85, useCallback as useCallback76, useState as useState61 } from "react";
 function useChordColors(count, colorScheme) {
-  return useMemo84(() => buildChordColors(count, colorScheme), [count, colorScheme]);
+  return useMemo85(() => buildChordColors(count, colorScheme), [count, colorScheme]);
 }
 function useChordInteraction(onHover, onSelect) {
-  const [hoveredIndex, setHoveredIndex] = useState59(null);
-  const [hoveredDatum, setHoveredDatum] = useState59(null);
-  const handleEnter = useCallback74((d, i) => {
+  const [hoveredIndex, setHoveredIndex] = useState61(null);
+  const [hoveredDatum, setHoveredDatum] = useState61(null);
+  const handleEnter = useCallback76((d, i) => {
     setHoveredIndex(i);
     setHoveredDatum(d);
     onHover?.(d, i);
   }, [onHover]);
-  const handleLeave = useCallback74(() => {
+  const handleLeave = useCallback76(() => {
     setHoveredIndex(null);
     setHoveredDatum(null);
     onHover?.(null, null);
   }, [onHover]);
-  const handleClick = useCallback74((d, i) => {
+  const handleClick = useCallback76((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, hoveredDatum, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Chord/ChordInner.tsx
-import { jsx as jsx164, jsxs as jsxs106 } from "react/jsx-runtime";
+import { jsx as jsx165, jsxs as jsxs107 } from "react/jsx-runtime";
 var ChordInner = (props) => {
   const {
     data,
@@ -27153,20 +27769,20 @@ var ChordInner = (props) => {
   const { matrix, labels } = data;
   const colors = useChordColors(labels.length, colorScheme);
   const { hoveredIndex, hoveredDatum, handleEnter, handleLeave, handleClick } = useChordInteraction(onHover, onSelect);
-  const classes = useMemo85(() => buildChordClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo86(() => buildChordClasses(className, unstyled), [className, unstyled]);
   const radius = Math.min(width, height) / 2 * 0.8;
   const cx = width / 2;
   const cy = height / 2;
-  const arcGen = useMemo85(() => d3arc2(), []);
+  const arcGen = useMemo86(() => d3arc2(), []);
   if (labels.length === 0 || matrix.length === 0) {
-    return /* @__PURE__ */ jsx164("div", { className: classes, children: /* @__PURE__ */ jsx164("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty chord" }) });
+    return /* @__PURE__ */ jsx165("div", { className: classes, children: /* @__PURE__ */ jsx165("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty chord" }) });
   }
-  return /* @__PURE__ */ jsxs106("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx164(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs106("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs106("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Chord diagram", children: [
-        description && /* @__PURE__ */ jsx164("desc", { children: description }),
-        /* @__PURE__ */ jsx164(Group28, { top: cy, left: cx, children: /* @__PURE__ */ jsx164(VisxChord, { matrix, padAngle, children: ({ chords }) => /* @__PURE__ */ jsxs106("g", { children: [
+  return /* @__PURE__ */ jsxs107("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx165(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs107("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs107("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Chord diagram", children: [
+        description && /* @__PURE__ */ jsx165("desc", { children: description }),
+        /* @__PURE__ */ jsx165(Group28, { top: cy, left: cx, children: /* @__PURE__ */ jsx165(VisxChord, { matrix, padAngle, children: ({ chords }) => /* @__PURE__ */ jsxs107("g", { children: [
           chords.groups.map((group, i) => {
             const pathStr = arcGen({
               startAngle: group.startAngle,
@@ -27174,14 +27790,14 @@ var ChordInner = (props) => {
               innerRadius: radius - 10,
               outerRadius: radius
             }) ?? "";
-            return /* @__PURE__ */ jsxs106("g", { children: [
-              /* @__PURE__ */ jsx164("path", { d: pathStr, fill: colors[i], stroke: colors[i] }),
+            return /* @__PURE__ */ jsxs107("g", { children: [
+              /* @__PURE__ */ jsx165("path", { d: pathStr, fill: colors[i], stroke: colors[i] }),
               showLabels && (() => {
                 const angle = (group.startAngle + group.endAngle) / 2;
                 const textR = radius + 14;
                 const x = Math.cos(angle - Math.PI / 2) * textR;
                 const y = Math.sin(angle - Math.PI / 2) * textR;
-                return /* @__PURE__ */ jsx164(
+                return /* @__PURE__ */ jsx165(
                   "text",
                   {
                     x,
@@ -27205,8 +27821,8 @@ var ChordInner = (props) => {
             const src = labels[chord.source.index];
             const tgt = labels[chord.target.index];
             const val = chord.source.value;
-            const datum = { source: src, target: tgt, value: val };
-            return /* @__PURE__ */ jsx164(
+            const datum = { source: src, target: tgt, value: val, back: chord.target.value };
+            return /* @__PURE__ */ jsx165(
               Ribbon,
               {
                 chord,
@@ -27223,28 +27839,28 @@ var ChordInner = (props) => {
           })
         ] }) }) })
       ] }),
-      showTooltip && hoveredDatum != null && /* @__PURE__ */ jsx164(ChartTooltip, { left: cx, top: 10, visible: true, offsetY: 0, children: buildTooltipContent22(hoveredDatum.source, hoveredDatum.target, hoveredDatum.value) })
+      showTooltip && hoveredDatum != null && /* @__PURE__ */ jsx165(ChartTooltip, { left: cx, top: 10, visible: true, offsetY: 0, children: buildTooltipContent22(hoveredDatum.source, hoveredDatum.target, hoveredDatum.value, hoveredDatum.back) })
     ] })
   ] });
 };
 ChordInner.displayName = "ChordInner";
 
 // src/DATADISPLAY/Charts/Chord/Chord.tsx
-import { jsx as jsx165 } from "react/jsx-runtime";
-var Chord = React137.forwardRef(
+import { jsx as jsx166 } from "react/jsx-runtime";
+var Chord = React139.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef67(null);
+    const containerRef = useRef69(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx165("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx165("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx165(ChordInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx166("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx166("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx166(ChordInner, { ...rest, width, height }) }) });
   }
 );
 Chord.displayName = "Chord";
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBar.tsx
-import React139, { useRef as useRef68 } from "react";
+import React141, { useRef as useRef70 } from "react";
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBarInner.tsx
-import { useMemo as useMemo87 } from "react";
+import { useMemo as useMemo88 } from "react";
 import { Group as Group29 } from "@visx/group";
 import { scaleLinear as scaleLinear16 } from "@visx/scale";
 import { arc as d3arc3 } from "d3-shape";
@@ -27274,28 +27890,28 @@ function buildTooltipContent23(d) {
 }
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBar.hooks.ts
-import { useMemo as useMemo86, useCallback as useCallback75 } from "react";
+import { useMemo as useMemo87, useCallback as useCallback77 } from "react";
 function usePolarBarColors(count, colorScheme) {
-  return useMemo86(() => buildPolarBarColors(count, colorScheme), [count, colorScheme]);
+  return useMemo87(() => buildPolarBarColors(count, colorScheme), [count, colorScheme]);
 }
 function usePolarBarInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback75((d, i) => {
+  const handleEnter = useCallback77((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback75(() => {
+  const handleLeave = useCallback77(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback75((d, i) => {
+  const handleClick = useCallback77((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBarInner.tsx
-import { jsx as jsx166, jsxs as jsxs107 } from "react/jsx-runtime";
+import { jsx as jsx167, jsxs as jsxs108 } from "react/jsx-runtime";
 var PolarBarInner = (props) => {
   const {
     data,
@@ -27320,33 +27936,33 @@ var PolarBarInner = (props) => {
   } = props;
   const colors = usePolarBarColors(data.length, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = usePolarBarInteraction(onHover, onSelect);
-  const classes = useMemo87(() => buildPolarBarClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo88(() => buildPolarBarClasses(className, unstyled), [className, unstyled]);
   const legendHeight = showLegend ? 36 : 0;
   const svgHeight = height - legendHeight;
   const radius = Math.min(width, svgHeight) / 2 * 0.85;
   const innerR = radius * innerRadiusRatio;
   const cx = width / 2;
   const cy = svgHeight / 2;
-  const maxValue = useMemo87(() => Math.max(...data.map((d) => d.value), 1), [data]);
-  const radiusScale = useMemo87(() => scaleLinear16({
+  const maxValue = useMemo88(() => Math.max(...data.map((d) => d.value), 1), [data]);
+  const radiusScale = useMemo88(() => scaleLinear16({
     domain: [0, maxValue],
     range: [innerR, radius]
   }), [maxValue, innerR, radius]);
-  const arcGen = useMemo87(() => d3arc3().cornerRadius(cornerRadius), [cornerRadius]);
+  const arcGen = useMemo88(() => d3arc3().cornerRadius(cornerRadius), [cornerRadius]);
   const sliceAngle = data.length > 0 ? 2 * Math.PI / data.length : 0;
-  const legendItems = useMemo87(
+  const legendItems = useMemo88(
     () => data.map((d, i) => ({ id: String(d.label), label: String(d.label), color: colors[i] })),
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx166("div", { className: classes, children: /* @__PURE__ */ jsx166("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty polar bar" }) });
+    return /* @__PURE__ */ jsx167("div", { className: classes, children: /* @__PURE__ */ jsx167("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty polar bar" }) });
   }
-  return /* @__PURE__ */ jsxs107("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx166(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs107("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs107("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Polar bar chart", children: [
-        description && /* @__PURE__ */ jsx166("desc", { children: description }),
-        /* @__PURE__ */ jsx166(Group29, { top: cy, left: cx, children: data.map((d, i) => {
+  return /* @__PURE__ */ jsxs108("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx167(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs108("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs108("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Polar bar chart", children: [
+        description && /* @__PURE__ */ jsx167("desc", { children: description }),
+        /* @__PURE__ */ jsx167(Group29, { top: cy, left: cx, children: data.map((d, i) => {
           const startAngle = i * sliceAngle;
           const endAngle = startAngle + sliceAngle - padAngle;
           const outerR = radiusScale(d.value);
@@ -27362,7 +27978,7 @@ var PolarBarInner = (props) => {
           const labelR = radius + 14;
           const lx = Math.cos(midAngle - Math.PI / 2) * labelR;
           const ly = Math.sin(midAngle - Math.PI / 2) * labelR;
-          return /* @__PURE__ */ jsxs107(
+          return /* @__PURE__ */ jsxs108(
             "g",
             {
               opacity,
@@ -27371,8 +27987,8 @@ var PolarBarInner = (props) => {
               onMouseLeave: handleLeave,
               onClick: onSelect ? () => handleClick(d, i) : void 0,
               children: [
-                /* @__PURE__ */ jsx166("path", { d: pathStr, fill: colors[i] }),
-                showLabels && /* @__PURE__ */ jsx166(
+                /* @__PURE__ */ jsx167("path", { d: pathStr, fill: colors[i] }),
+                showLabels && /* @__PURE__ */ jsx167(
                   "text",
                   {
                     x: lx,
@@ -27394,30 +28010,30 @@ var PolarBarInner = (props) => {
       ] }),
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
-        return /* @__PURE__ */ jsx166(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent23(d) });
+        return /* @__PURE__ */ jsx167(ChartTooltip, { left: cx, top: cy, visible: true, offsetY: -radius - 12, children: buildTooltipContent23(d) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ jsx166(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ jsx167(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 PolarBarInner.displayName = "PolarBarInner";
 
 // src/DATADISPLAY/Charts/PolarBar/PolarBar.tsx
-import { jsx as jsx167 } from "react/jsx-runtime";
-var PolarBar = React139.forwardRef(
+import { jsx as jsx168 } from "react/jsx-runtime";
+var PolarBar = React141.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef68(null);
+    const containerRef = useRef70(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx167("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx167("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx167(PolarBarInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx168("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx168("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx168(PolarBarInner, { ...rest, width, height }) }) });
   }
 );
 PolarBar.displayName = "PolarBar";
 
 // src/DATADISPLAY/Charts/Waffle/Waffle.tsx
-import React141, { useRef as useRef69 } from "react";
+import React143, { useRef as useRef71 } from "react";
 
 // src/DATADISPLAY/Charts/Waffle/WaffleInner.tsx
-import { useMemo as useMemo89 } from "react";
+import { useMemo as useMemo90 } from "react";
 
 // src/DATADISPLAY/Charts/Waffle/Waffle.constants.ts
 var WAFFLE_ROOT_CLASS = "w3f-chart-waffle";
@@ -27463,31 +28079,31 @@ function buildTooltipContent24(d, total) {
 }
 
 // src/DATADISPLAY/Charts/Waffle/Waffle.hooks.ts
-import { useMemo as useMemo88, useCallback as useCallback76 } from "react";
+import { useMemo as useMemo89, useCallback as useCallback78 } from "react";
 function useWaffleColors(count, colorScheme) {
-  return useMemo88(() => buildWaffleColors(count, colorScheme), [count, colorScheme]);
+  return useMemo89(() => buildWaffleColors(count, colorScheme), [count, colorScheme]);
 }
 function useWaffleCellMap(data, totalCells) {
-  return useMemo88(() => buildCellMap(data, totalCells), [data, totalCells]);
+  return useMemo89(() => buildCellMap(data, totalCells), [data, totalCells]);
 }
 function useWaffleInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback76((d, i) => {
+  const handleEnter = useCallback78((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback76(() => {
+  const handleLeave = useCallback78(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback76((d, i) => {
+  const handleClick = useCallback78((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/Waffle/WaffleInner.tsx
-import { jsx as jsx168, jsxs as jsxs108 } from "react/jsx-runtime";
+import { jsx as jsx169, jsxs as jsxs109 } from "react/jsx-runtime";
 var WaffleInner = (props) => {
   const {
     data,
@@ -27513,7 +28129,7 @@ var WaffleInner = (props) => {
   const colors = useWaffleColors(data.length, colorScheme);
   const cellMap = useWaffleCellMap(data, totalCells);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWaffleInteraction(onHover, onSelect);
-  const classes = useMemo89(() => buildWaffleClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo90(() => buildWaffleClasses(className, unstyled), [className, unstyled]);
   const rows = Math.ceil(totalCells / columns);
   const legendHeight = showLegend ? 36 : 0;
   const svgHeight = height - legendHeight;
@@ -27524,19 +28140,19 @@ var WaffleInner = (props) => {
   const gridH = cellSize * rows + cellGap * (rows - 1);
   const offsetX = (width - gridW) / 2;
   const offsetY = (svgHeight - gridH) / 2;
-  const total = useMemo89(() => data.reduce((s, d) => s + d.value, 0), [data]);
-  const legendItems = useMemo89(
+  const total = useMemo90(() => data.reduce((s, d) => s + d.value, 0), [data]);
+  const legendItems = useMemo90(
     () => data.map((d, i) => ({ id: d.id, label: d.label, color: colors[i] })),
     [data, colors]
   );
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx168("div", { className: classes, children: /* @__PURE__ */ jsx168("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waffle" }) });
+    return /* @__PURE__ */ jsx169("div", { className: classes, children: /* @__PURE__ */ jsx169("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty waffle" }) });
   }
-  return /* @__PURE__ */ jsxs108("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx168(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs108("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs108("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waffle chart", children: [
-        description && /* @__PURE__ */ jsx168("desc", { children: description }),
+  return /* @__PURE__ */ jsxs109("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx169(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs109("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs109("svg", { width, height: svgHeight, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Waffle chart", children: [
+        description && /* @__PURE__ */ jsx169("desc", { children: description }),
         cellMap.map((sliceIdx, cellIdx) => {
           if (sliceIdx < 0) return null;
           const col = cellIdx % columns;
@@ -27546,7 +28162,7 @@ var WaffleInner = (props) => {
           const d = data[sliceIdx];
           const isHovered = hoveredIndex === sliceIdx;
           const opacity = hoveredIndex != null && !isHovered ? 0.4 : 1;
-          return /* @__PURE__ */ jsx168(
+          return /* @__PURE__ */ jsx169(
             "rect",
             {
               x,
@@ -27568,30 +28184,30 @@ var WaffleInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const d = data[hoveredIndex];
         if (!d) return null;
-        return /* @__PURE__ */ jsx168(ChartTooltip, { left: width / 2, top: 0, visible: true, offsetY: -12, children: buildTooltipContent24(d, total) });
+        return /* @__PURE__ */ jsx169(ChartTooltip, { left: width / 2, top: 0, visible: true, offsetY: -12, children: buildTooltipContent24(d, total) });
       })()
     ] }),
-    showLegend && /* @__PURE__ */ jsx168(ChartLegend, { items: legendItems, direction: "horizontal" })
+    showLegend && /* @__PURE__ */ jsx169(ChartLegend, { items: legendItems, direction: "horizontal" })
   ] });
 };
 WaffleInner.displayName = "WaffleInner";
 
 // src/DATADISPLAY/Charts/Waffle/Waffle.tsx
-import { jsx as jsx169 } from "react/jsx-runtime";
-var Waffle = React141.forwardRef(
+import { jsx as jsx170 } from "react/jsx-runtime";
+var Waffle = React143.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef69(null);
+    const containerRef = useRef71(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx169("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx169("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx169(WaffleInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx170("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx170("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx170(WaffleInner, { ...rest, width, height }) }) });
   }
 );
 Waffle.displayName = "Waffle";
 
 // src/DATADISPLAY/Charts/Gantt/Gantt.tsx
-import React143, { useRef as useRef70 } from "react";
+import React145, { useRef as useRef72 } from "react";
 
 // src/DATADISPLAY/Charts/Gantt/GanttInner.tsx
-import { useMemo as useMemo91 } from "react";
+import { useMemo as useMemo92 } from "react";
 import { Group as Group30 } from "@visx/group";
 import { scaleTime as scaleTime7, scaleBand as scaleBand5 } from "@visx/scale";
 
@@ -27638,27 +28254,27 @@ function buildTooltipContent25(task) {
 }
 
 // src/DATADISPLAY/Charts/Gantt/Gantt.hooks.ts
-import { useMemo as useMemo90, useCallback as useCallback77 } from "react";
+import { useMemo as useMemo91, useCallback as useCallback79 } from "react";
 function useGanttColors(groups, colorScheme) {
-  return useMemo90(
+  return useMemo91(
     () => buildGanttColors(groups, colorScheme),
     [groups, colorScheme]
   );
 }
 function useGanttInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback77(
+  const handleEnter = useCallback79(
     (datum, index) => {
       enter(index);
       onHover?.(datum, index);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback77(() => {
+  const handleLeave = useCallback79(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback77(
+  const handleClick = useCallback79(
     (datum, index) => {
       onSelect?.(datum, index);
     },
@@ -27668,7 +28284,7 @@ function useGanttInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Gantt/GanttInner.tsx
-import { jsx as jsx170, jsxs as jsxs109 } from "react/jsx-runtime";
+import { jsx as jsx171, jsxs as jsxs110 } from "react/jsx-runtime";
 var DEFAULT_MARGIN = { top: 20, right: 20, bottom: 40, left: 120 };
 var GanttInner = (props) => {
   const {
@@ -27697,7 +28313,7 @@ var GanttInner = (props) => {
     // 0022 B53.6
   } = props;
   const dims = useInnerDims(width, height, margin, props);
-  const groups = useMemo91(() => {
+  const groups = useMemo92(() => {
     const seen = /* @__PURE__ */ new Set();
     data.forEach((t) => {
       const g = t.group ?? t.id;
@@ -27707,8 +28323,8 @@ var GanttInner = (props) => {
   }, [data]);
   const colorMap = useGanttColors(groups, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useGanttInteraction(onHover, onSelect);
-  const classes = useMemo91(() => buildGanttClasses(className, unstyled), [className, unstyled]);
-  const { xScale: xScaleRaw, yScale: yScaleRaw } = useMemo91(() => {
+  const classes = useMemo92(() => buildGanttClasses(className, unstyled), [className, unstyled]);
+  const { xScale: xScaleRaw, yScale: yScaleRaw } = useMemo92(() => {
     if (data.length === 0) {
       const now = /* @__PURE__ */ new Date();
       const later = new Date(now.getTime() + 864e5);
@@ -27737,25 +28353,25 @@ var GanttInner = (props) => {
   const xScale = adaptScale(xScaleRaw, props, "x");
   const yScale = adaptScale(yScaleRaw, props, "y");
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx170("div", { className: classes, children: /* @__PURE__ */ jsx170("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty Gantt chart" }) });
+    return /* @__PURE__ */ jsx171("div", { className: classes, children: /* @__PURE__ */ jsx171("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty Gantt chart" }) });
   }
   const bandwidth = yScale.bandwidth();
   const taskBarHeight = Math.min(barHeight, bandwidth);
   const barY = (bandwidth - taskBarHeight) / 2;
-  return /* @__PURE__ */ jsxs109("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx170(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs109("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs109("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Gantt chart", children: [
-        description && /* @__PURE__ */ jsx170("desc", { children: description }),
-        /* @__PURE__ */ jsxs109(Group30, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
-          showGrid && /* @__PURE__ */ jsx170(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "x" }),
+  return /* @__PURE__ */ jsxs110("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx171(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs110("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs110("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Gantt chart", children: [
+        description && /* @__PURE__ */ jsx171("desc", { children: description }),
+        /* @__PURE__ */ jsxs110(Group30, { top: plotTop(dims, props), left: plotLeft(dims, props), children: [
+          showGrid && /* @__PURE__ */ jsx171(ChartGrid, { xScale, yScale, width: dims.innerWidth, height: dims.innerHeight, axis: "x" }),
           data.map((task, i) => {
             const startX = xScale(toDate9(task.start)) ?? 0;
             const endX = xScale(toDate9(task.end)) ?? 0;
             const taskWidth = Math.max(endX - startX, 2);
             const y = (yScale(task.label) ?? 0) + barY;
             const color = colorMap[task.group ?? task.id] ?? colorMap[groups[i % groups.length]];
-            return /* @__PURE__ */ jsxs109(
+            return /* @__PURE__ */ jsxs110(
               "g",
               {
                 opacity: hoveredIndex != null && hoveredIndex !== i ? 0.4 : 1,
@@ -27765,7 +28381,7 @@ var GanttInner = (props) => {
                 onClick: onSelect ? () => handleClick(task, i) : void 0,
                 cursor: onSelect ? "pointer" : "default",
                 children: [
-                  /* @__PURE__ */ jsx170(
+                  /* @__PURE__ */ jsx171(
                     "rect",
                     {
                       x: startX,
@@ -27778,7 +28394,7 @@ var GanttInner = (props) => {
                       ry: barRadius
                     }
                   ),
-                  task.progress != null && task.progress > 0 && /* @__PURE__ */ jsx170(
+                  task.progress != null && task.progress > 0 && /* @__PURE__ */ jsx171(
                     "rect",
                     {
                       x: startX,
@@ -27791,7 +28407,7 @@ var GanttInner = (props) => {
                       ry: barRadius
                     }
                   ),
-                  task.progress == null && /* @__PURE__ */ jsx170(
+                  task.progress == null && /* @__PURE__ */ jsx171(
                     "rect",
                     {
                       x: startX,
@@ -27811,7 +28427,7 @@ var GanttInner = (props) => {
           }),
           showLabels && data.map((task, i) => {
             const y = (yScale(task.label) ?? 0) + barY + taskBarHeight / 2;
-            return /* @__PURE__ */ jsx170(
+            return /* @__PURE__ */ jsx171(
               "text",
               {
                 x: -8,
@@ -27828,10 +28444,10 @@ var GanttInner = (props) => {
               `label-${task.id}`
             );
           }),
-          showXAxis && /* @__PURE__ */ jsx170(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props) })
+          showXAxis && /* @__PURE__ */ jsx171(ChartAxis, { scale: xScale, ...xAxisLayout(dims, props) })
         ] })
       ] }),
-      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx170(
+      showTooltip && hoveredIndex != null && data[hoveredIndex] && /* @__PURE__ */ jsx171(
         ChartTooltip,
         {
           left: (xScale(toDate9(data[hoveredIndex].start)) ?? 0) + plotLeft(dims, props),
@@ -27847,21 +28463,21 @@ var GanttInner = (props) => {
 GanttInner.displayName = "GanttInner";
 
 // src/DATADISPLAY/Charts/Gantt/Gantt.tsx
-import { jsx as jsx171 } from "react/jsx-runtime";
-var Gantt = React143.forwardRef(
+import { jsx as jsx172 } from "react/jsx-runtime";
+var Gantt = React145.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef70(null);
+    const containerRef = useRef72(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx171("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx171("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx171(GanttInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx172("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx172("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx172(GanttInner, { ...rest, width, height }) }) });
   }
 );
 Gantt.displayName = "Gantt";
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.tsx
-import React145, { useRef as useRef71 } from "react";
+import React147, { useRef as useRef73 } from "react";
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
-import { useMemo as useMemo93 } from "react";
+import { useMemo as useMemo94 } from "react";
 import { Group as Group31 } from "@visx/group";
 import { Tree as Tree2, hierarchy as hierarchy4 } from "@visx/hierarchy";
 
@@ -27889,28 +28505,28 @@ function buildTooltipContent26(node) {
 }
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.hooks.ts
-import { useMemo as useMemo92, useCallback as useCallback78 } from "react";
+import { useMemo as useMemo93, useCallback as useCallback80 } from "react";
 function useTreeDiagramColors(count, colorScheme) {
-  return useMemo92(() => buildTreeDiagramColors(count, colorScheme), [count, colorScheme]);
+  return useMemo93(() => buildTreeDiagramColors(count, colorScheme), [count, colorScheme]);
 }
 function useTreeDiagramInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback78((d, i) => {
+  const handleEnter = useCallback80((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback78(() => {
+  const handleLeave = useCallback80(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback78((d, i) => {
+  const handleClick = useCallback80((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagramInner.tsx
-import { jsx as jsx172, jsxs as jsxs110 } from "react/jsx-runtime";
+import { jsx as jsx173, jsxs as jsxs111 } from "react/jsx-runtime";
 var MARGIN2 = { top: 40, right: 40, bottom: 40, left: 40 };
 function polarToCartesian(angle, radius) {
   return [
@@ -27949,16 +28565,16 @@ var TreeDiagramInner = (props) => {
   } = props;
   const innerWidth = Math.max(width - MARGIN2.left - MARGIN2.right, 0);
   const innerHeight = Math.max(height - MARGIN2.top - MARGIN2.bottom, 0);
-  const root = useMemo93(
+  const root = useMemo94(
     () => hierarchy4(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0)),
     [data]
   );
-  const allNodes = useMemo93(() => root.descendants(), [root]);
-  const depthCount = useMemo93(() => maxDepth(root), [root]);
+  const allNodes = useMemo94(() => root.descendants(), [root]);
+  const depthCount = useMemo94(() => maxDepth(root), [root]);
   const colors = useTreeDiagramColors(depthCount, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useTreeDiagramInteraction(onHover, onSelect);
-  const classes = useMemo93(() => buildTreeDiagramClasses(className, unstyled), [className, unstyled]);
-  const treeSize = useMemo93(() => {
+  const classes = useMemo94(() => buildTreeDiagramClasses(className, unstyled), [className, unstyled]);
+  const treeSize = useMemo94(() => {
     if (layout === "left-right") return [innerHeight, innerWidth];
     if (layout === "radial") {
       const radius = Math.min(innerWidth, innerHeight) / 2;
@@ -27969,18 +28585,18 @@ var TreeDiagramInner = (props) => {
   const centerX = layout === "radial" ? innerWidth / 2 : 0;
   const centerY = layout === "radial" ? innerHeight / 2 : 0;
   if (allNodes.length === 0) {
-    return /* @__PURE__ */ jsx172("div", { className: classes, children: /* @__PURE__ */ jsx172("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty tree diagram" }) });
+    return /* @__PURE__ */ jsx173("div", { className: classes, children: /* @__PURE__ */ jsx173("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty tree diagram" }) });
   }
-  return /* @__PURE__ */ jsxs110("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx172(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs110("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs110("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
-        description && /* @__PURE__ */ jsx172("desc", { children: description }),
-        /* @__PURE__ */ jsx172(Tree2, { root, size: treeSize, children: (tree) => /* @__PURE__ */ jsxs110(Group31, { top: MARGIN2.top + centerY, left: MARGIN2.left + centerX, children: [
+  return /* @__PURE__ */ jsxs111("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx173(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs111("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs111("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Tree diagram", children: [
+        description && /* @__PURE__ */ jsx173("desc", { children: description }),
+        /* @__PURE__ */ jsx173(Tree2, { root, size: treeSize, children: (tree) => /* @__PURE__ */ jsxs111(Group31, { top: MARGIN2.top + centerY, left: MARGIN2.left + centerX, children: [
           tree.links().map((link, i) => {
             const [sx, sy] = getNodePosition(link.source, layout);
             const [tx, ty] = getNodePosition(link.target, layout);
-            return /* @__PURE__ */ jsx172(
+            return /* @__PURE__ */ jsx173(
               "line",
               {
                 x1: sx,
@@ -28022,7 +28638,7 @@ var TreeDiagramInner = (props) => {
               const degrees = angle * 180 / Math.PI - 90;
               labelRotation = isRight ? degrees : degrees + 180;
             }
-            return /* @__PURE__ */ jsxs110(
+            return /* @__PURE__ */ jsxs111(
               "g",
               {
                 opacity,
@@ -28031,7 +28647,7 @@ var TreeDiagramInner = (props) => {
                 onMouseLeave: handleLeave,
                 onClick: onSelect ? () => handleClick(d, i) : void 0,
                 children: [
-                  /* @__PURE__ */ jsx172(
+                  /* @__PURE__ */ jsx173(
                     "circle",
                     {
                       cx: nx,
@@ -28043,7 +28659,7 @@ var TreeDiagramInner = (props) => {
                       style: { transition: "r 120ms ease-out" }
                     }
                   ),
-                  showLabels && /* @__PURE__ */ jsx172(
+                  showLabels && /* @__PURE__ */ jsx173(
                     "text",
                     {
                       x: nx,
@@ -28071,7 +28687,7 @@ var TreeDiagramInner = (props) => {
         const node = nodes[hoveredIndex];
         if (!node) return null;
         const [nx, ny] = getNodePosition(node, layout);
-        return /* @__PURE__ */ jsx172(
+        return /* @__PURE__ */ jsx173(
           ChartTooltip,
           {
             left: nx + MARGIN2.left + centerX,
@@ -28088,21 +28704,21 @@ var TreeDiagramInner = (props) => {
 TreeDiagramInner.displayName = "TreeDiagramInner";
 
 // src/DATADISPLAY/Charts/TreeDiagram/TreeDiagram.tsx
-import { jsx as jsx173 } from "react/jsx-runtime";
-var TreeDiagram = React145.forwardRef(
+import { jsx as jsx174 } from "react/jsx-runtime";
+var TreeDiagram = React147.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef71(null);
+    const containerRef = useRef73(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx173("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx173("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx173(TreeDiagramInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx174("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx174("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx174(TreeDiagramInner, { ...rest, width, height }) }) });
   }
 );
 TreeDiagram.displayName = "TreeDiagram";
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloud.tsx
-import React147, { useRef as useRef72 } from "react";
+import React149, { useRef as useRef74 } from "react";
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloudInner.tsx
-import { useMemo as useMemo95 } from "react";
+import { useCallback as useCallback82, useMemo as useMemo96 } from "react";
 import { Wordcloud as VisxWordcloud } from "@visx/wordcloud";
 import { scaleLinear as scaleLinear17 } from "@visx/scale";
 
@@ -28130,30 +28746,40 @@ function buildWordCloudColors(count, colorScheme) {
 function buildTooltipContent27(datum) {
   return `${datum.text}: ${datum.value.toLocaleString()}`;
 }
+function seededRandom(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = a + 1831565813 >>> 0;
+    let t = a;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloud.hooks.ts
-import { useMemo as useMemo94, useCallback as useCallback79 } from "react";
+import { useMemo as useMemo95, useCallback as useCallback81 } from "react";
 function useWordCloudColors(count, colorScheme) {
-  return useMemo94(() => buildWordCloudColors(count, colorScheme), [count, colorScheme]);
+  return useMemo95(() => buildWordCloudColors(count, colorScheme), [count, colorScheme]);
 }
 function useWordCloudInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback79((d, i) => {
+  const handleEnter = useCallback81((d, i) => {
     enter(i);
     onHover?.(d, i);
   }, [enter, onHover]);
-  const handleLeave = useCallback79(() => {
+  const handleLeave = useCallback81(() => {
     leave();
     onHover?.(null, null);
   }, [leave, onHover]);
-  const handleClick = useCallback79((d, i) => {
+  const handleClick = useCallback81((d, i) => {
     onSelect?.(d, i);
   }, [onSelect]);
   return { hoveredIndex, handleEnter, handleLeave, handleClick };
 }
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloudInner.tsx
-import { Fragment as Fragment21, jsx as jsx174, jsxs as jsxs111 } from "react/jsx-runtime";
+import { Fragment as Fragment20, jsx as jsx175, jsxs as jsxs112 } from "react/jsx-runtime";
 var WordCloudInner = (props) => {
   const {
     data,
@@ -28179,8 +28805,8 @@ var WordCloudInner = (props) => {
   } = props;
   const colors = useWordCloudColors(data.length, colorScheme);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useWordCloudInteraction(onHover, onSelect);
-  const classes = useMemo95(() => buildWordCloudClasses(className, unstyled), [className, unstyled]);
-  const fontScale = useMemo95(() => {
+  const classes = useMemo96(() => buildWordCloudClasses(className, unstyled), [className, unstyled]);
+  const fontScale = useMemo96(() => {
     const values = data.map((d) => d.value);
     const minVal = Math.min(...values);
     const maxVal = Math.max(...values);
@@ -28189,42 +28815,47 @@ var WordCloudInner = (props) => {
       range: [fontMinSize, fontMaxSize]
     });
   }, [data, fontMinSize, fontMaxSize]);
-  const rotateFn = useMemo95(() => {
+  const rotateFn = useMemo96(() => {
     if (typeof rotate === "function") return rotate;
     return () => rotate;
   }, [rotate]);
-  const wordIndexMap = useMemo95(() => {
+  const sizeOf = useCallback82((d) => fontScale(d.value), [fontScale]);
+  const angleOf = useCallback82((d) => rotateFn(d), [rotateFn]);
+  const words = useMemo96(() => data.map((d) => ({ ...d })), [data]);
+  const random = useMemo96(() => seededRandom(1), [words, width, height, sizeOf, angleOf, fontFamily, padding, spiral]);
+  const wordIndexMap = useMemo96(() => {
     const map = /* @__PURE__ */ new Map();
     data.forEach((d, i) => map.set(d.text, i));
     return map;
   }, [data]);
   if (data.length === 0) {
-    return /* @__PURE__ */ jsx174("div", { className: classes, children: /* @__PURE__ */ jsx174("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty word cloud" }) });
+    return /* @__PURE__ */ jsx175("div", { className: classes, children: /* @__PURE__ */ jsx175("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty word cloud" }) });
   }
-  return /* @__PURE__ */ jsxs111("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx174(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs111("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs111("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Word cloud", children: [
-        description && /* @__PURE__ */ jsx174("desc", { children: description }),
-        /* @__PURE__ */ jsx174(
+  return /* @__PURE__ */ jsxs112("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx175(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs112("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs112("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Word cloud", children: [
+        description && /* @__PURE__ */ jsx175("desc", { children: description }),
+        /* @__PURE__ */ jsx175(
           VisxWordcloud,
           {
             width,
             height,
-            words: data,
-            fontSize: (d) => fontScale(d.value),
+            words,
+            fontSize: sizeOf,
             font: fontFamily,
             padding,
             spiral,
-            rotate: (d) => rotateFn(d),
+            rotate: angleOf,
+            random,
             children: (cloud) => (
               // VisxWordcloud already centers its words (Group at width/2, height/2)
-              /* @__PURE__ */ jsx174(Fragment21, { children: cloud.map((word, i) => {
+              /* @__PURE__ */ jsx175(Fragment20, { children: cloud.map((word, i) => {
                 const originalIndex = wordIndexMap.get(word.text) ?? i;
                 const datum = data[originalIndex];
                 const isHovered = hoveredIndex === originalIndex;
                 const opacity = hoveredIndex != null && !isHovered ? 0.5 : 1;
-                return /* @__PURE__ */ jsx174(
+                return /* @__PURE__ */ jsx175(
                   "text",
                   {
                     transform: `translate(${word.x}, ${word.y}) rotate(${word.rotate})`,
@@ -28249,7 +28880,7 @@ var WordCloudInner = (props) => {
       showTooltip && hoveredIndex != null && (() => {
         const datum = data[hoveredIndex];
         if (!datum) return null;
-        return /* @__PURE__ */ jsx174(
+        return /* @__PURE__ */ jsx175(
           ChartTooltip,
           {
             left: width / 2,
@@ -28266,21 +28897,21 @@ var WordCloudInner = (props) => {
 WordCloudInner.displayName = "WordCloudInner";
 
 // src/DATADISPLAY/Charts/WordCloud/WordCloud.tsx
-import { jsx as jsx175 } from "react/jsx-runtime";
-var WordCloud = React147.forwardRef(
+import { jsx as jsx176 } from "react/jsx-runtime";
+var WordCloud = React149.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef72(null);
+    const containerRef = useRef74(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx175("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx175("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx175(WordCloudInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx176("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx176("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx176(WordCloudInner, { ...rest, width, height }) }) });
   }
 );
 WordCloud.displayName = "WordCloud";
 
 // src/DATADISPLAY/Charts/Geo/Geo.tsx
-import React149, { useRef as useRef73 } from "react";
+import React151, { useRef as useRef75 } from "react";
 
 // src/DATADISPLAY/Charts/Geo/GeoInner.tsx
-import React148, { useMemo as useMemo97 } from "react";
+import React150, { useMemo as useMemo98 } from "react";
 import { Group as Group32 } from "@visx/group";
 import { Mercator, Graticule } from "@visx/geo";
 
@@ -28308,7 +28939,7 @@ function buildGeoColorScale(min, max, colorScheme, scale = "linear", values = []
 function scalePosition(value, min, max, scale, values) {
   const clamp = (t) => Number.isFinite(t) ? Math.max(0, Math.min(1, t)) : 0;
   if (scale === "quantile" && values.length > 1) {
-    const sorted = [...values].sort((a, b) => a - b);
+    const sorted = values.toSorted((a, b) => a - b);
     const below = sorted.filter((v) => v < value).length;
     const equal = sorted.filter((v) => v === value).length;
     return clamp((below + (equal - 1) / 2) / (sorted.length - 1));
@@ -28370,9 +29001,9 @@ function geoPointStyle(points, groups, palette, maxRadius, color) {
 }
 
 // src/DATADISPLAY/Charts/Geo/Geo.hooks.ts
-import { useMemo as useMemo96, useCallback as useCallback80 } from "react";
+import { useMemo as useMemo97, useCallback as useCallback83 } from "react";
 function useGeoColorScale(values, colorScheme, scale = "linear", colorMin, colorMax) {
-  return useMemo96(() => {
+  return useMemo97(() => {
     if (values.length === 0) return (_v) => "#ccc";
     const min = colorMin ?? Math.min(...values);
     const max = colorMax ?? Math.max(...values);
@@ -28381,21 +29012,21 @@ function useGeoColorScale(values, colorScheme, scale = "linear", colorMin, color
 }
 function useGeoInteraction(onHover, onSelect) {
   const { hoveredIndex, enter, leave } = useHoveredIndex();
-  const handleEnter = useCallback80(
+  const handleEnter = useCallback83(
     (d, i) => {
       enter(i);
       onHover?.(d, i);
     },
     [enter, onHover]
   );
-  const handleLeave = useCallback80(
+  const handleLeave = useCallback83(
     () => {
       leave();
       onHover?.(null, null);
     },
     [leave, onHover]
   );
-  const handleClick = useCallback80(
+  const handleClick = useCallback83(
     (d, i) => {
       onSelect?.(d, i);
     },
@@ -28405,7 +29036,7 @@ function useGeoInteraction(onHover, onSelect) {
 }
 
 // src/DATADISPLAY/Charts/Geo/GeoInner.tsx
-import { jsx as jsx176, jsxs as jsxs112 } from "react/jsx-runtime";
+import { jsx as jsx177, jsxs as jsxs113 } from "react/jsx-runtime";
 var GeoInner = (props) => {
   const {
     data,
@@ -28436,8 +29067,8 @@ var GeoInner = (props) => {
     // 0022 PB11
   } = props;
   const points = data.points ?? [];
-  const [hoveredPoint, setHoveredPoint] = React148.useState(null);
-  const pointStyle = useMemo97(() => geoPointStyle(
+  const [hoveredPoint, setHoveredPoint] = React150.useState(null);
+  const pointStyle = useMemo98(() => geoPointStyle(
     points,
     data.groups ?? [],
     resolveColorScheme(colorScheme),
@@ -28450,38 +29081,38 @@ var GeoInner = (props) => {
     pointMaxRadius,
     pointColor
   ]);
-  const valueMap = useMemo97(() => {
+  const valueMap = useMemo98(() => {
     const map = /* @__PURE__ */ new Map();
     for (const v of data.values) {
       map.set(v.id, v);
     }
     return map;
   }, [data.values]);
-  const numericValues = useMemo97(
+  const numericValues = useMemo98(
     () => data.values.map((v) => v.value),
     [data.values]
   );
   const colorScale = useGeoColorScale(numericValues, colorScheme, props.colorLog ? "log" : scaleType, props.colorMin, props.colorMax);
   const { hoveredIndex, handleEnter, handleLeave, handleClick } = useGeoInteraction(onHover, onSelect);
-  const classes = useMemo97(() => buildGeoClasses(className, unstyled), [className, unstyled]);
+  const classes = useMemo98(() => buildGeoClasses(className, unstyled), [className, unstyled]);
   const geojsonFeatures = data.geojson?.features;
   if (!geojsonFeatures || geojsonFeatures.length === 0) {
-    return /* @__PURE__ */ jsx176("div", { className: classes, children: /* @__PURE__ */ jsx176("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty geo chart" }) });
+    return /* @__PURE__ */ jsx177("div", { className: classes, children: /* @__PURE__ */ jsx177("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Empty geo chart" }) });
   }
   const centerX = width / 2;
   const centerY = height / 2;
-  return /* @__PURE__ */ jsxs112("div", { className: classes, "data-bind-id": bindId, children: [
-    /* @__PURE__ */ jsx176(ChartHeader, { title, subtitle }),
-    /* @__PURE__ */ jsxs112("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
-      /* @__PURE__ */ jsxs112("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Choropleth map", children: [
-        description && /* @__PURE__ */ jsx176("desc", { children: description }),
-        /* @__PURE__ */ jsx176(
+  return /* @__PURE__ */ jsxs113("div", { className: classes, "data-bind-id": bindId, children: [
+    /* @__PURE__ */ jsx177(ChartHeader, { title, subtitle }),
+    /* @__PURE__ */ jsxs113("div", { className: BASE_CHART_CLASSES.container, style: { position: "relative" }, children: [
+      /* @__PURE__ */ jsxs113("svg", { width, height, className: BASE_CHART_CLASSES.svg, role: "img", "aria-label": ariaLabel ?? "Choropleth map", children: [
+        description && /* @__PURE__ */ jsx177("desc", { children: description }),
+        /* @__PURE__ */ jsx177(
           Mercator,
           {
             data: geojsonFeatures,
             fitSize: [[width, height], data.geojson],
-            children: (mercator) => /* @__PURE__ */ jsxs112(Group32, { children: [
-              showGraticule && /* @__PURE__ */ jsx176(
+            children: (mercator) => /* @__PURE__ */ jsxs113(Group32, { children: [
+              showGraticule && /* @__PURE__ */ jsx177(
                 Graticule,
                 {
                   graticule: (g) => mercator.path(g) || "",
@@ -28501,7 +29132,7 @@ var GeoInner = (props) => {
                   value: 0,
                   label: feature.properties?.name ?? String(featureId)
                 };
-                return /* @__PURE__ */ jsx176(
+                return /* @__PURE__ */ jsx177(
                   "path",
                   {
                     d: path || "",
@@ -28521,7 +29152,7 @@ var GeoInner = (props) => {
                 const [lx, ly] = mercator.path.centroid(feature);
                 if (!Number.isFinite(lx) || !Number.isFinite(ly)) return null;
                 const name = feature.properties?.name ?? String(feature.id ?? "");
-                return /* @__PURE__ */ jsx176(
+                return /* @__PURE__ */ jsx177(
                   "text",
                   {
                     x: lx,
@@ -28545,7 +29176,7 @@ var GeoInner = (props) => {
                 if (!xy || !Number.isFinite(xy[0]) || !Number.isFinite(xy[1])) return null;
                 const st = pointStyle[i];
                 const dimmed = hoveredPoint != null && hoveredPoint !== i;
-                return /* @__PURE__ */ jsx176(
+                return /* @__PURE__ */ jsx177(
                   "circle",
                   {
                     cx: xy[0],
@@ -28574,20 +29205,20 @@ var GeoInner = (props) => {
           }
         )
       ] }),
-      showTooltip && hoveredPoint != null && points[hoveredPoint] && /* @__PURE__ */ jsx176(ChartTooltip, { left: centerX, top: centerY, visible: true, offsetY: -24, children: buildTooltipContent28({
+      showTooltip && hoveredPoint != null && points[hoveredPoint] && /* @__PURE__ */ jsx177(ChartTooltip, { left: centerX, top: centerY, visible: true, offsetY: -24, children: buildTooltipContent28({
         id: "",
         value: points[hoveredPoint].value,
         label: [points[hoveredPoint].label, points[hoveredPoint].group].filter(Boolean).join(" \xB7 ")
       }) }),
       (data.groups?.length ?? 0) > 1 && /* 0022 PB11: qué color es cada grupo */
-      /* @__PURE__ */ jsx176("div", { className: "w3f-chart-geo-legend", style: {
+      /* @__PURE__ */ jsx177("div", { className: "w3f-chart-geo-legend", style: {
         display: "flex",
         flexWrap: "wrap",
         gap: "0.25rem 0.75rem",
         fontSize: "0.75rem",
         padding: "0.25rem 0.5rem"
-      }, children: data.groups.map((g, i) => /* @__PURE__ */ jsxs112("span", { style: { display: "inline-flex", alignItems: "center", gap: "0.3rem" }, children: [
-        /* @__PURE__ */ jsx176("span", { style: {
+      }, children: data.groups.map((g, i) => /* @__PURE__ */ jsxs113("span", { style: { display: "inline-flex", alignItems: "center", gap: "0.3rem" }, children: [
+        /* @__PURE__ */ jsx177("span", { style: {
           width: 10,
           height: 10,
           borderRadius: "50%",
@@ -28606,7 +29237,7 @@ var GeoInner = (props) => {
           value: 0,
           label: feature.properties?.name ?? String(featureId)
         };
-        return /* @__PURE__ */ jsx176(
+        return /* @__PURE__ */ jsx177(
           ChartTooltip,
           {
             left: centerX,
@@ -28623,18 +29254,18 @@ var GeoInner = (props) => {
 GeoInner.displayName = "GeoInner";
 
 // src/DATADISPLAY/Charts/Geo/Geo.tsx
-import { jsx as jsx177 } from "react/jsx-runtime";
-var Geo = React149.forwardRef(
+import { jsx as jsx178 } from "react/jsx-runtime";
+var Geo = React151.forwardRef(
   ({ width: propWidth, height: propHeight, ...rest }, ref) => {
-    const containerRef = useRef73(null);
+    const containerRef = useRef75(null);
     const { width, height } = useChartDimensions(containerRef, propWidth, propHeight, DEFAULT_CHART_WIDTH, DEFAULT_CHART_HEIGHT);
-    return /* @__PURE__ */ jsx177("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx177("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx177(GeoInner, { ...rest, width, height }) }) });
+    return /* @__PURE__ */ jsx178("div", { ref, style: { width: "100%" }, children: /* @__PURE__ */ jsx178("div", { ref: containerRef, className: BASE_CHART_CLASSES.container, children: /* @__PURE__ */ jsx178(GeoInner, { ...rest, width, height }) }) });
   }
 );
 Geo.displayName = "Geo";
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-import React150, { useRef as useRef75, useMemo as useMemo98 } from "react";
+import React152, { useRef as useRef77, useMemo as useMemo99 } from "react";
 import { Group as Group33 } from "@visx/group";
 import { Bar as Bar2 } from "@visx/shape";
 import { AxisBottom as AxisBottom2, AxisLeft as AxisLeft2 } from "@visx/axis";
@@ -28701,13 +29332,13 @@ function formatTick2(value) {
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.hooks.ts
-import { useState as useState60, useEffect as useEffect36, useCallback as useCallback81 } from "react";
+import { useState as useState62, useEffect as useEffect37, useCallback as useCallback84 } from "react";
 function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
-  const [dimensions, setDimensions] = useState60({
+  const [dimensions, setDimensions] = useState62({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback81(() => {
+  const updateDimensions = useCallback84(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -28717,7 +29348,7 @@ function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect36(() => {
+  useEffect37(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -28732,15 +29363,15 @@ function useChartDimensions2(containerRef, propWidth, propHeight, defaultWidth =
   return dimensions;
 }
 function useHoveredIndex2() {
-  const [hoveredIndex, setHoveredIndex] = useState60(null);
-  const onEnter = useCallback81((i) => setHoveredIndex(i), []);
-  const onLeave = useCallback81(() => setHoveredIndex(null), []);
+  const [hoveredIndex, setHoveredIndex] = useState62(null);
+  const onEnter = useCallback84((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback84(() => setHoveredIndex(null), []);
   return { hoveredIndex, onEnter, onLeave };
 }
 
 // src/DATADISPLAY/Charts/BarChart/BarChart.tsx
-import { jsx as jsx178, jsxs as jsxs113 } from "react/jsx-runtime";
-var BarChart = React150.forwardRef(
+import { jsx as jsx179, jsxs as jsxs114 } from "react/jsx-runtime";
+var BarChart = React152.forwardRef(
   ({
     data,
     width: propWidth,
@@ -28753,7 +29384,7 @@ var BarChart = React150.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef75(null);
+    const containerRef = useRef77(null);
     const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
@@ -28765,15 +29396,15 @@ var BarChart = React150.forwardRef(
     const margin = BAR_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo98(
+    const { xScale, yScale } = useMemo99(
       () => buildBarScales2(data, innerWidth, innerHeight, horizontal),
       [data, innerWidth, innerHeight, horizontal]
     );
-    const classes = useMemo98(
+    const classes = useMemo99(
       () => buildBarChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx178("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx178("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx178("svg", { width, height, children: /* @__PURE__ */ jsxs113(Group33, { top: margin.top, left: margin.left, children: [
+    return /* @__PURE__ */ jsx179("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx179("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx179("svg", { width, height, children: /* @__PURE__ */ jsxs114(Group33, { top: margin.top, left: margin.left, children: [
       data.map((d, i) => {
         if (horizontal) {
           const bandScale2 = yScale;
@@ -28781,7 +29412,7 @@ var BarChart = React150.forwardRef(
           const barHeight2 = bandScale2.bandwidth?.() ?? 0;
           const barWidth2 = linearScale2(d.value) ?? 0;
           const barY2 = bandScale2(d.label) ?? 0;
-          return /* @__PURE__ */ jsx178(
+          return /* @__PURE__ */ jsx179(
             Bar2,
             {
               x: 0,
@@ -28803,7 +29434,7 @@ var BarChart = React150.forwardRef(
         const barHeight = innerHeight - (linearScale(d.value) ?? 0);
         const barX = bandScale(d.label) ?? 0;
         const barY = linearScale(d.value) ?? 0;
-        return /* @__PURE__ */ jsx178(
+        return /* @__PURE__ */ jsx179(
           Bar2,
           {
             x: barX,
@@ -28819,7 +29450,7 @@ var BarChart = React150.forwardRef(
           d.label
         );
       }),
-      /* @__PURE__ */ jsx178(
+      /* @__PURE__ */ jsx179(
         AxisBottom2,
         {
           top: innerHeight,
@@ -28830,7 +29461,7 @@ var BarChart = React150.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx178(
+      /* @__PURE__ */ jsx179(
         AxisLeft2,
         {
           scale: horizontal ? yScale : yScale,
@@ -28846,7 +29477,7 @@ var BarChart = React150.forwardRef(
 BarChart.displayName = "BarChart";
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-import React151, { useRef as useRef76, useMemo as useMemo99 } from "react";
+import React153, { useRef as useRef78, useMemo as useMemo100 } from "react";
 import { Group as Group34 } from "@visx/group";
 import { LinePath as LinePath5 } from "@visx/shape";
 import { curveMonotoneX as curveMonotoneX7, curveLinear as curveLinear8 } from "@visx/curve";
@@ -28902,8 +29533,8 @@ function formatTick3(value) {
 }
 
 // src/DATADISPLAY/Charts/LineChart/LineChart.tsx
-import { jsx as jsx179, jsxs as jsxs114 } from "react/jsx-runtime";
-var LineChart = React151.forwardRef(
+import { jsx as jsx180, jsxs as jsxs115 } from "react/jsx-runtime";
+var LineChart = React153.forwardRef(
   ({
     data,
     width: propWidth,
@@ -28917,7 +29548,7 @@ var LineChart = React151.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef76(null);
+    const containerRef = useRef78(null);
     const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
@@ -28928,18 +29559,18 @@ var LineChart = React151.forwardRef(
     const margin = LINE_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo99(
+    const { xScale, yScale } = useMemo100(
       () => buildLineScales(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo99(
+    const classes = useMemo100(
       () => buildLineChartClasses(className, unstyled),
       [className, unstyled]
     );
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
-    return /* @__PURE__ */ jsx179("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx179("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx179("svg", { width, height, children: /* @__PURE__ */ jsxs114(Group34, { top: margin.top, left: margin.left, children: [
-      /* @__PURE__ */ jsx179(
+    return /* @__PURE__ */ jsx180("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx180("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx180("svg", { width, height, children: /* @__PURE__ */ jsxs115(Group34, { top: margin.top, left: margin.left, children: [
+      /* @__PURE__ */ jsx180(
         LinePath5,
         {
           data,
@@ -28950,7 +29581,7 @@ var LineChart = React151.forwardRef(
           curve: curved ? curveMonotoneX7 : curveLinear8
         }
       ),
-      showDots && data.map((d, i) => /* @__PURE__ */ jsx179(
+      showDots && data.map((d, i) => /* @__PURE__ */ jsx180(
         "circle",
         {
           cx: getX(d),
@@ -28962,7 +29593,7 @@ var LineChart = React151.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ jsx179(
+      /* @__PURE__ */ jsx180(
         AxisBottom3,
         {
           top: innerHeight,
@@ -28973,7 +29604,7 @@ var LineChart = React151.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx179(
+      /* @__PURE__ */ jsx180(
         AxisLeft3,
         {
           scale: yScale,
@@ -28989,7 +29620,7 @@ var LineChart = React151.forwardRef(
 LineChart.displayName = "LineChart";
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-import React152, { useRef as useRef77, useMemo as useMemo100 } from "react";
+import React154, { useRef as useRef79, useMemo as useMemo101 } from "react";
 import { Group as Group35 } from "@visx/group";
 import { Pie as Pie2 } from "@visx/shape";
 
@@ -29029,8 +29660,8 @@ function getSliceValue(d) {
 }
 
 // src/DATADISPLAY/Charts/PieChart/PieChart.tsx
-import { jsx as jsx180, jsxs as jsxs115 } from "react/jsx-runtime";
-var PieChart = React152.forwardRef(
+import { jsx as jsx181, jsxs as jsxs116 } from "react/jsx-runtime";
+var PieChart = React154.forwardRef(
   ({
     data,
     width: propWidth,
@@ -29042,7 +29673,7 @@ var PieChart = React152.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef77(null);
+    const containerRef = useRef79(null);
     const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
@@ -29055,11 +29686,11 @@ var PieChart = React152.forwardRef(
     const innerRadius = donut ? radius * 0.55 : 0;
     const centerX = width / 2;
     const centerY = height / 2;
-    const classes = useMemo100(
+    const classes = useMemo101(
       () => buildPieChartClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx180("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx180("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx180("svg", { width, height, children: /* @__PURE__ */ jsx180(Group35, { top: centerY, left: centerX, children: /* @__PURE__ */ jsx180(
+    return /* @__PURE__ */ jsx181("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx181("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx181("svg", { width, height, children: /* @__PURE__ */ jsx181(Group35, { top: centerY, left: centerX, children: /* @__PURE__ */ jsx181(
       Pie2,
       {
         data,
@@ -29069,8 +29700,8 @@ var PieChart = React152.forwardRef(
         padAngle: 0.01,
         children: (pie) => pie.arcs.map((arc, i) => {
           const pathD = pie.path(arc) ?? "";
-          return /* @__PURE__ */ jsxs115("g", { children: [
-            /* @__PURE__ */ jsx180(
+          return /* @__PURE__ */ jsxs116("g", { children: [
+            /* @__PURE__ */ jsx181(
               "path",
               {
                 d: pathD,
@@ -29081,7 +29712,7 @@ var PieChart = React152.forwardRef(
                 style: { cursor: "pointer", transition: "opacity 0.15s" }
               }
             ),
-            radius > 60 && /* @__PURE__ */ jsx180(
+            radius > 60 && /* @__PURE__ */ jsx181(
               "text",
               {
                 x: pie.path.centroid(arc)[0],
@@ -29104,7 +29735,7 @@ var PieChart = React152.forwardRef(
 PieChart.displayName = "PieChart";
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-import React153, { useRef as useRef78, useMemo as useMemo101, useId as useId14 } from "react";
+import React155, { useRef as useRef80, useMemo as useMemo102, useId as useId15 } from "react";
 import { Group as Group36 } from "@visx/group";
 import { AreaClosed as AreaClosed2, LinePath as LinePath6 } from "@visx/shape";
 import { curveMonotoneX as curveMonotoneX8 } from "@visx/curve";
@@ -29160,8 +29791,8 @@ function formatTick4(value) {
 }
 
 // src/DATADISPLAY/Charts/AreaChart/AreaChart.tsx
-import { jsx as jsx181, jsxs as jsxs116 } from "react/jsx-runtime";
-var AreaChart = React153.forwardRef(
+import { jsx as jsx182, jsxs as jsxs117 } from "react/jsx-runtime";
+var AreaChart = React155.forwardRef(
   ({
     data,
     width: propWidth,
@@ -29174,8 +29805,8 @@ var AreaChart = React153.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef78(null);
-    const gradientId = useId14();
+    const containerRef = useRef80(null);
+    const gradientId = useId15();
     const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
@@ -29186,19 +29817,19 @@ var AreaChart = React153.forwardRef(
     const margin = AREA_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo101(
+    const { xScale, yScale } = useMemo102(
       () => buildAreaScales2(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo101(
+    const classes = useMemo102(
       () => buildAreaChartClasses(className, unstyled),
       [className, unstyled]
     );
     const getX = (d) => xScale(d.x) ?? 0;
     const getY = (d) => yScale(d.y) ?? 0;
     const safeGradientId = gradientId.replace(/:/g, "_");
-    return /* @__PURE__ */ jsx181("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx181("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs116("svg", { width, height, children: [
-      gradient && /* @__PURE__ */ jsx181(
+    return /* @__PURE__ */ jsx182("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx182("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs117("svg", { width, height, children: [
+      gradient && /* @__PURE__ */ jsx182(
         LinearGradient,
         {
           id: safeGradientId,
@@ -29208,8 +29839,8 @@ var AreaChart = React153.forwardRef(
           toOpacity: 0.05
         }
       ),
-      /* @__PURE__ */ jsxs116(Group36, { top: margin.top, left: margin.left, children: [
-        /* @__PURE__ */ jsx181(
+      /* @__PURE__ */ jsxs117(Group36, { top: margin.top, left: margin.left, children: [
+        /* @__PURE__ */ jsx182(
           AreaClosed2,
           {
             data,
@@ -29221,7 +29852,7 @@ var AreaChart = React153.forwardRef(
             fillOpacity: gradient ? 1 : 0.3
           }
         ),
-        /* @__PURE__ */ jsx181(
+        /* @__PURE__ */ jsx182(
           LinePath6,
           {
             data,
@@ -29232,7 +29863,7 @@ var AreaChart = React153.forwardRef(
             curve: curveMonotoneX8
           }
         ),
-        /* @__PURE__ */ jsx181(
+        /* @__PURE__ */ jsx182(
           AxisBottom4,
           {
             top: innerHeight,
@@ -29243,7 +29874,7 @@ var AreaChart = React153.forwardRef(
             tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
           }
         ),
-        /* @__PURE__ */ jsx181(
+        /* @__PURE__ */ jsx182(
           AxisLeft4,
           {
             scale: yScale,
@@ -29260,7 +29891,7 @@ var AreaChart = React153.forwardRef(
 AreaChart.displayName = "AreaChart";
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-import React154, { useRef as useRef79, useMemo as useMemo102 } from "react";
+import React156, { useRef as useRef81, useMemo as useMemo103 } from "react";
 import { Group as Group37 } from "@visx/group";
 import { Circle as Circle2 } from "@visx/shape";
 import { AxisBottom as AxisBottom5, AxisLeft as AxisLeft5 } from "@visx/axis";
@@ -29314,8 +29945,8 @@ function formatTick5(value) {
 }
 
 // src/DATADISPLAY/Charts/ScatterPlot/ScatterPlot.tsx
-import { jsx as jsx182, jsxs as jsxs117 } from "react/jsx-runtime";
-var ScatterPlot = React154.forwardRef(
+import { jsx as jsx183, jsxs as jsxs118 } from "react/jsx-runtime";
+var ScatterPlot = React156.forwardRef(
   ({
     data,
     width: propWidth,
@@ -29327,7 +29958,7 @@ var ScatterPlot = React154.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef79(null);
+    const containerRef = useRef81(null);
     const { width, height } = useChartDimensions2(
       containerRef,
       propWidth,
@@ -29339,16 +29970,16 @@ var ScatterPlot = React154.forwardRef(
     const margin = SCATTER_PLOT_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const { xScale, yScale } = useMemo102(
+    const { xScale, yScale } = useMemo103(
       () => buildScatterScales2(data, innerWidth, innerHeight),
       [data, innerWidth, innerHeight]
     );
-    const classes = useMemo102(
+    const classes = useMemo103(
       () => buildScatterPlotClasses(className, unstyled),
       [className, unstyled]
     );
-    return /* @__PURE__ */ jsx182("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx182("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx182("svg", { width, height, children: /* @__PURE__ */ jsxs117(Group37, { top: margin.top, left: margin.left, children: [
-      data.map((d, i) => /* @__PURE__ */ jsx182(
+    return /* @__PURE__ */ jsx183("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx183("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx183("svg", { width, height, children: /* @__PURE__ */ jsxs118(Group37, { top: margin.top, left: margin.left, children: [
+      data.map((d, i) => /* @__PURE__ */ jsx183(
         Circle2,
         {
           cx: xScale(d.x) ?? 0,
@@ -29362,7 +29993,7 @@ var ScatterPlot = React154.forwardRef(
         },
         i
       )),
-      /* @__PURE__ */ jsx182(
+      /* @__PURE__ */ jsx183(
         AxisBottom5,
         {
           top: innerHeight,
@@ -29373,7 +30004,7 @@ var ScatterPlot = React154.forwardRef(
           tickLabelProps: { fill: "var(--w3f-text-secondary, #94a3b8)", fontSize: 11 }
         }
       ),
-      /* @__PURE__ */ jsx182(
+      /* @__PURE__ */ jsx183(
         AxisLeft5,
         {
           scale: yScale,
@@ -29389,7 +30020,7 @@ var ScatterPlot = React154.forwardRef(
 ScatterPlot.displayName = "ScatterPlot";
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.tsx
-import React155, { useRef as useRef80, useMemo as useMemo103 } from "react";
+import React157, { useRef as useRef82, useMemo as useMemo104 } from "react";
 import { Group as Group38 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.constants.ts
@@ -29458,13 +30089,13 @@ function labelPosition2(index, total, radius, offset = 16) {
 }
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.hooks.ts
-import { useState as useState61, useEffect as useEffect37, useCallback as useCallback82 } from "react";
+import { useState as useState63, useEffect as useEffect38, useCallback as useCallback85 } from "react";
 function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 400) {
-  const [dimensions, setDimensions] = useState61({
+  const [dimensions, setDimensions] = useState63({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback82(() => {
+  const updateDimensions = useCallback85(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -29474,7 +30105,7 @@ function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect37(() => {
+  useEffect38(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -29489,16 +30120,16 @@ function useChartDimensions3(containerRef, propWidth, propHeight, defaultWidth =
   return dimensions;
 }
 function useHoveredIndex3() {
-  const [hoveredIndex, setHoveredIndex] = useState61(null);
-  const onEnter = useCallback82((i) => setHoveredIndex(i), []);
-  const onLeave = useCallback82(() => setHoveredIndex(null), []);
+  const [hoveredIndex, setHoveredIndex] = useState63(null);
+  const onEnter = useCallback85((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback85(() => setHoveredIndex(null), []);
   return { hoveredIndex, onEnter, onLeave };
 }
 
 // src/DATADISPLAY/Charts/RadarChart/RadarChart.tsx
-import { jsx as jsx183, jsxs as jsxs118 } from "react/jsx-runtime";
+import { jsx as jsx184, jsxs as jsxs119 } from "react/jsx-runtime";
 var GRID_LEVELS = 5;
-var RadarChart = React155.forwardRef(
+var RadarChart = React157.forwardRef(
   ({
     data,
     width: propWidth,
@@ -29510,7 +30141,7 @@ var RadarChart = React155.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef80(null);
+    const containerRef = useRef82(null);
     const { width, height } = useChartDimensions3(
       containerRef,
       propWidth,
@@ -29525,27 +30156,27 @@ var RadarChart = React155.forwardRef(
     const radius = Math.min(innerWidth, innerHeight) / 2;
     const cx = innerWidth / 2 + margin.left;
     const cy = innerHeight / 2 + margin.top;
-    const classes = useMemo103(
+    const classes = useMemo104(
       () => buildRadarChartClasses(className, unstyled),
       [className, unstyled]
     );
-    const polygonPoints = useMemo103(
+    const polygonPoints = useMemo104(
       () => buildRadarPolygon(data, radius),
       [data, radius]
     );
-    const gridPolygons = useMemo103(
+    const gridPolygons = useMemo104(
       () => Array.from(
         { length: GRID_LEVELS },
         (_, i) => buildGridPolygon2(data.length, radius, i + 1, GRID_LEVELS)
       ),
       [data.length, radius]
     );
-    const labels = useMemo103(
+    const labels = useMemo104(
       () => data.map((d, i) => ({ ...labelPosition2(i, data.length, radius), label: d.axis })),
       [data, radius]
     );
-    return /* @__PURE__ */ jsx183("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx183("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx183("svg", { width, height, children: /* @__PURE__ */ jsxs118(Group38, { top: cy, left: cx, children: [
-      gridPolygons.map((points, i) => /* @__PURE__ */ jsx183(
+    return /* @__PURE__ */ jsx184("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx184("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx184("svg", { width, height, children: /* @__PURE__ */ jsxs119(Group38, { top: cy, left: cx, children: [
+      gridPolygons.map((points, i) => /* @__PURE__ */ jsx184(
         "polygon",
         {
           points,
@@ -29558,7 +30189,7 @@ var RadarChart = React155.forwardRef(
       )),
       data.map((_, i) => {
         const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
-        return /* @__PURE__ */ jsx183(
+        return /* @__PURE__ */ jsx184(
           "line",
           {
             x1: 0,
@@ -29572,7 +30203,7 @@ var RadarChart = React155.forwardRef(
           `axis-${i}`
         );
       }),
-      /* @__PURE__ */ jsx183(
+      /* @__PURE__ */ jsx184(
         "polygon",
         {
           points: polygonPoints,
@@ -29586,7 +30217,7 @@ var RadarChart = React155.forwardRef(
         const maxVal = Math.max(...data.map((dd) => dd.value), 1);
         const angle = Math.PI * 2 * i / data.length - Math.PI / 2;
         const r = d.value / maxVal * radius;
-        return /* @__PURE__ */ jsx183(
+        return /* @__PURE__ */ jsx184(
           "circle",
           {
             cx: r * Math.cos(angle),
@@ -29602,7 +30233,7 @@ var RadarChart = React155.forwardRef(
           `point-${i}`
         );
       }),
-      labels.map((lbl, i) => /* @__PURE__ */ jsx183(
+      labels.map((lbl, i) => /* @__PURE__ */ jsx184(
         "text",
         {
           x: lbl.x,
@@ -29621,7 +30252,7 @@ var RadarChart = React155.forwardRef(
 RadarChart.displayName = "RadarChart";
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.tsx
-import React156, { useRef as useRef81, useMemo as useMemo104 } from "react";
+import React158, { useRef as useRef83, useMemo as useMemo105 } from "react";
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.constants.ts
 var GAUGE_CHART_CLASSES = {
@@ -29692,13 +30323,13 @@ function needlePath2(cx, cy, length, angle, baseWidth = 4) {
 }
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.hooks.ts
-import { useState as useState62, useEffect as useEffect38, useCallback as useCallback83 } from "react";
+import { useState as useState64, useEffect as useEffect39, useCallback as useCallback86 } from "react";
 function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth = 300, defaultHeight = 200) {
-  const [dimensions, setDimensions] = useState62({
+  const [dimensions, setDimensions] = useState64({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback83(() => {
+  const updateDimensions = useCallback86(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -29708,7 +30339,7 @@ function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect38(() => {
+  useEffect39(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -29724,8 +30355,8 @@ function useChartDimensions4(containerRef, propWidth, propHeight, defaultWidth =
 }
 
 // src/DATADISPLAY/Charts/GaugeChart/GaugeChart.tsx
-import { jsx as jsx184, jsxs as jsxs119 } from "react/jsx-runtime";
-var GaugeChart = React156.forwardRef(
+import { jsx as jsx185, jsxs as jsxs120 } from "react/jsx-runtime";
+var GaugeChart = React158.forwardRef(
   ({
     value,
     min = GAUGE_CHART_DEFAULTS.min,
@@ -29740,7 +30371,7 @@ var GaugeChart = React156.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef81(null);
+    const containerRef = useRef83(null);
     const { width, height } = useChartDimensions4(
       containerRef,
       propWidth,
@@ -29748,7 +30379,7 @@ var GaugeChart = React156.forwardRef(
       GAUGE_CHART_DEFAULTS.width,
       GAUGE_CHART_DEFAULTS.height
     );
-    const classes = useMemo104(
+    const classes = useMemo105(
       () => buildGaugeChartClasses(className, unstyled),
       [className, unstyled]
     );
@@ -29756,28 +30387,28 @@ var GaugeChart = React156.forwardRef(
     const innerRadius = outerRadius * 0.65;
     const cx = width / 2;
     const cy = height - 20;
-    const angleScale = useMemo104(() => buildGaugeScale2(min, max), [min, max]);
+    const angleScale = useMemo105(() => buildGaugeScale2(min, max), [min, max]);
     const needleAngle = angleScale(Math.max(min, Math.min(max, value)));
     const fillColor = getGaugeColor2(value, color, thresholds);
-    const bgArc = useMemo104(
+    const bgArc = useMemo105(
       () => arcPath2(cx, cy, outerRadius, -Math.PI / 2, Math.PI / 2, innerRadius),
       [cx, cy, outerRadius, innerRadius]
     );
-    const filledArc = useMemo104(
+    const filledArc = useMemo105(
       () => arcPath2(cx, cy, outerRadius, -Math.PI / 2, needleAngle, innerRadius),
       [cx, cy, outerRadius, innerRadius, needleAngle]
     );
-    const needle = useMemo104(
+    const needle = useMemo105(
       () => needlePath2(cx, cy, outerRadius - 4, needleAngle, 3),
       [cx, cy, outerRadius, needleAngle]
     );
     const pct = Math.round((value - min) / (max - min) * 100);
-    return /* @__PURE__ */ jsx184("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx184("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs119("svg", { width, height, children: [
-      /* @__PURE__ */ jsx184("path", { d: bgArc, fill: "var(--w3f-surface-variant, #334155)", opacity: 0.3 }),
-      /* @__PURE__ */ jsx184("path", { d: filledArc, fill: fillColor }),
-      /* @__PURE__ */ jsx184("path", { d: needle, fill: "var(--w3f-text-primary, #e2e8f0)" }),
-      /* @__PURE__ */ jsx184("circle", { cx, cy, r: 5, fill: "var(--w3f-text-primary, #e2e8f0)" }),
-      /* @__PURE__ */ jsx184(
+    return /* @__PURE__ */ jsx185("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx185("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsxs120("svg", { width, height, children: [
+      /* @__PURE__ */ jsx185("path", { d: bgArc, fill: "var(--w3f-surface-variant, #334155)", opacity: 0.3 }),
+      /* @__PURE__ */ jsx185("path", { d: filledArc, fill: fillColor }),
+      /* @__PURE__ */ jsx185("path", { d: needle, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ jsx185("circle", { cx, cy, r: 5, fill: "var(--w3f-text-primary, #e2e8f0)" }),
+      /* @__PURE__ */ jsx185(
         "text",
         {
           x: cx,
@@ -29790,7 +30421,7 @@ var GaugeChart = React156.forwardRef(
           children: value
         }
       ),
-      /* @__PURE__ */ jsx184(
+      /* @__PURE__ */ jsx185(
         "text",
         {
           x: cx - outerRadius,
@@ -29801,7 +30432,7 @@ var GaugeChart = React156.forwardRef(
           children: min
         }
       ),
-      /* @__PURE__ */ jsx184(
+      /* @__PURE__ */ jsx185(
         "text",
         {
           x: cx + outerRadius,
@@ -29818,7 +30449,7 @@ var GaugeChart = React156.forwardRef(
 GaugeChart.displayName = "GaugeChart";
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.tsx
-import React157, { useRef as useRef82, useMemo as useMemo105 } from "react";
+import React159, { useRef as useRef84, useMemo as useMemo106 } from "react";
 import { Group as Group39 } from "@visx/group";
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.constants.ts
@@ -29878,13 +30509,13 @@ function getValue(data, row, col) {
 }
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.hooks.ts
-import { useState as useState63, useEffect as useEffect39, useCallback as useCallback84 } from "react";
+import { useState as useState65, useEffect as useEffect40, useCallback as useCallback87 } from "react";
 function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
-  const [dimensions, setDimensions] = useState63({
+  const [dimensions, setDimensions] = useState65({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback84(() => {
+  const updateDimensions = useCallback87(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -29894,7 +30525,7 @@ function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect39(() => {
+  useEffect40(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -29909,15 +30540,15 @@ function useChartDimensions5(containerRef, propWidth, propHeight, defaultWidth =
   return dimensions;
 }
 function useHoveredIndex4() {
-  const [hoveredIndex, setHoveredIndex] = useState63(null);
-  const onEnter = useCallback84((i) => setHoveredIndex(i), []);
-  const onLeave = useCallback84(() => setHoveredIndex(null), []);
+  const [hoveredIndex, setHoveredIndex] = useState65(null);
+  const onEnter = useCallback87((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback87(() => setHoveredIndex(null), []);
   return { hoveredIndex, onEnter, onLeave };
 }
 
 // src/DATADISPLAY/Charts/HeatmapChart/HeatmapChart.tsx
-import { jsx as jsx185, jsxs as jsxs120 } from "react/jsx-runtime";
-var HeatmapChart = React157.forwardRef(
+import { jsx as jsx186, jsxs as jsxs121 } from "react/jsx-runtime";
+var HeatmapChart = React159.forwardRef(
   ({
     data,
     width: propWidth,
@@ -29929,7 +30560,7 @@ var HeatmapChart = React157.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef82(null);
+    const containerRef = useRef84(null);
     const { width, height } = useChartDimensions5(
       containerRef,
       propWidth,
@@ -29941,16 +30572,16 @@ var HeatmapChart = React157.forwardRef(
     const margin = HEATMAP_CHART_MARGIN;
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-    const classes = useMemo105(
+    const classes = useMemo106(
       () => buildHeatmapChartClasses(className, unstyled),
       [className, unstyled]
     );
-    const { rows, cols } = useMemo105(() => extractAxes2(data), [data]);
-    const { xScale, yScale, colorScale } = useMemo105(
+    const { rows, cols } = useMemo106(() => extractAxes2(data), [data]);
+    const { xScale, yScale, colorScale } = useMemo106(
       () => buildHeatmapScales2(data, innerWidth, innerHeight, colors),
       [data, innerWidth, innerHeight, colors]
     );
-    const cells = useMemo105(() => {
+    const cells = useMemo106(() => {
       const result = [];
       let idx = 0;
       for (const row of rows) {
@@ -29973,8 +30604,8 @@ var HeatmapChart = React157.forwardRef(
       }
       return result;
     }, [data, rows, cols, xScale, yScale, colorScale]);
-    return /* @__PURE__ */ jsx185("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx185("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx185("svg", { width, height, children: /* @__PURE__ */ jsxs120(Group39, { top: margin.top, left: margin.left, children: [
-      cells.map((cell) => /* @__PURE__ */ jsx185(
+    return /* @__PURE__ */ jsx186("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx186("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx186("svg", { width, height, children: /* @__PURE__ */ jsxs121(Group39, { top: margin.top, left: margin.left, children: [
+      cells.map((cell) => /* @__PURE__ */ jsx186(
         "rect",
         {
           x: cell.x,
@@ -29990,7 +30621,7 @@ var HeatmapChart = React157.forwardRef(
         },
         `${cell.row}-${cell.col}`
       )),
-      cols.map((col) => /* @__PURE__ */ jsx185(
+      cols.map((col) => /* @__PURE__ */ jsx186(
         "text",
         {
           x: (xScale(col) ?? 0) + xScale.bandwidth() / 2,
@@ -30002,7 +30633,7 @@ var HeatmapChart = React157.forwardRef(
         },
         `col-${col}`
       )),
-      rows.map((row) => /* @__PURE__ */ jsx185(
+      rows.map((row) => /* @__PURE__ */ jsx186(
         "text",
         {
           x: -8,
@@ -30021,7 +30652,7 @@ var HeatmapChart = React157.forwardRef(
 HeatmapChart.displayName = "HeatmapChart";
 
 // src/DATADISPLAY/Charts/TreemapChart/TreemapChart.tsx
-import React158, { useRef as useRef83, useMemo as useMemo106 } from "react";
+import React160, { useRef as useRef85, useMemo as useMemo107 } from "react";
 import { Group as Group40 } from "@visx/group";
 import { Treemap as Treemap2, treemapSquarify as treemapSquarify2, hierarchy as hierarchy5 } from "@visx/hierarchy";
 
@@ -30068,13 +30699,13 @@ function truncateLabel2(label, availableWidth, fontSize = 11) {
 }
 
 // src/DATADISPLAY/Charts/TreemapChart/TreemapChart.hooks.ts
-import { useState as useState64, useEffect as useEffect40, useCallback as useCallback85 } from "react";
+import { useState as useState66, useEffect as useEffect41, useCallback as useCallback88 } from "react";
 function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth = 400, defaultHeight = 300) {
-  const [dimensions, setDimensions] = useState64({
+  const [dimensions, setDimensions] = useState66({
     width: propWidth ?? defaultWidth,
     height: propHeight ?? defaultHeight
   });
-  const updateDimensions = useCallback85(() => {
+  const updateDimensions = useCallback88(() => {
     if (propWidth && propHeight) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -30084,7 +30715,7 @@ function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth =
       height: propHeight ?? defaultHeight
     });
   }, [propWidth, propHeight, defaultWidth, defaultHeight, containerRef]);
-  useEffect40(() => {
+  useEffect41(() => {
     if (propWidth && propHeight) {
       setDimensions({ width: propWidth, height: propHeight });
       return;
@@ -30099,16 +30730,16 @@ function useChartDimensions6(containerRef, propWidth, propHeight, defaultWidth =
   return dimensions;
 }
 function useHoveredIndex5() {
-  const [hoveredIndex, setHoveredIndex] = useState64(null);
-  const onEnter = useCallback85((i) => setHoveredIndex(i), []);
-  const onLeave = useCallback85(() => setHoveredIndex(null), []);
+  const [hoveredIndex, setHoveredIndex] = useState66(null);
+  const onEnter = useCallback88((i) => setHoveredIndex(i), []);
+  const onLeave = useCallback88(() => setHoveredIndex(null), []);
   return { hoveredIndex, onEnter, onLeave };
 }
 
 // src/DATADISPLAY/Charts/TreemapChart/TreemapChart.tsx
-import { jsx as jsx186, jsxs as jsxs121 } from "react/jsx-runtime";
+import { jsx as jsx187, jsxs as jsxs122 } from "react/jsx-runtime";
 var TREEMAP_MARGIN = { top: 4, right: 4, bottom: 4, left: 4 };
-var TreemapChart = React158.forwardRef(
+var TreemapChart = React160.forwardRef(
   ({
     data,
     width: propWidth,
@@ -30120,7 +30751,7 @@ var TreemapChart = React158.forwardRef(
     ...rest
   }, ref) => {
     useBridgeBind({ bindId });
-    const containerRef = useRef83(null);
+    const containerRef = useRef85(null);
     const { width, height } = useChartDimensions6(
       containerRef,
       propWidth,
@@ -30129,17 +30760,17 @@ var TreemapChart = React158.forwardRef(
       TREEMAP_CHART_DEFAULTS.height
     );
     const { hoveredIndex, onEnter, onLeave } = useHoveredIndex5();
-    const classes = useMemo106(
+    const classes = useMemo107(
       () => buildTreemapChartClasses(className, unstyled),
       [className, unstyled]
     );
     const innerWidth = Math.max(width - TREEMAP_MARGIN.left - TREEMAP_MARGIN.right, 0);
     const innerHeight = Math.max(height - TREEMAP_MARGIN.top - TREEMAP_MARGIN.bottom, 0);
-    const root = useMemo106(() => {
+    const root = useMemo107(() => {
       const h = hierarchy5(data).sum((d) => d.value ?? 0).sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
       return h;
     }, [data]);
-    return /* @__PURE__ */ jsx186("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx186("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx186("svg", { width, height, children: /* @__PURE__ */ jsx186(Group40, { top: TREEMAP_MARGIN.top, left: TREEMAP_MARGIN.left, children: /* @__PURE__ */ jsx186(
+    return /* @__PURE__ */ jsx187("div", { ref, className: classes, ...rest, children: /* @__PURE__ */ jsx187("div", { ref: containerRef, className: "w3f-chart__container", children: /* @__PURE__ */ jsx187("svg", { width, height, children: /* @__PURE__ */ jsx187(Group40, { top: TREEMAP_MARGIN.top, left: TREEMAP_MARGIN.left, children: /* @__PURE__ */ jsx187(
       Treemap2,
       {
         root,
@@ -30148,11 +30779,11 @@ var TreemapChart = React158.forwardRef(
         round: true,
         children: (treemap) => {
           const leaves = treemap.descendants().filter((n) => !n.children);
-          return /* @__PURE__ */ jsx186(Group40, { children: leaves.map((node, i) => {
+          return /* @__PURE__ */ jsx187(Group40, { children: leaves.map((node, i) => {
             const w = (node.x1 ?? 0) - (node.x0 ?? 0);
             const h = (node.y1 ?? 0) - (node.y0 ?? 0);
-            return /* @__PURE__ */ jsxs121(Group40, { top: node.y0, left: node.x0, children: [
-              /* @__PURE__ */ jsx186(
+            return /* @__PURE__ */ jsxs122(Group40, { top: node.y0, left: node.x0, children: [
+              /* @__PURE__ */ jsx187(
                 "rect",
                 {
                   width: w,
@@ -30167,7 +30798,7 @@ var TreemapChart = React158.forwardRef(
                   style: { cursor: "pointer" }
                 }
               ),
-              textFits2(w, h) && /* @__PURE__ */ jsx186(
+              textFits2(w, h) && /* @__PURE__ */ jsx187(
                 "text",
                 {
                   x: w / 2,
@@ -30191,7 +30822,7 @@ var TreemapChart = React158.forwardRef(
 TreemapChart.displayName = "TreemapChart";
 
 // src/FEEDBACK/Backdrop/Backdrop.tsx
-import React159, { useMemo as useMemo107 } from "react";
+import React161, { useMemo as useMemo108 } from "react";
 import { createPortal as createPortal2 } from "react-dom";
 
 // src/FEEDBACK/Backdrop/Backdrop.constants.ts
@@ -30214,9 +30845,9 @@ function buildBackdropClasses(open, invisible, className) {
 }
 
 // src/FEEDBACK/Backdrop/Backdrop.hooks.ts
-import { useState as useState65, useCallback as useCallback86, useEffect as useEffect41 } from "react";
+import { useState as useState67, useCallback as useCallback89, useEffect as useEffect42 } from "react";
 var useScrollLock2 = (locked) => {
-  useEffect41(() => {
+  useEffect42(() => {
     if (!locked) return;
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
@@ -30233,8 +30864,8 @@ var useScrollLock2 = (locked) => {
 };
 
 // src/FEEDBACK/Backdrop/Backdrop.tsx
-import { jsx as jsx187 } from "react/jsx-runtime";
-var Backdrop = React159.forwardRef(({
+import { jsx as jsx188 } from "react/jsx-runtime";
+var Backdrop = React161.forwardRef(({
   open = false,
   children,
   invisible = BACKDROP_DEFAULTS.invisible,
@@ -30249,16 +30880,16 @@ var Backdrop = React159.forwardRef(({
   ...rest
 }, ref) => {
   useScrollLock2(open);
-  const backdropClasses = useMemo107(
+  const backdropClasses = useMemo108(
     () => buildBackdropClasses(open, invisible, className),
     [open, invisible, className]
   );
-  const inlineStyles = useMemo107(() => ({
+  const inlineStyles = useMemo108(() => ({
     transitionDuration: `${transitionDuration}ms`,
     ...sx
   }), [transitionDuration, sx]);
   if (!open) return null;
-  const content = /* @__PURE__ */ jsx187(
+  const content = /* @__PURE__ */ jsx188(
     Component,
     {
       ref,
@@ -30267,7 +30898,7 @@ var Backdrop = React159.forwardRef(({
       role: "presentation",
       style: inlineStyles,
       ...rest,
-      children: children || showSpinner && /* @__PURE__ */ jsx187(
+      children: children || showSpinner && /* @__PURE__ */ jsx188(
         ProgressSpinner_default,
         {
           mode: "indeterminate",
@@ -30282,7 +30913,7 @@ var Backdrop = React159.forwardRef(({
 Backdrop.displayName = "Backdrop";
 
 // src/FEEDBACK/Ripples/Ripple.tsx
-import React160, { useCallback as useCallback88, useImperativeHandle as useImperativeHandle2, useMemo as useMemo108 } from "react";
+import React162, { useCallback as useCallback91, useImperativeHandle as useImperativeHandle2, useMemo as useMemo109 } from "react";
 
 // src/FEEDBACK/Ripples/Ripple.constants.ts
 var RIPPLE_DEFAULTS = {
@@ -30325,7 +30956,7 @@ function calculateRippleDimensions(rect, x, y, centered, radius) {
 }
 
 // src/FEEDBACK/Ripples/Ripple.hooks.ts
-import { useRef as useRef84, useCallback as useCallback87 } from "react";
+import { useRef as useRef86, useCallback as useCallback90 } from "react";
 var useRipple = (options = {}) => {
   const {
     disabled = false,
@@ -30335,8 +30966,8 @@ var useRipple = (options = {}) => {
     enterDuration = RIPPLE_DEFAULTS.enterDuration,
     exitDuration = RIPPLE_DEFAULTS.exitDuration
   } = options;
-  const containerRef = useRef84(null);
-  const createRipple = useCallback87((e) => {
+  const containerRef = useRef86(null);
+  const createRipple = useCallback90((e) => {
     if (disabled) return;
     const container = containerRef.current;
     if (!container) return;
@@ -30360,7 +30991,7 @@ var useRipple = (options = {}) => {
     }, totalDuration);
     ripple.dataset.timeoutId = String(timeoutId);
   }, [disabled, centered, unbounded, radius, enterDuration, exitDuration]);
-  const clearRipples = useCallback87(() => {
+  const clearRipples = useCallback90(() => {
     const container = containerRef.current;
     if (!container) return;
     const ripples = container.querySelectorAll(".w3f-ripple");
@@ -30374,8 +31005,8 @@ var useRipple = (options = {}) => {
 };
 
 // src/FEEDBACK/Ripples/Ripple.tsx
-import { jsx as jsx188 } from "react/jsx-runtime";
-var Ripple = React160.forwardRef(({
+import { jsx as jsx189 } from "react/jsx-runtime";
+var Ripple = React162.forwardRef(({
   children,
   className = "",
   color,
@@ -30409,11 +31040,11 @@ var Ripple = React160.forwardRef(({
     },
     fadeOutAll: clearRipples
   }), [containerRef, createRipple, clearRipples]);
-  const handleClick = useCallback88((e) => {
+  const handleClick = useCallback91((e) => {
     createRipple(e);
     onClick?.(e);
   }, [createRipple, onClick]);
-  const handleKeyDown = useCallback88((e) => {
+  const handleKeyDown = useCallback91((e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
@@ -30426,11 +31057,11 @@ var Ripple = React160.forwardRef(({
       onClick?.(e);
     }
   }, [containerRef, createRipple, onClick]);
-  const containerClasses = useMemo108(
+  const containerClasses = useMemo109(
     () => buildRippleClasses(flat, disabled, className),
     [flat, disabled, className]
   );
-  return /* @__PURE__ */ jsx188(
+  return /* @__PURE__ */ jsx189(
     "div",
     {
       ref: containerRef,
@@ -30442,14 +31073,14 @@ var Ripple = React160.forwardRef(({
       "aria-disabled": disabled,
       "data-ripple-color": color,
       ...rest,
-      children: /* @__PURE__ */ jsx188("div", { className: "w3f-ripple-content", children })
+      children: /* @__PURE__ */ jsx189("div", { className: "w3f-ripple-content", children })
     }
   );
 });
 Ripple.displayName = "Ripple";
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-import React161, { useState as useState66, useEffect as useEffect42, useCallback as useCallback89, useMemo as useMemo109 } from "react";
+import React163, { useState as useState68, useEffect as useEffect43, useCallback as useCallback92, useMemo as useMemo110 } from "react";
 
 // src/FEEDBACK/Snackbar/Snackbar.constants.ts
 var SNACKBAR_DEFAULTS = {
@@ -30484,8 +31115,8 @@ function buildSnackbarClasses(variant, isExiting, className) {
 }
 
 // src/FEEDBACK/Snackbar/Snackbar.tsx
-import { jsx as jsx189, jsxs as jsxs122 } from "react/jsx-runtime";
-var Snackbar = React161.forwardRef(({
+import { jsx as jsx190, jsxs as jsxs123 } from "react/jsx-runtime";
+var Snackbar = React163.forwardRef(({
   open,
   message,
   onClose,
@@ -30502,10 +31133,10 @@ var Snackbar = React161.forwardRef(({
 }, ref) => {
   const isOpen = open ?? show ?? false;
   const hideDuration = autoHideDuration ?? duration ?? SNACKBAR_DEFAULTS.autoHideDuration;
-  const [isVisible, setIsVisible] = useState66(isOpen);
-  const [isExiting, setIsExiting] = useState66(false);
-  const [isPaused, setIsPaused] = useState66(false);
-  const handleClose = useCallback89((reason = "timeout") => {
+  const [isVisible, setIsVisible] = useState68(isOpen);
+  const [isExiting, setIsExiting] = useState68(false);
+  const [isPaused, setIsPaused] = useState68(false);
+  const handleClose = useCallback92((reason = "timeout") => {
     setIsExiting(true);
     setTimeout(() => {
       setIsVisible(false);
@@ -30513,13 +31144,13 @@ var Snackbar = React161.forwardRef(({
       onClose?.(null, reason);
     }, SNACKBAR_DEFAULTS.exitAnimationDuration);
   }, [onClose]);
-  useEffect42(() => {
+  useEffect43(() => {
     if (isOpen) {
       setIsVisible(true);
       setIsExiting(false);
     }
   }, [isOpen]);
-  useEffect42(() => {
+  useEffect43(() => {
     if (!isOpen || hideDuration === null || hideDuration <= 0 || isPaused) return;
     const effectiveDuration = isPaused && resumeHideDuration != null ? resumeHideDuration : hideDuration;
     const timer = setTimeout(() => {
@@ -30527,7 +31158,7 @@ var Snackbar = React161.forwardRef(({
     }, effectiveDuration);
     return () => clearTimeout(timer);
   }, [isOpen, hideDuration, isPaused, resumeHideDuration, handleClose]);
-  useEffect42(() => {
+  useEffect43(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -30537,16 +31168,16 @@ var Snackbar = React161.forwardRef(({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleClose]);
-  const anchorClasses = useMemo109(
+  const anchorClasses = useMemo110(
     () => buildAnchorClasses(anchorOrigin),
     [anchorOrigin]
   );
-  const snackbarClasses = useMemo109(
+  const snackbarClasses = useMemo110(
     () => buildSnackbarClasses(variant, isExiting, className),
     [variant, isExiting, className]
   );
   if (!isVisible) return null;
-  return /* @__PURE__ */ jsx189("div", { className: anchorClasses, children: /* @__PURE__ */ jsxs122(
+  return /* @__PURE__ */ jsx190("div", { className: anchorClasses, children: /* @__PURE__ */ jsxs123(
     "div",
     {
       ref,
@@ -30558,8 +31189,8 @@ var Snackbar = React161.forwardRef(({
       onMouseLeave: () => setIsPaused(false),
       ...rest,
       children: [
-        /* @__PURE__ */ jsx189("p", { className: "w3f-snackbar__message", children: message }),
-        action ? /* @__PURE__ */ jsx189("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ jsx189(
+        /* @__PURE__ */ jsx190("p", { className: "w3f-snackbar__message", children: message }),
+        action ? /* @__PURE__ */ jsx190("div", { className: "w3f-snackbar__action", children: action }) : /* @__PURE__ */ jsx190(
           "button",
           {
             className: "w3f-snackbar__close",
@@ -30606,7 +31237,7 @@ function buildButtonGridClasses(align = "start", className) {
 }
 
 // src/LAYOUT/ButtonGrid/ButtonGrid.tsx
-import { jsx as jsx190 } from "react/jsx-runtime";
+import { jsx as jsx191 } from "react/jsx-runtime";
 var ButtonGrid = ({
   children,
   align = BUTTON_GRID_DEFAULTS.align,
@@ -30616,7 +31247,7 @@ var ButtonGrid = ({
   ...rest
 }) => {
   const classes = buildButtonGridClasses(align, className);
-  return /* @__PURE__ */ jsx190(Element, { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx191(Element, { className: classes, style, ...rest, children });
 };
 ButtonGrid.displayName = "ButtonGrid";
 
@@ -30644,9 +31275,9 @@ var buildCellClassNames = ({
 };
 
 // src/LAYOUT/Cell/Cell.tsx
-import { jsx as jsx191 } from "react/jsx-runtime";
+import { jsx as jsx192 } from "react/jsx-runtime";
 var CellRow = ({ children, className = "", style, ...props }) => {
-  return /* @__PURE__ */ jsx191("div", { className, style, ...props, children });
+  return /* @__PURE__ */ jsx192("div", { className, style, ...props, children });
 };
 CellRow.displayName = "CellRow";
 var Cell = ({
@@ -30659,16 +31290,16 @@ var Cell = ({
   ...props
 }) => {
   const classes = buildCellClassNames({ content, center, vCenter, className });
-  return /* @__PURE__ */ jsx191("div", { className: classes, style, ...props, children });
+  return /* @__PURE__ */ jsx192("div", { className: classes, style, ...props, children });
 };
 Cell.displayName = "Cell";
 
 // src/LAYOUT/Dashboard/Dashboard.tsx
-import React163, { useCallback as useCallback91, useEffect as useEffect44, useLayoutEffect as useLayoutEffect4, useMemo as useMemo110, useRef as useRef86, useState as useState68 } from "react";
+import React165, { useCallback as useCallback94, useEffect as useEffect45, useLayoutEffect as useLayoutEffect5, useMemo as useMemo111, useRef as useRef88, useState as useState70 } from "react";
 
 // src/LAYOUT/Dashboard/DashboardArrows.tsx
-import { useCallback as useCallback90, useEffect as useEffect43, useLayoutEffect as useLayoutEffect3, useRef as useRef85, useState as useState67 } from "react";
-import { jsx as jsx192, jsxs as jsxs123 } from "react/jsx-runtime";
+import { useCallback as useCallback93, useEffect as useEffect44, useLayoutEffect as useLayoutEffect4, useRef as useRef87, useState as useState69 } from "react";
+import { jsx as jsx193, jsxs as jsxs124 } from "react/jsx-runtime";
 function controlPoint(a, b, bend) {
   const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
   const dx = b.x - a.x, dy = b.y - a.y;
@@ -30694,9 +31325,9 @@ var DashboardArrows = ({
   onSelect,
   onChange
 }) => {
-  const svgRef = useRef85(null);
-  const [width, setWidth] = useState67(0);
-  useLayoutEffect3(() => {
+  const svgRef = useRef87(null);
+  const [width, setWidth] = useState69(0);
+  useLayoutEffect4(() => {
     const host = svgRef.current?.parentElement ?? gridRef.current;
     if (!host) return void 0;
     const measure = () => setWidth(host.offsetWidth || 0);
@@ -30709,13 +31340,14 @@ var DashboardArrows = ({
   const cell = width > 0 ? (width - gap * (columns - 1)) / columns : 0;
   const sx = cell + gap, sy = rowHeight + gap;
   const toPx = (x, y) => ({ x: x * sx, y: y * sy });
-  const [live, setLive] = useState67(null);
+  const [live, setLive] = useState69(null);
   const shown = live ?? arrows;
-  const dragRef = useRef85(null);
-  const changeRef = useRef85(onChange);
+  const dragRef = useRef87(null);
+  const changeRef = useRef87(onChange);
   changeRef.current = onChange;
-  const startDrag = useCallback90((e, a, what) => {
-    if (!editable || e.button !== 0) return;
+  const startDrag = useCallback93((e, a, what) => {
+    const touch = isTouchEvent(e);
+    if (!editable || !touch && e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     onSelect?.(a.id);
@@ -30747,16 +31379,14 @@ var DashboardArrows = ({
       setLive(last);
     };
     const onUp = () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+      stop();
       dragRef.current = null;
       setLive(null);
       if (last !== base) changeRef.current?.(last);
     };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    const stop = listenDrag(touch, onMove, onUp, document);
   }, [editable, arrows, sx, sy, onSelect, gridRef]);
-  useEffect43(() => {
+  useEffect44(() => {
     if (!editable || !selectedId || typeof window === "undefined") return void 0;
     const onKey = (e) => {
       const tag = e.target?.tagName || "";
@@ -30770,7 +31400,7 @@ var DashboardArrows = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [editable, selectedId, arrows, onSelect]);
   if (!shown.length) return null;
-  return /* @__PURE__ */ jsxs123(
+  return /* @__PURE__ */ jsxs124(
     "svg",
     {
       ref: svgRef,
@@ -30787,7 +31417,7 @@ var DashboardArrows = ({
         zIndex: 5
       },
       children: [
-        /* @__PURE__ */ jsx192("defs", { children: shown.map((a) => /* @__PURE__ */ jsx192(
+        /* @__PURE__ */ jsx193("defs", { children: shown.map((a) => /* @__PURE__ */ jsx193(
           "marker",
           {
             id: `w3fah-${a.id.replace(/[^\w-]/g, "_")}`,
@@ -30797,7 +31427,7 @@ var DashboardArrows = ({
             markerWidth: "5",
             markerHeight: "5",
             orient: "auto-start-reverse",
-            children: /* @__PURE__ */ jsx192("path", { d: "M0,0 L10,5 L0,10 z", fill: a.color || "#0e7490" })
+            children: /* @__PURE__ */ jsx193("path", { d: "M0,0 L10,5 L0,10 z", fill: a.color || "#0e7490" })
           },
           a.id
         )) }),
@@ -30809,8 +31439,8 @@ var DashboardArrows = ({
           const heads = a.heads ?? "end";
           const mid = controlPoint(p1, p2, (a.bend ?? 0) / 2);
           const sel = editable && a.id === selectedId;
-          return /* @__PURE__ */ jsxs123("g", { "data-arrow": a.id, children: [
-            /* @__PURE__ */ jsx192(
+          return /* @__PURE__ */ jsxs124("g", { "data-arrow": a.id, children: [
+            /* @__PURE__ */ jsx193(
               "path",
               {
                 d,
@@ -30823,7 +31453,7 @@ var DashboardArrows = ({
                 markerStart: heads === "both" ? mark : void 0
               }
             ),
-            a.label ? /* @__PURE__ */ jsx192(
+            a.label ? /* @__PURE__ */ jsx193(
               "text",
               {
                 x: mid.x,
@@ -30836,18 +31466,21 @@ var DashboardArrows = ({
               }
             ) : null,
             editable && // el área de clic (más ancha que la línea)
-            /* @__PURE__ */ jsx192(
+            /* @__PURE__ */ jsx193(
               "path",
               {
                 d,
                 fill: "none",
                 stroke: "transparent",
                 strokeWidth: Math.max(14, (a.width ?? 3) + 10),
-                style: { pointerEvents: "stroke", cursor: "move" },
-                onMouseDown: (e) => startDrag(e, a, "body")
+                style: { pointerEvents: "stroke", cursor: "move", touchAction: "none" },
+                onMouseDown: (e) => startDrag(e, a, "body"),
+                onPointerDown: (e) => {
+                  if (isTouchStart(e)) startDrag(e, a, "body");
+                }
               }
             ),
-            sel && [["start", p1], ["end", p2], ["bend", mid]].map(([what, p]) => /* @__PURE__ */ jsx192(
+            sel && [["start", p1], ["end", p2], ["bend", mid]].map(([what, p]) => /* @__PURE__ */ jsx193(
               "circle",
               {
                 cx: p.x,
@@ -30856,7 +31489,10 @@ var DashboardArrows = ({
                 fill: what === "bend" ? "#f59e0b" : "#ffffff",
                 stroke: "#f59e0b",
                 strokeWidth: 2,
-                style: { pointerEvents: "all", cursor: what === "bend" ? "grab" : "crosshair" },
+                style: { pointerEvents: "all", cursor: what === "bend" ? "grab" : "crosshair", touchAction: "none" },
+                onPointerDown: (e) => {
+                  if (isTouchStart(e)) startDrag(e, a, what);
+                },
                 "aria-label": what === "bend" ? "Curvar la flecha" : what === "start" ? "Inicio de la flecha" : "Punta de la flecha",
                 onMouseDown: (e) => startDrag(e, a, what)
               },
@@ -30932,7 +31568,17 @@ var DASHBOARD_CLASSES = {
   zoomBar: "w3f-dashboard-zoombar",
   zoomBtn: "w3f-dashboard-zoombar-btn",
   zoomSlider: "w3f-dashboard-zoombar-slider",
-  zoomPct: "w3f-dashboard-zoombar-pct"
+  zoomPct: "w3f-dashboard-zoombar-pct",
+  // WR W-a: navegación entre secciones
+  navWrap: "w3f-dashboard-navwrap",
+  nav: "w3f-dashboard-nav",
+  navLink: "w3f-dashboard-nav-link",
+  navActive: "w3f-dashboard-nav-link--active",
+  navTop: "w3f-dashboard-nav-top",
+  // WR W-g: ver una tarjeta en grande
+  expand: "w3f-dashboard-tile-expand",
+  tileExpanded: "w3f-dashboard-tile--expanded",
+  backdrop: "w3f-dashboard-backdrop"
 };
 
 // src/LAYOUT/Dashboard/Dashboard.utils.ts
@@ -30946,7 +31592,7 @@ function clampTile(t, columns) {
 }
 function resolveLayout(layout, columns, pinned, pageRows = 0, gravity = true) {
   const items = layout.map((t) => clampTile(t, columns));
-  const order = [...items].sort((a, b) => (a.id === pinned ? -1 : b.id === pinned ? 1 : 0) || a.y - b.y || a.x - b.x);
+  const order = items.toSorted((a, b) => (a.id === pinned ? -1 : b.id === pinned ? 1 : 0) || a.y - b.y || a.x - b.x);
   const placed = [];
   for (const t of order) {
     const cur = { ...t };
@@ -31018,6 +31664,12 @@ ${inner.join("\n")}
       if (inner.length) out.push(`@layer ${r.name ?? ""} {
 ${inner.join("\n")}
 }`);
+    } else if (r.cssRules && r.constructor?.name === "CSSContainerRule") {
+      const inner = usedRules(r.cssRules, root);
+      const c = r;
+      if (inner.length) out.push(`@container ${c.containerName ?? ""} ${c.containerQuery ?? r.conditionText ?? ""} {
+${inner.join("\n")}
+}`);
     } else if (r.cssRules && r.media) {
       const inner = usedRules(r.cssRules, root);
       if (inner.length) out.push(`@media ${r.media.mediaText} {
@@ -31059,6 +31711,18 @@ function snapshotHtml(root, opts = {}) {
   clone.querySelectorAll(SNAPSHOT_REMOVE).forEach((n) => n.remove());
   clone.querySelectorAll(".w3f-dashboard-tile-head").forEach((n) => n.style.removeProperty("cursor"));
   clone.querySelectorAll(".w3f-dashboard-tile--selected").forEach((n) => n.classList.remove("w3f-dashboard-tile--selected"));
+  if (opts.flow) {
+    (clone.matches(".w3f-dashboard-grid") ? [clone] : Array.from(clone.querySelectorAll(".w3f-dashboard-grid"))).forEach((g) => g.classList.add("w3f-dashboard-grid--flow"));
+  }
+  clone.querySelectorAll("svg").forEach((s) => {
+    const w = parseFloat(s.getAttribute("width") ?? ""), h = parseFloat(s.getAttribute("height") ?? "");
+    if (!s.getAttribute("viewBox") && w > 0 && h > 0) {
+      s.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      s.setAttribute("preserveAspectRatio", "xMinYMin meet");
+      s.style.maxWidth = "100%";
+      s.style.height = "auto";
+    }
+  });
   const vars = inheritedVars(root);
   clone.setAttribute("style", `${vars}; ${clone.getAttribute("style") ?? ""}`);
   const css = [];
@@ -31082,7 +31746,8 @@ function snapshotHtml(root, opts = {}) {
     `<style>
 ${css.join("\n")}
 </style>`,
-    `<style>body { margin: 0; padding: 16px; background: ${bg}; } .w3f-dashboard-tile { break-inside: avoid; }` + (opts.pageCss ? `
+    // WR W-f: el body es el «contenedor» del tablero: en un teléfono las tarjetas se apilan (@container w3fdash)
+    `<style>html { background: ${bg}; min-height: 100%; } body { margin: 0; padding: 16px; background: ${bg}; container: w3fdash / inline-size; } .w3f-dashboard-tile { break-inside: avoid; }` + (opts.pageCss ? `
 ${opts.pageCss}` : "") + "</style>",
     "</head><body>",
     clone.outerHTML,
@@ -31091,14 +31756,14 @@ ${opts.pageCss}` : "") + "</style>",
 }
 
 // src/LAYOUT/Dashboard/Dashboard.tsx
-import { Fragment as Fragment22, jsx as jsx193, jsxs as jsxs124 } from "react/jsx-runtime";
-var DashboardTile = ({ children }) => /* @__PURE__ */ jsx193(Fragment22, { children });
+import { Fragment as Fragment21, jsx as jsx194, jsxs as jsxs125 } from "react/jsx-runtime";
+var DashboardTile = ({ children }) => /* @__PURE__ */ jsx194(Fragment21, { children });
 function collectTiles(children, out) {
-  React163.Children.forEach(children, (child) => {
-    if (!React163.isValidElement(child)) return;
+  React165.Children.forEach(children, (child) => {
+    if (!React165.isValidElement(child)) return;
     const props = child.props;
     if (props.tileId != null) out.set(String(props.tileId), child);
-    else if (child.type === React163.Fragment) collectTiles(props.children, out);
+    else if (child.type === React165.Fragment) collectTiles(props.children, out);
   });
 }
 function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
@@ -31112,9 +31777,9 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
       const mm = offsetMm + k;
       const pos = base + k * pxPerMm;
       const len = mm % 10 === 0 ? RULER_SIZE * 0.55 : mm % 5 === 0 ? RULER_SIZE * 0.35 : RULER_SIZE * 0.2;
-      ticks.push(side === "top" ? /* @__PURE__ */ jsx193("line", { x1: pos, x2: pos, y1: RULER_SIZE, y2: RULER_SIZE - len }, `${p}-${k}`) : /* @__PURE__ */ jsx193("line", { y1: pos, y2: pos, x1: RULER_SIZE, x2: RULER_SIZE - len }, `${p}-${k}`));
+      ticks.push(side === "top" ? /* @__PURE__ */ jsx194("line", { x1: pos, x2: pos, y1: RULER_SIZE, y2: RULER_SIZE - len }, `${p}-${k}`) : /* @__PURE__ */ jsx194("line", { y1: pos, y2: pos, x1: RULER_SIZE, x2: RULER_SIZE - len }, `${p}-${k}`));
       if (mm % 10 === 0 && k > 0 && k < mmCount) {
-        ticks.push(side === "top" ? /* @__PURE__ */ jsx193("text", { x: pos + 2, y: 8, children: mm }, `t${p}-${k}`) : /* @__PURE__ */ jsx193(
+        ticks.push(side === "top" ? /* @__PURE__ */ jsx194("text", { x: pos + 2, y: 8, children: mm }, `t${p}-${k}`) : /* @__PURE__ */ jsx194(
           "text",
           {
             x: 8,
@@ -31129,7 +31794,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
     }
   }
   const top = side === "top";
-  return /* @__PURE__ */ jsxs124(
+  return /* @__PURE__ */ jsxs125(
     "svg",
     {
       className: `${DASHBOARD_CLASSES.ruler} ${top ? DASHBOARD_CLASSES.rulerTop : DASHBOARD_CLASSES.rulerLeft}`,
@@ -31137,7 +31802,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
       width: top ? lengthPx : RULER_SIZE,
       height: top ? RULER_SIZE : lengthPx,
       children: [
-        mark && (top ? /* @__PURE__ */ jsx193(
+        mark && (top ? /* @__PURE__ */ jsx194(
           "rect",
           {
             className: DASHBOARD_CLASSES.rulerMark,
@@ -31146,7 +31811,7 @@ function Ruler2({ side, lengthPx, pxPerMm, offsetMm, pagePx, mark }) {
             width: Math.max(1, mark.to - mark.from),
             height: RULER_SIZE
           }
-        ) : /* @__PURE__ */ jsx193(
+        ) : /* @__PURE__ */ jsx194(
           "rect",
           {
             className: DASHBOARD_CLASSES.rulerMark,
@@ -31197,6 +31862,7 @@ var Dashboard = ({
   zoomControls = DASHBOARD_DEFAULTS.zoomControls,
   onZoomChange,
   editable = DASHBOARD_DEFAULTS.editable,
+  selectable,
   fullscreen = DASHBOARD_DEFAULTS.fullscreen,
   fullscreenScreen = false,
   fullscreenTitle = DASHBOARD_DEFAULTS.fullscreenTitle,
@@ -31218,11 +31884,17 @@ var Dashboard = ({
   snapshotBackground,
   snapshotPageCss,
   onSnapshot,
+  expandable = false,
+  sections = [],
+  navigation = "none",
+  activeSection,
+  onSectionChange,
+  slideTransition = "fundido",
   children,
   className = "",
   style
 }) => {
-  const fromProps = useMemo110(
+  const fromProps = useMemo111(
     () => resolveLayout(
       Array.isArray(layout) ? layout : [],
       columns,
@@ -31233,20 +31905,34 @@ var Dashboard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(layout), columns, pageRows, gravity]
   );
-  const [items, setItems] = useState68(fromProps);
-  useEffect44(() => {
+  const [items, setItems] = useState70(fromProps);
+  useEffect45(() => {
     setItems(fromProps);
   }, [fromProps]);
-  const gridRef = useRef86(null);
-  const dragRef = useRef86(null);
-  const [active, setActive] = useState68(null);
-  const [live, setLive] = useState68(null);
-  const selectRef = useRef86(onSelect);
+  const gridRef = useRef88(null);
+  const navWrapRef = useRef88(null);
+  const [expanded, setExpanded] = useState70(null);
+  useEffect45(() => {
+    if (!expanded || typeof window === "undefined") return void 0;
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        setExpanded(null);
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [expanded]);
+  const dragRef = useRef88(null);
+  const [active, setActive] = useState70(null);
+  const [live, setLive] = useState70(null);
+  const selectRef = useRef88(onSelect);
   selectRef.current = onSelect;
-  const selectedRef = useRef86(selectedId);
+  const selectedRef = useRef88(selectedId);
   selectedRef.current = selectedId;
+  const canSelect = (selectable ?? editable) && !fullscreen;
   const select = (id, el2) => {
-    if (!editable || !selectRef.current || id === selectedRef.current) return;
+    if (!canSelect || !selectRef.current || id === selectedRef.current) return;
     if (id === null || !el2) {
       selectRef.current(id);
       return;
@@ -31254,17 +31940,17 @@ var Dashboard = ({
     const r = el2.getBoundingClientRect();
     selectRef.current(id, { left: r.left, top: r.top, right: r.right, bottom: r.bottom });
   };
-  useEffect44(() => {
-    if (!editable || !onSelect || typeof window === "undefined") return void 0;
+  useEffect45(() => {
+    if (!canSelect || !onSelect || typeof window === "undefined") return void 0;
     const onKey = (e) => {
       const tag = e.target?.tagName || "";
       if (e.key === "Escape" && selectedRef.current && !/INPUT|TEXTAREA|SELECT/.test(tag)) selectRef.current?.(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editable, onSelect]);
-  const [viewH, setViewH] = useState68(() => typeof window !== "undefined" ? window.innerHeight : 800);
-  useEffect44(() => {
+  }, [canSelect, onSelect]);
+  const [viewH, setViewH] = useState70(() => typeof window !== "undefined" ? window.innerHeight : 800);
+  useEffect45(() => {
     if (!fullscreen || typeof window === "undefined") return;
     const onKey = (e) => {
       if (e.key === "Escape") onExitFullscreen?.();
@@ -31278,9 +31964,9 @@ var Dashboard = ({
       window.removeEventListener("resize", onResize);
     };
   }, [fullscreen, onExitFullscreen]);
-  const exitRef = useRef86(onExitFullscreen);
+  const exitRef = useRef88(onExitFullscreen);
   exitRef.current = onExitFullscreen;
-  useEffect44(() => {
+  useEffect45(() => {
     if (!fullscreen || !fullscreenScreen || typeof document === "undefined") return;
     const root = document.documentElement;
     let entered = false;
@@ -31303,8 +31989,9 @@ var Dashboard = ({
   }, [fullscreen, fullscreenScreen]);
   const rows = layoutRows(items);
   const rowH = fullscreen && rows > 0 ? Math.max(rowHeight, Math.floor((viewH - FULLSCREEN_BAR - 2 * FULLSCREEN_PAD - gap * (rows - 1)) / rows)) : rowHeight;
-  const startDrag = useCallback91((e, id, mode) => {
-    if (!editable || e.button !== 0) return;
+  const startDrag = useCallback94((e, id, mode) => {
+    const touch = isTouchEvent(e);
+    if (!editable || !touch && e.button !== 0) return;
     const origin = items.find((t) => t.id === id);
     if (!origin) return;
     e.preventDefault();
@@ -31338,33 +32025,32 @@ var Dashboard = ({
       setLive(d.mode === "move" ? { id: d.id, mode: d.mode, ex: px - (at.x - o.x) * stepX, ey: py - (at.y - o.y) * stepY, stepX, stepY } : { id: d.id, mode: d.mode, ex: px - (at.w - o.w) * stepX, ey: py - (at.h - o.h) * stepY, stepX, stepY });
     };
     const onUp = () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+      stop();
       dragRef.current = null;
       setActive(null);
       setLive(null);
-      if (!sameLayout(last, base)) onLayoutChange?.(last);
+      if (!sameLayout(last, base)) onLayoutChange?.(last, id, mode);
     };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    const stop = listenDrag(touch, onMove, onUp, document);
   }, [editable, items, gap, columns, rowH, pageRows, gravity, onLayoutChange]);
-  const rootRef = useRef86(null);
-  const seenRequest = useRef86(snapshotRequest);
-  const snap = useRef86({ onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss });
-  snap.current = { onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss };
-  useEffect44(() => {
+  const rootRef = useRef88(null);
+  const seenRequest = useRef88(snapshotRequest);
+  const snap = useRef88({ onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss, pageRows });
+  snap.current = { onSnapshot, snapshotTitle, snapshotBackground, snapshotPageCss, pageRows };
+  useEffect45(() => {
     if (snapshotRequest === seenRequest.current) return;
     seenRequest.current = snapshotRequest;
     if (!snapshotRequest) return;
     const req = snapshotRequest;
     requestAnimationFrame(() => {
-      const el2 = gridRef.current ?? rootRef.current;
+      const el2 = navWrapRef.current ?? gridRef.current ?? rootRef.current;
       const o = snap.current;
       if (!el2 || !o.onSnapshot) return;
       o.onSnapshot(snapshotHtml(el2, {
         title: o.snapshotTitle,
         background: o.snapshotBackground,
-        pageCss: o.snapshotPageCss
+        pageCss: o.snapshotPageCss,
+        flow: !o.pageRows
       }), req);
     });
   }, [snapshotRequest]);
@@ -31373,8 +32059,8 @@ var Dashboard = ({
   const pages = pageRows > 0 ? Math.max(1, Math.ceil(rows / pageRows)) : 0;
   const breaks = Array.from({ length: pages }, (_, k) => k + 1);
   const rulers = rulerMm > 0 && !fullscreen && items.length > 0;
-  const [box, setBox] = useState68({ w: 0, h: 0 });
-  useLayoutEffect4(() => {
+  const [box, setBox] = useState70({ w: 0, h: 0 });
+  useLayoutEffect5(() => {
     if (!rulers) return void 0;
     const el2 = gridRef.current;
     if (!el2) return void 0;
@@ -31387,10 +32073,10 @@ var Dashboard = ({
   }, [rulers, items, rowH]);
   const pagePx = pageRows > 0 ? pageRows * (rowH + gap) : 0;
   const rulerPx = rulers ? RULER_SIZE + RULER_GAP : 0;
-  const [fitZoom, setFitZoom] = useState68(1);
-  const zoomRef = useRef86(onZoomChange);
+  const [fitZoom, setFitZoom] = useState70(1);
+  const zoomRef = useRef88(onZoomChange);
   zoomRef.current = onZoomChange;
-  useLayoutEffect4(() => {
+  useLayoutEffect5(() => {
     if (zoom !== "fit" || fullscreen) return void 0;
     const root = rootRef.current;
     const scroller = scrollerOf(root);
@@ -31412,11 +32098,11 @@ var Dashboard = ({
     return () => ro.disconnect();
   }, [zoom, fullscreen, pageWidth, rulerPx]);
   const z = fullscreen ? 1 : zoom === "fit" ? fitZoom : Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Number.isFinite(Number(zoom)) && Number(zoom) > 0 ? Number(zoom) : 1));
-  const userZoom = useCallback91((next) => {
+  const userZoom = useCallback94((next) => {
     const v = next === "fit" ? "fit" : Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)) * 100) / 100;
     zoomRef.current?.(v, "user");
   }, []);
-  const onWheel = useCallback91((e) => {
+  const onWheel = useCallback94((e) => {
     if (!zoomControls || !e.ctrlKey) return;
     e.preventDefault();
     userZoom(z + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
@@ -31435,11 +32121,86 @@ var Dashboard = ({
       text: `x ${mm(x0) + rulerOffsetMm} mm \xB7 y ${mm(yPage) + rulerOffsetMm} mm \xB7 ${mm(w)} \xD7 ${mm(h)} mm` + (pagePx > 0 ? ` \xB7 p\xE1gina ${Math.floor(y0 / pagePx) + 1}` : "")
     };
   })() : null;
-  const grid = items.length === 0 && !(arrows && arrows.length) ? /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.empty, children: emptyText }) : /* @__PURE__ */ jsxs124(
+  const secs = useMemo111(() => {
+    const ys = new Map(items.map((t) => [t.id, t.y]));
+    return (navigation === "none" ? [] : sections).filter((s) => ys.has(s.tileId)).map((s) => ({ ...s, y: ys.get(s.tileId) })).sort((a, b) => a.y - b.y);
+  }, [sections, items, navigation]);
+  const tabbed = navigation === "tabs" && !editable && secs.length > 0;
+  const current = secs.find((s) => s.id === activeSection) ?? secs[0];
+  const shown = useMemo111(() => {
+    if (!tabbed || !current) return items;
+    const k = secs.indexOf(current);
+    const start = current.y;
+    const end = k + 1 < secs.length ? secs[k + 1].y : Infinity;
+    const top = items.filter((t) => t.y < secs[0].y);
+    const prefix = top.reduce((m, t) => Math.max(m, t.y + t.h), 0);
+    return [...top, ...items.filter((t) => t.y >= start && t.y < end).map((t) => ({ ...t, y: t.y - start + prefix }))];
+  }, [tabbed, current, secs, items]);
+  const slideIdx = current ? secs.indexOf(current) : -1;
+  const sectionRef = useRef88(onSectionChange);
+  sectionRef.current = onSectionChange;
+  useEffect45(() => {
+    if (!tabbed || !fullscreen || typeof window === "undefined") return void 0;
+    const onKey = (e) => {
+      const tag = e.target?.tagName ?? "";
+      if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+      const next = ["ArrowRight", "PageDown", " "].includes(e.key) ? 1 : ["ArrowLeft", "PageUp", "Backspace"].includes(e.key) ? -1 : 0;
+      if (!next) return;
+      e.preventDefault();
+      const k = Math.max(0, Math.min(secs.length - 1, slideIdx + next));
+      if (k !== slideIdx) sectionRef.current?.(secs[k].id);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [tabbed, fullscreen, secs, slideIdx]);
+  const goTo = (s) => {
+    if (tabbed) {
+      onSectionChange?.(s.id);
+      return;
+    }
+    if (typeof document === "undefined") return;
+    document.getElementById(`w3f-tile-${s.tileId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    onSectionChange?.(s.id);
+  };
+  const nav = secs.length > 0 ? /* @__PURE__ */ jsxs125("nav", { className: `${DASHBOARD_CLASSES.nav} ${DASHBOARD_CLASSES.nav}--${navigation === "side" ? "side" : "top"}`, "aria-label": "Secciones del informe", children: [
+    secs.map((s) => /* @__PURE__ */ jsx194(
+      "a",
+      {
+        href: `#w3f-tile-${s.tileId}`,
+        className: `${DASHBOARD_CLASSES.navLink}${tabbed && current?.id === s.id ? ` ${DASHBOARD_CLASSES.navActive}` : ""}`,
+        "aria-current": tabbed && current?.id === s.id ? "page" : void 0,
+        onClick: (e) => {
+          e.preventDefault();
+          goTo(s);
+        },
+        children: s.label
+      },
+      s.id
+    )),
+    navigation === "side" && /* @__PURE__ */ jsx194(
+      "a",
+      {
+        href: "#w3f-dashboard-top",
+        className: `${DASHBOARD_CLASSES.navLink} ${DASHBOARD_CLASSES.navTop}`,
+        onClick: (e) => {
+          e.preventDefault();
+          if (typeof document !== "undefined") {
+            document.getElementById("w3f-dashboard-top")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        },
+        children: "\u2191 Volver arriba"
+      }
+    )
+  ] }) : null;
+  const order = useMemo111(
+    () => new Map(shown.toSorted((a, b) => a.y - b.y || a.x - b.x).map((t, i) => [t.id, i])),
+    [shown]
+  );
+  const grid = items.length === 0 && !(arrows && arrows.length) ? /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.empty, children: emptyText }) : /* @__PURE__ */ jsxs125(
     "div",
     {
       ref: gridRef,
-      className: DASHBOARD_CLASSES.grid,
+      className: !editable && !pageRows ? `${DASHBOARD_CLASSES.grid} w3f-dashboard-grid--flow` : DASHBOARD_CLASSES.grid,
       onClick: (e) => {
         const t = e.target;
         if (t.closest(".w3f-dashboard-arrows")) return;
@@ -31460,7 +32221,7 @@ var Dashboard = ({
       children: [
         pageBackground?.url && (pages ? breaks : [1]).map((k) => (
           // 0026 X2: una capa por página (Web: una)
-          ((pageBackground.pages ?? "all") === "all" || k === 1) && /* @__PURE__ */ jsx193(
+          ((pageBackground.pages ?? "all") === "all" || k === 1) && /* @__PURE__ */ jsx194(
             "div",
             {
               className: DASHBOARD_CLASSES.pageBg,
@@ -31477,7 +32238,7 @@ var Dashboard = ({
             `bg${k}`
           )
         )),
-        arrows && arrows.length > 0 && /* @__PURE__ */ jsx193(
+        arrows && arrows.length > 0 && /* @__PURE__ */ jsx194(
           DashboardArrows,
           {
             arrows,
@@ -31491,20 +32252,20 @@ var Dashboard = ({
             onChange: onArrowsChange
           }
         ),
-        breaks.map((k) => /* @__PURE__ */ jsx193(
+        breaks.map((k) => /* @__PURE__ */ jsx194(
           "div",
           {
             className: DASHBOARD_CLASSES.pageBreak,
             "aria-hidden": true,
             style: { top: `${k * pageRows * (rowH + gap) - gap / 2}px` },
-            children: /* @__PURE__ */ jsxs124("span", { children: [
+            children: /* @__PURE__ */ jsxs125("span", { children: [
               "fin de la p\xE1gina ",
               k
             ] })
           },
           `pb${k}`
         )),
-        live && liveTile && /* @__PURE__ */ jsx193(
+        live && liveTile && /* @__PURE__ */ jsx194(
           "div",
           {
             className: DASHBOARD_CLASSES.drop,
@@ -31516,13 +32277,16 @@ var Dashboard = ({
             }
           }
         ),
-        items.map((t) => {
+        shown.map((t) => {
           const following = live && live.id === t.id ? live : null;
           const place = {
             gridColumn: `${t.x + 1} / span ${t.w}`,
             gridRow: `${t.y + 1} / span ${t.h}`,
             ...tileInset ? { margin: `${tileInset}px` } : {}
           };
+          place["--w3f-tile-order"] = order.get(t.id) ?? 0;
+          place["--w3f-tile-h"] = `${t.h * (rowH + gap) - gap}px`;
+          place["--w3f-tile-span2"] = t.w * 3 > columns * 2 ? 2 : 1;
           if (following?.mode === "move") {
             place.transform = `translate(${following.ex}px, ${following.ey}px)`;
           } else if (following?.mode === "resize") {
@@ -31533,25 +32297,33 @@ var Dashboard = ({
             place.alignSelf = "start";
             place.justifySelf = "start";
           }
-          return /* @__PURE__ */ jsxs124(
+          return /* @__PURE__ */ jsxs125(
             "div",
             {
-              className: `${DASHBOARD_CLASSES.tile}${active === t.id ? ` ${DASHBOARD_CLASSES.tileActive}` : ""}${selectedId === t.id ? ` ${DASHBOARD_CLASSES.tileSelected}` : ""}${t.hideBorder ? ` ${DASHBOARD_CLASSES.tileBorderless}` : ""}`,
+              className: `${DASHBOARD_CLASSES.tile}${active === t.id ? ` ${DASHBOARD_CLASSES.tileActive}` : ""}${selectedId === t.id ? ` ${DASHBOARD_CLASSES.tileSelected}` : ""}${t.hideBorder ? ` ${DASHBOARD_CLASSES.tileBorderless}` : ""}${expanded === t.id ? ` ${DASHBOARD_CLASSES.tileExpanded}` : ""}`,
               "data-tile-id": t.id,
+              id: `w3f-tile-${t.id}`,
               style: t.radius != null ? { ...place, borderRadius: `${t.radius}px` } : place,
-              onClickCapture: (e) => select(t.id, e.currentTarget),
+              onClickCapture: (e) => {
+                if (e.target.closest?.(`.${DASHBOARD_CLASSES.expand}`)) return;
+                select(t.id, e.currentTarget);
+              },
               children: [
-                !(t.hideTitle && !editable) && /* @__PURE__ */ jsxs124(
+                !(t.hideTitle && !editable) && /* @__PURE__ */ jsxs125(
                   "div",
                   {
                     className: t.hideTitle ? `${DASHBOARD_CLASSES.head} w3f-dashboard-tile-head--bare` : DASHBOARD_CLASSES.head,
                     onMouseDown: (e) => startDrag(e, t.id, "move"),
+                    onPointerDown: (e) => {
+                      if (isTouchStart(e)) startDrag(e, t.id, "move");
+                    },
                     style: {
                       cursor: editable ? "move" : "default",
+                      ...editable ? { touchAction: "none" } : {},
                       ...t.headBackground ? { background: t.headBackground } : {}
                     },
                     children: [
-                      !t.hideTitle && /* @__PURE__ */ jsx193(
+                      !t.hideTitle && /* @__PURE__ */ jsx194(
                         "span",
                         {
                           className: DASHBOARD_CLASSES.title,
@@ -31559,7 +32331,23 @@ var Dashboard = ({
                           children: t.title ?? t.id
                         }
                       ),
-                      editable && onRemove && /* @__PURE__ */ jsx193(
+                      expandable && /* WR W-g: ver en grande (no va en la copia HTML / PDF) */
+                      /* @__PURE__ */ jsx194(
+                        "button",
+                        {
+                          type: "button",
+                          className: `${DASHBOARD_CLASSES.expand} w3f-dashboard-noprint`,
+                          "aria-label": expanded === t.id ? "Volver al tablero" : `Ver en grande: ${t.title ?? t.id}`,
+                          title: expanded === t.id ? "Volver (Esc)" : "Ver en grande",
+                          onMouseDown: (e) => e.stopPropagation(),
+                          onClick: (e) => {
+                            e.stopPropagation();
+                            setExpanded(expanded === t.id ? null : t.id);
+                          },
+                          children: expanded === t.id ? "\u2715" : "\u2922"
+                        }
+                      ),
+                      editable && onRemove && expanded !== t.id && /* @__PURE__ */ jsx194(
                         "button",
                         {
                           type: "button",
@@ -31573,13 +32361,17 @@ var Dashboard = ({
                     ]
                   }
                 ),
-                /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.body, children: content.get(t.id) ?? null }),
-                editable && /* @__PURE__ */ jsx193(
+                /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.body, children: content.get(t.id) ?? null }),
+                editable && /* @__PURE__ */ jsx194(
                   "div",
                   {
                     className: DASHBOARD_CLASSES.resize,
                     "aria-label": "Cambiar tama\xF1o",
-                    onMouseDown: (e) => startDrag(e, t.id, "resize")
+                    style: { touchAction: "none" },
+                    onMouseDown: (e) => startDrag(e, t.id, "resize"),
+                    onPointerDown: (e) => {
+                      if (isTouchStart(e)) startDrag(e, t.id, "resize");
+                    }
                   }
                 )
               ]
@@ -31590,13 +32382,27 @@ var Dashboard = ({
       ]
     }
   );
-  const ruled = rulers ? /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.ruled, style: {
+  const backdrop = expanded ? /* @__PURE__ */ jsx194("div", { className: `${DASHBOARD_CLASSES.backdrop} w3f-dashboard-noprint`, "aria-hidden": true, onClick: () => setExpanded(null) }) : null;
+  const slideGrid = tabbed && fullscreen && current ? /* @__PURE__ */ jsx194("div", { className: `w3f-dashboard-slide w3f-dashboard-slide--${slideTransition}`, children: grid }, current.id) : grid;
+  const body = nav ? /* @__PURE__ */ jsxs125(
+    "div",
+    {
+      ref: navWrapRef,
+      id: "w3f-dashboard-top",
+      className: `${DASHBOARD_CLASSES.navWrap} ${DASHBOARD_CLASSES.navWrap}--${navigation === "side" ? "side" : "top"}`,
+      children: [
+        nav,
+        slideGrid
+      ]
+    }
+  ) : slideGrid;
+  const ruled = rulers ? /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.ruled, style: {
     gridTemplateColumns: `${rulerPx}px minmax(0, 1fr)`,
     gridTemplateRows: `${rulerPx}px auto`
   }, children: [
-    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerCorner, "aria-hidden": true }),
-    /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.rulerWrapTop, children: [
-      /* @__PURE__ */ jsx193(
+    /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.rulerCorner, "aria-hidden": true }),
+    /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.rulerWrapTop, children: [
+      /* @__PURE__ */ jsx194(
         Ruler2,
         {
           side: "top",
@@ -31607,9 +32413,9 @@ var Dashboard = ({
           mark: mark?.top
         }
       ),
-      mark && /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerInfo, children: mark.text })
+      mark && /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.rulerInfo, children: mark.text })
     ] }),
-    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.rulerWrapLeft, children: /* @__PURE__ */ jsx193(
+    /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.rulerWrapLeft, children: /* @__PURE__ */ jsx194(
       Ruler2,
       {
         side: "left",
@@ -31620,15 +32426,21 @@ var Dashboard = ({
         mark: mark?.left
       }
     ) }),
-    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.page, children: grid })
-  ] }) : /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.page, children: grid });
+    /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.page, children: [
+      body,
+      backdrop
+    ] })
+  ] }) : /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.page, children: [
+    body,
+    backdrop
+  ] });
   const rootCls = [DASHBOARD_CLASSES.root, className].filter(Boolean).join(" ");
   const zoomedStyle = {
     ...pageWidth > 0 && !fullscreen ? { width: `${pageWidth + rulerPx}px`, margin: "0 auto" } : {},
     ...z !== 1 ? { zoom: z } : {}
   };
-  const zoomBar = zoomControls && !fullscreen ? /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.zoomBar, role: "toolbar", "aria-label": "Zoom de la hoja", children: [
-    /* @__PURE__ */ jsx193(
+  const zoomBar = zoomControls && !fullscreen ? /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.zoomBar, role: "toolbar", "aria-label": "Zoom de la hoja", children: [
+    /* @__PURE__ */ jsx194(
       "button",
       {
         type: "button",
@@ -31639,8 +32451,8 @@ var Dashboard = ({
         children: "\u2212"
       }
     ),
-    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.zoomSlider, children: /* @__PURE__ */ jsx193(Slider_default, { value: z, min: ZOOM_MIN, max: ZOOM_MAX, step: 0.01, showValue: false, ariaLabel: "Zoom", onChange: userZoom }) }),
-    /* @__PURE__ */ jsx193(
+    /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.zoomSlider, children: /* @__PURE__ */ jsx194(Slider_default, { value: z, min: ZOOM_MIN, max: ZOOM_MAX, step: 0.01, showValue: false, ariaLabel: "Zoom", onChange: userZoom }) }),
+    /* @__PURE__ */ jsx194(
       "button",
       {
         type: "button",
@@ -31651,7 +32463,7 @@ var Dashboard = ({
         children: "+"
       }
     ),
-    /* @__PURE__ */ jsxs124(
+    /* @__PURE__ */ jsxs125(
       "button",
       {
         type: "button",
@@ -31665,7 +32477,7 @@ var Dashboard = ({
         ]
       }
     ),
-    /* @__PURE__ */ jsx193(
+    /* @__PURE__ */ jsx194(
       "button",
       {
         type: "button",
@@ -31678,10 +32490,10 @@ var Dashboard = ({
     )
   ] }) : null;
   if (fullscreen && typeof document !== "undefined") {
-    return /* @__PURE__ */ jsxs124("div", { className: rootCls, style, children: [
-      /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.placeholder, children: fullscreenPlaceholder }),
+    return /* @__PURE__ */ jsxs125("div", { className: rootCls, style, children: [
+      /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.placeholder, children: fullscreenPlaceholder }),
       createPortal3(
-        /* @__PURE__ */ jsxs124(
+        /* @__PURE__ */ jsxs125(
           "div",
           {
             className: `${DASHBOARD_CLASSES.root} ${DASHBOARD_CLASSES.fullscreen}`,
@@ -31689,11 +32501,17 @@ var Dashboard = ({
             "aria-label": fullscreenTitle || "Tablero",
             style: { ...style, padding: `0 ${FULLSCREEN_PAD}px ${FULLSCREEN_PAD}px` },
             children: [
-              /* @__PURE__ */ jsxs124("div", { className: DASHBOARD_CLASSES.fullscreenBar, style: { height: `${FULLSCREEN_BAR}px` }, children: [
-                /* @__PURE__ */ jsx193("span", { children: fullscreenTitle }),
-                /* @__PURE__ */ jsx193("button", { type: "button", className: DASHBOARD_CLASSES.fullscreenExit, onClick: () => onExitFullscreen?.(), children: "Salir (Esc)" })
+              /* @__PURE__ */ jsxs125("div", { className: DASHBOARD_CLASSES.fullscreenBar, style: { height: `${FULLSCREEN_BAR}px` }, children: [
+                /* @__PURE__ */ jsx194("span", { children: fullscreenTitle }),
+                tabbed && secs.length > 1 && /* PP: en qué diapositiva va */
+                /* @__PURE__ */ jsxs125("span", { className: "w3f-dashboard-slide-count", "aria-live": "polite", children: [
+                  slideIdx + 1,
+                  " / ",
+                  secs.length
+                ] }),
+                /* @__PURE__ */ jsx194("button", { type: "button", className: DASHBOARD_CLASSES.fullscreenExit, onClick: () => onExitFullscreen?.(), children: "Salir (Esc)" })
               ] }),
-              grid
+              body
             ]
           }
         ),
@@ -31702,8 +32520,8 @@ var Dashboard = ({
     ] });
   }
   const cls = zoomBar ? `${rootCls} ${DASHBOARD_CLASSES.rootZoomBar}` : rootCls;
-  return /* @__PURE__ */ jsxs124("div", { ref: rootRef, className: cls, style, "data-zoom": z, onWheel, children: [
-    /* @__PURE__ */ jsx193("div", { className: DASHBOARD_CLASSES.zoomed, style: zoomedStyle, children: ruled }),
+  return /* @__PURE__ */ jsxs125("div", { ref: rootRef, className: cls, style, "data-zoom": z, onWheel, children: [
+    /* @__PURE__ */ jsx194("div", { className: DASHBOARD_CLASSES.zoomed, style: zoomedStyle, children: ruled }),
     zoomBar
   ] });
 };
@@ -31877,7 +32695,7 @@ var buildFlexItemInlineStyles = ({
 };
 
 // src/LAYOUT/Flexbox/Flexbox.tsx
-import { jsx as jsx194 } from "react/jsx-runtime";
+import { jsx as jsx195 } from "react/jsx-runtime";
 var FlexContainer = ({
   children,
   direction = FLEX_CONTAINER_DEFAULTS.direction,
@@ -31921,7 +32739,7 @@ var FlexContainer = ({
     margin,
     style
   });
-  return /* @__PURE__ */ jsx194("div", { className: classNames, style: flexStyle, ...rest, children });
+  return /* @__PURE__ */ jsx195("div", { className: classNames, style: flexStyle, ...rest, children });
 };
 FlexContainer.displayName = "FlexContainer";
 var FlexItem = ({
@@ -31953,7 +32771,7 @@ var FlexItem = ({
     alignSelf,
     style
   });
-  return /* @__PURE__ */ jsx194("div", { className: classNames, style: itemStyle, ...rest, children });
+  return /* @__PURE__ */ jsx195("div", { className: classNames, style: itemStyle, ...rest, children });
 };
 FlexItem.displayName = "FlexItem";
 var FlexBoxItem = ({
@@ -31977,7 +32795,7 @@ var FlexBoxItem = ({
     justifyContent: "center",
     ...style
   };
-  return /* @__PURE__ */ jsx194(FlexItem, { style: boxStyles, className, ...rest, children });
+  return /* @__PURE__ */ jsx195(FlexItem, { style: boxStyles, className, ...rest, children });
 };
 FlexBoxItem.displayName = "FlexBoxItem";
 
@@ -32099,7 +32917,7 @@ var buildGridItemInlineStyles = ({
 };
 
 // src/LAYOUT/Grid/Grid.tsx
-import { jsx as jsx195 } from "react/jsx-runtime";
+import { jsx as jsx196 } from "react/jsx-runtime";
 var Grid = ({
   children,
   className,
@@ -32107,7 +32925,7 @@ var Grid = ({
   ...props
 }) => {
   const gridStyle = buildGridInlineStyles({ ...props, style });
-  return /* @__PURE__ */ jsx195("div", { style: gridStyle, className, ...{}, children });
+  return /* @__PURE__ */ jsx196("div", { style: gridStyle, className, ...{}, children });
 };
 Grid.displayName = "Grid";
 var GridAreaItem = ({
@@ -32133,12 +32951,12 @@ var GridAreaItem = ({
     placeSelf,
     style
   });
-  return /* @__PURE__ */ jsx195("div", { style: itemStyle, className: classNames, ...rest, children });
+  return /* @__PURE__ */ jsx196("div", { style: itemStyle, className: classNames, ...rest, children });
 };
 GridAreaItem.displayName = "GridAreaItem";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import React164, { useState as useState70 } from "react";
+import React166, { useState as useState72 } from "react";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.constants.ts
 var GRID_DRAWER_DEFAULTS = {
@@ -32164,7 +32982,7 @@ function buildDrawerWrapperClasses(isDrawerArea, isDrawerOpen) {
 }
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
-import { useState as useState69, useRef as useRef87, useCallback as useCallback92, useEffect as useEffect45 } from "react";
+import { useState as useState71, useRef as useRef89, useCallback as useCallback95, useEffect as useEffect46 } from "react";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.constants.ts
 var GRID_DIVIDER_DEFAULTS = {
@@ -32177,18 +32995,18 @@ var GRID_DIVIDER_DEFAULTS = {
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.hooks.ts
 var useGridDividers = (configs) => {
-  const [sizes, setSizes] = useState69(
+  const [sizes, setSizes] = useState71(
     () => configs.map((c) => c.initialSize ?? GRID_DIVIDER_DEFAULTS.initialSize)
   );
-  const [draggingIdx, setDraggingIdx] = useState69(-1);
-  const startPosRef = useRef87(0);
-  const startSizeRef = useRef87(0);
-  const invertedRef = useRef87(false);
-  const configsRef = useRef87(configs);
-  const sizesRef = useRef87(sizes);
+  const [draggingIdx, setDraggingIdx] = useState71(-1);
+  const startPosRef = useRef89(0);
+  const startSizeRef = useRef89(0);
+  const invertedRef = useRef89(false);
+  const configsRef = useRef89(configs);
+  const sizesRef = useRef89(sizes);
   configsRef.current = configs;
   sizesRef.current = sizes;
-  const handleMouseMove = useCallback92((e) => {
+  const handleMouseMove = useCallback95((e) => {
     const idx = draggingIdx;
     if (idx < 0) return;
     const config = configsRef.current[idx];
@@ -32205,11 +33023,11 @@ var useGridDividers = (configs) => {
       return next;
     });
   }, [draggingIdx]);
-  const handleMouseUp = useCallback92(() => {
+  const handleMouseUp = useCallback95(() => {
     setDraggingIdx(-1);
     invertedRef.current = false;
   }, []);
-  useEffect45(() => {
+  useEffect46(() => {
     if (draggingIdx >= 0) {
       const config = configsRef.current[draggingIdx];
       const orientation = config.orientation ?? GRID_DIVIDER_DEFAULTS.orientation;
@@ -32283,14 +33101,14 @@ var gridDividerUtils = {
 var GridWithDividers_utils_default = gridDividerUtils;
 
 // src/LAYOUT/GridWithDividers/Divider.tsx
-import { jsx as jsx196 } from "react/jsx-runtime";
+import { jsx as jsx197 } from "react/jsx-runtime";
 var Divider = ({
   onMouseDown,
   isDragging,
   orientation = "vertical",
   className
 }) => {
-  return /* @__PURE__ */ jsx196(
+  return /* @__PURE__ */ jsx197(
     "div",
     {
       className,
@@ -32301,13 +33119,13 @@ var Divider = ({
 Divider.displayName = "Divider";
 
 // src/LAYOUT/GridWiithDrawers/ToggleButton.tsx
-import { jsx as jsx197 } from "react/jsx-runtime";
+import { jsx as jsx198 } from "react/jsx-runtime";
 var ToggleButton2 = ({
   isDrawerOpen,
   onToggle,
   className = ""
 }) => {
-  return /* @__PURE__ */ jsx197("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx197(
+  return /* @__PURE__ */ jsx198("div", { className: `${GRID_DRAWER_CLASSES.toggleContainer} ${className}`, children: /* @__PURE__ */ jsx198(
     "button",
     {
       className: GRID_DRAWER_CLASSES.toggleBtn,
@@ -32321,7 +33139,7 @@ var ToggleButton2 = ({
 ToggleButton2.displayName = "ToggleButton";
 
 // src/LAYOUT/GridWiithDrawers/GridWithDrawer.tsx
-import { jsx as jsx198, jsxs as jsxs125 } from "react/jsx-runtime";
+import { jsx as jsx199, jsxs as jsxs126 } from "react/jsx-runtime";
 var GridWithDrawer = ({
   templateColumns,
   templateRows,
@@ -32332,7 +33150,7 @@ var GridWithDrawer = ({
   children,
   style = {}
 }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState70(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState72(true);
   const dividerStates = GridWithDividers_hooks_default(dividers);
   let adjustedTemplateColumns = templateColumns;
   let adjustedTemplateRows = templateRows;
@@ -32354,14 +33172,14 @@ var GridWithDrawer = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React164.Children.map(childNodes, (child) => {
-      if (!React164.isValidElement(child)) return child;
+    return React166.Children.map(childNodes, (child) => {
+      if (!React166.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const isDrawerArea = gridArea === drawerAreaName;
       const childStyle = childProps.style || {};
       const { overflow, overflowX, overflowY } = childStyle;
-      const childContent = React164.cloneElement(child, {
+      const childContent = React166.cloneElement(child, {
         ...childProps,
         gridArea: void 0,
         style: {
@@ -32379,7 +33197,7 @@ var GridWithDrawer = ({
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(
         ({ config }) => config.between && config.between[0] === gridArea || config.area === gridArea
       );
-      return /* @__PURE__ */ jsxs125(
+      return /* @__PURE__ */ jsxs126(
         GridAreaItem,
         {
           gridArea,
@@ -32391,7 +33209,7 @@ var GridWithDrawer = ({
             overflowY: isDrawerArea && !isDrawerOpen ? "hidden" : overflowY
           },
           children: [
-            isDrawerArea && /* @__PURE__ */ jsx198(
+            isDrawerArea && /* @__PURE__ */ jsx199(
               ToggleButton2,
               {
                 isDrawerOpen,
@@ -32414,7 +33232,7 @@ var GridWithDrawer = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx198(
+              return /* @__PURE__ */ jsx199(
                 Divider,
                 {
                   className: dividerClass,
@@ -32430,7 +33248,7 @@ var GridWithDrawer = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx198(
+  return /* @__PURE__ */ jsx199(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -32445,8 +33263,8 @@ var GridWithDrawer = ({
 GridWithDrawer.displayName = "GridWithDrawer";
 
 // src/LAYOUT/GridWithDividers/GridWithDividers.tsx
-import React165 from "react";
-import { jsx as jsx199, jsxs as jsxs126 } from "react/jsx-runtime";
+import React167 from "react";
+import { jsx as jsx200, jsxs as jsxs127 } from "react/jsx-runtime";
 var normalizeAreas = (areas) => {
   if (!areas) return void 0;
   return areas.trim().split("\n").map((row) => row.trim().replace(/^["']|["']$/g, "")).join("\n");
@@ -32477,15 +33295,15 @@ var GridWithDividers = ({
     }
   });
   const mapChildrenAndAddDividers = (childNodes) => {
-    return React165.Children.map(childNodes, (child) => {
-      if (!child || !React165.isValidElement(child)) return child;
+    return React167.Children.map(childNodes, (child) => {
+      if (!child || !React167.isValidElement(child)) return child;
       const childProps = child.props;
       const gridArea = childProps.gridArea || childProps.style?.gridArea;
       const childStyle = childProps.style || {};
       const applicableDividers = dividers.map((config, index) => ({ config, index })).filter(({ config }) => config.between && config.between[0] === gridArea);
       if (applicableDividers.length === 0) return child;
       const { gridArea: _areaProp, style: childRestyle, ...restProps } = childProps;
-      const childWithoutGridArea = React165.cloneElement(child, {
+      const childWithoutGridArea = React167.cloneElement(child, {
         ...restProps,
         gridArea: void 0,
         style: {
@@ -32499,7 +33317,7 @@ var GridWithDividers = ({
           height: "100%"
         }
       });
-      return /* @__PURE__ */ jsxs126(
+      return /* @__PURE__ */ jsxs127(
         GridAreaItem,
         {
           gridArea,
@@ -32523,7 +33341,7 @@ var GridWithDividers = ({
                 `w3f-divider-${position}`,
                 state.isDragging ? "is-dragging" : ""
               ].filter(Boolean).join(" ");
-              return /* @__PURE__ */ jsx199(
+              return /* @__PURE__ */ jsx200(
                 Divider,
                 {
                   className: dividerClass,
@@ -32539,7 +33357,7 @@ var GridWithDividers = ({
       );
     });
   };
-  return /* @__PURE__ */ jsx199(
+  return /* @__PURE__ */ jsx200(
     Grid,
     {
       templateColumns: adjustedTemplateColumns,
@@ -32571,9 +33389,9 @@ function getTemplateColumns(variant, cols) {
 }
 
 // src/LAYOUT/ImageList/ImageCard.tsx
-import { Fragment as Fragment23, jsx as jsx200, jsxs as jsxs127 } from "react/jsx-runtime";
-var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs127(Fragment23, { children: [
-  /* @__PURE__ */ jsx200(
+import { Fragment as Fragment22, jsx as jsx201, jsxs as jsxs128 } from "react/jsx-runtime";
+var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs128(Fragment22, { children: [
+  /* @__PURE__ */ jsx201(
     "img",
     {
       src: item.src,
@@ -32587,7 +33405,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs127(Fragment23, { chil
       }
     }
   ),
-  item.title && /* @__PURE__ */ jsx200("div", { style: {
+  item.title && /* @__PURE__ */ jsx201("div", { style: {
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -32601,7 +33419,7 @@ var ImageCard = ({ item, height }) => /* @__PURE__ */ jsxs127(Fragment23, { chil
 ImageCard.displayName = "ImageCard";
 
 // src/LAYOUT/ImageList/ImageList.tsx
-import { jsx as jsx201 } from "react/jsx-runtime";
+import { jsx as jsx202 } from "react/jsx-runtime";
 var ImageList = ({
   items,
   variant = IMAGE_LIST_DEFAULTS.variant,
@@ -32612,7 +33430,7 @@ var ImageList = ({
   style
 }) => {
   const templateColumns = getTemplateColumns(variant, cols);
-  return /* @__PURE__ */ jsx201(
+  return /* @__PURE__ */ jsx202(
     Grid,
     {
       templateColumns,
@@ -32625,22 +33443,22 @@ var ImageList = ({
       justifyItems: "stretch",
       children: items.map((item) => {
         if (variant === "quilted" && (item.cols || item.rows)) {
-          return /* @__PURE__ */ jsx201(
+          return /* @__PURE__ */ jsx202(
             GridAreaItem,
             {
               gridColumn: item.cols ? `span ${item.cols}` : void 0,
               gridRow: item.rows ? `span ${item.rows}` : void 0,
               style: { position: "relative", overflow: "hidden", borderRadius: "8px" },
-              children: /* @__PURE__ */ jsx201(ImageCard, { item, height: rowHeight })
+              children: /* @__PURE__ */ jsx202(ImageCard, { item, height: rowHeight })
             },
             item.id
           );
         }
-        return /* @__PURE__ */ jsx201(
+        return /* @__PURE__ */ jsx202(
           "div",
           {
             style: { position: "relative", overflow: "hidden", borderRadius: "8px", minHeight: "200px" },
-            children: /* @__PURE__ */ jsx201(ImageCard, { item, height: rowHeight })
+            children: /* @__PURE__ */ jsx202(ImageCard, { item, height: rowHeight })
           },
           item.id
         );
@@ -32679,7 +33497,7 @@ function buildColClasses({
 }
 
 // src/LAYOUT/Row/Row.tsx
-import { jsx as jsx202 } from "react/jsx-runtime";
+import { jsx as jsx203 } from "react/jsx-runtime";
 var Row = ({
   children,
   className,
@@ -32687,12 +33505,12 @@ var Row = ({
   ...rest
 }) => {
   const classes = buildRowClasses(className);
-  return /* @__PURE__ */ jsx202("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx203("div", { className: classes, style, ...rest, children });
 };
 Row.displayName = "Row";
 
 // src/LAYOUT/Row/Col.tsx
-import { jsx as jsx203 } from "react/jsx-runtime";
+import { jsx as jsx204 } from "react/jsx-runtime";
 var Col = ({
   children,
   className,
@@ -32704,7 +33522,7 @@ var Col = ({
   ...rest
 }) => {
   const classes = buildColClasses({ col, sm, md, lg, className });
-  return /* @__PURE__ */ jsx203("div", { className: classes, style, ...rest, children });
+  return /* @__PURE__ */ jsx204("div", { className: classes, style, ...rest, children });
 };
 Col.displayName = "Col";
 
@@ -32727,7 +33545,7 @@ function buildSubSectionClasses(className) {
 }
 
 // src/LAYOUT/Section/Section.tsx
-import { jsx as jsx204, jsxs as jsxs128 } from "react/jsx-runtime";
+import { jsx as jsx205, jsxs as jsxs129 } from "react/jsx-runtime";
 var Section2 = ({
   children,
   title,
@@ -32737,15 +33555,15 @@ var Section2 = ({
   ...rest
 }) => {
   const classes = buildSectionClasses(className);
-  return /* @__PURE__ */ jsxs128(Element, { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx204("h2", { className: SECTION_CLASSES2.title, children: title }),
+  return /* @__PURE__ */ jsxs129(Element, { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx205("h2", { className: SECTION_CLASSES2.title, children: title }),
     children
   ] });
 };
 Section2.displayName = "Section";
 
 // src/LAYOUT/Section/SubSection.tsx
-import { jsx as jsx205, jsxs as jsxs129 } from "react/jsx-runtime";
+import { jsx as jsx206, jsxs as jsxs130 } from "react/jsx-runtime";
 var SubSection = ({
   children,
   title,
@@ -32754,8 +33572,8 @@ var SubSection = ({
   ...rest
 }) => {
   const classes = buildSubSectionClasses(className);
-  return /* @__PURE__ */ jsxs129("div", { className: classes, style, ...rest, children: [
-    title && /* @__PURE__ */ jsx205("h3", { className: SUBSECTION_CLASSES.title, children: title }),
+  return /* @__PURE__ */ jsxs130("div", { className: classes, style, ...rest, children: [
+    title && /* @__PURE__ */ jsx206("h3", { className: SUBSECTION_CLASSES.title, children: title }),
     children
   ] });
 };
@@ -32810,7 +33628,7 @@ function buildStackStyles(gap, align, justify, style) {
 }
 
 // src/LAYOUT/Stack/Stack.tsx
-import { jsx as jsx206 } from "react/jsx-runtime";
+import { jsx as jsx207 } from "react/jsx-runtime";
 var Stack = ({
   as: Tag3 = "div",
   children,
@@ -32884,7 +33702,7 @@ var Stack = ({
     ...cursor !== void 0 && { cursor },
     ...style
   });
-  return /* @__PURE__ */ jsx206(Tag3, { className: classes, style: inlineStyle, ...rest, children });
+  return /* @__PURE__ */ jsx207(Tag3, { className: classes, style: inlineStyle, ...rest, children });
 };
 Stack.displayName = "Stack";
 
@@ -32930,7 +33748,7 @@ var buildVerticalPaddingClassNames = ({
 };
 
 // src/LAYOUT/VerticalPadding/VerticalPadding.tsx
-import { jsx as jsx207 } from "react/jsx-runtime";
+import { jsx as jsx208 } from "react/jsx-runtime";
 var VerticalPadding = ({
   children,
   size = VERTICAL_PADDING_DEFAULTS.size,
@@ -32943,12 +33761,12 @@ var VerticalPadding = ({
     utilityClass,
     className
   });
-  return /* @__PURE__ */ jsx207("div", { className: classNames, ...rest, children });
+  return /* @__PURE__ */ jsx208("div", { className: classNames, ...rest, children });
 };
 VerticalPadding.displayName = "VerticalPadding";
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import React166, { useRef as useRef88, useCallback as useCallback94, useMemo as useMemo111 } from "react";
+import React168, { useRef as useRef90, useCallback as useCallback97, useMemo as useMemo112 } from "react";
 import {
   Play as Play2,
   Pause as Pause2,
@@ -32984,9 +33802,9 @@ var AUDIO_DEFAULTS = {
 };
 
 // src/MEDIA/AudioPlayer/AudioPlayer.hooks.ts
-import { useState as useState71, useCallback as useCallback93, useEffect as useEffect46 } from "react";
+import { useState as useState73, useCallback as useCallback96, useEffect as useEffect47 } from "react";
 function useAudioPlayer(audioRef, callbacks) {
-  const [state, setState] = useState71({
+  const [state, setState] = useState73({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -32995,7 +33813,7 @@ function useAudioPlayer(audioRef, callbacks) {
     playbackSpeed: 1,
     speedMenuOpen: false
   });
-  const togglePlay = useCallback93(() => {
+  const togglePlay = useCallback96(() => {
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
@@ -33004,7 +33822,7 @@ function useAudioPlayer(audioRef, callbacks) {
       audio.pause();
     }
   }, [audioRef]);
-  const seek = useCallback93(
+  const seek = useCallback96(
     (time) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -33012,7 +33830,7 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const setVolume = useCallback93(
+  const setVolume = useCallback96(
     (vol) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -33023,13 +33841,13 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleMute = useCallback93(() => {
+  const toggleMute = useCallback96(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = !audio.muted;
     setState((s) => ({ ...s, isMuted: audio.muted }));
   }, [audioRef]);
-  const setPlaybackSpeed = useCallback93(
+  const setPlaybackSpeed = useCallback96(
     (speed) => {
       const audio = audioRef.current;
       if (!audio) return;
@@ -33038,10 +33856,10 @@ function useAudioPlayer(audioRef, callbacks) {
     },
     [audioRef]
   );
-  const toggleSpeedMenu = useCallback93(() => {
+  const toggleSpeedMenu = useCallback96(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect46(() => {
+  useEffect47(() => {
     const audio = audioRef.current;
     if (!audio) return;
     const onPlay = () => {
@@ -33112,8 +33930,8 @@ function getProgressPercent(currentTime, duration) {
 }
 
 // src/MEDIA/AudioPlayer/AudioPlayer.tsx
-import { jsx as jsx208, jsxs as jsxs130 } from "react/jsx-runtime";
-var AudioPlayer = React166.forwardRef(
+import { jsx as jsx209, jsxs as jsxs131 } from "react/jsx-runtime";
+var AudioPlayer = React168.forwardRef(
   ({
     src,
     title,
@@ -33134,9 +33952,9 @@ var AudioPlayer = React166.forwardRef(
     className = AUDIO_DEFAULTS.className,
     ...rest
   }, ref) => {
-    const audioRef = useRef88(null);
-    const progressRef = useRef88(null);
-    const callbacks = useMemo111(
+    const audioRef = useRef90(null);
+    const progressRef = useRef90(null);
+    const callbacks = useMemo112(
       () => ({ onPlay, onPause, onEnded, onTimeUpdate }),
       [onPlay, onPause, onEnded, onTimeUpdate]
     );
@@ -33149,12 +33967,12 @@ var AudioPlayer = React166.forwardRef(
       setPlaybackSpeed,
       toggleSpeedMenu
     } = useAudioPlayer(audioRef, callbacks);
-    const rootClasses = useMemo111(
+    const rootClasses = useMemo112(
       () => buildAudioPlayerClasses(variant, color, className),
       [variant, color, className]
     );
     const progressPercent = getProgressPercent(state.currentTime, state.duration);
-    const handleProgressClick = useCallback94(
+    const handleProgressClick = useCallback97(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -33164,7 +33982,7 @@ var AudioPlayer = React166.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback94(
+    const handleKeyDown = useCallback97(
       (e) => {
         switch (e.key) {
           case " ":
@@ -33179,7 +33997,7 @@ var AudioPlayer = React166.forwardRef(
       },
       [togglePlay, toggleMute]
     );
-    const handleVolumeChange = useCallback94(
+    const handleVolumeChange = useCallback97(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -33189,7 +34007,7 @@ var AudioPlayer = React166.forwardRef(
     const isCompact = variant === "compact";
     const isCard = variant === "card";
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs130(
+    return /* @__PURE__ */ jsxs131(
       "div",
       {
         ref,
@@ -33200,7 +34018,7 @@ var AudioPlayer = React166.forwardRef(
         "aria-label": title ? `Audio player: ${title}` : "Audio player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx208(
+          /* @__PURE__ */ jsx209(
             "audio",
             {
               ref: audioRef,
@@ -33210,7 +34028,7 @@ var AudioPlayer = React166.forwardRef(
               preload: "metadata"
             }
           ),
-          isCard && cover && /* @__PURE__ */ jsx208("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx208(
+          isCard && cover && /* @__PURE__ */ jsx209("div", { className: "w3f-audio-player__cover", children: /* @__PURE__ */ jsx209(
             "img",
             {
               src: sanitizeUrl(cover),
@@ -33218,14 +34036,14 @@ var AudioPlayer = React166.forwardRef(
               className: "w3f-audio-player__cover-img"
             }
           ) }),
-          /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__body", children: [
-            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__info", children: [
-              title && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__title", children: title }),
-              artist && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__artist", children: artist })
+          /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__body", children: [
+            (title || artist) && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__info", children: [
+              title && /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__title", children: title }),
+              artist && /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__artist", children: artist })
             ] }),
-            showProgress && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__progress-row", children: [
-              !isCompact && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
-              /* @__PURE__ */ jsx208(
+            showProgress && /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__progress-row", children: [
+              !isCompact && /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__time", children: formatTime(state.currentTime) }),
+              /* @__PURE__ */ jsx209(
                 "div",
                 {
                   ref: progressRef,
@@ -33236,7 +34054,7 @@ var AudioPlayer = React166.forwardRef(
                   "aria-valuemin": 0,
                   "aria-valuemax": 100,
                   "aria-valuenow": Math.round(progressPercent),
-                  children: /* @__PURE__ */ jsx208(
+                  children: /* @__PURE__ */ jsx209(
                     "div",
                     {
                       className: "w3f-audio-player__progress-fill",
@@ -33245,38 +34063,38 @@ var AudioPlayer = React166.forwardRef(
                   )
                 }
               ),
-              !isCompact && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
+              !isCompact && /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__time", children: formatTime(state.duration) })
             ] }),
-            /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__controls", children: [
-              /* @__PURE__ */ jsx208(
+            /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__controls", children: [
+              /* @__PURE__ */ jsx209(
                 "button",
                 {
                   className: "w3f-audio-player__btn w3f-audio-player__play-btn",
                   onClick: togglePlay,
                   "aria-label": state.isPlaying ? "Pause" : "Play",
                   type: "button",
-                  children: state.isPlaying ? /* @__PURE__ */ jsx208(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx208(Play2, { size: isCompact ? 16 : 20 })
+                  children: state.isPlaying ? /* @__PURE__ */ jsx209(Pause2, { size: isCompact ? 16 : 20 }) : /* @__PURE__ */ jsx209(Play2, { size: isCompact ? 16 : 20 })
                 }
               ),
-              isCompact && /* @__PURE__ */ jsxs130("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
+              isCompact && /* @__PURE__ */ jsxs131("span", { className: "w3f-audio-player__time w3f-audio-player__time--inline", children: [
                 formatTime(state.currentTime),
                 " / ",
                 formatTime(state.duration)
               ] }),
-              isCompact && title && /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
-              /* @__PURE__ */ jsx208("span", { className: "w3f-audio-player__spacer" }),
-              showVolume && !isMinimal && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__volume", children: [
-                /* @__PURE__ */ jsx208(
+              isCompact && title && /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__title w3f-audio-player__title--inline", children: title }),
+              /* @__PURE__ */ jsx209("span", { className: "w3f-audio-player__spacer" }),
+              showVolume && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__volume", children: [
+                /* @__PURE__ */ jsx209(
                   "button",
                   {
                     className: "w3f-audio-player__btn",
                     onClick: toggleMute,
                     "aria-label": state.isMuted ? "Unmute" : "Mute",
                     type: "button",
-                    children: /* @__PURE__ */ jsx208(VolumeIcon, { size: isCompact ? 14 : 18 })
+                    children: /* @__PURE__ */ jsx209(VolumeIcon, { size: isCompact ? 14 : 18 })
                   }
                 ),
-                !isCompact && /* @__PURE__ */ jsx208(
+                !isCompact && /* @__PURE__ */ jsx209(
                   "input",
                   {
                     className: "w3f-audio-player__volume-slider",
@@ -33290,8 +34108,8 @@ var AudioPlayer = React166.forwardRef(
                   }
                 )
               ] }),
-              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs130("div", { className: "w3f-audio-player__speed", children: [
-                /* @__PURE__ */ jsxs130(
+              showPlaybackSpeed && !isMinimal && !isCompact && /* @__PURE__ */ jsxs131("div", { className: "w3f-audio-player__speed", children: [
+                /* @__PURE__ */ jsxs131(
                   "button",
                   {
                     className: "w3f-audio-player__btn w3f-audio-player__speed-btn",
@@ -33304,7 +34122,7 @@ var AudioPlayer = React166.forwardRef(
                     ]
                   }
                 ),
-                state.speedMenuOpen && /* @__PURE__ */ jsx208("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs130(
+                state.speedMenuOpen && /* @__PURE__ */ jsx209("div", { className: "w3f-audio-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs131(
                   "button",
                   {
                     className: [
@@ -33331,7 +34149,7 @@ var AudioPlayer = React166.forwardRef(
 AudioPlayer.displayName = "AudioPlayer";
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import React167, { useRef as useRef90, useCallback as useCallback96, useMemo as useMemo112 } from "react";
+import React169, { useRef as useRef92, useCallback as useCallback99, useMemo as useMemo113 } from "react";
 import {
   Play as Play3,
   Pause as Pause3,
@@ -33379,9 +34197,9 @@ var VIDEO_DEFAULTS = {
 var CONTROLS_HIDE_DELAY = 3e3;
 
 // src/MEDIA/VideoPlayer/VideoPlayer.hooks.ts
-import { useState as useState72, useCallback as useCallback95, useRef as useRef89, useEffect as useEffect47 } from "react";
+import { useState as useState74, useCallback as useCallback98, useRef as useRef91, useEffect as useEffect48 } from "react";
 function useVideoPlayer(videoRef, containerRef, callbacks) {
-  const [state, setState] = useState72({
+  const [state, setState] = useState74({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
@@ -33392,15 +34210,15 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     controlsVisible: true,
     speedMenuOpen: false
   });
-  const hideTimerRef = useRef89(null);
-  const resetHideTimer = useCallback95(() => {
+  const hideTimerRef = useRef91(null);
+  const resetHideTimer = useCallback98(() => {
     setState((s) => ({ ...s, controlsVisible: true }));
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       setState((s) => s.isPlaying ? { ...s, controlsVisible: false, speedMenuOpen: false } : s);
     }, CONTROLS_HIDE_DELAY);
   }, []);
-  const togglePlay = useCallback95(() => {
+  const togglePlay = useCallback98(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
@@ -33409,7 +34227,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.pause();
     }
   }, [videoRef]);
-  const seek = useCallback95(
+  const seek = useCallback98(
     (time) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33417,7 +34235,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const seekRelative = useCallback95(
+  const seekRelative = useCallback98(
     (delta) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33425,7 +34243,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const setVolume = useCallback95(
+  const setVolume = useCallback98(
     (vol) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33436,13 +34254,13 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleMute = useCallback95(() => {
+  const toggleMute = useCallback98(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = !video.muted;
     setState((s) => ({ ...s, isMuted: video.muted }));
   }, [videoRef]);
-  const toggleFullscreen = useCallback95(() => {
+  const toggleFullscreen = useCallback98(() => {
     const container = containerRef.current;
     if (!container) return;
     if (document.fullscreenElement) {
@@ -33451,7 +34269,7 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       container.requestFullscreen();
     }
   }, [containerRef]);
-  const setPlaybackSpeed = useCallback95(
+  const setPlaybackSpeed = useCallback98(
     (speed) => {
       const video = videoRef.current;
       if (!video) return;
@@ -33460,10 +34278,10 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
     },
     [videoRef]
   );
-  const toggleSpeedMenu = useCallback95(() => {
+  const toggleSpeedMenu = useCallback98(() => {
     setState((s) => ({ ...s, speedMenuOpen: !s.speedMenuOpen }));
   }, []);
-  useEffect47(() => {
+  useEffect48(() => {
     const video = videoRef.current;
     if (!video) return;
     const onPlay = () => {
@@ -33502,14 +34320,14 @@ function useVideoPlayer(videoRef, containerRef, callbacks) {
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [videoRef, callbacks]);
-  useEffect47(() => {
+  useEffect48(() => {
     const onFsChange = () => {
       setState((s) => ({ ...s, isFullscreen: !!document.fullscreenElement }));
     };
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
-  useEffect47(() => {
+  useEffect48(() => {
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
@@ -33551,8 +34369,8 @@ function getProgressPercent2(currentTime, duration) {
 }
 
 // src/MEDIA/VideoPlayer/VideoPlayer.tsx
-import { jsx as jsx209, jsxs as jsxs131 } from "react/jsx-runtime";
-var VideoPlayer = React167.forwardRef(
+import { jsx as jsx210, jsxs as jsxs132 } from "react/jsx-runtime";
+var VideoPlayer = React169.forwardRef(
   ({
     src,
     poster,
@@ -33578,10 +34396,10 @@ var VideoPlayer = React167.forwardRef(
     style,
     ...rest
   }, ref) => {
-    const videoRef = useRef90(null);
-    const containerRef = useRef90(null);
-    const progressRef = useRef90(null);
-    const setRefs = useCallback96(
+    const videoRef = useRef92(null);
+    const containerRef = useRef92(null);
+    const progressRef = useRef92(null);
+    const setRefs = useCallback99(
       (node) => {
         containerRef.current = node;
         if (typeof ref === "function") ref(node);
@@ -33589,7 +34407,7 @@ var VideoPlayer = React167.forwardRef(
       },
       [ref]
     );
-    const callbacks = useMemo112(
+    const callbacks = useMemo113(
       () => ({ onPlay, onPause, onEnded, onTimeUpdate }),
       [onPlay, onPause, onEnded, onTimeUpdate]
     );
@@ -33605,12 +34423,12 @@ var VideoPlayer = React167.forwardRef(
       toggleSpeedMenu,
       resetHideTimer
     } = useVideoPlayer(videoRef, containerRef, callbacks);
-    const rootClasses = useMemo112(
+    const rootClasses = useMemo113(
       () => buildVideoPlayerClasses(aspectRatio, variant, color, state.isFullscreen, className),
       [aspectRatio, variant, color, state.isFullscreen, className]
     );
     const progressPercent = getProgressPercent2(state.currentTime, state.duration);
-    const handleProgressClick = useCallback96(
+    const handleProgressClick = useCallback99(
       (e) => {
         const bar = progressRef.current;
         if (!bar || !state.duration) return;
@@ -33620,7 +34438,7 @@ var VideoPlayer = React167.forwardRef(
       },
       [seek, state.duration]
     );
-    const handleKeyDown = useCallback96(
+    const handleKeyDown = useCallback99(
       (e) => {
         switch (e.key) {
           case " ":
@@ -33648,7 +34466,7 @@ var VideoPlayer = React167.forwardRef(
       },
       [togglePlay, toggleMute, toggleFullscreen, seekRelative, resetHideTimer]
     );
-    const handleVolumeChange = useCallback96(
+    const handleVolumeChange = useCallback99(
       (e) => {
         setVolume(parseFloat(e.target.value));
       },
@@ -33661,7 +34479,7 @@ var VideoPlayer = React167.forwardRef(
       ...height ? { height } : {}
     };
     const isMinimal = variant === "minimal";
-    return /* @__PURE__ */ jsxs131(
+    return /* @__PURE__ */ jsxs132(
       "div",
       {
         ref: setRefs,
@@ -33674,7 +34492,7 @@ var VideoPlayer = React167.forwardRef(
         "aria-label": "Video player",
         ...rest,
         children: [
-          /* @__PURE__ */ jsx209(
+          /* @__PURE__ */ jsx210(
             "video",
             {
               ref: videoRef,
@@ -33688,17 +34506,17 @@ var VideoPlayer = React167.forwardRef(
               onClick: togglePlay
             }
           ),
-          controls && !state.isPlaying && /* @__PURE__ */ jsx209(
+          controls && !state.isPlaying && /* @__PURE__ */ jsx210(
             "button",
             {
               className: "w3f-video-player__overlay-btn",
               onClick: togglePlay,
               "aria-label": "Play",
               type: "button",
-              children: /* @__PURE__ */ jsx209(Play3, { size: 48 })
+              children: /* @__PURE__ */ jsx210(Play3, { size: 48 })
             }
           ),
-          controls && /* @__PURE__ */ jsxs131(
+          controls && /* @__PURE__ */ jsxs132(
             "div",
             {
               className: [
@@ -33706,7 +34524,7 @@ var VideoPlayer = React167.forwardRef(
                 state.controlsVisible ? "w3f-video-player__controls--visible" : ""
               ].filter(Boolean).join(" "),
               children: [
-                showProgress && /* @__PURE__ */ jsx209(
+                showProgress && /* @__PURE__ */ jsx210(
                   "div",
                   {
                     ref: progressRef,
@@ -33717,7 +34535,7 @@ var VideoPlayer = React167.forwardRef(
                     "aria-valuemin": 0,
                     "aria-valuemax": 100,
                     "aria-valuenow": Math.round(progressPercent),
-                    children: /* @__PURE__ */ jsx209(
+                    children: /* @__PURE__ */ jsx210(
                       "div",
                       {
                         className: "w3f-video-player__progress-fill",
@@ -33726,35 +34544,35 @@ var VideoPlayer = React167.forwardRef(
                     )
                   }
                 ),
-                /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__controls-row", children: [
-                  /* @__PURE__ */ jsx209(
+                /* @__PURE__ */ jsxs132("div", { className: "w3f-video-player__controls-row", children: [
+                  /* @__PURE__ */ jsx210(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: togglePlay,
                       "aria-label": state.isPlaying ? "Pause" : "Play",
                       type: "button",
-                      children: state.isPlaying ? /* @__PURE__ */ jsx209(Pause3, { size: 18 }) : /* @__PURE__ */ jsx209(Play3, { size: 18 })
+                      children: state.isPlaying ? /* @__PURE__ */ jsx210(Pause3, { size: 18 }) : /* @__PURE__ */ jsx210(Play3, { size: 18 })
                     }
                   ),
-                  !isMinimal && /* @__PURE__ */ jsxs131("span", { className: "w3f-video-player__time", children: [
+                  !isMinimal && /* @__PURE__ */ jsxs132("span", { className: "w3f-video-player__time", children: [
                     formatTime2(state.currentTime),
                     " / ",
                     formatTime2(state.duration)
                   ] }),
-                  /* @__PURE__ */ jsx209("span", { className: "w3f-video-player__spacer" }),
-                  showVolume && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__volume", children: [
-                    /* @__PURE__ */ jsx209(
+                  /* @__PURE__ */ jsx210("span", { className: "w3f-video-player__spacer" }),
+                  showVolume && !isMinimal && /* @__PURE__ */ jsxs132("div", { className: "w3f-video-player__volume", children: [
+                    /* @__PURE__ */ jsx210(
                       "button",
                       {
                         className: "w3f-video-player__btn",
                         onClick: toggleMute,
                         "aria-label": state.isMuted ? "Unmute" : "Mute",
                         type: "button",
-                        children: /* @__PURE__ */ jsx209(VolumeIcon, { size: 18 })
+                        children: /* @__PURE__ */ jsx210(VolumeIcon, { size: 18 })
                       }
                     ),
-                    /* @__PURE__ */ jsx209(
+                    /* @__PURE__ */ jsx210(
                       "input",
                       {
                         className: "w3f-video-player__volume-slider",
@@ -33768,8 +34586,8 @@ var VideoPlayer = React167.forwardRef(
                       }
                     )
                   ] }),
-                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs131("div", { className: "w3f-video-player__speed", children: [
-                    /* @__PURE__ */ jsxs131(
+                  showPlaybackSpeed && !isMinimal && /* @__PURE__ */ jsxs132("div", { className: "w3f-video-player__speed", children: [
+                    /* @__PURE__ */ jsxs132(
                       "button",
                       {
                         className: "w3f-video-player__btn w3f-video-player__speed-btn",
@@ -33782,7 +34600,7 @@ var VideoPlayer = React167.forwardRef(
                         ]
                       }
                     ),
-                    state.speedMenuOpen && /* @__PURE__ */ jsx209("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs131(
+                    state.speedMenuOpen && /* @__PURE__ */ jsx210("div", { className: "w3f-video-player__speed-menu", children: playbackSpeeds.map((speed) => /* @__PURE__ */ jsxs132(
                       "button",
                       {
                         className: [
@@ -33799,14 +34617,14 @@ var VideoPlayer = React167.forwardRef(
                       speed
                     )) })
                   ] }),
-                  showFullscreen && /* @__PURE__ */ jsx209(
+                  showFullscreen && /* @__PURE__ */ jsx210(
                     "button",
                     {
                       className: "w3f-video-player__btn",
                       onClick: toggleFullscreen,
                       "aria-label": state.isFullscreen ? "Exit fullscreen" : "Fullscreen",
                       type: "button",
-                      children: state.isFullscreen ? /* @__PURE__ */ jsx209(Minimize, { size: 18 }) : /* @__PURE__ */ jsx209(Maximize, { size: 18 })
+                      children: state.isFullscreen ? /* @__PURE__ */ jsx210(Minimize, { size: 18 }) : /* @__PURE__ */ jsx210(Maximize, { size: 18 })
                     }
                   )
                 ] })
@@ -33821,7 +34639,7 @@ var VideoPlayer = React167.forwardRef(
 VideoPlayer.displayName = "VideoPlayer";
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { forwardRef as forwardRef55, useCallback as useCallback98 } from "react";
+import { forwardRef as forwardRef55, useCallback as useCallback101 } from "react";
 import { Eye as Eye3, EyeOff as EyeOff3, Mail as Mail3, Lock as Lock3, User as User2, ArrowLeft as ArrowLeft2, Loader2 as Loader23, Chrome, Github as Github2, Facebook as Facebook2 } from "lucide-react";
 
 // src/AUTH/AuthLogin/AuthLogin.constants.ts
@@ -33964,13 +34782,13 @@ function hasErrors(errors) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.hooks.ts
-import { useState as useState73, useCallback as useCallback97 } from "react";
+import { useState as useState75, useCallback as useCallback100 } from "react";
 function useAuthForm(initialView = "login", onViewChange) {
-  const [state, setState] = useState73({
+  const [state, setState] = useState75({
     ...INITIAL_FORM_STATE,
     view: initialView
   });
-  const setField = useCallback97(
+  const setField = useCallback100(
     (key, value) => {
       setState((prev) => ({
         ...prev,
@@ -33981,22 +34799,22 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     []
   );
-  const setEmail = useCallback97((v) => setField("email", v), [setField]);
-  const setPassword = useCallback97((v) => setField("password", v), [setField]);
-  const setConfirmPassword = useCallback97(
+  const setEmail = useCallback100((v) => setField("email", v), [setField]);
+  const setPassword = useCallback100((v) => setField("password", v), [setField]);
+  const setConfirmPassword = useCallback100(
     (v) => setField("confirmPassword", v),
     [setField]
   );
-  const setName = useCallback97((v) => setField("name", v), [setField]);
-  const setRememberMe = useCallback97((v) => setField("rememberMe", v), [setField]);
-  const setAcceptTerms = useCallback97((v) => setField("acceptTerms", v), [setField]);
-  const toggleShowPassword = useCallback97(() => {
+  const setName = useCallback100((v) => setField("name", v), [setField]);
+  const setRememberMe = useCallback100((v) => setField("rememberMe", v), [setField]);
+  const setAcceptTerms = useCallback100((v) => setField("acceptTerms", v), [setField]);
+  const toggleShowPassword = useCallback100(() => {
     setState((prev) => ({ ...prev, showPassword: !prev.showPassword }));
   }, []);
-  const toggleShowConfirmPassword = useCallback97(() => {
+  const toggleShowConfirmPassword = useCallback100(() => {
     setState((prev) => ({ ...prev, showConfirmPassword: !prev.showConfirmPassword }));
   }, []);
-  const switchView = useCallback97(
+  const switchView = useCallback100(
     (view) => {
       setState((prev) => ({
         ...prev,
@@ -34011,12 +34829,12 @@ function useAuthForm(initialView = "login", onViewChange) {
     },
     [onViewChange]
   );
-  const validateLogin = useCallback97(() => {
+  const validateLogin = useCallback100(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email, state.password]);
-  const validateRegister = useCallback97(() => {
+  const validateRegister = useCallback100(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -34027,17 +34845,17 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const validateForgot = useCallback97(() => {
+  const validateForgot = useCallback100(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return errors;
   }, [state.email]);
-  const tryLogin = useCallback97(() => {
+  const tryLogin = useCallback100(() => {
     const errors = validateLoginForm(state.email, state.password);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.email, state.password]);
-  const tryRegister = useCallback97(() => {
+  const tryRegister = useCallback100(() => {
     const errors = validateRegisterForm(
       state.name,
       state.email,
@@ -34048,7 +34866,7 @@ function useAuthForm(initialView = "login", onViewChange) {
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
   }, [state.name, state.email, state.password, state.confirmPassword, state.acceptTerms]);
-  const tryForgot = useCallback97(() => {
+  const tryForgot = useCallback100(() => {
     const errors = validateForgotForm(state.email);
     setState((prev) => ({ ...prev, fieldErrors: errors }));
     return !hasErrors(errors);
@@ -34074,18 +34892,18 @@ function useAuthForm(initialView = "login", onViewChange) {
 }
 
 // src/AUTH/AuthLogin/AuthLogin.tsx
-import { Fragment as Fragment24, jsx as jsx210, jsxs as jsxs132 } from "react/jsx-runtime";
+import { Fragment as Fragment23, jsx as jsx211, jsxs as jsxs133 } from "react/jsx-runtime";
 var DEFAULT_SOCIAL_PROVIDERS = [
-  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx210(Chrome, { size: 18 }), color: "#DB4437" },
-  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx210(Facebook2, { size: 18 }), color: "#4267B2" },
-  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx210(Github2, { size: 18 }), color: "#333333" }
+  { id: "google", name: "Google", icon: /* @__PURE__ */ jsx211(Chrome, { size: 18 }), color: "#DB4437" },
+  { id: "facebook", name: "Facebook", icon: /* @__PURE__ */ jsx211(Facebook2, { size: 18 }), color: "#4267B2" },
+  { id: "github", name: "GitHub", icon: /* @__PURE__ */ jsx211(Github2, { size: 18 }), color: "#333333" }
 ];
 function PasswordStrengthBar({ password }) {
   if (!password) return null;
   const { strength, score } = validatePassword(password);
   const colors = ["#ef4444", "#f59e0b", "#22c55e", "#16a34a"];
-  return /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.strengthBar, children: [
-    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx210(
+  return /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.strengthBar, children: [
+    [1, 2, 3, 4].map((i) => /* @__PURE__ */ jsx211(
       "div",
       {
         className: AUTH_CLASSES.strengthSegment,
@@ -34093,7 +34911,7 @@ function PasswordStrengthBar({ password }) {
       },
       i
     )),
-    /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
+    /* @__PURE__ */ jsx211("span", { className: AUTH_CLASSES.strengthLabel, children: strength })
   ] });
 }
 var AuthLogin = forwardRef55(
@@ -34138,7 +34956,7 @@ var AuthLogin = forwardRef55(
     const displayTitle = title ?? viewTitles.title;
     const displaySubtitle = subtitle ?? viewTitles.subtitle;
     const rootClasses = buildAuthClasses(variant, color, className);
-    const handleLoginSubmit = useCallback98(
+    const handleLoginSubmit = useCallback101(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -34152,7 +34970,7 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryLogin, onLogin, state.email, state.password, state.rememberMe]
     );
-    const handleRegisterSubmit = useCallback98(
+    const handleRegisterSubmit = useCallback101(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -34167,7 +34985,7 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryRegister, onRegister, state.name, state.email, state.password, state.confirmPassword]
     );
-    const handleForgotSubmit = useCallback98(
+    const handleForgotSubmit = useCallback101(
       (e) => {
         e.preventDefault();
         if (loading) return;
@@ -34177,17 +34995,17 @@ var AuthLogin = forwardRef55(
       },
       [loading, tryForgot, onForgotPassword, state.email]
     );
-    const renderHeader = () => /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.header, children: [
-      logo && /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.logo, children: logo }),
-      /* @__PURE__ */ jsx210("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
-      /* @__PURE__ */ jsx210("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
+    const renderHeader = () => /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.header, children: [
+      logo && /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.logo, children: logo }),
+      /* @__PURE__ */ jsx211("h2", { className: AUTH_CLASSES.title, children: displayTitle }),
+      /* @__PURE__ */ jsx211("p", { className: AUTH_CLASSES.subtitle, children: displaySubtitle })
     ] });
-    const renderError = () => error ? /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.error, children: error }) : null;
+    const renderError = () => error ? /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.error, children: error }) : null;
     const renderSocial = () => {
       if (!showSocialLogin || providers.length === 0) return null;
-      return /* @__PURE__ */ jsxs132(Fragment24, { children: [
-        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
-        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs132(
+      return /* @__PURE__ */ jsxs133(Fragment23, { children: [
+        /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.divider, children: /* @__PURE__ */ jsx211("span", { className: AUTH_CLASSES.dividerText, children: "or" }) }),
+        /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.social, children: providers.map((p) => /* @__PURE__ */ jsxs133(
           "button",
           {
             type: "button",
@@ -34197,44 +35015,44 @@ var AuthLogin = forwardRef55(
             disabled: loading,
             children: [
               p.icon,
-              /* @__PURE__ */ jsx210("span", { children: p.name })
+              /* @__PURE__ */ jsx211("span", { children: p.name })
             ]
           },
           p.id
         )) })
       ] });
     };
-    const renderLoginForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+    const renderLoginForm = () => /* @__PURE__ */ jsxs133("form", { className: AUTH_CLASSES.form, onSubmit: handleLoginSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Password",
           type: state.showPassword ? "text" : "password",
           value: state.password,
           onChange: (e) => setPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
-          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(Lock3, { size: 18 }),
+          trailingIcon: state.showPassword ? /* @__PURE__ */ jsx211(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx211(Eye3, { size: 18 }),
           onIconClick: toggleShowPassword,
           error: state.fieldErrors.password,
           autoComplete: "current-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.rememberRow, children: [
-        showRememberMe && /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.rememberRow, children: [
+        showRememberMe && /* @__PURE__ */ jsx211(
           Checkbox_default,
           {
             label: "Remember me",
@@ -34242,7 +35060,7 @@ var AuthLogin = forwardRef55(
             onChange: setRememberMe
           }
         ),
-        showForgotPassword && /* @__PURE__ */ jsx210(
+        showForgotPassword && /* @__PURE__ */ jsx211(
           "button",
           {
             type: "button",
@@ -34252,7 +35070,7 @@ var AuthLogin = forwardRef55(
           }
         )
       ] }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx211(
         Button_default,
         {
           type: "submit",
@@ -34260,14 +35078,14 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx211(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Signing in..." : "Sign in"
         }
       ) }),
       renderSocial(),
-      showRegister && /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx210("span", { children: "Don't have an account?" }),
-        /* @__PURE__ */ jsx210(
+      showRegister && /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx211("span", { children: "Don't have an account?" }),
+        /* @__PURE__ */ jsx211(
           "button",
           {
             type: "button",
@@ -34278,68 +35096,68 @@ var AuthLogin = forwardRef55(
         )
       ] })
     ] });
-    const renderRegisterForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+    const renderRegisterForm = () => /* @__PURE__ */ jsxs133("form", { className: AUTH_CLASSES.form, onSubmit: handleRegisterSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Full name",
           type: "text",
           value: state.name,
           onChange: (e) => setName(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(User2, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(User2, { size: 18 }),
           error: state.fieldErrors.name,
           autoComplete: "name",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx211(
           Input_default,
           {
             label: "Password",
             type: state.showPassword ? "text" : "password",
             value: state.password,
             onChange: (e) => setPassword(e.target.value),
-            leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
-            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
+            leadingIcon: /* @__PURE__ */ jsx211(Lock3, { size: 18 }),
+            trailingIcon: state.showPassword ? /* @__PURE__ */ jsx211(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx211(Eye3, { size: 18 }),
             onIconClick: toggleShowPassword,
             error: state.fieldErrors.password,
             autoComplete: "new-password",
             required: true
           }
         ),
-        /* @__PURE__ */ jsx210(PasswordStrengthBar, { password: state.password })
+        /* @__PURE__ */ jsx211(PasswordStrengthBar, { password: state.password })
       ] }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Confirm password",
           type: state.showConfirmPassword ? "text" : "password",
           value: state.confirmPassword,
           onChange: (e) => setConfirmPassword(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(Lock3, { size: 18 }),
-          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx210(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx210(Eye3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(Lock3, { size: 18 }),
+          trailingIcon: state.showConfirmPassword ? /* @__PURE__ */ jsx211(EyeOff3, { size: 18 }) : /* @__PURE__ */ jsx211(Eye3, { size: 18 }),
           onIconClick: toggleShowConfirmPassword,
           error: state.fieldErrors.confirmPassword,
           autoComplete: "new-password",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.field, children: [
-        /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.field, children: [
+        /* @__PURE__ */ jsx211(
           Checkbox_default,
           {
             label: "I agree to the Terms of Service and Privacy Policy",
@@ -34347,9 +35165,9 @@ var AuthLogin = forwardRef55(
             onChange: setAcceptTerms
           }
         ),
-        state.fieldErrors.terms && /* @__PURE__ */ jsx210("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
+        state.fieldErrors.terms && /* @__PURE__ */ jsx211("span", { className: AUTH_CLASSES.fieldError, children: state.fieldErrors.terms })
       ] }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx211(
         Button_default,
         {
           type: "submit",
@@ -34357,14 +35175,14 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx211(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Creating account..." : "Create account"
         }
       ) }),
       renderSocial(),
-      /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.footer, children: [
-        /* @__PURE__ */ jsx210("span", { children: "Already have an account?" }),
-        /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.footer, children: [
+        /* @__PURE__ */ jsx211("span", { children: "Already have an account?" }),
+        /* @__PURE__ */ jsx211(
           "button",
           {
             type: "button",
@@ -34375,21 +35193,21 @@ var AuthLogin = forwardRef55(
         )
       ] })
     ] });
-    const renderForgotForm = () => /* @__PURE__ */ jsxs132("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx210(
+    const renderForgotForm = () => /* @__PURE__ */ jsxs133("form", { className: AUTH_CLASSES.form, onSubmit: handleForgotSubmit, noValidate: true, children: [
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.field, children: /* @__PURE__ */ jsx211(
         Input_default,
         {
           label: "Email",
           type: "email",
           value: state.email,
           onChange: (e) => setEmail(e.target.value),
-          leadingIcon: /* @__PURE__ */ jsx210(Mail3, { size: 18 }),
+          leadingIcon: /* @__PURE__ */ jsx211(Mail3, { size: 18 }),
           error: state.fieldErrors.email,
           autoComplete: "email",
           required: true
         }
       ) }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx210(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.submit, children: /* @__PURE__ */ jsx211(
         Button_default,
         {
           type: "submit",
@@ -34397,19 +35215,19 @@ var AuthLogin = forwardRef55(
           variant: "raised",
           fullWidth: true,
           disabled: loading,
-          icon: loading ? /* @__PURE__ */ jsx210(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
+          icon: loading ? /* @__PURE__ */ jsx211(Loader23, { size: 18, className: "w3f-auth__spinner" }) : void 0,
           children: loading ? "Sending..." : "Send reset link"
         }
       ) }),
-      /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs132(
+      /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.footer, children: /* @__PURE__ */ jsxs133(
         "button",
         {
           type: "button",
           className: AUTH_CLASSES.backLink,
           onClick: () => switchView("login"),
           children: [
-            /* @__PURE__ */ jsx210(ArrowLeft2, { size: 16 }),
-            /* @__PURE__ */ jsx210("span", { children: "Back to sign in" })
+            /* @__PURE__ */ jsx211(ArrowLeft2, { size: 16 }),
+            /* @__PURE__ */ jsx211("span", { children: "Back to sign in" })
           ]
         }
       ) })
@@ -34426,16 +35244,16 @@ var AuthLogin = forwardRef55(
       }
     };
     if (variant === "split") {
-      return /* @__PURE__ */ jsxs132("div", { ref, className: rootClasses, children: [
-        /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx210("div", { className: AUTH_CLASSES.logo, children: logo }) }),
-        /* @__PURE__ */ jsxs132("div", { className: AUTH_CLASSES.splitForm, children: [
+      return /* @__PURE__ */ jsxs133("div", { ref, className: rootClasses, children: [
+        /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.splitImage, children: logo && /* @__PURE__ */ jsx211("div", { className: AUTH_CLASSES.logo, children: logo }) }),
+        /* @__PURE__ */ jsxs133("div", { className: AUTH_CLASSES.splitForm, children: [
           renderHeader(),
           renderError(),
           renderView()
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs132("div", { ref, className: rootClasses, children: [
+    return /* @__PURE__ */ jsxs133("div", { ref, className: rootClasses, children: [
       renderHeader(),
       renderError(),
       renderView()
@@ -34445,7 +35263,7 @@ var AuthLogin = forwardRef55(
 AuthLogin.displayName = "AuthLogin";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { forwardRef as forwardRef56, useCallback as useCallback100 } from "react";
+import { forwardRef as forwardRef56, useCallback as useCallback103 } from "react";
 import {
   CreditCard as CreditCard2,
   Check as Check3,
@@ -34523,7 +35341,7 @@ var BANK_DETAILS = {
 };
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.hooks.ts
-import { useState as useState74, useCallback as useCallback99, useMemo as useMemo113 } from "react";
+import { useState as useState76, useCallback as useCallback102, useMemo as useMemo114 } from "react";
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.utils.ts
 function formatCardNumber(value) {
@@ -34620,12 +35438,12 @@ var EMPTY_VALIDATION = {
   cvv: null
 };
 function usePaymentForm(defaultMethod) {
-  const [method, setMethod] = useState74(defaultMethod);
-  const [card, setCard] = useState74(EMPTY_CARD);
-  const [validation, setValidation] = useState74(EMPTY_VALIDATION);
-  const [step, setStep] = useState74(0);
-  const brand = useMemo113(() => detectCardBrand(card.number), [card.number]);
-  const handleCardNumberChange = useCallback99(
+  const [method, setMethod] = useState76(defaultMethod);
+  const [card, setCard] = useState76(EMPTY_CARD);
+  const [validation, setValidation] = useState76(EMPTY_VALIDATION);
+  const [step, setStep] = useState76(0);
+  const brand = useMemo114(() => detectCardBrand(card.number), [card.number]);
+  const handleCardNumberChange = useCallback102(
     (value) => {
       const digits = value.replace(/\D/g, "");
       const currentBrand = detectCardBrand(digits);
@@ -34640,14 +35458,14 @@ function usePaymentForm(defaultMethod) {
     },
     []
   );
-  const handleCardNameChange = useCallback99((value) => {
+  const handleCardNameChange = useCallback102((value) => {
     setCard((prev) => ({ ...prev, name: value }));
     setValidation((prev) => ({
       ...prev,
       name: value.trim().length > 0 ? true : null
     }));
   }, []);
-  const handleExpiryChange = useCallback99((value) => {
+  const handleExpiryChange = useCallback102((value) => {
     const formatted = formatExpiry(value);
     setCard((prev) => ({ ...prev, expiry: formatted }));
     setValidation((prev) => ({
@@ -34655,7 +35473,7 @@ function usePaymentForm(defaultMethod) {
       expiry: formatted.length === 5 ? validateExpiry(formatted) : null
     }));
   }, []);
-  const handleCvvChange = useCallback99(
+  const handleCvvChange = useCallback102(
     (value) => {
       const digits = value.replace(/\D/g, "").slice(0, brand === "amex" ? 4 : 3);
       setCard((prev) => ({ ...prev, cvv: digits }));
@@ -34667,7 +35485,7 @@ function usePaymentForm(defaultMethod) {
     },
     [brand]
   );
-  const validateAll = useCallback99(() => {
+  const validateAll = useCallback102(() => {
     const numValid = validateCardNumber(card.number);
     const nameValid = card.name.trim().length > 0;
     const expValid = validateExpiry(card.expiry);
@@ -34680,11 +35498,11 @@ function usePaymentForm(defaultMethod) {
     });
     return numValid && nameValid && expValid && cvvValid;
   }, [card, brand]);
-  const isCardFormValid = useMemo113(
+  const isCardFormValid = useMemo114(
     () => validation.number === true && validation.name === true && validation.expiry === true && validation.cvv === true,
     [validation]
   );
-  const resetForm = useCallback99(() => {
+  const resetForm = useCallback102(() => {
     setCard(EMPTY_CARD);
     setValidation(EMPTY_VALIDATION);
     setStep(0);
@@ -34708,17 +35526,17 @@ function usePaymentForm(defaultMethod) {
 }
 
 // src/COMMERCE/PaymentGateway/PaymentGateway.tsx
-import { Fragment as Fragment25, jsx as jsx211, jsxs as jsxs133 } from "react/jsx-runtime";
+import { Fragment as Fragment24, jsx as jsx212, jsxs as jsxs134 } from "react/jsx-runtime";
 var MethodIcon = ({ method }) => {
   switch (method) {
     case "credit-card":
     case "debit-card":
-      return /* @__PURE__ */ jsx211(CreditCard2, { size: 18 });
+      return /* @__PURE__ */ jsx212(CreditCard2, { size: 18 });
     case "paypal":
     case "mercadopago":
-      return /* @__PURE__ */ jsx211(Wallet, { size: 18 });
+      return /* @__PURE__ */ jsx212(Wallet, { size: 18 });
     case "bank-transfer":
-      return /* @__PURE__ */ jsx211(Landmark, { size: 18 });
+      return /* @__PURE__ */ jsx212(Landmark, { size: 18 });
   }
 };
 var BrandLabel = ({ brand }) => {
@@ -34730,7 +35548,7 @@ var BrandLabel = ({ brand }) => {
   };
   const label = labels[brand] || "";
   if (!label) return null;
-  return /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
+  return /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.cardBrand, children: label });
 };
 var CardForm = ({ form, compact }) => {
   const { card, brand, validation } = form;
@@ -34739,11 +35557,11 @@ var CardForm = ({ form, compact }) => {
     valid === false ? `${PAYMENT_CLASSES.fieldInput}--invalid` : "",
     valid === true ? `${PAYMENT_CLASSES.fieldInput}--valid` : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.form, children: [
-    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
-      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.cardNumber, children: [
-        /* @__PURE__ */ jsx211(
+  return /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.form, children: [
+    /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx212("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Card Number" }),
+      /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.cardNumber, children: [
+        /* @__PURE__ */ jsx212(
           "input",
           {
             type: "text",
@@ -34756,13 +35574,13 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 17 : 19
           }
         ),
-        /* @__PURE__ */ jsx211(BrandLabel, { brand })
+        /* @__PURE__ */ jsx212(BrandLabel, { brand })
       ] }),
-      validation.number === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
+      validation.number === false && /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid card number" })
     ] }),
-    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
-      /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
-      /* @__PURE__ */ jsx211(
+    /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.field, children: [
+      /* @__PURE__ */ jsx212("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Cardholder Name" }),
+      /* @__PURE__ */ jsx212(
         "input",
         {
           type: "text",
@@ -34773,12 +35591,12 @@ var CardForm = ({ form, compact }) => {
           autoComplete: "cc-name"
         }
       ),
-      validation.name === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
+      validation.name === false && /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.fieldError, children: "Name is required" })
     ] }),
-    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.fieldRow, children: [
-      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
-        /* @__PURE__ */ jsx211(
+    /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.fieldRow, children: [
+      /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx212("label", { className: PAYMENT_CLASSES.fieldLabel, children: "Expiry" }),
+        /* @__PURE__ */ jsx212(
           "input",
           {
             type: "text",
@@ -34791,11 +35609,11 @@ var CardForm = ({ form, compact }) => {
             maxLength: 5
           }
         ),
-        validation.expiry === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
+        validation.expiry === false && /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid date" })
       ] }),
-      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.field, children: [
-        /* @__PURE__ */ jsx211("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
-        /* @__PURE__ */ jsx211(
+      /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.field, children: [
+        /* @__PURE__ */ jsx212("label", { className: PAYMENT_CLASSES.fieldLabel, children: "CVV" }),
+        /* @__PURE__ */ jsx212(
           "input",
           {
             type: "password",
@@ -34808,38 +35626,38 @@ var CardForm = ({ form, compact }) => {
             maxLength: brand === "amex" ? 4 : 3
           }
         ),
-        validation.cvv === false && /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
+        validation.cvv === false && /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.fieldError, children: "Invalid CVV" })
       ] })
     ] })
   ] });
 };
 var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading }) => {
   if (method === "bank-transfer") {
-    return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethod, children: [
-      /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
-      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.bankDetails, children: [
-        /* @__PURE__ */ jsxs133("div", { children: [
-          /* @__PURE__ */ jsx211("strong", { children: "Bank:" }),
+    return /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.altMethod, children: [
+      /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.altMethodInfo, children: "Transfer the amount to the following account:" }),
+      /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.bankDetails, children: [
+        /* @__PURE__ */ jsxs134("div", { children: [
+          /* @__PURE__ */ jsx212("strong", { children: "Bank:" }),
           " ",
           BANK_DETAILS.bank
         ] }),
-        /* @__PURE__ */ jsxs133("div", { children: [
-          /* @__PURE__ */ jsx211("strong", { children: "Account:" }),
+        /* @__PURE__ */ jsxs134("div", { children: [
+          /* @__PURE__ */ jsx212("strong", { children: "Account:" }),
           " ",
           BANK_DETAILS.account
         ] }),
-        /* @__PURE__ */ jsxs133("div", { children: [
-          /* @__PURE__ */ jsx211("strong", { children: "Routing:" }),
+        /* @__PURE__ */ jsxs134("div", { children: [
+          /* @__PURE__ */ jsx212("strong", { children: "Routing:" }),
           " ",
           BANK_DETAILS.routing
         ] }),
-        /* @__PURE__ */ jsxs133("div", { children: [
-          /* @__PURE__ */ jsx211("strong", { children: "SWIFT:" }),
+        /* @__PURE__ */ jsxs134("div", { children: [
+          /* @__PURE__ */ jsx212("strong", { children: "SWIFT:" }),
           " ",
           BANK_DETAILS.swift
         ] }),
-        /* @__PURE__ */ jsxs133("div", { children: [
-          /* @__PURE__ */ jsx211("strong", { children: "Amount:" }),
+        /* @__PURE__ */ jsxs134("div", { children: [
+          /* @__PURE__ */ jsx212("strong", { children: "Amount:" }),
           " ",
           formatAmount(amount, currencySymbol)
         ] })
@@ -34847,13 +35665,13 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
     ] });
   }
   const label = method === "mercadopago" ? "Continue with MercadoPago" : "Continue with PayPal";
-  return /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethod, children: [
-    /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
+  return /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.altMethod, children: [
+    /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.altMethodInfo, children: [
       "You will be redirected to ",
       METHOD_LABELS[method],
       " to complete the payment."
     ] }),
-    /* @__PURE__ */ jsx211(
+    /* @__PURE__ */ jsx212(
       Button_default,
       {
         variant: "raised",
@@ -34867,15 +35685,15 @@ var AltMethodPanel = ({ method, amount, currencySymbol, color, onPay, loading })
   ] });
 };
 var STEP_LABELS = ["Method", "Details", "Confirm"];
-var StepIndicator = ({ current }) => /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
+var StepIndicator = ({ current }) => /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.stepIndicator, children: STEP_LABELS.map((label, i) => {
   const cls = [
     PAYMENT_CLASSES.step,
     i === current ? PAYMENT_CLASSES.stepActive : "",
     i < current ? PAYMENT_CLASSES.stepCompleted : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs133("div", { className: cls, children: [
-    /* @__PURE__ */ jsx211("span", { children: i + 1 }),
-    /* @__PURE__ */ jsx211("span", { children: label })
+  return /* @__PURE__ */ jsxs134("div", { className: cls, children: [
+    /* @__PURE__ */ jsx212("span", { children: i + 1 }),
+    /* @__PURE__ */ jsx212("span", { children: label })
   ] }, label);
 }) });
 var PaymentGateway = forwardRef56(
@@ -34901,7 +35719,7 @@ var PaymentGateway = forwardRef56(
     const rootClass = buildPaymentClasses(variant, color, className);
     const isStepped = variant === "stepped";
     const isCardMethod = form.method === "credit-card" || form.method === "debit-card";
-    const handleMethodSelect = useCallback100(
+    const handleMethodSelect = useCallback103(
       (m) => {
         form.setMethod(m);
         onMethodChange?.(m);
@@ -34909,7 +35727,7 @@ var PaymentGateway = forwardRef56(
       },
       [form, onMethodChange, isStepped]
     );
-    const handleSubmit = useCallback100(() => {
+    const handleSubmit = useCallback103(() => {
       if (isCardMethod) {
         if (!form.validateAll()) return;
       }
@@ -34929,16 +35747,16 @@ var PaymentGateway = forwardRef56(
       onPayment?.(data);
     }, [form, isCardMethod, amount, currency, onPayment]);
     if (success) {
-      return /* @__PURE__ */ jsx211("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.success, children: [
-        /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx211(Check3, { size: 48 }) }),
-        /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
+      return /* @__PURE__ */ jsx212("div", { ref, className: rootClass, role: "status", children: /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.success, children: [
+        /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.successIcon, children: /* @__PURE__ */ jsx212(Check3, { size: 48 }) }),
+        /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.successMessage, children: successMessage })
       ] }) });
     }
     if (isStepped) {
-      return /* @__PURE__ */ jsxs133("div", { ref, className: rootClass, children: [
-        /* @__PURE__ */ jsx211(StepIndicator, { current: form.step }),
-        /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.body, children: [
-          form.step === 0 && /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs133(
+      return /* @__PURE__ */ jsxs134("div", { ref, className: rootClass, children: [
+        /* @__PURE__ */ jsx212(StepIndicator, { current: form.step }),
+        /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.body, children: [
+          form.step === 0 && /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs134(
             "button",
             {
               type: "button",
@@ -34950,13 +35768,13 @@ var PaymentGateway = forwardRef56(
               ].filter(Boolean).join(" "),
               onClick: () => handleMethodSelect(m),
               children: [
-                /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx211(MethodIcon, { method: m }) }),
-                /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+                /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx212(MethodIcon, { method: m }) }),
+                /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
               ]
             },
             m
           )) }),
-          form.step === 1 && /* @__PURE__ */ jsx211(Fragment25, { children: isCardMethod ? /* @__PURE__ */ jsx211(CardForm, { form }) : /* @__PURE__ */ jsx211(
+          form.step === 1 && /* @__PURE__ */ jsx212(Fragment24, { children: isCardMethod ? /* @__PURE__ */ jsx212(CardForm, { form }) : /* @__PURE__ */ jsx212(
             AltMethodPanel,
             {
               method: form.method,
@@ -34967,8 +35785,8 @@ var PaymentGateway = forwardRef56(
               loading
             }
           ) }),
-          form.step === 2 && /* @__PURE__ */ jsxs133(Fragment25, { children: [
-            showOrderSummary && orderItems && /* @__PURE__ */ jsx211(
+          form.step === 2 && /* @__PURE__ */ jsxs134(Fragment24, { children: [
+            showOrderSummary && orderItems && /* @__PURE__ */ jsx212(
               OrderSummary,
               {
                 items: orderItems,
@@ -34976,7 +35794,7 @@ var PaymentGateway = forwardRef56(
                 currencySymbol
               }
             ),
-            /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx211(
+            /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx212(
               Button_default,
               {
                 variant: "raised",
@@ -34984,17 +35802,17 @@ var PaymentGateway = forwardRef56(
                 fullWidth: true,
                 onClick: handleSubmit,
                 disabled: loading || isCardMethod && !form.isCardFormValid,
-                children: loading ? /* @__PURE__ */ jsx211(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+                children: loading ? /* @__PURE__ */ jsx212(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
               }
             ) })
           ] })
         ] }),
-        error && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-          /* @__PURE__ */ jsx211(AlertCircle2, { size: 16 }),
-          /* @__PURE__ */ jsx211("span", { children: error })
+        error && /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+          /* @__PURE__ */ jsx212(AlertCircle2, { size: 16 }),
+          /* @__PURE__ */ jsx212("span", { children: error })
         ] }),
-        form.step > 0 && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.stepNav, children: [
-          /* @__PURE__ */ jsx211(
+        form.step > 0 && /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.stepNav, children: [
+          /* @__PURE__ */ jsx212(
             Button_default,
             {
               variant: "text",
@@ -35003,7 +35821,7 @@ var PaymentGateway = forwardRef56(
               children: "Back"
             }
           ),
-          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx211(
+          form.step < 2 && isCardMethod && /* @__PURE__ */ jsx212(
             Button_default,
             {
               variant: "outline",
@@ -35019,8 +35837,8 @@ var PaymentGateway = forwardRef56(
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxs133("div", { ref, className: rootClass, children: [
-      /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs133(
+    return /* @__PURE__ */ jsxs134("div", { ref, className: rootClass, children: [
+      /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.methods, role: "tablist", children: methods.map((m) => /* @__PURE__ */ jsxs134(
         "button",
         {
           type: "button",
@@ -35032,14 +35850,14 @@ var PaymentGateway = forwardRef56(
           ].filter(Boolean).join(" "),
           onClick: () => handleMethodSelect(m),
           children: [
-            /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx211(MethodIcon, { method: m }) }),
-            /* @__PURE__ */ jsx211("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
+            /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.methodIcon, children: /* @__PURE__ */ jsx212(MethodIcon, { method: m }) }),
+            /* @__PURE__ */ jsx212("span", { className: PAYMENT_CLASSES.methodLabel, children: METHOD_LABELS[m] })
           ]
         },
         m
       )) }),
-      /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.body, children: [
-        isCardMethod ? /* @__PURE__ */ jsx211(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx211(
+      /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.body, children: [
+        isCardMethod ? /* @__PURE__ */ jsx212(CardForm, { form, compact: variant === "compact" }) : /* @__PURE__ */ jsx212(
           AltMethodPanel,
           {
             method: form.method,
@@ -35050,7 +35868,7 @@ var PaymentGateway = forwardRef56(
             loading
           }
         ),
-        showOrderSummary && orderItems && /* @__PURE__ */ jsx211(
+        showOrderSummary && orderItems && /* @__PURE__ */ jsx212(
           OrderSummary,
           {
             items: orderItems,
@@ -35059,11 +35877,11 @@ var PaymentGateway = forwardRef56(
           }
         )
       ] }),
-      error && /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
-        /* @__PURE__ */ jsx211(AlertCircle2, { size: 16 }),
-        /* @__PURE__ */ jsx211("span", { children: error })
+      error && /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.error, role: "alert", children: [
+        /* @__PURE__ */ jsx212(AlertCircle2, { size: 16 }),
+        /* @__PURE__ */ jsx212("span", { children: error })
       ] }),
-      isCardMethod && /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx211(
+      isCardMethod && /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.submit, children: /* @__PURE__ */ jsx212(
         Button_default,
         {
           variant: "raised",
@@ -35071,31 +35889,31 @@ var PaymentGateway = forwardRef56(
           fullWidth: true,
           onClick: handleSubmit,
           disabled: loading,
-          children: loading ? /* @__PURE__ */ jsx211(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
+          children: loading ? /* @__PURE__ */ jsx212(Loader24, { size: 18, className: PAYMENT_CLASSES.spinner }) : `Pay ${formatAmount(amount, currencySymbol)}`
         }
       ) })
     ] });
   }
 );
 PaymentGateway.displayName = "PaymentGateway";
-var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summary, children: [
-  /* @__PURE__ */ jsx211("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
-  items.map((item, i) => /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summaryItem, children: [
-    /* @__PURE__ */ jsxs133("span", { children: [
+var OrderSummary = ({ items, amount, currencySymbol }) => /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.summary, children: [
+  /* @__PURE__ */ jsx212("div", { className: PAYMENT_CLASSES.summaryTitle, children: "Order Summary" }),
+  items.map((item, i) => /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.summaryItem, children: [
+    /* @__PURE__ */ jsxs134("span", { children: [
       item.name,
       " x",
       item.quantity
     ] }),
-    /* @__PURE__ */ jsx211("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
+    /* @__PURE__ */ jsx212("span", { children: formatAmount(item.price * item.quantity, currencySymbol) })
   ] }, `${item.name}-${i}`)),
-  /* @__PURE__ */ jsxs133("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
-    /* @__PURE__ */ jsx211("span", { children: "Total" }),
-    /* @__PURE__ */ jsx211("span", { children: formatAmount(amount, currencySymbol) })
+  /* @__PURE__ */ jsxs134("div", { className: PAYMENT_CLASSES.summaryTotal, children: [
+    /* @__PURE__ */ jsx212("span", { children: "Total" }),
+    /* @__PURE__ */ jsx212("span", { children: formatAmount(amount, currencySymbol) })
   ] })
 ] });
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { forwardRef as forwardRef57, useCallback as useCallback102 } from "react";
+import { forwardRef as forwardRef57, useCallback as useCallback105 } from "react";
 import { ShoppingCart as ShoppingCartIcon, Trash2 as Trash22, Plus as Plus3, Minus as Minus2, PackageOpen } from "lucide-react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.constants.ts
@@ -35145,7 +35963,7 @@ var CART_CLASSES = {
 };
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.hooks.ts
-import { useMemo as useMemo114, useState as useState75, useCallback as useCallback101 } from "react";
+import { useMemo as useMemo115, useState as useState77, useCallback as useCallback104 } from "react";
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.utils.ts
 function formatCurrency2(amount, symbol, _currency) {
@@ -35171,7 +35989,7 @@ function countItems(items) {
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.hooks.ts
 function useCartCalculations(items, taxRate, shippingCost, freeShippingThreshold) {
-  return useMemo114(() => {
+  return useMemo115(() => {
     const subtotal = calculateSubtotal(items);
     const tax = subtotal * taxRate;
     const qualifiesForFreeShipping = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
@@ -35182,8 +36000,8 @@ function useCartCalculations(items, taxRate, shippingCost, freeShippingThreshold
   }, [items, taxRate, shippingCost, freeShippingThreshold]);
 }
 function useItemRemoveAnimation() {
-  const [removingIds, setRemovingIds] = useState75(/* @__PURE__ */ new Set());
-  const startRemove = useCallback101(
+  const [removingIds, setRemovingIds] = useState77(/* @__PURE__ */ new Set());
+  const startRemove = useCallback104(
     (id, onComplete) => {
       setRemovingIds((prev) => new Set(prev).add(id));
       setTimeout(() => {
@@ -35201,7 +36019,7 @@ function useItemRemoveAnimation() {
 }
 
 // src/COMMERCE/ShoppingCart/ShoppingCart.tsx
-import { jsx as jsx212, jsxs as jsxs134 } from "react/jsx-runtime";
+import { jsx as jsx213, jsxs as jsxs135 } from "react/jsx-runtime";
 var CartItemRow = ({
   item,
   currencySymbol,
@@ -35234,15 +36052,15 @@ var CartItemRow = ({
     CART_CLASSES.item,
     isRemoving ? CART_CLASSES.itemRemoving : ""
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsxs134("div", { className: rowClass, role: "listitem", children: [
-    showImage && item.image && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx212("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
-    /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.itemInfo, children: [
-      /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemName, children: item.name }),
-      item.description && /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemDescription, children: item.description })
+  return /* @__PURE__ */ jsxs135("div", { className: rowClass, role: "listitem", children: [
+    showImage && item.image && /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.itemImage, children: /* @__PURE__ */ jsx213("img", { src: sanitizeUrl(item.image), alt: item.name }) }),
+    /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.itemInfo, children: [
+      /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.itemName, children: item.name }),
+      item.description && /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.itemDescription, children: item.description })
     ] }),
-    /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
-    showQuantityControls && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.itemQty, children: [
-      /* @__PURE__ */ jsx212(
+    /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.itemPrice, children: formatCurrency2(item.price, currencySymbol, currency) }),
+    showQuantityControls && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.itemQty, children: [
+      /* @__PURE__ */ jsx213(
         "button",
         {
           type: "button",
@@ -35250,11 +36068,11 @@ var CartItemRow = ({
           onClick: handleDecrement,
           disabled: item.quantity <= 1,
           "aria-label": "Decrease quantity",
-          children: /* @__PURE__ */ jsx212(Minus2, { size: 14 })
+          children: /* @__PURE__ */ jsx213(Minus2, { size: 14 })
         }
       ),
-      /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
-      /* @__PURE__ */ jsx212(
+      /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.itemQtyValue, children: item.quantity }),
+      /* @__PURE__ */ jsx213(
         "button",
         {
           type: "button",
@@ -35262,19 +36080,19 @@ var CartItemRow = ({
           onClick: handleIncrement,
           disabled: item.quantity >= (item.maxQuantity ?? 99),
           "aria-label": "Increase quantity",
-          children: /* @__PURE__ */ jsx212(Plus3, { size: 14 })
+          children: /* @__PURE__ */ jsx213(Plus3, { size: 14 })
         }
       )
     ] }),
-    /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
-    showRemoveButton && /* @__PURE__ */ jsx212(
+    /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.itemTotal, children: formatCurrency2(item.price * item.quantity, currencySymbol, currency) }),
+    showRemoveButton && /* @__PURE__ */ jsx213(
       "button",
       {
         type: "button",
         className: CART_CLASSES.itemRemove,
         onClick: handleRemove,
         "aria-label": `Remove ${item.name}`,
-        children: /* @__PURE__ */ jsx212(Trash22, { size: 16 })
+        children: /* @__PURE__ */ jsx213(Trash22, { size: 16 })
       }
     )
   ] });
@@ -35311,20 +36129,20 @@ var ShoppingCart2 = forwardRef57(
     );
     const { removingIds, startRemove } = useItemRemoveAnimation();
     const rootClass = buildCartClasses(variant, color, className);
-    const handleCheckout = useCallback102(() => {
+    const handleCheckout = useCallback105(() => {
       onCheckout?.(summary);
     }, [onCheckout, summary]);
     const isEmpty = items.length === 0;
     const qualifiesForFreeShipping = freeShippingThreshold > 0 && summary.subtotal >= freeShippingThreshold;
-    return /* @__PURE__ */ jsxs134("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
-      /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.header, children: [
-        /* @__PURE__ */ jsx212(ShoppingCartIcon, { size: 20 }),
-        /* @__PURE__ */ jsxs134("span", { children: [
+    return /* @__PURE__ */ jsxs135("div", { ref, className: rootClass, role: "region", "aria-label": "Shopping cart", children: [
+      /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.header, children: [
+        /* @__PURE__ */ jsx213(ShoppingCartIcon, { size: 20 }),
+        /* @__PURE__ */ jsxs135("span", { children: [
           "Cart (",
           summary.itemCount,
           ")"
         ] }),
-        !isEmpty && onClearCart && /* @__PURE__ */ jsx212(
+        !isEmpty && onClearCart && /* @__PURE__ */ jsx213(
           Button_default,
           {
             variant: "text",
@@ -35336,11 +36154,11 @@ var ShoppingCart2 = forwardRef57(
           }
         )
       ] }),
-      isEmpty && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.empty, children: [
-        /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx212(PackageOpen, { size: 48 }) }),
-        /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
+      isEmpty && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.empty, children: [
+        /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.emptyIcon, children: emptyIcon ?? /* @__PURE__ */ jsx213(PackageOpen, { size: 48 }) }),
+        /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.emptyMessage, children: emptyMessage })
       ] }),
-      !isEmpty && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx212(
+      !isEmpty && /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.items, role: "list", children: items.map((item) => /* @__PURE__ */ jsx213(
         CartItemRow,
         {
           item,
@@ -35356,30 +36174,30 @@ var ShoppingCart2 = forwardRef57(
         },
         item.id
       )) }),
-      !isEmpty && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summary, children: [
-        showSubtotal && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
+      !isEmpty && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.summary, children: [
+        showSubtotal && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryLabel, children: "Subtotal" }),
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.subtotal, currencySymbol, currency) })
         ] }),
-        showTax && taxRate > 0 && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsxs134("span", { className: CART_CLASSES.summaryLabel, children: [
+        showTax && taxRate > 0 && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsxs135("span", { className: CART_CLASSES.summaryLabel, children: [
             "Tax (",
             (taxRate * 100).toFixed(0),
             "%)"
           ] }),
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.tax, currencySymbol, currency) })
         ] }),
-        showShipping && /* @__PURE__ */ jsxs134("div", { className: CART_CLASSES.summaryRow, children: [
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
+        showShipping && /* @__PURE__ */ jsxs135("div", { className: CART_CLASSES.summaryRow, children: [
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryLabel, children: "Shipping" }),
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryValue, children: summary.shipping === 0 ? "Free" : formatCurrency2(summary.shipping, currencySymbol, currency) })
         ] }),
-        qualifiesForFreeShipping && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
-        /* @__PURE__ */ jsxs134("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
-          /* @__PURE__ */ jsx212("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
+        qualifiesForFreeShipping && /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.freeShipping, children: "Free shipping applied!" }),
+        /* @__PURE__ */ jsxs135("div", { className: `${CART_CLASSES.summaryRow} ${CART_CLASSES.summaryTotal}`, children: [
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryLabel, children: "Total" }),
+          /* @__PURE__ */ jsx213("span", { className: CART_CLASSES.summaryValue, children: formatCurrency2(summary.total, currencySymbol, currency) })
         ] })
       ] }),
-      !isEmpty && onCheckout && /* @__PURE__ */ jsx212("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs134(
+      !isEmpty && onCheckout && /* @__PURE__ */ jsx213("div", { className: CART_CLASSES.checkout, children: /* @__PURE__ */ jsxs135(
         Button_default,
         {
           variant: "raised",
@@ -35399,7 +36217,7 @@ var ShoppingCart2 = forwardRef57(
 ShoppingCart2.displayName = "ShoppingCart";
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { memo as memo2, useRef as useRef92, useState as useState77, useEffect as useEffect49 } from "react";
+import { memo as memo2, useRef as useRef94, useState as useState79, useEffect as useEffect50 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.constants.ts
 var DP_WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mi\xE9", "Jue", "Vie", "S\xE1b"];
@@ -35476,7 +36294,7 @@ var DP_CLASSES = {
 };
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
-import { useState as useState76, useCallback as useCallback103, useRef as useRef91, useEffect as useEffect48 } from "react";
+import { useState as useState78, useCallback as useCallback106, useRef as useRef93, useEffect as useEffect49 } from "react";
 
 // src/UTILS/DatePicker/DatePicker.utils.ts
 function toDateValue(date) {
@@ -35591,22 +36409,22 @@ function parseInitialMonth(initialMonth) {
 
 // src/UTILS/DatePicker/DatePicker.hooks.ts
 function useMonthNavigation(initialMonth) {
-  const [current, setCurrent] = useState76(
+  const [current, setCurrent] = useState78(
     () => parseInitialMonth(initialMonth)
   );
-  const goPrev = useCallback103(() => setCurrent(prevMonth), []);
-  const goNext = useCallback103(() => setCurrent(nextMonth), []);
-  const setMonth = useCallback103((cal) => setCurrent(cal), []);
+  const goPrev = useCallback106(() => setCurrent(prevMonth), []);
+  const goNext = useCallback106(() => setCurrent(nextMonth), []);
+  const setMonth = useCallback106((cal) => setCurrent(cal), []);
   const days = buildCalendarDays(current.year, current.month);
   return { current, days, goPrev, goNext, setMonth };
 }
 function useDropdown() {
-  const [isOpen, setIsOpen] = useState76(false);
-  const rootRef = useRef91(null);
-  const open = useCallback103(() => setIsOpen(true), []);
-  const close = useCallback103(() => setIsOpen(false), []);
-  const toggle = useCallback103(() => setIsOpen((p) => !p), []);
-  useEffect48(() => {
+  const [isOpen, setIsOpen] = useState78(false);
+  const rootRef = useRef93(null);
+  const open = useCallback106(() => setIsOpen(true), []);
+  const close = useCallback106(() => setIsOpen(false), []);
+  const toggle = useCallback106(() => setIsOpen((p) => !p), []);
+  useEffect49(() => {
     const onClickOutside = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) {
         close();
@@ -35618,27 +36436,27 @@ function useDropdown() {
   return { isOpen, open, close, toggle, rootRef };
 }
 function useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [selected, setSelected] = useState76(defaultValue ?? null);
-  const select = useCallback103((date) => {
+  const [selected, setSelected] = useState78(defaultValue ?? null);
+  const select = useCallback106((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     setSelected(date);
     onChange?.(toDateValue(date));
   }, [onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback103(() => {
+  const clear = useCallback106(() => {
     setSelected(null);
     onChange?.(null);
   }, [onChange]);
   return { selected, select, clear };
 }
 function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
-  const [startDate, setStartDate] = useState76(
+  const [startDate, setStartDate] = useState78(
     defaultValue?.startDate?.date ?? null
   );
-  const [endDate, setEndDate] = useState76(
+  const [endDate, setEndDate] = useState78(
     defaultValue?.endDate?.date ?? null
   );
-  const [selecting, setSelecting] = useState76("start");
-  const selectDate = useCallback103((date) => {
+  const [selecting, setSelecting] = useState78("start");
+  const selectDate = useCallback106((date) => {
     if (isDateDisabled(date, disabledDates, minDate, maxDate)) return;
     if (selecting === "start" || !startDate) {
       setStartDate(date);
@@ -35653,15 +36471,15 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
       onChange?.(buildRangeValue(s, e));
     }
   }, [selecting, startDate, onChange, disabledDates, minDate, maxDate]);
-  const clear = useCallback103(() => {
+  const clear = useCallback106(() => {
     setStartDate(null);
     setEndDate(null);
     setSelecting("start");
     onChange?.(buildRangeValue(null, null));
   }, [onChange]);
-  const isDayInRange = useCallback103((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
-  const isDayStart = useCallback103((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
-  const isDayEnd = useCallback103((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
+  const isDayInRange = useCallback106((date) => isBetween(date, startDate, endDate), [startDate, endDate]);
+  const isDayStart = useCallback106((date) => startDate ? isSameDay(date, startDate) : false, [startDate]);
+  const isDayEnd = useCallback106((date) => endDate ? isSameDay(date, endDate) : false, [endDate]);
   return {
     startDate,
     endDate,
@@ -35674,25 +36492,25 @@ function useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate) {
   };
 }
 function useMultipleDatePicker(onChange, onAccept) {
-  const [pickers, setPickers] = useState76([
+  const [pickers, setPickers] = useState78([
     { id: 1, value: null, initialMonth: /* @__PURE__ */ new Date() }
   ]);
-  const nextId = useRef91(2);
-  const addPicker = useCallback103(() => {
+  const nextId = useRef93(2);
+  const addPicker = useCallback106(() => {
     setPickers((prev) => [
       ...prev,
       { id: nextId.current++, value: null, initialMonth: /* @__PURE__ */ new Date() }
     ]);
   }, []);
-  const removePicker = useCallback103((id) => {
+  const removePicker = useCallback106((id) => {
     setPickers((prev) => prev.length > 1 ? prev.filter((p) => p.id !== id) : prev);
   }, []);
-  const updateValue = useCallback103((id, value) => {
+  const updateValue = useCallback106((id, value) => {
     setPickers((prev) => prev.map((p) => p.id === id ? { ...p, value } : p));
     const current = pickers.map((p) => p.id === id ? value : p.value).filter(Boolean);
     onChange?.(current);
   }, [pickers, onChange]);
-  const accept = useCallback103(() => {
+  const accept = useCallback106(() => {
     const values = pickers.map((p) => p.value).filter(Boolean);
     onAccept?.(values);
   }, [pickers, onAccept]);
@@ -35700,17 +36518,17 @@ function useMultipleDatePicker(onChange, onAccept) {
 }
 
 // src/UTILS/DatePicker/DatePicker.tsx
-import { Fragment as Fragment26, jsx as jsx213, jsxs as jsxs135 } from "react/jsx-runtime";
+import { Fragment as Fragment25, jsx as jsx214, jsxs as jsxs136 } from "react/jsx-runtime";
 var MonthYearPicker = ({ year, month, onSelect }) => {
-  const [selectedYear, setSelectedYear] = useState77(year);
-  const selectedYearRef = useRef92(null);
+  const [selectedYear, setSelectedYear] = useState79(year);
+  const selectedYearRef = useRef94(null);
   const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
   const years = Array.from({ length: 151 }, (_, i) => currentYear - 100 + i);
-  useEffect49(() => {
+  useEffect50(() => {
     selectedYearRef.current?.scrollIntoView({ block: "center", behavior: "auto" });
   }, []);
-  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.ymPicker, children: [
-    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.ymPicker, children: [
+    /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.yearList, children: years.map((y) => /* @__PURE__ */ jsx214(
       "button",
       {
         ref: y === selectedYear ? selectedYearRef : void 0,
@@ -35720,7 +36538,7 @@ var MonthYearPicker = ({ year, month, onSelect }) => {
       },
       y
     )) }),
-    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx213(
+    /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.monthGrid, children: DP_MONTHS_SHORT.map((m, i) => /* @__PURE__ */ jsx214(
       "button",
       {
         className: [DP_CLASSES.monthItem, i === month && selectedYear === year ? DP_CLASSES.monthItemSelected : ""].filter(Boolean).join(" "),
@@ -35749,24 +36567,24 @@ var Calendar2 = memo2(({
   nextDisabled = false,
   setMonth
 }) => {
-  const [mode, setMode] = useState77("days");
-  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.calendar, children: [
-    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.header, children: [
-      /* @__PURE__ */ jsx213("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
-      /* @__PURE__ */ jsxs135(
+  const [mode, setMode] = useState79("days");
+  return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.calendar, children: [
+    /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.header, children: [
+      /* @__PURE__ */ jsx214("button", { className: DP_CLASSES.navBtn, onClick: onPrev, disabled: prevDisabled || mode === "month-year", children: "\u2039" }),
+      /* @__PURE__ */ jsxs136(
         "button",
         {
           className: DP_CLASSES.title,
           onClick: () => setMode((m) => m === "days" ? "month-year" : "days"),
           children: [
             formatMonthTitle(year, month),
-            /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
+            /* @__PURE__ */ jsx214("span", { className: DP_CLASSES.titleCaret, children: mode === "month-year" ? "\u25B2" : "\u25BC" })
           ]
         }
       ),
-      /* @__PURE__ */ jsx213("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
+      /* @__PURE__ */ jsx214("button", { className: DP_CLASSES.navBtn, onClick: onNext, disabled: nextDisabled || mode === "month-year", children: "\u203A" })
     ] }),
-    mode === "month-year" ? /* @__PURE__ */ jsx213(
+    mode === "month-year" ? /* @__PURE__ */ jsx214(
       MonthYearPicker,
       {
         year,
@@ -35776,9 +36594,9 @@ var Calendar2 = memo2(({
           setMode("days");
         }
       }
-    ) : /* @__PURE__ */ jsxs135(Fragment26, { children: [
-      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx213("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
-      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
+    ) : /* @__PURE__ */ jsxs136(Fragment25, { children: [
+      /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.weekdays, children: DP_WEEKDAYS_SHORT.map((d, i) => /* @__PURE__ */ jsx214("div", { className: `${DP_CLASSES.weekday}${i === 0 ? ` ${DP_CLASSES.weekdaySun}` : ""}`, children: d }, d)) }),
+      /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.days, children: days.map((cell, idx) => {
         const isSel = selectedDate ? isSameDay(cell.date, selectedDate) : false;
         const isStart = startDate ? isSameDay(cell.date, startDate) : false;
         const isEnd = endDate ? isSameDay(cell.date, endDate) : false;
@@ -35796,7 +36614,7 @@ var Calendar2 = memo2(({
           isStart && !isEnd ? DP_CLASSES.dayRangeStart : "",
           !isStart && isEnd ? DP_CLASSES.dayRangeEnd : ""
         ].filter(Boolean).join(" ");
-        return /* @__PURE__ */ jsx213(
+        return /* @__PURE__ */ jsx214(
           "button",
           {
             className: cls,
@@ -35830,7 +36648,7 @@ var DatePicker = ({
   const { current, days, goPrev, goNext, setMonth } = useMonthNavigation(initialMonth);
   const { selected, select, clear } = useSingleDate(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = selected ? toDateValue(selected).display : "";
-  const calendar = /* @__PURE__ */ jsx213(
+  const calendar = /* @__PURE__ */ jsx214(
     Calendar2,
     {
       year: current.year,
@@ -35850,16 +36668,16 @@ var DatePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, children: [
-      name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.root, children: [
+      name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
       calendar,
-      clearable && selected && /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx213("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      clearable && selected && /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx214("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] });
   }
-  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
-    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: selected ? toDateValue(selected).formatted : "" }),
+    /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx214(
         "input",
         {
           readOnly: true,
@@ -35869,13 +36687,13 @@ var DatePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+      /* @__PURE__ */ jsx214("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.dropdown, children: calendar })
+    isOpen && /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.dropdown, children: calendar })
   ] });
 };
 DatePicker.displayName = "DatePicker";
-var StaticDatePicker = (props) => /* @__PURE__ */ jsx213(DatePicker, { ...props, inline: true });
+var StaticDatePicker = (props) => /* @__PURE__ */ jsx214(DatePicker, { ...props, inline: true });
 StaticDatePicker.displayName = "StaticDatePicker";
 var DateRangePicker = ({
   defaultValue,
@@ -35904,7 +36722,7 @@ var DateRangePicker = ({
     isDayEnd
   } = useDateRange(defaultValue, onChange, disabledDates, minDate, maxDate);
   const displayValue = startDate ? buildRangeValue(startDate, endDate).formattedRange || toDateValue(startDate).display : "";
-  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx213(
+  const calendarBase = (nav, prevDis = false, nextDis = false) => /* @__PURE__ */ jsx214(
     Calendar2,
     {
       year: nav.current.year,
@@ -35924,13 +36742,13 @@ var DateRangePicker = ({
     }
   );
   const singleCalendar = calendarBase(leftNav);
-  const dualCalendar = /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.dual, children: [
+  const dualCalendar = /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.dual, children: [
     calendarBase(
       leftNav,
       false,
       !discontinuous ? leftNav.current.month === rightNav.current.month - 1 && leftNav.current.year === rightNav.current.year : false
     ),
-    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.dualDivider }),
+    /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.dualDivider }),
     calendarBase(
       rightNav,
       !discontinuous ? rightNav.current.month === leftNav.current.month + 1 && rightNav.current.year === leftNav.current.year : false,
@@ -35938,20 +36756,20 @@ var DateRangePicker = ({
     )
   ] });
   const content = dual ? dualCalendar : singleCalendar;
-  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.root, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx213("input", { type: "hidden", name, value: displayValue }),
-    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx213("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
-      /* @__PURE__ */ jsx213("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
+  return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.root, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: displayValue }),
+    /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx214("input", { readOnly: true, className: DP_CLASSES.input, value: displayValue, placeholder, onClick: toggle }),
+      /* @__PURE__ */ jsx214("span", { className: DP_CLASSES.inputIcon, children: "\u{1F4C5}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.dropdown, children: [
+    isOpen && /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.dropdown, children: [
       content,
-      /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx213("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
+      /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.actions, children: /* @__PURE__ */ jsx214("button", { onClick: clear, style: { fontSize: 12, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--w3f-outline-variant)", cursor: "pointer", background: "transparent" }, children: "Limpiar" }) })
     ] })
   ] });
 };
 DateRangePicker.displayName = "DateRangePicker";
-var DateRangePickerDual = (props) => /* @__PURE__ */ jsx213(DateRangePicker, { ...props, dual: true });
+var DateRangePickerDual = (props) => /* @__PURE__ */ jsx214(DateRangePicker, { ...props, dual: true });
 DateRangePickerDual.displayName = "DateRangePickerDual";
 var MultipleDatePicker = ({
   onChange,
@@ -35965,8 +36783,8 @@ var MultipleDatePicker = ({
   name
 }) => {
   const { pickers, addPicker, removePicker, updateValue, accept } = useMultipleDatePicker(onChange, onAccept);
-  return /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multiple, children: [
-    name && /* @__PURE__ */ jsx213(
+  return /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.multiple, children: [
+    name && /* @__PURE__ */ jsx214(
       "input",
       {
         type: "hidden",
@@ -35974,12 +36792,12 @@ var MultipleDatePicker = ({
         value: JSON.stringify(pickers.map((p) => p.value?.formatted ?? ""))
       }
     ),
-    /* @__PURE__ */ jsx213("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multipleItem, children: [
-      /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.multipleItemLabel, children: [
+    /* @__PURE__ */ jsx214("div", { className: DP_CLASSES.multipleList, children: pickers.map((p, idx) => /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.multipleItem, children: [
+      /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.multipleItemLabel, children: [
         "Fecha ",
         idx + 1
       ] }),
-      pickers.length > 1 && /* @__PURE__ */ jsx213(
+      pickers.length > 1 && /* @__PURE__ */ jsx214(
         "button",
         {
           className: DP_CLASSES.multipleItemRemove,
@@ -35988,7 +36806,7 @@ var MultipleDatePicker = ({
           children: "\u2715"
         }
       ),
-      /* @__PURE__ */ jsx213(
+      /* @__PURE__ */ jsx214(
         StaticDatePicker,
         {
           defaultValue: p.value?.date ?? null,
@@ -36001,8 +36819,8 @@ var MultipleDatePicker = ({
       )
     ] }, p.id)) }),
     children,
-    /* @__PURE__ */ jsxs135("div", { className: DP_CLASSES.actions, children: [
-      pickers.length < maxPickers && /* @__PURE__ */ jsx213(
+    /* @__PURE__ */ jsxs136("div", { className: DP_CLASSES.actions, children: [
+      pickers.length < maxPickers && /* @__PURE__ */ jsx214(
         "button",
         {
           onClick: addPicker,
@@ -36010,7 +36828,7 @@ var MultipleDatePicker = ({
           children: "+ Agregar fecha"
         }
       ),
-      /* @__PURE__ */ jsx213(
+      /* @__PURE__ */ jsx214(
         "button",
         {
           onClick: accept,
@@ -36024,7 +36842,7 @@ var MultipleDatePicker = ({
 MultipleDatePicker.displayName = "MultipleDatePicker";
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { memo as memo3, useRef as useRef94 } from "react";
+import { memo as memo3, useRef as useRef96 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.constants.ts
 var TP_CLASSES = {
@@ -36063,7 +36881,7 @@ var ALL_MINUTES = Array.from({ length: 60 }, (_, i) => i);
 var ALL_SECONDS = Array.from({ length: 60 }, (_, i) => i);
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
-import { useState as useState78, useCallback as useCallback104, useRef as useRef93, useEffect as useEffect50 } from "react";
+import { useState as useState80, useCallback as useCallback107, useRef as useRef95, useEffect as useEffect51 } from "react";
 
 // src/UTILS/TimePicker/TimePicker.utils.ts
 function buildTimeValue(hours24, minutes, seconds, format) {
@@ -36114,12 +36932,12 @@ function formatTimeDisplay(hours24, minutes, seconds, format, showSeconds) {
 
 // src/UTILS/TimePicker/TimePicker.hooks.ts
 function useTPDropdown() {
-  const [isOpen, setIsOpen] = useState78(false);
-  const rootRef = useRef93(null);
-  const open = useCallback104(() => setIsOpen(true), []);
-  const close = useCallback104(() => setIsOpen(false), []);
-  const toggle = useCallback104(() => setIsOpen((p) => !p), []);
-  useEffect50(() => {
+  const [isOpen, setIsOpen] = useState80(false);
+  const rootRef = useRef95(null);
+  const open = useCallback107(() => setIsOpen(true), []);
+  const close = useCallback107(() => setIsOpen(false), []);
+  const toggle = useCallback107(() => setIsOpen((p) => !p), []);
+  useEffect51(() => {
     const onOut = (e) => {
       if (rootRef.current && !rootRef.current.contains(e.target)) close();
     };
@@ -36138,44 +36956,44 @@ function useTimePicker(options) {
     onChange
   } = options;
   const parsed = parsePartialTime(defaultValue);
-  const [hours24, setHours24] = useState78(parsed.hours24);
-  const [minutes, setMinutes] = useState78(parsed.minutes);
-  const [seconds, setSeconds] = useState78(parsed.seconds);
+  const [hours24, setHours24] = useState80(parsed.hours24);
+  const [minutes, setMinutes] = useState80(parsed.minutes);
+  const [seconds, setSeconds] = useState80(parsed.seconds);
   const ampm = hours24 < 12 ? "AM" : "PM";
   const hours12 = to12Hour(hours24);
   const hourValues = format === 12 ? HOURS_12 : HOURS_24;
   const minuteValues = generateRange(59, minuteStep);
   const secondValues = generateRange(59, secondStep);
-  const emitChange = useCallback104((h, m, s) => {
+  const emitChange = useCallback107((h, m, s) => {
     onChange?.(buildTimeValue(h, m, s, format));
   }, [onChange, format]);
-  const setHour = useCallback104((raw) => {
+  const setHour = useCallback107((raw) => {
     const h = format === 12 ? to24Hour(raw, ampm) : raw;
     setHours24(h);
     emitChange(h, minutes, seconds);
   }, [format, ampm, minutes, seconds, emitChange]);
-  const setMinute = useCallback104((m) => {
+  const setMinute = useCallback107((m) => {
     setMinutes(m);
     emitChange(hours24, m, seconds);
   }, [hours24, seconds, emitChange]);
-  const setSecond = useCallback104((s) => {
+  const setSecond = useCallback107((s) => {
     setSeconds(s);
     emitChange(hours24, minutes, s);
   }, [hours24, minutes, emitChange]);
-  const toggleAmPm = useCallback104(() => {
+  const toggleAmPm = useCallback107(() => {
     const newAmPm = ampm === "AM" ? "PM" : "AM";
     const newH = to24Hour(hours12, newAmPm);
     setHours24(newH);
     emitChange(newH, minutes, seconds);
   }, [ampm, hours12, minutes, seconds, emitChange]);
-  const setNow = useCallback104(() => {
+  const setNow = useCallback107(() => {
     const { hours24: h, minutes: m, seconds: s } = getNowValues();
     setHours24(h);
     setMinutes(m);
     setSeconds(s);
     emitChange(h, m, s);
   }, [emitChange]);
-  const clear = useCallback104(() => {
+  const clear = useCallback107(() => {
     setHours24(0);
     setMinutes(0);
     setSeconds(0);
@@ -36201,11 +37019,11 @@ function useTimePicker(options) {
 }
 function useScrollWheel(containerRef, values, selected, onSelect) {
   const ITEM_HEIGHT = 44;
-  const isMounted = useRef93(false);
-  const isProgrammatic = useRef93(false);
-  const programmaticTimer = useRef93(null);
-  const snapTimer = useRef93(null);
-  useEffect50(() => {
+  const isMounted = useRef95(false);
+  const isProgrammatic = useRef95(false);
+  const programmaticTimer = useRef95(null);
+  const snapTimer = useRef95(null);
+  useEffect51(() => {
     const el2 = containerRef.current;
     if (!el2) return;
     const idx = values.indexOf(selected);
@@ -36225,7 +37043,7 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
       }, 500);
     }
   }, [selected, values, containerRef]);
-  const onScroll = useCallback104(() => {
+  const onScroll = useCallback107(() => {
     if (isProgrammatic.current) return;
     const el2 = containerRef.current;
     if (!el2) return;
@@ -36242,13 +37060,13 @@ function useScrollWheel(containerRef, values, selected, onSelect) {
 }
 
 // src/UTILS/TimePicker/TimePicker.tsx
-import { Fragment as Fragment27, jsx as jsx214, jsxs as jsxs136 } from "react/jsx-runtime";
+import { Fragment as Fragment26, jsx as jsx215, jsxs as jsxs137 } from "react/jsx-runtime";
 var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
-  const scrollRef = useRef94(null);
+  const scrollRef = useRef96(null);
   const { onScroll } = useScrollWheel(scrollRef, values, selected, onSelect);
-  return /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.column, children: [
-    /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.columnLabel, children: label }),
-    /* @__PURE__ */ jsx214(
+  return /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.column, children: [
+    /* @__PURE__ */ jsx215("span", { className: TP_CLASSES.columnLabel, children: label }),
+    /* @__PURE__ */ jsx215(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -36259,9 +37077,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         children: "\u25B2"
       }
     ),
-    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
-      /* @__PURE__ */ jsx214("div", { style: { height: 44, flexShrink: 0 } }),
-      values.map((v) => /* @__PURE__ */ jsx214(
+    /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.scroll, ref: scrollRef, onScroll, children: [
+      /* @__PURE__ */ jsx215("div", { style: { height: 44, flexShrink: 0 } }),
+      values.map((v) => /* @__PURE__ */ jsx215(
         "button",
         {
           className: `${TP_CLASSES.item}${v === selected ? ` ${TP_CLASSES.itemSelected}` : ""}`,
@@ -36271,9 +37089,9 @@ var WheelColumn = memo3(({ label, values, selected, onSelect, pad = 2 }) => {
         },
         v
       )),
-      /* @__PURE__ */ jsx214("div", { style: { height: 44, flexShrink: 0 } })
+      /* @__PURE__ */ jsx215("div", { style: { height: 44, flexShrink: 0 } })
     ] }),
-    /* @__PURE__ */ jsx214(
+    /* @__PURE__ */ jsx215(
       "button",
       {
         className: TP_CLASSES.stepBtn,
@@ -36314,10 +37132,10 @@ var TimePickerPanel = memo3(({
     clear
   } = state;
   const displayH = format === 12 ? hours12 : hours24;
-  return /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.panel, children: [
-    /* @__PURE__ */ jsx214("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
-    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.wheels, children: [
-      /* @__PURE__ */ jsx214(
+  return /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.panel, children: [
+    /* @__PURE__ */ jsx215("div", { className: TP_CLASSES.display, children: /* @__PURE__ */ jsx215("span", { className: TP_CLASSES.displayTime, children: currentValue.display }) }),
+    /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.wheels, children: [
+      /* @__PURE__ */ jsx215(
         WheelColumn,
         {
           label: "Horas",
@@ -36326,8 +37144,8 @@ var TimePickerPanel = memo3(({
           onSelect: setHour
         }
       ),
-      /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.separator, children: ":" }),
-      /* @__PURE__ */ jsx214(
+      /* @__PURE__ */ jsx215("span", { className: TP_CLASSES.separator, children: ":" }),
+      /* @__PURE__ */ jsx215(
         WheelColumn,
         {
           label: "Minutos",
@@ -36336,9 +37154,9 @@ var TimePickerPanel = memo3(({
           onSelect: setMinute
         }
       ),
-      showSeconds && /* @__PURE__ */ jsxs136(Fragment27, { children: [
-        /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.separator, children: ":" }),
-        /* @__PURE__ */ jsx214(
+      showSeconds && /* @__PURE__ */ jsxs137(Fragment26, { children: [
+        /* @__PURE__ */ jsx215("span", { className: TP_CLASSES.separator, children: ":" }),
+        /* @__PURE__ */ jsx215(
           WheelColumn,
           {
             label: "Segundos",
@@ -36348,8 +37166,8 @@ var TimePickerPanel = memo3(({
           }
         )
       ] }),
-      format === 12 && /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.ampm, children: [
-        /* @__PURE__ */ jsx214(
+      format === 12 && /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.ampm, children: [
+        /* @__PURE__ */ jsx215(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "AM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -36357,7 +37175,7 @@ var TimePickerPanel = memo3(({
             children: "AM"
           }
         ),
-        /* @__PURE__ */ jsx214(
+        /* @__PURE__ */ jsx215(
           "button",
           {
             className: `${TP_CLASSES.ampmBtn}${ampm === "PM" ? ` ${TP_CLASSES.ampmBtnActive}` : ""}`,
@@ -36367,8 +37185,8 @@ var TimePickerPanel = memo3(({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.actions, children: [
-      showNow && /* @__PURE__ */ jsx214(
+    /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.actions, children: [
+      showNow && /* @__PURE__ */ jsx215(
         "button",
         {
           onClick: () => {
@@ -36378,7 +37196,7 @@ var TimePickerPanel = memo3(({
           children: "Ahora"
         }
       ),
-      onClear && /* @__PURE__ */ jsx214(
+      onClear && /* @__PURE__ */ jsx215(
         "button",
         {
           onClick: () => {
@@ -36389,7 +37207,7 @@ var TimePickerPanel = memo3(({
           children: "Limpiar"
         }
       ),
-      onAccept && /* @__PURE__ */ jsx214(
+      onAccept && /* @__PURE__ */ jsx215(
         "button",
         {
           onClick: () => {
@@ -36436,7 +37254,7 @@ var TimePicker = ({
     format,
     showSeconds
   );
-  const panel = /* @__PURE__ */ jsx214(
+  const panel = /* @__PURE__ */ jsx215(
     TimePickerPanel,
     {
       state,
@@ -36449,16 +37267,16 @@ var TimePicker = ({
     }
   );
   if (inline) {
-    return /* @__PURE__ */ jsxs136("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
-      name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    return /* @__PURE__ */ jsxs137("div", { className: `${TP_CLASSES.inline}${className ? ` ${className}` : ""}`, children: [
+      name && /* @__PURE__ */ jsx215("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
       panel,
       children
     ] });
   }
-  return /* @__PURE__ */ jsxs136("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
-    name && /* @__PURE__ */ jsx214("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
-    /* @__PURE__ */ jsxs136("div", { className: TP_CLASSES.inputWrapper, children: [
-      /* @__PURE__ */ jsx214(
+  return /* @__PURE__ */ jsxs137("div", { className: `${TP_CLASSES.root}${className ? ` ${className}` : ""}`, ref: rootRef, children: [
+    name && /* @__PURE__ */ jsx215("input", { type: "hidden", name, value: state.currentValue.formatted24 }),
+    /* @__PURE__ */ jsxs137("div", { className: TP_CLASSES.inputWrapper, children: [
+      /* @__PURE__ */ jsx215(
         "input",
         {
           readOnly: true,
@@ -36468,14 +37286,14 @@ var TimePicker = ({
           onClick: toggle
         }
       ),
-      /* @__PURE__ */ jsx214("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
+      /* @__PURE__ */ jsx215("span", { className: TP_CLASSES.inputIcon, children: "\u{1F550}" })
     ] }),
-    isOpen && /* @__PURE__ */ jsx214("div", { className: TP_CLASSES.dropdown, children: panel }),
+    isOpen && /* @__PURE__ */ jsx215("div", { className: TP_CLASSES.dropdown, children: panel }),
     children
   ] });
 };
 TimePicker.displayName = "TimePicker";
-var StaticTimePicker = (props) => /* @__PURE__ */ jsx214(TimePicker, { ...props, inline: true });
+var StaticTimePicker = (props) => /* @__PURE__ */ jsx215(TimePicker, { ...props, inline: true });
 StaticTimePicker.displayName = "StaticTimePicker";
 export {
   Accordion,

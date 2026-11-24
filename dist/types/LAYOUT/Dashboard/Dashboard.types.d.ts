@@ -87,9 +87,13 @@ export interface DashboardProps {
     /** Texto sin tarjetas */
     emptyText?: string;
     /** Al soltar una tarjeta que se movió o cambió de tamaño: el layout nuevo (ya acomodado) */
-    onLayoutChange?: (layout: DashboardTileLayout[]) => void;
+    /** Al soltar: el layout nuevo, la tarjeta que se arrastró y si se movió o se le cambió el tamaño */
+    onLayoutChange?: (layout: DashboardTileLayout[], id?: string, mode?: 'move' | 'resize') => void;
     /** ✕ de una tarjeta */
     onRemove?: (id: string) => void;
+    /** Clic en una tarjeta = elegirla (onSelect) aunque no sea `editable` (vista previa en vivo: Tableta / Teléfono).
+     *  Por defecto, igual que `editable`. En pantalla completa, nunca. */
+    selectable?: boolean;
     /** 0022 B45.1: la tarjeta elegida (borde de selección; no sale en el HTML / PDF). */
     selectedId?: string | null;
     /** Clic en una tarjeta (editable): su id y dónde está en la pantalla (para abrir sus propiedades al lado); clic en el
@@ -116,9 +120,29 @@ export interface DashboardProps {
     snapshotPageCss?: string;
     /** La copia pedida: un documento HTML autocontenido */
     onSnapshot?: (html: string, request: number | string) => void;
+    /** w3f-data-analysis WR W-g: cada tarjeta con un botón ⤢ «Ver en grande» (toda la pantalla; Esc o ✕ vuelve) */
+    expandable?: boolean;
+    /** w3f-data-analysis WR W-a: las secciones del informe, en orden (cada una empieza en su tarjeta `tileId`) */
+    sections?: readonly DashboardSection[];
+    /** Cómo se navega entre secciones: sin índice, índice a la izquierda, arriba, o pestañas (una sección por vez
+     *  cuando no se edita: al presentar; editando y en la copia, como «arriba») */
+    navigation?: 'none' | 'side' | 'top' | 'tabs';
+    /** Pestañas: la sección que se ve (sin valor: la primera) */
+    activeSection?: string;
+    /** Pestañas: clic en otra sección */
+    onSectionChange?: (id: string) => void;
+    /** w3f-data-analysis PP: al presentar con pestañas (diapositivas), la animación al pasar de una a otra; ← / → /
+     *  espacio pasan y la barra muestra «k / n» */
+    slideTransition?: 'fundido' | 'deslizar' | 'zoom' | 'ninguna';
     children?: React.ReactNode;
     className?: string;
     style?: React.CSSProperties;
+}
+export interface DashboardSection {
+    id: string;
+    label: string;
+    /** La tarjeta donde empieza (la del título de la sección) */
+    tileId: string;
 }
 export interface DashboardTileProps {
     /** El id de su lugar en `layout` */

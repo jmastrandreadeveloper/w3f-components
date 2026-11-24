@@ -3,6 +3,9 @@ import type { ChartMargin, ColorSchemeName, InnerDims } from './types';
  *  (descontando la leyenda, los títulos de los ejes y lo demás que haya adentro): nunca desborda ni deja barra de
  *  desplazamiento (las tarjetas del tablero). Sin la clase, el alto es el de siempre (`height` o 300). */
 export declare const CHART_FILL_CLASS = "w3f-chart-fill";
+/** B61: como CHART_FILL_CLASS, pero solo cuando la ventana que la contiene está maximizada (al restaurarla, el gráfico
+ *  vuelve a su alto). */
+export declare const CHART_FILL_MAX_CLASS = "w3f-chart-fill-max";
 /**
  * Observe a ref'd element's box and return its current width.
  * Falls back to an explicit `propWidth` if provided.

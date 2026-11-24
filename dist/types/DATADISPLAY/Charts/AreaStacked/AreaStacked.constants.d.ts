@@ -5,7 +5,7 @@ export declare const AREA_STACKED_DEFAULTS: {
     readonly showXAxis: true;
     readonly showYAxis: true;
     readonly showGrid: true;
-    readonly showTooltip: false;
+    readonly showTooltip: true;
     readonly showLegend: true;
     readonly unstyled: false;
 };

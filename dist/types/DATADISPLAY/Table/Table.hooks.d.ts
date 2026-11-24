@@ -12,6 +12,7 @@ export declare const useTablePagination: (totalItems: number, initialPageSize: n
     currentPage: number;
     setCurrentPage: import("react").Dispatch<import("react").SetStateAction<number>>;
     pageSize: number;
+    setPageSize: import("react").Dispatch<import("react").SetStateAction<number>>;
     totalPages: number;
     handlePageSizeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     resetPage: () => void;

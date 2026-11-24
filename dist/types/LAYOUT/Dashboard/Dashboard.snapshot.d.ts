@@ -7,6 +7,8 @@ export interface SnapshotOptions {
     background?: string;
     /** CSS de página para imprimir (p. ej. "@page { size: A4 landscape; margin: 10mm }") */
     pageCss?: string;
+    /** Sin páginas (Web): la grilla de la copia se acomoda en una tableta (dos columnas, w3f-dashboard-grid--flow) */
+    flow?: boolean;
 }
 /** Lo que solo sirve para editar y no va en la copia: controles de la tarjeta, cortes de página, flechas de
  *  ordenar de las tablas y todo lo marcado con `w3f-dashboard-noprint` (avisos de edición). */

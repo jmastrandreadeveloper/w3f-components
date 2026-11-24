@@ -12,6 +12,8 @@ export interface SplitProps {
      *  para cuando se despliegue). w3f-data-analysis: la pestaña Proyecto muestra el escritorio solo; la pestaña
      *  Aprendiendo, la lección a la izquierda y el mismo escritorio a la derecha. */
     collapsed?: boolean;
+    /** Nombre del separador para los lectores de pantalla (0031 MWG3). */
+    ariaLabel?: string;
     className?: string;
     style?: React.CSSProperties;
 }

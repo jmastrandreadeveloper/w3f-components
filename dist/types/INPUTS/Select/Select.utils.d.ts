@@ -5,4 +5,5 @@ export declare function isOptionGroup(item: SelectOptionOrGroup): item is Extrac
 export declare function buildSelectClasses(hasLeading: boolean, hasTrailing: boolean, unstyled?: boolean, variant?: string): string;
 export declare function buildLabelClasses(isFloating: boolean, showShifted: boolean): string;
 export declare function hasSelectValue(value: string | string[] | undefined): boolean;
+export declare function sortSelectOptions(items: SelectOptionOrGroup[]): SelectOptionOrGroup[];
 //# sourceMappingURL=Select.utils.d.ts.map

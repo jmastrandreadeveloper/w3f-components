@@ -4,6 +4,7 @@ export declare const STREAMGRAPH_DEFAULTS: {
     readonly fillOpacity: 0.8;
     readonly showXAxis: true;
     readonly showLegend: true;
+    readonly showTooltip: true;
     readonly unstyled: false;
 };
 //# sourceMappingURL=Streamgraph.constants.d.ts.map

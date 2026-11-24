@@ -7,6 +7,7 @@ import React from 'react';
  *   ### Small title    → bold line
  *   - item             → bullet
  *   **bold**, *italic*
+ *   [text](https://…)  → link (only http(s):, mailto: or #anchor; anything else stays as text)
  *   (blank line)       → space between paragraphs
  *
  * No HTML is read: the text is parsed into React elements, so it is safe with any text.
@@ -20,6 +21,8 @@ export interface RichTextProps {
     color?: string;
     /** Base font weight (the paragraphs; titles are always bold). */
     weight?: number | string;
+    /** 'text' (underlined) or 'button' (the links look like buttons: a «go to» tile of a board). */
+    linkStyle?: 'text' | 'button';
     className?: string;
     style?: React.CSSProperties;
 }
@@ -33,8 +36,11 @@ export type RichRun = {
     text: string;
     bold?: boolean;
     italic?: boolean;
+    href?: string;
 };
-/** **bold** and *italic* inside a line (unclosed marks stay as text). */
+/** A link target that is safe to put in an <a href>: http(s):, mailto: or #anchor. */
+export declare function safeHref(href: string): string | null;
+/** **bold**, *italic* and [text](link) inside a line (unclosed marks and unsafe links stay as text). */
 export declare function parseInline(line: string): RichRun[];
 /** The blocks of a text (one per line; consecutive blank lines are one gap). */
 export declare function parseRichText(text: string): RichBlock[];
